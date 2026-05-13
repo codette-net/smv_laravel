@@ -1,58 +1,135 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SMV Platform Rebuild
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
 
-## About Laravel
+This repository is part of the Sales en Marketing Vacatures (SMV) platform rebuild.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The project is split into two separate repositories:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- `smv_wp`
+  - WordPress frontend
+  - marketing pages
+  - design and content management
+  - acts as the public website layer
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- `smv_laravel`
+  - Laravel backend application
+  - job board logic
+  - feeds/imports
+  - employer flows
+  - future CRM and automation integrations
 
-## Learning Laravel
+The goal is to gradually move core business logic away from a plugin-heavy WordPress setup into a more maintainable Laravel architecture.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Current Stack
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### WordPress
+- WordPress
+- Custom theme/frontend
+- Elementor (temporary / partial usage)
+- Existing job board functionality
 
-## Agentic Development
+### Laravel
+- Laravel 12
+- Filament
+- Spatie packages
+- Queue system
+- Future API integrations
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
-```bash
-composer require laravel/boost --dev
+## High Level Architecture
 
-php artisan boost:install
+```text
+Visitors
+    ↓
+WordPress frontend (smv_wp)
+    ↓
+Laravel backend (smv_laravel)
+    ↓
+Jobs / Imports / Employer logic
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+WordPress is responsible for:
+- public pages
+- landing pages
+- branding
+- SEO content
 
-## Contributing
+Laravel is responsible for:
+- jobs
+- feeds/imports
+- employer functionality
+- automation
+- APIs
+- future integrations
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Planned Features
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Phase 1
+- Stable rebuild of current platform
+- Multiple feed imports
+- Job listing pages
+- Employer job submissions
+- Basic payment flow
+- Filament admin panel
+- Improved maintainability
 
-## Security Vulnerabilities
+### Phase 2
+- CRM integrations
+- Newsletter flows
+- Social media automation
+- Analytics improvements
+- Better employer tooling
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Phase 3
+- Advanced automation
+- Candidate flows
+- Reporting
+- Marketing integrations
+- Subscription/payment improvements
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Repository Structure
+
+### smv_wp
+Handles:
+- WordPress frontend
+- theme
+- templates
+- marketing pages
+- SEO pages
+
+### smv_laravel
+Handles:
+- jobs
+- imports
+- employer dashboard
+- APIs
+- integrations
+- admin tooling
+
+---
+
+## Goals
+
+- Reduce plugin dependency
+- Improve stability
+- Improve maintainability
+- Make imports reliable
+- Prepare platform for scaling
+- Separate frontend and business logic
+- Reduce operational overhead
+
+---
+
+## Notes
+
+The current production platform is still active during rebuild.
+
+Development happens incrementally while maintaining business continuity.

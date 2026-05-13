@@ -5,8 +5,6 @@ php artisan make:filament-user
 composer require bezhansalleh/filament-shield
 php artisan shield:install
 
-
-
 php artisan queue:table
 php artisan queue:failed-table
 php artisan migrate
