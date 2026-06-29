@@ -33,6 +33,15 @@ return new class extends Migration
             $table->boolean('is_filled')->default(false);
             $table->string('status')->default(\App\Enums\VacancyStatus::Draft->value);
             $table->string('source')->default(\App\Enums\VacancySource::Manual->value);
+            $table->index('status');
+            $table->index('location');
+            $table->index('is_featured');
+            $table->index('expires_at');
+            $table->index('deadline_at');
+            $table->index(['company_id', 'status']);
+            $table->index(['status', 'expires_at']);
+            $table->index(['status', 'is_featured']);
+            $table->unique(['source', 'source_reference']);
             $table->softDeletes();
 
             $table->timestamps();

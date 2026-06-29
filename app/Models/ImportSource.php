@@ -21,4 +21,9 @@ class ImportSource extends Model
         'is_active',
         'last_imported_at'
     ];
+
+    protected $casts = [
+        'credentials' => 'encrypted:array',
+        'default_mapping' => 'array'
+    ];
 }

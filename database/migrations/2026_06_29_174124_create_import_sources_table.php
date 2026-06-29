@@ -23,6 +23,9 @@ return new class extends Migration
             $table->json('default_mapping')->nullable();
             $table->boolean('is_active')->default(false);
             $table->datetime('last_imported_at')->nullable();
+            $table->index('type');
+            $table->index('is_active');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

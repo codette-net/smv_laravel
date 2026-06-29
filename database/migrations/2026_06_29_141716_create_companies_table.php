@@ -48,6 +48,9 @@ return new class extends Migration {
                 ->default(CompanyStatus::Draft->value);
             $table->boolean('is_featured')
                 ->default(false);
+            $table->index('status');
+            $table->index('is_featured');
+            $table->index(['status', 'is_featured']);
             $table->softDeletes();
             $table->timestamps();
         });

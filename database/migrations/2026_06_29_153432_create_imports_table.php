@@ -23,6 +23,11 @@ return new class extends Migration
             $table->json('mapping')->nullable();
             $table->datetime('started_at')->nullable();
             $table->datetime('finished_at')->nullable();
+            $table->index('source');
+            $table->index('type');
+            $table->index('status');
+            $table->index('started_at');
+            $table->index(['source', 'status']);
             $table->softDeletes();
 
             $table->timestamps();

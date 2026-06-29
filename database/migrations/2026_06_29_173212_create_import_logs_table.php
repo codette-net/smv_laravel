@@ -17,6 +17,8 @@ return new class extends Migration {
                 ->default(\App\Enums\ImportLogLevel::Info->value);
             $table->text('message');
             $table->json('context')->nullable();
+            $table->index('level');
+            $table->index(['import_id', 'level']);
             $table->timestamps();
         });
     }

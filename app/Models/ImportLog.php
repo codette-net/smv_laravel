@@ -16,4 +16,8 @@ class ImportLog extends Model
         'message',
         'context'
     ];
+
+    protected $casts = [
+        'context' => 'array'
+    ];
 }

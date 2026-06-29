@@ -19,4 +19,8 @@ class Import extends Model
         'started_at',
         'finished_at'
     ];
+
+    protected $casts = [
+        'mapping' => 'array'
+    ];
 }
