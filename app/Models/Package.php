@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Package extends Model
 {
@@ -23,4 +24,9 @@ class Package extends Model
         'is_active',
         'sort_order'
     ];
+
+    public function order_items():hasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

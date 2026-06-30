@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Application extends Model
 {
@@ -22,4 +23,11 @@ class Application extends Model
         'motivation',
         'status'
     ];
+
+    public function vacancy(): BelongsTo
+    {
+        return $this->belongsTo(Vacancy::class);
+    }
+
+
 }

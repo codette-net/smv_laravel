@@ -26,4 +26,9 @@ class ImportSource extends Model
         'credentials' => 'encrypted:array',
         'default_mapping' => 'array'
     ];
+
+    public function imports()
+    {
+        return $this->hasMany(Import::class);
+    }
 }

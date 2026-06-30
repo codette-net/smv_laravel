@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Import extends Model
 {
@@ -23,4 +25,15 @@ class Import extends Model
     protected $casts = [
         'mapping' => 'array'
     ];
+
+    public function import_source(): BelongsTo
+    {
+        return $this->belongsTo(ImportSource::class);
+    }
+
+    public function import_logs(): HasMany
+    {
+        return $this->hasMany(ImportLog::class);
+    }
+
 }
