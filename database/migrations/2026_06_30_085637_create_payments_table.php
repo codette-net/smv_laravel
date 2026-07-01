@@ -23,7 +23,7 @@ return new class extends Migration
             $table->datetime('paid_at')->nullable();
             $table->json('raw_payload')->nullable();
             $table->index('status');
-            $table->index(['provider', 'provider_payment_id']);
+            $table->index(['payment_provider', 'payment_id']);
             $table->index(['order_id', 'status']);
             $table->softDeletes();
             $table->timestamps();

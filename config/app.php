@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+//    dev settings
+    'dev_pw' => env('DEV_PW', 'dev'),
+
 ];

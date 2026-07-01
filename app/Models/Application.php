@@ -29,5 +29,10 @@ class Application extends Model
         return $this->belongsTo(Vacancy::class);
     }
 
+    public function candidate(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'candidate_id');
+    }
+
 
 }

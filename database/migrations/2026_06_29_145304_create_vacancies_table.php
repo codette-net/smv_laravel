@@ -28,7 +28,6 @@ return new class extends Migration
             $table->string('source_reference')->nullable();
             $table->dateTime('deadline_at')->nullable();
             $table->dateTime('expires_at')->nullable();
-            $table->string('application_url')->nullable();
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_filled')->default(false);
             $table->string('status')->default(\App\Enums\VacancyStatus::Draft->value);
