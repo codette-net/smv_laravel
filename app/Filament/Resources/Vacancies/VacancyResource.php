@@ -20,6 +20,8 @@ class VacancyResource extends Resource
 {
     protected static ?string $model = Vacancy::class;
 
+    protected static ?string $navigationLabel = 'Vacatures';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocument;
 
     protected static ?int $navigationSort = 3;

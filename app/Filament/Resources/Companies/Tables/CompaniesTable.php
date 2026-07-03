@@ -11,6 +11,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 class CompaniesTable
@@ -23,6 +24,8 @@ class CompaniesTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
+                    ->sortable()
+                    ->limit(25, '...')
                     ->searchable(),
 //                TextColumn::make('slug')
 //                    ->searchable(),
@@ -42,18 +45,20 @@ class CompaniesTable
                         'suspended' => 'gray',
                         'banned' => 'danger',
                     }),
+                TextColumn::make('location')
+                    ->searchable()
+                ->sortable(),
+
                 IconColumn::make('is_featured')
                     ->boolean(),
 //                TextColumn::make('phone')
 //                    ->searchable(),
-                TextColumn::make('website')
-                    ->searchable()
-                    ->limit(30, '...'),
+//                TextColumn::make('website')
+//                    ->searchable()
+//                    ->limit(30, '...'),
 //                TextColumn::make('logo')
 //                    ->searchable(),
 //                ImageColumn::make('cover_image'),
-                TextColumn::make('location')
-                    ->searchable(),
 
 
                 TextColumn::make('deleted_at')
@@ -77,8 +82,8 @@ class CompaniesTable
                    ViewAction::make(),
                    EditAction::make(),
                    DeleteAction::make(),
-               ])
-            ])
+               ]),
+            ],position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

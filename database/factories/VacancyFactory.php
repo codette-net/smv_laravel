@@ -26,6 +26,7 @@ class VacancyFactory extends Factory
             'company_id' => fake()->numberBetween(1, 6),
             'title' => $title,
             'slug' => $slug,
+            'location' => fake()->randomElement(['Utrecht', 'Den Haag', 'Amsterdam', 'Eindhoven', 'Rotterdam']),
             'description' => fake()->paragraph(10),
             'application_email' => fake()->unique()->safeEmail(),
             'application_url' => fake()->url(),

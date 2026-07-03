@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Vacancy extends Model
 {
     /** @use HasFactory<\Database\Factories\VacancyFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',
@@ -34,6 +35,8 @@ class Vacancy extends Model
         'source'
     ];
 
+
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
@@ -47,5 +50,10 @@ class Vacancy extends Model
     public function categories(): morphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
+    }
+
+    public function vacancy_url(): string
+    {
+        return '/vacature/' . $this->slug;
     }
 }

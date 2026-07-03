@@ -277,6 +277,10 @@
                                 <h2 class="text-3xl font-bold font-inter mb-10">Latest jobs</h2>
                                 <!-- List container -->
                                 <div class="flex flex-col">
+                                    lala
+                                    @foreach($vacancies as $vac):
+                                {{ $vac['title']  }}
+lala
                                     <!-- Item -->
                                     <div class="nth-[-n+12]:-order-1 group">
                                         <div class="px-4 py-6 bg-indigo-100 rounded-xl">
@@ -312,294 +316,300 @@
                                             </div>
                                         </div>
                                     </div>
+
+
+
+                                    <p>geen vacatures gevonden</p>
+
+                                    @endforeach
                                     <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-02.svg" width="56" height="56" alt="Company 02" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Vimeo</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Software Engineer Backend</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">2h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-03.svg" width="56" height="56" alt="Company 03" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Robinhood</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Site Reliability Engineer</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">3h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-04.svg" width="56" height="56" alt="Company 04" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">GitHub</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Remote Shopify Website Tester</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">$100K - $170K</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇺🇸 NYC</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">4h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-04.svg" width="56" height="56" alt="Company 04" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">GitHub</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Remote Senior Software Engineer</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">$100K - $170K</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇺🇸 NYC</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">7h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-01.svg" width="56" height="56" alt="Company 01" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Qonto</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Web App Designer</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Contract</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇬🇧 London, UK</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">12h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-05.svg" width="56" height="56" alt="Company 05" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Revolut</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Ruby on Rails Engineer</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">12h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-06.svg" width="56" height="56" alt="Company 06" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">HSBC</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Software Engineer Backend</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇮🇹 Milan, IT</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">20h</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-07.svg" width="56" height="56" alt="Company 07" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Twitter</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">React.js Software Developer</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">1d</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Item -->
-                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
-                                        <div class="px-4 py-6">
-                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">
-                                                <div class="shrink-0">
-                                                    <img src="./images/company-icon-08.svg" width="56" height="56" alt="Company 08" />
-                                                </div>
-                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">
-                                                    <div>
-                                                        <div class="flex items-start space-x-2">
-                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Medium</div>
-                                                        </div>
-                                                        <div class="mb-2">
-                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Client Engineer (React & React Native)</a>
-                                                        </div>
-                                                        <div class="-m-1">
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">$55K - $100K</a>
-                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
-                                                        <div class="lg:hidden lg:group-hover:block">
-                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">
-                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-                                                            </a>
-                                                        </div>
-                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">1d</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-02.svg" width="56" height="56" alt="Company 02" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Vimeo</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Software Engineer Backend</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">2h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-03.svg" width="56" height="56" alt="Company 03" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Robinhood</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Site Reliability Engineer</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">3h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-04.svg" width="56" height="56" alt="Company 04" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">GitHub</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Remote Shopify Website Tester</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">$100K - $170K</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇺🇸 NYC</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">4h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-04.svg" width="56" height="56" alt="Company 04" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">GitHub</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Remote Senior Software Engineer</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">$100K - $170K</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇺🇸 NYC</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">7h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-01.svg" width="56" height="56" alt="Company 01" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Qonto</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Web App Designer</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Contract</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇬🇧 London, UK</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">12h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-05.svg" width="56" height="56" alt="Company 05" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Revolut</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Ruby on Rails Engineer</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">12h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-06.svg" width="56" height="56" alt="Company 06" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">HSBC</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Software Engineer Backend</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🇮🇹 Milan, IT</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">20h</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-07.svg" width="56" height="56" alt="Company 07" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Twitter</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">React.js Software Developer</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">Full Time</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">1d</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
+{{--                                    <!-- Item -->--}}
+{{--                                    <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">--}}
+{{--                                        <div class="px-4 py-6">--}}
+{{--                                            <div class="sm:flex items-center space-y-3 sm:space-y-0 sm:space-x-5">--}}
+{{--                                                <div class="shrink-0">--}}
+{{--                                                    <img src="./images/company-icon-08.svg" width="56" height="56" alt="Company 08" />--}}
+{{--                                                </div>--}}
+{{--                                                <div class="grow lg:flex items-center justify-between space-y-5 lg:space-x-2 lg:space-y-0">--}}
+{{--                                                    <div>--}}
+{{--                                                        <div class="flex items-start space-x-2">--}}
+{{--                                                            <div class="text-sm text-gray-800 font-semibold mb-1">Medium</div>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="mb-2">--}}
+{{--                                                            <a class="text-lg text-gray-800 font-bold" href="job-post.html">Senior Client Engineer (React & React Native)</a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="-m-1">--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">$55K - $100K</a>--}}
+{{--                                                            <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-gray-100 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out" href="#0">🌎 Remote</a>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">--}}
+{{--                                                        <div class="lg:hidden lg:group-hover:block">--}}
+{{--                                                            <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs" href="job-post.html">--}}
+{{--                                                                Apply Now <span class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>--}}
+{{--                                                            </a>--}}
+{{--                                                        </div>--}}
+{{--                                                        <div class="lg:group-hover:hidden text-sm italic text-gray-500">1d</div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+{{--                                    </div>--}}
                                     <!-- Item -->
                                     <div class="nth-[-n+12]:-order-1 border-b border-gray-200 group">
                                         <div class="px-4 py-6">
