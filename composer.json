@@ -7,10 +7,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "alirezasedghi/laravel-image-faker": "*",
         "bezhansalleh/filament-shield": "*",
         "filament/filament": "*",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
+        "smknstd/fakerphp-picsum-images": "*",
         "spatie/laravel-activitylog": "*",
         "spatie/laravel-permission": "*",
         "spatie/laravel-sitemap": "*",

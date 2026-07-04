@@ -18,7 +18,7 @@ class VacancyFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->jobTitle();
+        $title = fake('nl_NL')->jobTitle();
         $slug = str($title)->slug();
         $rate_min = fake()->numberBetween(20, 80);
         $rate_max = $rate_min + fake()->numberBetween(10, 20);
@@ -40,7 +40,7 @@ class VacancyFactory extends Factory
             'expires_at' => fake()->dateTimeBetween('+1 month', '+2 months'),
             'is_featured' => fake()->boolean(25),
             'is_filled' => fake()->boolean(15),
-            'status' => 'active',
+            'status' => fake()->randomElement(['draft', 'published', 'pending']),
             'source' => 'manual',
         ];
     }
