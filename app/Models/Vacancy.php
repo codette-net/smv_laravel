@@ -56,4 +56,9 @@ class Vacancy extends Model
     {
         return '/vacature/' . $this->slug;
     }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 }
