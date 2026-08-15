@@ -1,135 +1,28 @@
-# SMV Platform Rebuild
+# Saleesmarketingvacatures.nl rebuild
+## Project purpose
 
-## Overview
+SMV is the Laravel rebuild of salesenmarketingvacatures.nl.
+The MVP is the first version of a broader recruitment platform, not merely a visual replacement of the existing WordPress job board.
 
-This repository is part of the Sales en Marketing Vacatures (SMV) platform rebuild.
+The rebuild must preserve the useful existing business flows, existing content value, SEO equity, and import capability while creating a maintainable Laravel foundation.
 
-The project is split into two separate repositories:
+## Technology
 
-- `smv_wp`
-  - WordPress frontend
-  - marketing pages
-  - design and content management
-  - acts as the public website layer
+Use the technology already present in the repository. Expected stack includes:
 
-- `smv_laravel`
-  - Laravel backend application
-  - job board logic
-  - feeds/imports
-  - employer flows
-  - future CRM and automation integrations
-
-The goal is to gradually move core business logic away from a plugin-heavy WordPress setup into a more maintainable Laravel architecture.
-
----
-
-## Current Stack
-
-### WordPress
-- WordPress
-- Custom theme/frontend
-- Elementor (temporary / partial usage)
-- Existing job board functionality
-
-### Laravel
-- Laravel 12
+- PHP 8.3+
+- Laravel
+- MySQL
 - Filament
-- Spatie packages
-- Queue system
-- Future API integrations
+- (Spatie) libraries like media manager, tags, and permissions
+- Blade
+- Tailwind CSS
+- Alpine.js where small client-side interactions are needed
+- Vite
 
----
 
-## High Level Architecture
+## MVP priorities
 
-```text
-Visitors
-    ↓
-WordPress frontend (smv_wp)
-    ↓
-Laravel backend (smv_laravel)
-    ↓
-Jobs / Imports / Employer logic
-```
-
-WordPress is responsible for:
-- public pages
-- landing pages
-- branding
-- SEO content
-
-Laravel is responsible for:
-- jobs
-- feeds/imports
-- employer functionality
-- automation
-- APIs
-- future integrations
-
----
-
-## Planned Features
-
-### Phase 1
-- Stable rebuild of current platform
-- Multiple feed imports
-- Job listing pages
-- Employer job submissions
-- Basic payment flow
-- Filament admin panel
-- Improved maintainability
-
-### Phase 2
-- CRM integrations
-- Newsletter flows
-- Social media automation
-- Analytics improvements
-- Better employer tooling
-
-### Phase 3
-- Advanced automation
-- Candidate flows
-- Reporting
-- Marketing integrations
-- Subscription/payment improvements
-
----
-
-## Repository Structure
-
-### smv_wp
-Handles:
-- WordPress frontend
-- theme
-- templates
-- marketing pages
-- SEO pages
-
-### smv_laravel
-Handles:
-- jobs
-- imports
-- employer dashboard
-- APIs
-- integrations
-- admin tooling
-
----
-
-## Goals
-
-- Reduce plugin dependency
-- Improve stability
-- Improve maintainability
-- Make imports reliable
-- Prepare platform for scaling
-- Separate frontend and business logic
-- Reduce operational overhead
-
----
-
-## Notes
-
-The current production platform is still active during rebuild.
-
-Development happens incrementally while maintaining business continuity.
+1. A credible and fast recruitment frontend using the existing Tailwind template/component system.
+2. A robust vacancy import system with a usable field-mapping interface.
+3. Strong technical SEO and a controlled migration from the legacy WordPress site.

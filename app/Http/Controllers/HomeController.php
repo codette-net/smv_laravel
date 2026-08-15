@@ -8,6 +8,7 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // temporary to test out
         $vacancies = Vacancy::query()
             ->with('company')
             ->where('status', 'published')

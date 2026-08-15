@@ -11,8 +11,7 @@ class VacancyController extends Controller
     {
         $vacancy->load(['company', 'categories']);
 
-        return view('vacatures.show', [
-            'vac' => $vacancy,
-        ]);
+        return $vacancy;
+
     }
 }
