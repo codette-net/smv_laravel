@@ -29,35 +29,35 @@ class VacanciesTable
                     ->searchable()
                     ->sortable()
                     ->limit(25, '...')
-                    ->url(fn($record): string => $record->vacancy_url())
+                    ->url(fn ($record): string => $record->vacancy_url())
                     ->openUrlInNewTab()
                     ->wrap()
                     ->lineclamp(2),
-//                TextColumn::make('slug')
-//                    ->searchable(),
+                //                TextColumn::make('slug')
+                //                    ->searchable(),
                 TextColumn::make('location')
                     ->searchable()
                     ->sortable(),
-//                TextColumn::make('application_email')
-//                    ->searchable(),
-//                TextColumn::make('application_url')
-//                    ->searchable(),
-//                TextColumn::make('salary_min')
-//                    ->numeric()
-//                    ->sortable(),
-//                TextColumn::make('salary_max')
-//                    ->numeric()
-//                    ->sortable(),
-//                TextColumn::make('rate_min')
-//                    ->numeric()
-//                    ->sortable(),
-//                TextColumn::make('rate_max')
-//                    ->numeric()
-//                    ->sortable(),
-//                TextColumn::make('reference')
-//                    ->searchable(),
-//                TextColumn::make('source_reference')
-//                    ->searchable(),
+                //                TextColumn::make('application_email')
+                //                    ->searchable(),
+                //                TextColumn::make('application_url')
+                //                    ->searchable(),
+                //                TextColumn::make('salary_min')
+                //                    ->numeric()
+                //                    ->sortable(),
+                //                TextColumn::make('salary_max')
+                //                    ->numeric()
+                //                    ->sortable(),
+                //                TextColumn::make('rate_min')
+                //                    ->numeric()
+                //                    ->sortable(),
+                //                TextColumn::make('rate_max')
+                //                    ->numeric()
+                //                    ->sortable(),
+                //                TextColumn::make('reference')
+                //                    ->searchable(),
+                //                TextColumn::make('source_reference')
+                //                    ->searchable(),
                 TextColumn::make('deadline_at')
                     ->date()
                     ->sortable()
@@ -81,18 +81,10 @@ class VacanciesTable
                 TextColumn::make('status')
                     ->searchable()
                     ->sortable()
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'active' => 'success',
-                        'draft' => 'gray',
-                        'archived' => 'danger',
-                        'pending' => 'warning',
-                        'suspended' => 'gray',
-                        'expired' => 'danger',
-                    }),
+                    ->badge(),
 
-//                TextColumn::make('source')
-//                    ->searchable(),
+                //                TextColumn::make('source')
+                //                    ->searchable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

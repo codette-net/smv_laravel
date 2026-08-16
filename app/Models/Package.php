@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\PackageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Package extends Model
 {
-    /** @use HasFactory<\Database\Factories\PackageFactory> */
+    /** @use HasFactory<PackageFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -22,10 +23,23 @@ class Package extends Model
         'includes_social_campaign',
         'includes_newsletter',
         'is_active',
-        'sort_order'
+        'sort_order',
     ];
 
-    public function order_items():hasMany
+    protected function casts(): array
+    {
+        return [
+            'price_cents' => 'integer',
+            'vacancy_duration_days' => 'integer',
+            'includes_featured' => 'boolean',
+            'includes_social_campaign' => 'boolean',
+            'includes_newsletter' => 'boolean',
+            'is_active' => 'boolean',
+            'sort_order' => 'integer',
+        ];
+    }
+
+    public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
