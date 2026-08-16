@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Models\Company;
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -31,10 +31,12 @@ class CompanyInfolist
                     ->placeholder('-'),
                 TextEntry::make('website')
                     ->placeholder('-'),
-                TextEntry::make('logo')
-                    ->placeholder('-'),
-                ImageEntry::make('cover_image')
-                    ->placeholder('-'),
+                SpatieMediaLibraryImageEntry::make('logo_media')
+                    ->label('Logo')
+                    ->collection('logo'),
+                SpatieMediaLibraryImageEntry::make('cover_media')
+                    ->label('Omslagafbeelding')
+                    ->collection('cover'),
                 TextEntry::make('location')
                     ->placeholder('-'),
                 TextEntry::make('linkedin_url')

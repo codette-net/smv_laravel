@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Enums\CompanyStatus;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -32,8 +32,13 @@ class CompanyForm
                     ->tel(),
                 TextInput::make('website')
                     ->url(),
-                TextInput::make('logo'),
-                FileUpload::make('cover_image')
+                SpatieMediaLibraryFileUpload::make('logo_media')
+                    ->label('Logo')
+                    ->collection('logo')
+                    ->image(),
+                SpatieMediaLibraryFileUpload::make('cover_media')
+                    ->label('Omslagafbeelding')
+                    ->collection('cover')
                     ->image(),
                 TextInput::make('location'),
                 TextInput::make('linkedin_url')

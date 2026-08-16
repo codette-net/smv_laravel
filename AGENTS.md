@@ -147,6 +147,15 @@ Never assume production can be reset or reseeded.
 
 Before changing schema, inspect existing migrations and models and explain how the proposed change fits the current data model.
 
+Historical committed migrations must normally not be modified.
+
+Exception:
+A committed migration may be corrected before the first real staging/production
+deployment when the change fixes a code-level defect that prevents the migration
+history from running at all and does not alter the intended database schema.
+
+Such exceptions must be explicitly reported.
+
 ## Core domain
 
 The repository has a broad schema/model foundation for these MVP domains:

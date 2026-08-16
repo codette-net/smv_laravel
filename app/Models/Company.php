@@ -10,11 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
-class Company extends Model
+class Company extends Model implements HasMedia
 {
     /** @use HasFactory<CompanyFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -42,6 +46,25 @@ class Company extends Model
             'is_featured' => 'boolean',
             'status' => CompanyStatus::class,
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'])
+            ->singleFile();
+
+        $this->addMediaCollection('cover')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->singleFile();
     }
 
     public function user(): BelongsTo
