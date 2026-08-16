@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Companies\CompanyResource;
 use App\Models\Company;
 use App\Models\User;
 use Filament\Panel;
@@ -32,4 +33,30 @@ test('editors can maintain core content but cannot administer users or delete re
         ->and(Gate::forUser($editor)->allows('create', Company::class))->toBeTrue()
         ->and(Gate::forUser($editor)->allows('delete', new Company))->toBeFalse()
         ->and(Gate::forUser($editor)->allows('viewAny', User::class))->toBeFalse();
+});
+
+test('company resource follows the Company policy for administrative roles', function () {
+    collect(['super-admin', 'admin', 'editor', 'employer', 'candidate'])
+        ->each(fn (string $role) => Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']));
+
+    $editor = User::factory()->create();
+    $editor->assignRole('editor');
+    $employer = User::factory()->create();
+    $employer->assignRole('employer');
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $this->actingAs($editor);
+    expect(CompanyResource::canViewAny())->toBeTrue()
+        ->and(CompanyResource::canCreate())->toBeTrue();
+
+    $this->actingAs($employer);
+    expect(CompanyResource::canViewAny())->toBeFalse()
+        ->and(CompanyResource::canCreate())->toBeFalse();
+
+    $this->actingAs($admin);
+    expect(CompanyResource::canDelete(Company::factory()->create()))->toBeTrue();
+
+    $this->get(CompanyResource::getUrl())
+        ->assertSuccessful();
 });
