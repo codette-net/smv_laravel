@@ -16,47 +16,21 @@ The rebuild must preserve the useful existing business flows, existing content v
 - Feature branches are created from `develop` and merged back into `develop` through review/PR.
 - Do not work directly on `main`.
 
-## Windows development environment
-
-The primary development machine currently runs Windows 11 with Laravel Herd.
-
-Codex's sandboxed shell may not inherit the same PATH as the user's interactive
-PowerShell session.
-
-When `php` is unavailable, use:
-
-`C:\Users\User\.config\herd\bin\php83\php.exe`
-
-Do not interpret a missing unqualified `php` command as a missing PHP installation.
-
-For Node/npm, use the verified system executable when the default npm launcher resolves
-to the broken `%APPDATA%\npm` installation.
-
-Before reporting that Laravel or frontend validation cannot run, try the known working
-runtime paths.
-
-Validation should include where relevant:
-
-- php artisan test
-- php artisan route:list
-- php artisan migrate:fresh --seed
-- npm run build
-
 ## Technology
 
-Use the technology already present in the repository. The confirmed stack is:
+Use the technology already present in the repository. Expected stack includes:
 
-- PHP 8.3
-- Laravel 13.4
+- PHP 8.3+
+- Laravel
 - MySQL
-- Filament 5.5
-- Pest 4.5
+- Filament
 - (Spatie) libraries like media manager, tags, and permissions
 - Blade
-- Tailwind CSS 4.3
+- Tailwind CSS
 - Alpine.js where small client-side interactions are needed
-- Vite 8
-- Node.js 22.15
+- Vite
+
+TODO: verify exact framework/package versions from `composer.json` and `package.json` before making assumptions.
 
 Do not introduce another frontend framework or CSS framework without explicit approval.
 
@@ -108,14 +82,7 @@ Reuse existing:
 
 Do not replace working components simply to standardize them.
 
-Blade `x-*` components are a preferred implementation pattern. Reuse useful Mosaic
-markup and assets even when their current demo routes, route names, layout wiring or
-prototype page architecture are unsuitable. `x-app-layout` may be adapted where useful;
-broken demo architecture is not authoritative and need not be preserved.
-
-The public website is Dutch. Public navigation, forms, validation-facing labels,
-vacancy/company UI, blog UI and SEO-facing copy should be Dutch. Internal code
-identifiers and developer documentation may remain English.
+The user has existing template components with semantic names and structure. The exact tree will be documented in `docs/FRONTEND.md` after repository inspection.
 
 Legacy and template image sets may be used when they are explicitly included in the repository and their usage is documented.
 
@@ -147,18 +114,9 @@ Never assume production can be reset or reseeded.
 
 Before changing schema, inspect existing migrations and models and explain how the proposed change fits the current data model.
 
-Historical committed migrations must normally not be modified.
-
-Exception:
-A committed migration may be corrected before the first real staging/production
-deployment when the change fixes a code-level defect that prevents the migration
-history from running at all and does not alter the intended database schema.
-
-Such exceptions must be explicitly reported.
-
 ## Core domain
 
-The repository has a broad schema/model foundation for these MVP domains:
+Expected MVP domains include:
 
 - Users
 - Companies
@@ -171,11 +129,6 @@ The repository has a broad schema/model foundation for these MVP domains:
 - Basic content / Blog
 
 Company is a first-class domain entity. A company can own or relate to vacancies and content and can grow later into richer employer-branding functionality.
-
-The repository audit is complete and its foundation inconsistencies were stabilized in
-SMV-001. Public application flows remain mostly prototype/incomplete. Imports have a
-stabilized data foundation but no pipeline, and SEO implementation remains largely
-pending. Mosaic/Tailwind supplies a substantial reusable frontend base.
 
 Do not design Phase 2/3 functionality into the MVP unless a small structural choice is necessary to avoid an obvious dead end.
 
@@ -245,10 +198,6 @@ SEO migration work must include a pre-launch and post-launch crawl/check.
 
 The MVP includes a deliberately simple Blog module.
 
-Its schema/model foundation exists, but its public pages and Filament editorial CRUD
-are not complete. Schedule it after the recruitment core, import work and SEO
-foundation so it does not jeopardize those priorities.
-
 Prefer a conventional implementation:
 
 - posts
@@ -267,13 +216,6 @@ Prefer a conventional implementation:
 Keep authoring straightforward. Do not build an advanced block editor, comments, multi-author workflow or editorial approval system unless explicitly requested.
 
 Where useful, a blog post may later relate to companies or vacancies, but do not over-engineer this before the core flow is stable.
-
-## Authorization foundation
-
-Filament panel access currently allows `super-admin`, `admin` and `editor` roles.
-Employer and candidate roles do not receive unrestricted admin-panel access. Editor
-permissions are deliberately conservative and may be refined during editorial/blog
-work. Do not describe a future employer dashboard as implemented.
 
 ## Testing and completion
 

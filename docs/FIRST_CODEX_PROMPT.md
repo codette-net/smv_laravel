@@ -1,8 +1,6 @@
 # First Codex Prompt — Repository Audit
 
-Historical reference: this prompt was used for the now-complete SMV-001 repository
-audit. Do not treat it as evidence that the repository is still unaudited or rerun it in
-place of the scoped backlog tasks.
+Use this from the root of the SMV repository after `AGENTS.md` and `/docs` have been added.
 
 ```text
 Inspect this repository as preparation for the SMV MVP rebuild.

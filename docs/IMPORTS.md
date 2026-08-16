@@ -6,29 +6,6 @@ Vacancy imports are a critical MVP feature and a commercial capability of SMV.
 
 The goal is not merely to parse one known feed. The system must provide a maintainable ingestion pipeline and a clear admin interface for mapping partner fields to SMV fields.
 
-## Current implementation status
-
-SMV-001 stabilized the existing foundation:
-
-- `ImportSource`, `Import` and `ImportLog` model/schema foundations
-- `import_source_id` provider relationships
-- provider-scoped vacancy identity using `import_source_id + source_reference`
-- relevant import enums and casts
-- nullable legacy `imports.source` compatibility data
-
-The following are not implemented yet:
-
-- readers/parsers and source field discovery
-- mapping model/backend and mapping UI
-- transformations and normalized preview
-- validation/failure workflow
-- vacancy persistence/upsert pipeline
-- queued execution and safe rerun workflow
-- a real partner adapter
-
-Future import code must use `import_source_id` / `ImportSource` as provider identity. It
-must not use legacy `imports.source` for that purpose.
-
 ## Supported source direction
 
 MVP should be architected for sources such as:
@@ -83,7 +60,7 @@ salary.minimum         ->    salary_min
 salary.maximum         ->    salary_max
 description_html       ->    description
 apply_url              ->    application_url
-reference              ->    source_reference
+reference              ->    external_reference
 ```
 
 Each mapping row may need operations such as:
@@ -95,10 +72,11 @@ Each mapping row may need operations such as:
 
 Do not overbuild a universal ETL platform. Start with transformations genuinely needed by real SMV feeds.
 
-## Future domain concepts
+## Suggested domain concepts
 
-The precise mapping schema is intentionally deferred to SMV-030. Candidate concepts to
-evaluate against real feed examples include:
+Names are provisional until the existing repository is audited.
+
+Possible concepts:
 
 ```text
 ImportSource
@@ -134,10 +112,10 @@ Prefer stable external identifiers supplied by a source.
 
 A rerun should not create duplicate vacancies when the same source vacancy is already known.
 
-The established identity strategy is:
+The exact identity strategy must be documented per source, for example:
 
 ```text
-import_source_id + source_reference
+source_id + external_reference
 ```
 
 If a source has no reliable identifier, define and test a fallback strategy rather than silently guessing.
@@ -147,8 +125,7 @@ If a source has no reliable identifier, define and test a fallback strategy rath
 Importing vacancy data may require matching or creating companies.
 Do not create duplicate companies simply because naming/casing differs.
 
-The exact company matching and transformation policies remain open until SMV-030 and
-inspection of real source examples.
+The exact matching policy must be deliberately designed after inspecting real source examples.
 
 ## HTML/content
 
@@ -182,7 +159,6 @@ An import run should make it possible to understand:
 
 Avoid logging secrets or excessive candidate/personal data.
 
-## Next import task
+## First Codex import task
 
-SMV-030 must audit the stabilized foundation against real feed examples and design the
-smallest reusable mapping/pipeline model before implementation begins.
+Before implementing anything, Codex must inspect all existing import-related models, migrations, resources, commands, jobs and services and report what already exists.

@@ -1,12 +1,10 @@
 <?php
 
-use App\Enums\BlogPostStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -28,7 +26,7 @@ return new class extends Migration
                 ->nullable();
             $table->text('content');
             $table->string('status')
-                ->default(BlogPostStatus::Draft->value);
+                ->default(\app\Enums\BlogPostStatus::Draft->value);
             $table->datetime('published_at')
                 ->nullable();
             $table->index('status');

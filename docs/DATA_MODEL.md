@@ -2,12 +2,11 @@
 
 ## Purpose
 
-Document the confirmed SMV-001 foundation, intended domain rules and known legacy
-WordPress fields. Later mapping structures remain deliberately undecided until SMV-030.
+Document the intended domain model and known legacy WordPress fields. Exact current Laravel tables/columns must be verified from migrations and models before schema work.
 
 ## Primary domains
 
-The repository currently has a broad model/schema foundation for:
+Expected domains:
 
 - users
 - companies
@@ -50,7 +49,7 @@ _job_location       -> vacancies.location
 _salary_min         -> vacancies.salary_min
 _salary_max         -> vacancies.salary_max
 _job_expires        -> vacancies.expires_at
-_job_reference      -> vacancies.source_reference/reference, depending on provenance
+_job_reference      -> vacancies.external_reference/reference
 _apply_link         -> application destination / URL
 _company_select     -> company relationship
 ```
@@ -95,8 +94,7 @@ Because candidate/application data is personal data, migration/import/logging de
 
 ## Company relationship
 
-Company is a first-class entity. A Vacancy belongs to a Company rather than using a
-duplicated employer string as its authoritative owner.
+Company should be a real relation rather than duplicated employer strings where feasible.
 
 Conceptually:
 
@@ -110,31 +108,21 @@ Company
 
 ## Vacancy import provenance
 
-Imported vacancy provenance uses `ImportSource`. `import_source_id` is the authoritative
-provider relationship and `source_reference` is the provider's stable vacancy identifier
-where available. Imported vacancy uniqueness is provider-scoped through:
+Imported vacancies should be identifiable by source and stable external identifiers where available so reruns can update instead of duplicate records.
 
-```text
-import_source_id + source_reference
-```
+Exact schema is to be decided after the current import code is audited.
 
-Manual vacancies may have both fields null. The physical `imports.source` column remains
-only for legacy compatibility and must not become provider identity in new import code.
+Likely concepts:
 
-Vacancy slugs are stable after creation and do not regenerate merely because a title is
-changed.
-
-SMV-001 established soft deletion on important operational models where the schema
-already supported it. Financial and historical records are protected from accidental
-parent-deletion cascades. Historical read screens may later need to include soft-deleted
-parents explicitly.
-
-Mapping profiles, source transformations and company matching policy belong to SMV-030
-and must be based on real feed examples rather than invented here.
+- import source
+- source/external vacancy identifier
+- import run
+- last imported/seen timestamp
+- mapping profile
 
 ## Blog
 
-Future minimal public/editorial concepts:
+Minimal expected concepts:
 
 ### posts
 

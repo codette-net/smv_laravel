@@ -6,11 +6,6 @@ Build a stable, commercially credible first version of the new Sales en Marketin
 
 The MVP is the foundation of a recruitment platform. It must already support the core job-board business flow, company presence, reliable vacancy ingestion, strong search-engine migration fundamentals and enough content capability to support sales/demo use.
 
-Current repository reality: a broad domain/schema foundation exists and SMV-001
-stabilized its key inconsistencies. Public application flows remain mostly prototypes,
-the import pipeline is not implemented, technical SEO remains largely pending, and the
-Mosaic/Tailwind base provides substantial reusable frontend components and assets.
-
 ## Presentation target
 
 A strong demonstrable version is desired around the beginning of September 2026 for a sales presentation.
@@ -61,7 +56,7 @@ Company is a first-class domain entity and should not be treated as just a text 
 
 ### Public vacancies
 
-Required public flow:
+Expected public flow:
 
 - vacancy listing/discovery
 - search and/or practical filters
@@ -73,8 +68,7 @@ Required public flow:
 - application/contact action
 - related/internal links where useful
 
-The current routes are prototype wiring rather than the final public route contract.
-Final route strategy is deliberately deferred to SMV-040 and the SEO migration inputs.
+Exact current routes and existing implementation must be verified from the repository before changes.
 
 ### Applications
 
@@ -98,9 +92,6 @@ This is a critical MVP module and must include a decent Filament/admin mapping i
 
 A simple Blog is part of MVP scope but late in delivery order.
 
-The Blog model/schema foundation exists; public pages and Filament editorial CRUD are
-not yet complete.
-
 Reason:
 
 - quick to administer with Filament
@@ -113,16 +104,6 @@ Keep it simple enough that it cannot jeopardize import, recruitment or SEO work.
 ### CMS/pages
 
 Basic static content/page management may be retained or added if already present or essential to replacing the legacy site. Do not build a large generic CMS before the recruitment core is stable.
-
-## Language
-
-The public SMV website is Dutch.
-
-Public navigation, forms, validation-facing labels, vacancy UI, company UI, blog UI and
-SEO-facing content should use Dutch copy.
-
-Internal code identifiers, database names and developer documentation may remain
-English.
 
 ## Out of scope for MVP unless already working
 
@@ -139,8 +120,6 @@ English.
 - complex editorial workflow
 - advanced analytics dashboards
 - multi-channel social distribution
-- advanced editor/page builder
-- newsletter automation
 
 These can be later phases.
 

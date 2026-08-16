@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources\Companies\Schemas;
 
-use App\Enums\CompanyStatus;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -32,13 +31,8 @@ class CompanyForm
                     ->tel(),
                 TextInput::make('website')
                     ->url(),
-                SpatieMediaLibraryFileUpload::make('logo_media')
-                    ->label('Logo')
-                    ->collection('logo')
-                    ->image(),
-                SpatieMediaLibraryFileUpload::make('cover_media')
-                    ->label('Omslagafbeelding')
-                    ->collection('cover')
+                TextInput::make('logo'),
+                FileUpload::make('cover_image')
                     ->image(),
                 TextInput::make('location'),
                 TextInput::make('linkedin_url')
@@ -49,10 +43,9 @@ class CompanyForm
                     ->url(),
                 TextInput::make('video_url')
                     ->url(),
-                Select::make('status')
-                    ->options(CompanyStatus::class)
+                TextInput::make('status')
                     ->required()
-                    ->default(CompanyStatus::Draft->value),
+                    ->default('draft'),
                 Toggle::make('is_featured')
                     ->required(),
             ]);
