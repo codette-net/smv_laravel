@@ -4,6 +4,9 @@
 
 Move from the legacy WordPress/Cariera site to Laravel while preserving as much existing search equity, useful content and URL value as practical.
 
+SEO is a release requirement. Migration is selective rather than a requirement to
+reproduce every historical WordPress page.
+
 ## Before changing public routes
 
 Create an inventory of the current live site.
@@ -56,6 +59,9 @@ MERGE    content consolidated into a stronger relevant destination
 
 Avoid redirecting unrelated removed content to the homepage.
 Avoid redirect chains.
+
+Public vacancy slugs are stable after creation. The final Laravel route strategy remains
+unresolved until SMV-040 and must be decided using the legacy inventory inputs below.
 
 ## Redirect mapping template
 
@@ -112,10 +118,10 @@ After cutover:
 - inspect Search Console indexing/crawl issues
 - monitor important landing pages and rankings
 
-## TODO inputs
+## Outstanding migration inputs
 
 - current live URL export
 - Ahrefs exports
 - Search Console top pages/queries
 - current WordPress permalink/taxonomy structures
-- final Laravel route strategy
+- final Laravel route strategy (SMV-040)

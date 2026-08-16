@@ -44,19 +44,19 @@ Validation should include where relevant:
 
 ## Technology
 
-Use the technology already present in the repository. Expected stack includes:
+Use the technology already present in the repository. The confirmed stack is:
 
-- PHP 8.3+
-- Laravel
+- PHP 8.3
+- Laravel 13.4
 - MySQL
-- Filament
+- Filament 5.5
+- Pest 4.5
 - (Spatie) libraries like media manager, tags, and permissions
 - Blade
-- Tailwind CSS
+- Tailwind CSS 4.3
 - Alpine.js where small client-side interactions are needed
-- Vite
-
-TODO: verify exact framework/package versions from `composer.json` and `package.json` before making assumptions.
+- Vite 8
+- Node.js 22.15
 
 Do not introduce another frontend framework or CSS framework without explicit approval.
 
@@ -108,7 +108,14 @@ Reuse existing:
 
 Do not replace working components simply to standardize them.
 
-The user has existing template components with semantic names and structure. The exact tree will be documented in `docs/FRONTEND.md` after repository inspection.
+Blade `x-*` components are a preferred implementation pattern. Reuse useful Mosaic
+markup and assets even when their current demo routes, route names, layout wiring or
+prototype page architecture are unsuitable. `x-app-layout` may be adapted where useful;
+broken demo architecture is not authoritative and need not be preserved.
+
+The public website is Dutch. Public navigation, forms, validation-facing labels,
+vacancy/company UI, blog UI and SEO-facing copy should be Dutch. Internal code
+identifiers and developer documentation may remain English.
 
 Legacy and template image sets may be used when they are explicitly included in the repository and their usage is documented.
 
@@ -142,7 +149,7 @@ Before changing schema, inspect existing migrations and models and explain how t
 
 ## Core domain
 
-Expected MVP domains include:
+The repository has a broad schema/model foundation for these MVP domains:
 
 - Users
 - Companies
@@ -155,6 +162,11 @@ Expected MVP domains include:
 - Basic content / Blog
 
 Company is a first-class domain entity. A company can own or relate to vacancies and content and can grow later into richer employer-branding functionality.
+
+The repository audit is complete and its foundation inconsistencies were stabilized in
+SMV-001. Public application flows remain mostly prototype/incomplete. Imports have a
+stabilized data foundation but no pipeline, and SEO implementation remains largely
+pending. Mosaic/Tailwind supplies a substantial reusable frontend base.
 
 Do not design Phase 2/3 functionality into the MVP unless a small structural choice is necessary to avoid an obvious dead end.
 
@@ -224,6 +236,10 @@ SEO migration work must include a pre-launch and post-launch crawl/check.
 
 The MVP includes a deliberately simple Blog module.
 
+Its schema/model foundation exists, but its public pages and Filament editorial CRUD
+are not complete. Schedule it after the recruitment core, import work and SEO
+foundation so it does not jeopardize those priorities.
+
 Prefer a conventional implementation:
 
 - posts
@@ -242,6 +258,13 @@ Prefer a conventional implementation:
 Keep authoring straightforward. Do not build an advanced block editor, comments, multi-author workflow or editorial approval system unless explicitly requested.
 
 Where useful, a blog post may later relate to companies or vacancies, but do not over-engineer this before the core flow is stable.
+
+## Authorization foundation
+
+Filament panel access currently allows `super-admin`, `admin` and `editor` roles.
+Employer and candidate roles do not receive unrestricted admin-panel access. Editor
+permissions are deliberately conservative and may be refined during editorial/blog
+work. Do not describe a future employer dashboard as implemented.
 
 ## Testing and completion
 
