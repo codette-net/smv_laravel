@@ -2,21 +2,31 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryType;
+use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
-    /** @use HasFactory<\Database\Factories\CategoryFactory> */
-    use HasFactory;
+    /** @use HasFactory<CategoryFactory> */
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'name',
         'slug',
         'type',
 
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => CategoryType::class,
+        ];
+    }
 
     public function vacancies(): MorphToMany
     {
@@ -28,7 +38,7 @@ class Category extends Model
         return $this->morphedByMany(Company::class, 'categoryable');
     }
 
-    public function blog_posts(): MorphToMany
+    public function blogPosts(): MorphToMany
     {
         return $this->morphedByMany(BlogPost::class, 'categoryable');
     }

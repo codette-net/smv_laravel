@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\Companies\Schemas;
 
+use App\Enums\CompanyStatus;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -43,9 +44,10 @@ class CompanyForm
                     ->url(),
                 TextInput::make('video_url')
                     ->url(),
-                TextInput::make('status')
+                Select::make('status')
+                    ->options(CompanyStatus::class)
                     ->required()
-                    ->default('draft'),
+                    ->default(CompanyStatus::Draft->value),
                 Toggle::make('is_featured')
                     ->required(),
             ]);

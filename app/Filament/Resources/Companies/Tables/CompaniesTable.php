@@ -27,39 +27,31 @@ class CompaniesTable
                     ->sortable()
                     ->limit(25, '...')
                     ->searchable(),
-//                TextColumn::make('slug')
-//                    ->searchable(),
-//                TextColumn::make('tagline')
-//                    ->searchable(),
+                //                TextColumn::make('slug')
+                //                    ->searchable(),
+                //                TextColumn::make('tagline')
+                //                    ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
                 TextColumn::make('status')
                     ->searchable()
                     ->sortable()
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'danger',
-                        'pending' => 'warning',
-                        'suspended' => 'gray',
-                        'banned' => 'danger',
-                    }),
+                    ->badge(),
                 TextColumn::make('location')
                     ->searchable()
-                ->sortable(),
+                    ->sortable(),
 
                 IconColumn::make('is_featured')
                     ->boolean(),
-//                TextColumn::make('phone')
-//                    ->searchable(),
-//                TextColumn::make('website')
-//                    ->searchable()
-//                    ->limit(30, '...'),
-//                TextColumn::make('logo')
-//                    ->searchable(),
-//                ImageColumn::make('cover_image'),
-
+                //                TextColumn::make('phone')
+                //                    ->searchable(),
+                //                TextColumn::make('website')
+                //                    ->searchable()
+                //                    ->limit(30, '...'),
+                //                TextColumn::make('logo')
+                //                    ->searchable(),
+                //                ImageColumn::make('cover_image'),
 
                 TextColumn::make('deleted_at')
                     ->dateTime()
@@ -78,12 +70,12 @@ class CompaniesTable
                 //
             ])
             ->recordActions([
-               ActionGroup::make([
-                   ViewAction::make(),
-                   EditAction::make(),
-                   DeleteAction::make(),
-               ]),
-            ],position: RecordActionsPosition::BeforeColumns)
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
+            ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
