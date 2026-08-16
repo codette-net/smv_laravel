@@ -69,6 +69,27 @@ legacy_url,new_url,action,reason,priority,verified
 
 For high-value pages, compare old and new versions so migration does not accidentally remove the content/search intent responsible for ranking.
 
+## Legacy migration scope
+
+The current WordPress site contains some older blog and informational pages, but the
+migration is not intended to reproduce every historical URL.
+
+The public website is Dutch.
+
+Migration priority is:
+
+1. pages with meaningful organic traffic
+2. URLs with valuable backlinks
+3. current commercial pages
+4. useful evergreen content
+5. important vacancy/company URL patterns
+
+Older low-value blog posts and outdated informational pages such as obsolete about or
+process content do not need to be recreated automatically.
+
+For retired URLs, choose an SEO-appropriate outcome based on actual value and relevance
+rather than creating irrelevant blanket redirects.
+
 ## Launch checks
 
 Before cutover:

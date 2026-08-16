@@ -16,6 +16,32 @@ The rebuild must preserve the useful existing business flows, existing content v
 - Feature branches are created from `develop` and merged back into `develop` through review/PR.
 - Do not work directly on `main`.
 
+## Windows development environment
+
+The primary development machine currently runs Windows 11 with Laravel Herd.
+
+Codex's sandboxed shell may not inherit the same PATH as the user's interactive
+PowerShell session.
+
+When `php` is unavailable, use:
+
+`C:\Users\User\.config\herd\bin\php83\php.exe`
+
+Do not interpret a missing unqualified `php` command as a missing PHP installation.
+
+For Node/npm, use the verified system executable when the default npm launcher resolves
+to the broken `%APPDATA%\npm` installation.
+
+Before reporting that Laravel or frontend validation cannot run, try the known working
+runtime paths.
+
+Validation should include where relevant:
+
+- php artisan test
+- php artisan route:list
+- php artisan migrate:fresh --seed
+- npm run build
+
 ## Technology
 
 Use the technology already present in the repository. Expected stack includes:

@@ -105,6 +105,16 @@ Keep it simple enough that it cannot jeopardize import, recruitment or SEO work.
 
 Basic static content/page management may be retained or added if already present or essential to replacing the legacy site. Do not build a large generic CMS before the recruitment core is stable.
 
+## Language
+
+The public SMV website is Dutch.
+
+Public navigation, forms, validation-facing labels, vacancy UI, company UI, blog UI and
+SEO-facing content should use Dutch copy.
+
+Internal code identifiers, database names and developer documentation may remain
+English.
+
 ## Out of scope for MVP unless already working
 
 - AI matching
