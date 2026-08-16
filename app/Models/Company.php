@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\Enums\CompanyStatus;
+use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    /** @use HasFactory<\Database\Factories\CompanyFactory> */
-    use HasFactory;
+    /** @use HasFactory<CompanyFactory> */
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -30,8 +33,16 @@ class Company extends Model
         'instagram_url',
         'video_url',
         'status',
-        'is_featured'
+        'is_featured',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_featured' => 'boolean',
+            'status' => CompanyStatus::class,
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -43,7 +54,7 @@ class Company extends Model
         return $this->hasMany(Vacancy::class);
     }
 
-    public function blog_posts(): HasMany
+    public function blogPosts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
     }
@@ -53,12 +64,8 @@ class Company extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function categories(): morphToMany
+    public function categories(): MorphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
     }
-
-
-
-
 }

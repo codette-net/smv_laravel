@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\BlogPostStatus;
+use Database\Factories\BlogPostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class BlogPost extends Model
 {
-    /** @use HasFactory<\Database\Factories\BlogPostFactory> */
+    /** @use HasFactory<BlogPostFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -21,8 +23,16 @@ class BlogPost extends Model
         'content',
         'featured_image',
         'status',
-        'published_at'
+        'published_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => BlogPostStatus::class,
+            'published_at' => 'datetime',
+        ];
+    }
 
     public function author(): BelongsTo
     {
@@ -34,7 +44,7 @@ class BlogPost extends Model
         return $this->belongsTo(Company::class);
     }
 
-    public function categories(): morphToMany
+    public function categories(): MorphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
     }
