@@ -2,23 +2,16 @@
 
 namespace App\Models;
 
-use App\Enums\CompanyStatus;
-use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
-class Company extends Model implements HasMedia
+class Company extends Model
 {
-    /** @use HasFactory<CompanyFactory> */
-    use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
+    /** @use HasFactory<\Database\Factories\CompanyFactory> */
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -37,35 +30,8 @@ class Company extends Model implements HasMedia
         'instagram_url',
         'video_url',
         'status',
-        'is_featured',
+        'is_featured'
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'is_featured' => 'boolean',
-            'status' => CompanyStatus::class,
-        ];
-    }
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('name')
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate();
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('logo')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'])
-            ->singleFile();
-
-        $this->addMediaCollection('cover')
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->singleFile();
-    }
 
     public function user(): BelongsTo
     {
@@ -77,7 +43,7 @@ class Company extends Model implements HasMedia
         return $this->hasMany(Vacancy::class);
     }
 
-    public function blogPosts(): HasMany
+    public function blog_posts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
     }
@@ -87,8 +53,12 @@ class Company extends Model implements HasMedia
         return $this->hasMany(Order::class);
     }
 
-    public function categories(): MorphToMany
+    public function categories(): morphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
     }
+
+
+
+
 }

@@ -14,16 +14,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'email', 'password','role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['super-admin', 'admin', 'editor']);
+//        return $this->hasAnyRole(['admin', 'super_admin','editor']);
+        return true;
     }
 
     public function companies(): HasMany
@@ -31,19 +32,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Company::class);
     }
 
-    public function blogPosts(): HasMany
+    public function blog_posts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
     }
 
     public function applications(): HasMany
     {
-        return $this->hasMany(Application::class, 'candidate_id');
-    }
-
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Application::class,'candidate_id');
     }
 
     /**

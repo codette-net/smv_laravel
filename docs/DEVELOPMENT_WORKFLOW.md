@@ -1,15 +1,5 @@
 # Development Workflow — Windows 11 / GitHub / Codex
 
-## Confirmed local environment
-
-The current development machine runs Windows 11 with Laravel Herd, PHP 8.3 and
-Node.js 22.15. The application stack is Laravel 13.4, Filament 5.5, Pest 4.5,
-Tailwind CSS 4.3, Vite 8 and MySQL.
-
-Codex's sandboxed shell may not inherit the interactive PowerShell PATH. When needed,
-use `C:\Users\User\.config\herd\bin\php83\php.exe`; do not infer that PHP is absent
-from an unavailable unqualified `php` command.
-
 ## Branch model
 
 ```text
@@ -81,9 +71,7 @@ feat/import-mapping -> develop
 
 Start Codex from the repository root so it sees `AGENTS.md` and project files.
 
-The repository audit and SMV-001 foundation stabilization are complete. For later
-tasks, use the current backlog item and its relevant architecture documents rather than
-rerunning the original audit as an implementation substitute.
+For the first session, use the repository-audit prompt in `BACKLOG.md` / SMV-001 and instruct Codex not to modify files.
 
 For later implementation tasks:
 

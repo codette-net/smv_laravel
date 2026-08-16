@@ -1,10 +1,9 @@
 <?php
+namespace app\Enums;
 
-namespace App\Enums;
-
-enum BlogPostStatus: string
-{
+enum BlogPostStatus: string {
     case Draft = 'draft';
     case Published = 'published';
     case Archived = 'archived';
+
 }

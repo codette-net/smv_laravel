@@ -16,8 +16,7 @@ The legacy site includes the broad flows:
 - share vacancies
 - related jobs/content behavior
 
-Live behavior and URL value still require validation from crawl, analytics, backlink and
-Search Console inputs before final migration decisions.
+The exact live behavior should be verified before final migration decisions.
 
 ## Known vacancy metadata
 
@@ -81,12 +80,3 @@ Do not duplicate WordPress schema in Laravel merely for migration convenience.
 Map legacy data into deliberate Laravel domain concepts.
 
 When legacy behavior is unclear, verify before removing it.
-
-Migration is selective. Give priority to URLs with traffic, backlinks, commercial
-relevance and useful evergreen content. Outdated low-value blogs and obsolete about or
-process pages may be retired after review; the Laravel site does not have to reproduce
-every historical WordPress page.
-
-Use a relevant equivalent for redirects and avoid blanket redirects to the homepage.
-The final public route strategy remains open until SMV-040. Current URL inventories,
-Ahrefs exports and Search Console inputs are still outstanding and must not be inferred.

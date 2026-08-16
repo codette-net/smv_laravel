@@ -4,8 +4,7 @@ namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Models\Company;
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -15,78 +14,49 @@ class CompanyInfolist
     {
         return $schema
             ->components([
-                Section::make('Overzicht')
-                    ->columns(2)
-                    ->schema([
-                        SpatieMediaLibraryImageEntry::make('logo_media')
-                            ->label('Logo')
-                            ->collection('logo'),
-                        SpatieMediaLibraryImageEntry::make('cover_media')
-                            ->label('Omslagafbeelding')
-                            ->collection('cover'),
-                        TextEntry::make('name')
-                            ->label('Naam'),
-                        TextEntry::make('status')
-                            ->label('Status')
-                            ->badge(),
-                        IconEntry::make('is_featured')
-                            ->label('Uitgelicht')
-                            ->boolean(),
-                        TextEntry::make('user.name')
-                            ->label('Eigenaar')
-                            ->placeholder('-'),
-                        TextEntry::make('vacancies_count')
-                            ->label('Aantal vacatures')
-                            ->state(fn (Company $record): int => $record->vacancies()->count()),
-                        TextEntry::make('categories.name')
-                            ->label('Categorieën')
-                            ->badge()
-                            ->separator(',')
-                            ->placeholder('-'),
-                        TextEntry::make('tagline')
-                            ->label('Korte introductie')
-                            ->placeholder('-')
-                            ->columnSpanFull(),
-                        TextEntry::make('description')
-                            ->label('Beschrijving')
-                            ->placeholder('-')
-                            ->columnSpanFull(),
-                    ]),
-                Section::make('Contact')
-                    ->columns(2)
-                    ->schema([
-                        TextEntry::make('email')
-                            ->label('E-mailadres')
-                            ->placeholder('-'),
-                        TextEntry::make('phone')
-                            ->label('Telefoon')
-                            ->placeholder('-'),
-                        TextEntry::make('website')
-                            ->label('Website')
-                            ->placeholder('-'),
-                        TextEntry::make('location')
-                            ->label('Locatie')
-                            ->placeholder('-'),
-                    ]),
-                Section::make('Sociale media en extern')
-                    ->columns(2)
-                    ->schema([
-                        TextEntry::make('linkedin_url')->label('LinkedIn')->placeholder('-'),
-                        TextEntry::make('facebook_url')->label('Facebook')->placeholder('-'),
-                        TextEntry::make('instagram_url')->label('Instagram')->placeholder('-'),
-                        TextEntry::make('video_url')->label('Video')->placeholder('-'),
-                    ]),
-                Section::make('Administratie')
-                    ->columns(2)
-                    ->schema([
-                        TextEntry::make('slug')->label('Slug'),
-                        TextEntry::make('deleted_at')
-                            ->label('Verwijderd op')
-                            ->dateTime()
-                            ->visible(fn (Company $record): bool => $record->trashed()),
-                        TextEntry::make('created_at')->label('Aangemaakt op')->dateTime(),
-                        TextEntry::make('updated_at')->label('Bijgewerkt op')->dateTime(),
-                    ]),
+                TextEntry::make('user.name')
+                    ->label('User')
+                    ->placeholder('-'),
+                TextEntry::make('name'),
+                TextEntry::make('slug'),
+                TextEntry::make('tagline')
+                    ->placeholder('-'),
+                TextEntry::make('description')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
+                TextEntry::make('email')
+                    ->label('Email address')
+                    ->placeholder('-'),
+                TextEntry::make('phone')
+                    ->placeholder('-'),
+                TextEntry::make('website')
+                    ->placeholder('-'),
+                TextEntry::make('logo')
+                    ->placeholder('-'),
+                ImageEntry::make('cover_image')
+                    ->placeholder('-'),
+                TextEntry::make('location')
+                    ->placeholder('-'),
+                TextEntry::make('linkedin_url')
+                    ->placeholder('-'),
+                TextEntry::make('facebook_url')
+                    ->placeholder('-'),
+                TextEntry::make('instagram_url')
+                    ->placeholder('-'),
+                TextEntry::make('video_url')
+                    ->placeholder('-'),
+                TextEntry::make('status'),
+                IconEntry::make('is_featured')
+                    ->boolean(),
+                TextEntry::make('deleted_at')
+                    ->dateTime()
+                    ->visible(fn (Company $record): bool => $record->trashed()),
+                TextEntry::make('created_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->dateTime()
+                    ->placeholder('-'),
             ]);
     }
 }

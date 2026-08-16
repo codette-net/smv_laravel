@@ -5,10 +5,6 @@
 SEO is part of the MVP architecture and release criteria.
 It must not be postponed until after routes, content and migration behavior have become difficult to change.
 
-The repository currently has little production SEO implementation. Metadata,
-canonicals, structured data, sitemap/robots behavior and redirects remain release work,
-not implemented features.
-
 ## Public-page requirements
 
 Important indexable pages should have, where appropriate:
@@ -36,9 +32,6 @@ Vacancy pages should support:
 - valid JobPosting structured data where applicable
 
 Structured data must reflect visible/current vacancy data and should not present expired or unavailable jobs as active.
-
-Public vacancy slugs are stable after creation and should not change merely because a
-vacancy title is edited. The final public route strategy remains open until SMV-040.
 
 ## Company SEO
 
@@ -93,7 +86,3 @@ Use Ahrefs as an input for practical migration and SEO work, including:
 - compare old/new crawl issues
 
 Do not treat a generic SEO score as the goal; preserve real search value and fix concrete technical/content issues.
-
-The WordPress migration is selective. Prioritize URLs with traffic, backlinks,
-commercial relevance or useful evergreen content; do not reproduce every historical
-page or create irrelevant blanket redirects.

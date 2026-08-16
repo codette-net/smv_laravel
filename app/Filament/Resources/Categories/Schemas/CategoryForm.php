@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Categories\Schemas;
 
-use App\Enums\CategoryType;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -17,10 +15,9 @@ class CategoryForm
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
-                Select::make('type')
-                    ->options(CategoryType::class)
+                TextInput::make('type')
                     ->required()
-                    ->default(CategoryType::vacancy_category->value),
+                    ->default('vacancy_category'),
             ]);
     }
 }

@@ -4,19 +4,15 @@
 
 Provide a simple content module that can be managed comfortably through Filament and used for September presentation content plus ongoing SEO/content work.
 
-Blog is part of the MVP. Its model/schema foundation exists, but Filament editorial CRUD
-and the public blog are not complete.
-
 ## Delivery priority
 
-Build after the recruitment core, import mapping and SEO foundations are stable so this
-low-risk presentation/content module does not displace core delivery.
+Build after the recruitment core, import mapping and SEO foundations are stable.
 
 ## Minimal domain
 
 ### Post
 
-Required fields/concepts:
+Expected fields/concepts:
 
 - title
 - slug

@@ -2,9 +2,7 @@
 
 ## How to use this backlog
 
-The repository audit and SMV-001 foundation stabilization are complete. This is the
-agreed delivery order; individual task boundaries may still be refined when their
-current implementation is inspected.
+This is the initial order only. The first repository audit may change task boundaries because existing code may already implement all or part of a task.
 
 Every task should eventually contain:
 
@@ -18,21 +16,47 @@ Every task should eventually contain:
 ## Phase A — Agent readiness / audit
 
 ### SMV-001 Repository audit
-Status: Complete
 
-### Foundation stabilization
-Status: Complete
-Result of SMV-001 audit.
-Core schema/model inconsistencies, authorization and baseline tests stabilized.
+No code changes.
+
+Read all `/docs` and inspect:
+
+- composer.json
+- package.json
+- routes
+- migrations
+- models
+- policies
+- Filament resources/pages
+- Blade views/components
+- Tailwind config/components
+- existing assets
+- tests
+- import-related code
+- SEO-related code
+
+Report:
+
+1. implemented features
+2. partial features
+3. missing MVP features
+4. existing reusable frontend pieces
+5. current data model
+6. import status
+7. SEO status/risks
+8. technical debt that blocks MVP
+9. conflicts between docs and repository
+10. recommended task order
 
 ### SMV-002 Documentation sync
-Status: Complete
+
+Update TODO/unknown sections in `/docs` only after the repository audit and user review.
 
 ## Phase B — Recruitment core
 
-Planned tasks:
+Provisional tasks:
 
-- SMV-010 Company domain audit/completion — Next
+- SMV-010 Company domain audit/completion
 - SMV-011 Company Filament admin
 - SMV-012 Public company page
 - SMV-020 Vacancy lifecycle audit/completion
@@ -66,7 +90,7 @@ Planned tasks:
 
 ## Phase E — Commercial flow
 
-Planned, with exact scope dependent on current implementation and business requirements:
+Provisional, dependent on current implementation/business requirements:
 
 - SMV-050 Packages audit/completion
 - SMV-051 Orders/payments audit/completion
