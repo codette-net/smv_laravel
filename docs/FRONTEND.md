@@ -38,6 +38,16 @@ The current frontend is only partially implemented.
 Some layouts/pages are prototypes or template conversions rather than completed
 application flows.
 
+Blade `x-*` components are a preferred production pattern. Existing demo routes, route
+names, layout wiring and prototype page architecture are not authoritative. Preserve
+useful Blade components, Mosaic markup and assets, but do not preserve broken demo
+architecture merely because it currently exists. `x-app-layout` may be adapted or
+reused where it helps establish the canonical public layout.
+
+The public website is Dutch. Navigation, forms, validation-facing labels,
+vacancy/company UI, blog UI and SEO-facing copy should be Dutch. Internal code and
+developer documentation may remain English.
+
 Codex must inspect existing implementation before extending it.
 
 ## Important repository conventions
@@ -57,7 +67,7 @@ components/app/sidebar.blade.php
 
 components/job/job-list.blade.php
 components/job/job-sidebar.blade.php
-````
+```
 
 Prefer extending these components where appropriate rather than duplicating them.
 
@@ -168,8 +178,9 @@ work properly with Laravel routes/controllers.
 
 Codex may improve this integration.
 
-Do not create a parallel public layout architecture until the existing layouts have
-been inspected and their shortcomings documented.
+Establish one coherent public layout from the useful existing patterns. Do not create a
+parallel architecture merely to avoid adapting existing components, and do not treat
+the current layout wiring as a contract when it is incomplete or broken.
 
 ## Existing public views
 
@@ -180,7 +191,7 @@ home.blade.php
 welcome.blade.php
 ```
 
-These should be treated as existing experiments/prototypes until verified.
+These are existing experiments/prototypes and are not authoritative production pages.
 
 ## CSS
 
@@ -333,7 +344,7 @@ The MVP must work well on:
 
 Do not sacrifice responsive behavior merely to reproduce a template screenshot.
 
-## Initial Codex frontend task
+## Next frontend implementation inventory
 
 Before changing the frontend, Codex should create a short inventory containing:
 
@@ -346,4 +357,5 @@ Before changing the frontend, Codex should create a short inventory containing:
 * broken/missing layout wiring
 * recommended canonical vacancy/company views
 
-No broad frontend rewrite should occur before this inventory is reviewed.
+The repository-level inventory is complete; each public-flow task should still confirm
+its canonical view and reusable components before replacing prototype wiring.

@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\Vacancies\Schemas;
 
+use App\Enums\VacancySource;
+use App\Enums\VacancyStatus;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -21,7 +23,7 @@ class VacancyForm
                 TextInput::make('title')
                     ->required(),
                 TextInput::make('slug')
-                    ->required(),
+                    ->unique(ignoreRecord: true),
                 Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
@@ -46,12 +48,14 @@ class VacancyForm
                     ->required(),
                 Toggle::make('is_filled')
                     ->required(),
-                TextInput::make('status')
+                Select::make('status')
+                    ->options(VacancyStatus::class)
                     ->required()
-                    ->default('draft'),
-                TextInput::make('source')
+                    ->default(VacancyStatus::Draft->value),
+                Select::make('source')
+                    ->options(VacancySource::class)
                     ->required()
-                    ->default('manual'),
+                    ->default(VacancySource::Manual->value),
             ]);
     }
 }
