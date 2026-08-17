@@ -38,6 +38,12 @@ class VacanciesTable
                 TextColumn::make('location')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('published_at')
+                    ->date()
+                    ->sortable()
+                    ->toggleable()
+                    ->wrap()
+                    ->lineclamp(2),
                 //                TextColumn::make('application_email')
                 //                    ->searchable(),
                 //                TextColumn::make('application_url')

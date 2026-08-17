@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use Database\Factories\VacancyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,7 @@ class Vacancy extends Model
         'rate_max',
         'reference',
         'source_reference',
+        'published_at',
         'deadline_at',
         'expires_at',
         'is_featured',
@@ -45,6 +47,7 @@ class Vacancy extends Model
     protected function casts(): array
     {
         return [
+            'published_at' => 'datetime',
             'deadline_at' => 'datetime',
             'expires_at' => 'datetime',
             'is_featured' => 'boolean',
@@ -84,6 +87,34 @@ class Vacancy extends Model
     public function categories(): MorphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
+    }
+
+    /**
+     * Limit vacancies to those that are currently available on public surfaces.
+     *
+     * A null publication timestamp preserves the existing immediate-publication
+     * behaviour for already-published records. Null deadlines and expiry dates
+     * mean that no restriction of that type has been set.
+     *
+     * @param  Builder<Vacancy>  $query
+     * @return Builder<Vacancy>
+     */
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        $now = now();
+
+        return $query
+            ->where('status', VacancyStatus::Active->value)
+            ->where('is_filled', false)
+            ->where(fn (Builder $query) => $query
+                ->whereNull('published_at')
+                ->orWhere('published_at', '<=', $now))
+            ->where(fn (Builder $query) => $query
+                ->whereNull('deadline_at')
+                ->orWhere('deadline_at', '>=', $now))
+            ->where(fn (Builder $query) => $query
+                ->whereNull('expires_at')
+                ->orWhere('expires_at', '>=', $now));
     }
 
     public function vacancy_url(): string

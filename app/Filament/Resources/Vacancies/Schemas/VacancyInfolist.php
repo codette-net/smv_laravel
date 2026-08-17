@@ -41,6 +41,9 @@ class VacancyInfolist
                     ->placeholder('-'),
                 TextEntry::make('source_reference')
                     ->placeholder('-'),
+                TextEntry::make('published_at')
+                    ->dateTime()
+                    ->placeholder('-'),
                 TextEntry::make('deadline_at')
                     ->dateTime()
                     ->placeholder('-'),
