@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CompanyStatus;
 use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -70,6 +71,11 @@ class Company extends Model implements HasMedia
     public function isPubliclyVisible(): bool
     {
         return $this->status === CompanyStatus::Active;
+    }
+
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->where('status', CompanyStatus::Active->value);
     }
 
     public function publicLogoUrl(): ?string

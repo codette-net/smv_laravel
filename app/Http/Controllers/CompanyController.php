@@ -9,6 +9,28 @@ use Illuminate\Support\Str;
 
 class CompanyController extends Controller
 {
+    public function index(): View
+    {
+        $companies = Company::query()
+            ->publiclyVisible()
+            ->with('media')
+            ->withCount([
+                'vacancies as public_vacancies_count' => fn ($query) => $query
+                    ->where('status', VacancyStatus::Active->value)
+                    ->where('is_filled', false)
+                    ->where(fn ($query) => $query
+                        ->whereNull('expires_at')
+                        ->orWhere('expires_at', '>=', now())),
+            ])
+            ->orderByDesc('is_featured')
+            ->orderBy('name')
+            ->paginate(12);
+
+        return view('companies.index', [
+            'companies' => $companies,
+        ]);
+    }
+
     public function show(Company $company): View
     {
         abort_unless($company->isPubliclyVisible(), 404);
