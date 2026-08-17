@@ -76,14 +76,18 @@ test('only current published vacancies are shown for a company', function () {
     companyVacancy($company, ['title' => 'Zichtbare vacature']);
     companyVacancy($company, ['title' => 'Concept vacature', 'status' => VacancyStatus::Draft]);
     companyVacancy($company, ['title' => 'Ingevulde vacature', 'is_filled' => true]);
+    companyVacancy($company, ['title' => 'Gesloten vacature', 'deadline_at' => now()->subDay()]);
     companyVacancy($company, ['title' => 'Verlopen vacature', 'expires_at' => now()->subDay()]);
+    companyVacancy($company, ['title' => 'Geplande vacature', 'published_at' => now()->addDay()]);
 
     $this->get(route('bedrijven.show', $company))
         ->assertOk()
         ->assertSee('Zichtbare vacature')
         ->assertDontSee('Concept vacature')
         ->assertDontSee('Ingevulde vacature')
-        ->assertDontSee('Verlopen vacature');
+        ->assertDontSee('Gesloten vacature')
+        ->assertDontSee('Verlopen vacature')
+        ->assertDontSee('Geplande vacature');
 });
 
 test('a company without public vacancies renders an empty state', function () {

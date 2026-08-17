@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\VacancyStatus;
 use App\Models\Company;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
@@ -15,12 +14,7 @@ class CompanyController extends Controller
             ->publiclyVisible()
             ->with('media')
             ->withCount([
-                'vacancies as public_vacancies_count' => fn ($query) => $query
-                    ->where('status', VacancyStatus::Active->value)
-                    ->where('is_filled', false)
-                    ->where(fn ($query) => $query
-                        ->whereNull('expires_at')
-                        ->orWhere('expires_at', '>=', now())),
+                'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
             ])
             ->orderByDesc('is_featured')
             ->orderBy('name')
@@ -39,11 +33,7 @@ class CompanyController extends Controller
 
         $vacancies = $company->vacancies()
             ->with('company')
-            ->where('status', VacancyStatus::Active->value)
-            ->where('is_filled', false)
-            ->where(fn ($query) => $query
-                ->whereNull('expires_at')
-                ->orWhere('expires_at', '>=', now()))
+            ->publiclyVisible()
             ->latest()
             ->get();
 

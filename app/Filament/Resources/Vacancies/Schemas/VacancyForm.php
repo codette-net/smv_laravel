@@ -42,7 +42,9 @@ class VacancyForm
                     ->numeric(),
                 TextInput::make('reference'),
                 TextInput::make('source_reference'),
-                DateTimePicker::make('deadline_at'),
+                DateTimePicker::make('published_at'),
+                DateTimePicker::make('deadline_at')
+                    ->default(fn () => now()->addMonths(2)),
                 DateTimePicker::make('expires_at'),
                 Toggle::make('is_featured')
                     ->required(),

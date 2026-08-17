@@ -63,7 +63,9 @@ test('company vacancy counts follow the current public vacancy rule', function (
     listedVacancy($company, ['title' => 'Open vacature']);
     listedVacancy($company, ['title' => 'Concept vacature', 'status' => VacancyStatus::Draft]);
     listedVacancy($company, ['title' => 'Ingevulde vacature', 'is_filled' => true]);
+    listedVacancy($company, ['title' => 'Gesloten vacature', 'deadline_at' => now()->subDay()]);
     listedVacancy($company, ['title' => 'Verlopen vacature', 'expires_at' => now()->subDay()]);
+    listedVacancy($company, ['title' => 'Geplande vacature', 'published_at' => now()->addDay()]);
 
     $this->get(route('companies.index'))
         ->assertOk()
