@@ -96,6 +96,21 @@ test('vacancies with identical titles receive distinct slugs', function () {
         ->and($secondVacancy->slug)->not->toBe($firstVacancy->slug);
 });
 
+test('vacancy factories defer collision-safe slug generation to the model', function () {
+    $company = Company::factory()->create();
+    $firstVacancy = Vacancy::factory()->create([
+        'company_id' => $company->id,
+        'title' => 'Accountmanager',
+    ]);
+    $secondVacancy = Vacancy::factory()->create([
+        'company_id' => $company->id,
+        'title' => 'Accountmanager',
+    ]);
+
+    expect($firstVacancy->slug)->toBe('accountmanager')
+        ->and($secondVacancy->slug)->not->toBe($firstVacancy->slug);
+});
+
 test('manual vacancies do not require import identity', function () {
     User::factory()->create();
     $company = Company::factory()->create();
