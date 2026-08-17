@@ -67,6 +67,26 @@ class Company extends Model implements HasMedia
             ->singleFile();
     }
 
+    public function isPubliclyVisible(): bool
+    {
+        return $this->status === CompanyStatus::Active;
+    }
+
+    public function publicLogoUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('logo') ?: $this->logo;
+    }
+
+    public function publicCoverUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('cover') ?: $this->cover_image;
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
