@@ -120,11 +120,33 @@ class Vacancy extends Model
 
     public function vacancy_url(): string
     {
-        return '/vacature/'.$this->slug;
+        return '/vacatures/'.$this->slug;
     }
 
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function compensationLabel(): ?string
+    {
+        if ($this->salary_min !== null || $this->salary_max !== null) {
+            return $this->formattedRange('Salaris', $this->salary_min, $this->salary_max);
+        }
+
+        if ($this->rate_min !== null || $this->rate_max !== null) {
+            return $this->formattedRange('Tarief', $this->rate_min, $this->rate_max);
+        }
+
+        return null;
+    }
+
+    private function formattedRange(string $label, ?int $minimum, ?int $maximum): string
+    {
+        return match (true) {
+            $minimum !== null && $maximum !== null => $label.': '.number_format($minimum, 0, ',', '.').' – '.number_format($maximum, 0, ',', '.'),
+            $minimum !== null => $label.' vanaf '.number_format($minimum, 0, ',', '.'),
+            default => $label.' tot '.number_format((int) $maximum, 0, ',', '.'),
+        };
     }
 }

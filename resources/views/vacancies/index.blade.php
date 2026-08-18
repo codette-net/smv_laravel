@@ -37,7 +37,7 @@
                     @if ($vacancies->isNotEmpty())
                         <div class="flex flex-col gap-2">
                             @foreach ($vacancies as $vacancy)
-                                <x-vacancy.card :vacancy="$vacancy" />
+                                <x-vacancy.card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)" />
                             @endforeach
                         </div>
 

@@ -79,12 +79,28 @@ class VacancyController extends Controller
         ]);
     }
 
-    public function show(Vacancy $vacancy)
+    public function show(Vacancy $vacancy): View
     {
-        $vacancy->load(['company', 'categories']);
+        abort_unless(Vacancy::query()->publiclyVisible()->whereKey($vacancy->getKey())->exists(), 404);
+        abort_unless($vacancy->company()->publiclyVisible()->exists(), 404);
 
-        return $vacancy;
+        $vacancy->load(['company.media', 'categories.parent', 'tags']);
 
+        $relatedVacancies = Vacancy::query()
+            ->publiclyVisible()
+            ->where('company_id', $vacancy->company_id)
+            ->whereKeyNot($vacancy->getKey())
+            ->with(['company.media', 'categories'])
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
+
+        return view('vacancies.show', [
+            'vacancy' => $vacancy,
+            'taxonomy' => $this->vacancyTaxonomy($vacancy),
+            'logoUrl' => $vacancy->company->publicLogoUrl(),
+            'relatedVacancies' => $relatedVacancies,
+        ]);
     }
 
     /** @return array<int, string> */
@@ -208,5 +224,15 @@ class VacancyController extends Controller
         }
 
         return $value;
+    }
+
+    /** @return array<string, Collection<int, Category>> */
+    private function vacancyTaxonomy(Vacancy $vacancy): array
+    {
+        return collect($this->taxonomyFilterTypes())
+            ->map(fn (CategoryType $type): Collection => $vacancy->categories
+                ->where('type', $type)
+                ->values())
+            ->all();
     }
 }
