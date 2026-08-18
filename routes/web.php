@@ -14,4 +14,5 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/bedrijven', [CompanyController::class, 'index'])->name('companies.index');
 Route::get('/bedrijven/{company}', [CompanyController::class, 'show'])->name('bedrijven.show');
 
+Route::get('/vacatures', [VacancyController::class, 'index'])->name('vacancies.index');
 Route::get('/vacature/{vacancy}', [VacancyController::class, 'show'])->name('vacatures.show');
