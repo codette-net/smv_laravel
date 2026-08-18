@@ -107,7 +107,7 @@ test('location category and company filters combine through the query string', f
         ->assertDontSee('Marketeer')
         ->assertDontSee('Salesmanager')
         ->assertSee('Locatie: Utrecht')
-        ->assertSee('Categorie: sales')
+        ->assertSee('Categorie: Sales')
         ->assertSee('Bedrijf: '.$targetCompany->slug);
 });
 
@@ -132,8 +132,49 @@ test('the index filters structured vacancy taxonomies through stable slugs', fun
         ->assertOk()
         ->assertSee('Passende vacature')
         ->assertDontSee('Andere vacature')
-        ->assertSee('Dienstverband: '.$fulltime->slug)
-        ->assertSee('Ervaring: '.$medior->slug);
+        ->assertSee('Dienstverband: Fulltime')
+        ->assertSee('Ervaring: Medior');
+});
+
+test('each structured taxonomy filter and their combined selection use only matching categories', function () {
+    $categories = [
+        'dienstverband' => Category::factory()->create(['name' => 'Fulltime', 'type' => CategoryType::employment_type]),
+        'werklocatie' => Category::factory()->create(['name' => 'Hybride', 'type' => CategoryType::workplace]),
+        'sector' => Category::factory()->create(['name' => 'IT', 'type' => CategoryType::sector]),
+        'functiegebied' => Category::factory()->create(['name' => 'Sales', 'type' => CategoryType::function_area]),
+        'ervaring' => Category::factory()->create(['name' => 'Senior', 'type' => CategoryType::experience]),
+    ];
+    $company = publicListingCompany();
+    $match = publicListingVacancy($company, ['title' => 'Volledig getaxeerde vacature']);
+    $match->categories()->attach(collect($categories)->pluck('id')->all());
+    publicListingVacancy($company, ['title' => 'Vacature zonder taxonomie']);
+
+    foreach ($categories as $parameter => $category) {
+        $this->get(route('vacancies.index', [$parameter => $category->slug]))
+            ->assertOk()
+            ->assertSee('Volledig getaxeerde vacature')
+            ->assertDontSee('Vacature zonder taxonomie');
+    }
+
+    $this->get(route('vacancies.index', collect($categories)->map(fn (Category $category): string => $category->slug)->all()))
+        ->assertOk()
+        ->assertSee('Volledig getaxeerde vacature')
+        ->assertDontSee('Vacature zonder taxonomie');
+});
+
+test('taxonomy options only expose relevant categories of their matching type and chips use names', function () {
+    $it = Category::factory()->create(['name' => 'IT', 'type' => CategoryType::sector]);
+    $legacy = Category::factory()->create(['name' => 'Verborgen oude categorie', 'type' => CategoryType::vacancy_category]);
+    $company = publicListingCompany();
+    $vacancy = publicListingVacancy($company, ['title' => 'IT vacature']);
+    $vacancy->categories()->attach($it);
+    publicListingVacancy($company, ['title' => 'Andere vacature'])->categories()->attach($legacy);
+
+    $this->get(route('vacancies.index', ['sector' => 'it']))
+        ->assertOk()
+        ->assertSee('Sector: IT')
+        ->assertSee('>IT<', false)
+        ->assertDontSee('Verborgen oude categorie');
 });
 
 test('the index supports safe newest deadline and alphabetical sorting', function () {

@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\User;
 use App\Models\Vacancy;
 use Database\Seeders\CategorySeeder;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Spatie\Tags\Tag;
@@ -65,6 +66,20 @@ test('taxonomy seeding is deterministic and provides hierarchy and free tags', f
     expect(Category::query()->where('type', CategoryType::employment_type->value)->count())->toBe(4)
         ->and($it->children()->where('slug', 'saas')->exists())->toBeTrue()
         ->and(Tag::query()->get()->contains(fn (Tag $tag): bool => $tag->name === 'AI'))->toBeTrue();
+});
+
+test('demo seed vacancies receive deterministic structured taxonomies and tags', function () {
+    $this->seed(DatabaseSeeder::class);
+
+    $salesManager = Vacancy::query()->where('title', 'Sales Manager SaaS')->sole();
+
+    expect(Vacancy::query()->publiclyVisible()->count())->toBe(6)
+        ->and($salesManager->categories()->where('type', CategoryType::employment_type->value)->where('slug', 'fulltime')->exists())->toBeTrue()
+        ->and($salesManager->categories()->where('type', CategoryType::workplace->value)->where('slug', 'hybride')->exists())->toBeTrue()
+        ->and($salesManager->categories()->where('type', CategoryType::sector->value)->where('slug', 'saas')->exists())->toBeTrue()
+        ->and($salesManager->categories()->where('type', CategoryType::function_area->value)->where('slug', 'sales')->exists())->toBeTrue()
+        ->and($salesManager->categories()->where('type', CategoryType::experience->value)->where('slug', 'senior')->exists())->toBeTrue()
+        ->and($salesManager->tags->pluck('name')->all())->toContain('B2B', 'SaaS');
 });
 
 test('an administrator can access the category resource', function () {
