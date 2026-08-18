@@ -1,4 +1,4 @@
-@props(['filters', 'sort', 'sortOptions', 'locations', 'categories', 'companies'])
+@props(['filters', 'sort', 'sortOptions', 'locations', 'taxonomyOptions', 'companies'])
 
 <form action="{{ route('vacancies.index') }}" class="grid grid-cols-2 gap-6 md:grid-cols-1" method="GET" x-data>
     <div class="col-span-full">
@@ -22,15 +22,17 @@
         </select>
     </div>
 
-    <div>
-        <label class="mb-3 block text-sm font-semibold text-gray-800" for="categorie">Categorie</label>
-        <select class="form-select w-full text-sm" id="categorie" name="categorie" @change="$el.form.requestSubmit()">
-            <option value="">Alle categorieën</option>
-            @foreach ($categories as $category)
-                <option value="{{ $category->slug }}" @selected($filters['categorie'] === $category->slug)>{{ $category->name }}</option>
-            @endforeach
-        </select>
-    </div>
+    @foreach (['dienstverband' => 'Dienstverband', 'werklocatie' => 'Werklocatie', 'sector' => 'Sector', 'functiegebied' => 'Functiegebied', 'ervaring' => 'Ervaring'] as $filter => $label)
+        <div>
+            <label class="mb-3 block text-sm font-semibold text-gray-800" for="{{ $filter }}">{{ $label }}</label>
+            <select class="form-select w-full text-sm" id="{{ $filter }}" name="{{ $filter }}" @change="$el.form.requestSubmit()">
+                <option value="">Alle opties</option>
+                @foreach ($taxonomyOptions[$filter] as $category)
+                    <option value="{{ $category->slug }}" @selected($filters[$filter] === $category->slug)>{{ $category->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    @endforeach
 
     <div>
         <label class="mb-3 block text-sm font-semibold text-gray-800" for="bedrijf">Bedrijf</label>

@@ -29,6 +29,11 @@ The following are not implemented yet:
 Future import code must use `import_source_id` / `ImportSource` as provider identity. It
 must not use legacy `imports.source` for that purpose.
 
+Structured imported vacancy attributes such as employment type, workplace, sector,
+function area and experience must map to the controlled `Category` taxonomy by type;
+flexible descriptive values may map to Spatie Tags. Source-specific aliases and
+normalization rules remain part of SMV-030 rather than the Category model.
+
 ## Supported source direction
 
 MVP should be architected for sources such as:

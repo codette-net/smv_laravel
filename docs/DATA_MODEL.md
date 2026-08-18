@@ -108,6 +108,22 @@ Company
 └── Commercial/package relations as needed
 ```
 
+## Structured taxonomies and tags
+
+`Category` remains the controlled polymorphic taxonomy model. Vacancy-facing category
+types are `employment_type` (Dienstverband), `workplace` (Werklocatie), `sector`,
+`function_area` (Functiegebied), and `experience` (Ervaring). Categories have stable,
+type-scoped slugs and may have a same-type parent; Sector uses this for its practical
+one-level hierarchy. Legacy `vacancy_category`, `job_type`, `career_level` and
+`qualification` values, plus existing Company and Blog category types, remain readable
+compatibility taxonomies; new Vacancy administration and public filters use only the
+five canonical types.
+
+Flexible descriptive Vacancy tags use Spatie Laravel Tags, not `Category`. Tags such
+as AI, CRM, SaaS and B2B are free-form; filterable employment, workplace, sector,
+function-area and experience values must remain structured Categories. Future imports
+may map source values to Category IDs/slugs by type and may separately attach Tags.
+
 ## Vacancy import provenance
 
 Imported vacancy provenance uses `ImportSource`. `import_source_id` is the authoritative

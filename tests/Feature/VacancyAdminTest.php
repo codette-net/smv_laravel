@@ -43,7 +43,7 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
     $category = Category::create([
         'name' => 'Sales',
         'slug' => 'sales',
-        'type' => CategoryType::vacancy_category,
+        'type' => CategoryType::function_area,
     ]);
 
     $this->actingAs($administrator);
@@ -60,7 +60,7 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
             'application_url' => 'https://example.test/solliciteren',
             'is_featured' => true,
             'is_filled' => false,
-            'categories' => [$category->id],
+            'function_area_categories' => [$category->id],
         ])
         ->call('create')
         ->assertHasNoFormErrors();

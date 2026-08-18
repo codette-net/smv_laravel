@@ -14,11 +14,12 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
 class Vacancy extends Model
 {
     /** @use HasFactory<VacancyFactory> */
-    use HasFactory, HasSlug, SoftDeletes;
+    use HasFactory, HasSlug, HasTags, SoftDeletes;
 
     protected $fillable = [
         'company_id',
