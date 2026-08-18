@@ -11,7 +11,7 @@
         </div>
         <div class="min-w-0 grow">
             <h3 class="text-base font-semibold text-slate-900">
-                <a class="transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600" href="{{ route('vacatures.show', $vacancy) }}">
+                <a class="transition hover:text-blue-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600" href="{{ route('vacancies.show', $vacancy) }}">
                     {{ $vacancy->title }}
                 </a>
             </h3>
@@ -19,7 +19,7 @@
                 <p class="mt-1 text-sm text-slate-500">{{ $vacancy->location }}</p>
             @endif
         </div>
-        <a class="hidden shrink-0 rounded-lg border border-blue-600 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 sm:inline-flex" href="{{ route('vacatures.show', $vacancy) }}">
+        <a class="hidden shrink-0 rounded-lg border border-blue-600 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 sm:inline-flex" href="{{ route('vacancies.show', $vacancy) }}">
             Bekijk vacature
         </a>
     </div>

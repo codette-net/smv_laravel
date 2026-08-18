@@ -31,7 +31,6 @@ enum CategoryType: string implements HasLabel
             self::vacancy_category => 'Vacaturecategorie',
             self::job_type => 'Dienstverband',
             self::career_level => 'Carrièreniveau',
-            self::experience => 'Ervaring',
             self::qualification => 'Opleidingsniveau',
             self::company_category => 'Bedrijfscategorie',
             self::blog_category => 'Blogcategorie',

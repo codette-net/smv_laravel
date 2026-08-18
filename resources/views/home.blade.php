@@ -277,7 +277,7 @@
                                                             </div>
                                                             <div class="mb-2">
                                                                 <a class="text-lg text-gray-800 font-bold"
-                                                                   href="/vacature/{{ $vac->slug }}">{{ $vac->title }}</a>
+                                                                   href="{{ route('vacancies.show', $vac) }}">{{ $vac->title }}</a>
                                                             </div>
                                                             <div class="-m-1">
                                                                 <a class="text-xs text-gray-500 font-medium inline-flex px-2 py-0.5 bg-indigo-50 hover:text-gray-600 rounded-md m-1 whitespace-nowrap transition duration-150 ease-in-out"
@@ -296,7 +296,7 @@
                                                             class="min-w-[120px] flex items-center lg:justify-end space-x-3 lg:space-x-0">
                                                             <div class="lg:hidden lg:group-hover:block">
                                                                 <a class="btn-sm py-1.5 px-3 text-white bg-indigo-500 hover:bg-indigo-600 group shadow-xs"
-                                                                   href="{{ route('vacatures.show', $vac) }}">
+                                                                   href="{{ route('vacancies.show', $vac) }}">
                                                                     Lees meer <span
                                                                         class="tracking-normal text-indigo-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
                                                                 </a>

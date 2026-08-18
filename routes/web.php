@@ -15,4 +15,4 @@ Route::get('/bedrijven', [CompanyController::class, 'index'])->name('companies.i
 Route::get('/bedrijven/{company}', [CompanyController::class, 'show'])->name('bedrijven.show');
 
 Route::get('/vacatures', [VacancyController::class, 'index'])->name('vacancies.index');
-Route::get('/vacature/{vacancy}', [VacancyController::class, 'show'])->name('vacatures.show');
+Route::get('/vacatures/{vacancy}', [VacancyController::class, 'show'])->name('vacancies.show');
