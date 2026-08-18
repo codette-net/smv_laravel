@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Vacancies\Schemas;
 
 use App\Models\Vacancy;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\SpatieTagsEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -34,6 +35,10 @@ class VacancyInfolist
                         TextEntry::make('categories.name')
                             ->label('Categorieën')
                             ->badge()
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+                        SpatieTagsEntry::make('tags')
+                            ->label('Tags')
                             ->placeholder('-')
                             ->columnSpanFull(),
                     ]),

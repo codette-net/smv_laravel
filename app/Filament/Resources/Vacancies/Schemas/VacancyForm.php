@@ -4,15 +4,16 @@ namespace App\Filament\Resources\Vacancies\Schemas;
 
 use App\Enums\CategoryType;
 use App\Enums\VacancyStatus;
+use App\Models\Category;
 use App\Models\Vacancy;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Builder;
 
 class VacancyForm
 {
@@ -44,21 +45,16 @@ class VacancyForm
                         Toggle::make('is_filled')
                             ->label('Vervuld')
                             ->default(false),
-                        Select::make('categories')
-                            ->label('Categorieën')
-                            ->multiple()
-                            ->relationship(
-                                'categories',
-                                'name',
-                                fn (Builder $query): Builder => $query->whereIn('type', [
-                                    CategoryType::vacancy_category->value,
-                                    CategoryType::job_type->value,
-                                    CategoryType::career_level->value,
-                                    CategoryType::experience->value,
-                                    CategoryType::qualification->value,
-                                ]),
-                            )
-                            ->searchable()
+                    ]),
+                Section::make('Taxonomie en tags')
+                    ->description('Gebruik vaste taxonomieën voor filterbare vacaturekenmerken en tags alleen voor vrije, beschrijvende onderwerpen.')
+                    ->columns(2)
+                    ->schema([
+                        ...self::taxonomyFields(),
+                        SpatieTagsInput::make('tags')
+                            ->label('Tags')
+                            ->placeholder('Bijvoorbeeld AI, CRM of B2B')
+                            ->helperText('Gebruik geen tags voor dienstverband, werklocatie, senioriteit of functiegebied.')
                             ->columnSpanFull(),
                     ]),
                 Section::make('Vacaturetekst')
@@ -134,5 +130,32 @@ class VacancyForm
                             ->disabled(),
                     ]),
             ]);
+    }
+
+    /** @return array<int, Select> */
+    private static function taxonomyFields(): array
+    {
+        return [
+            self::taxonomyField('employment_type_categories', 'Dienstverband', CategoryType::employment_type),
+            self::taxonomyField('workplace_categories', 'Werklocatie', CategoryType::workplace),
+            self::taxonomyField('sector_categories', 'Sector', CategoryType::sector),
+            self::taxonomyField('function_area_categories', 'Functiegebied', CategoryType::function_area),
+            self::taxonomyField('experience_categories', 'Ervaring', CategoryType::experience),
+        ];
+    }
+
+    private static function taxonomyField(string $name, string $label, CategoryType $type): Select
+    {
+        return Select::make($name)
+            ->label($label)
+            ->multiple()
+            ->options(fn (): array => Category::query()
+                ->where('type', $type->value)
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->all())
+            ->searchable()
+            ->preload()
+            ->dehydrated(false);
     }
 }

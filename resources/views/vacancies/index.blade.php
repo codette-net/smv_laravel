@@ -21,7 +21,7 @@
                                 <a class="text-sm font-medium text-indigo-500 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" href="{{ route('vacancies.index') }}">Wis</a>
                             @endif
                         </div>
-                        <x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :categories="$categories" :companies="$companies" />
+                        <x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :taxonomy-options="$taxonomyOptions" :companies="$companies" />
                     </div>
                 </aside>
 

@@ -111,6 +111,31 @@ test('location category and company filters combine through the query string', f
         ->assertSee('Bedrijf: '.$targetCompany->slug);
 });
 
+test('the index filters structured vacancy taxonomies through stable slugs', function () {
+    $fulltime = Category::factory()->create(['name' => 'Fulltime', 'type' => CategoryType::employment_type]);
+    $hybrid = Category::factory()->create(['name' => 'Hybride', 'type' => CategoryType::workplace]);
+    $it = Category::factory()->create(['name' => 'IT', 'type' => CategoryType::sector]);
+    $sales = Category::factory()->create(['name' => 'Sales', 'type' => CategoryType::function_area]);
+    $medior = Category::factory()->create(['name' => 'Medior', 'type' => CategoryType::experience]);
+    $company = publicListingCompany();
+    $match = publicListingVacancy($company, ['title' => 'Passende vacature']);
+    $match->categories()->attach([$fulltime->id, $hybrid->id, $it->id, $sales->id, $medior->id]);
+    publicListingVacancy($company, ['title' => 'Andere vacature']);
+
+    $this->get(route('vacancies.index', [
+        'dienstverband' => $fulltime->slug,
+        'werklocatie' => $hybrid->slug,
+        'sector' => $it->slug,
+        'functiegebied' => $sales->slug,
+        'ervaring' => $medior->slug,
+    ]))
+        ->assertOk()
+        ->assertSee('Passende vacature')
+        ->assertDontSee('Andere vacature')
+        ->assertSee('Dienstverband: '.$fulltime->slug)
+        ->assertSee('Ervaring: '.$medior->slug);
+});
+
 test('the index supports safe newest deadline and alphabetical sorting', function () {
     $company = publicListingCompany();
     publicListingVacancy($company, ['title' => 'Zebra', 'published_at' => now()->subDay(), 'deadline_at' => now()->addDays(5)]);
