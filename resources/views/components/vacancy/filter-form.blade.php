@@ -28,7 +28,7 @@
             <select class="form-select w-full text-sm" id="{{ $filter }}" name="{{ $filter }}" @change="$el.form.requestSubmit()">
                 <option value="">Alle opties</option>
                 @foreach ($taxonomyOptions[$filter] as $category)
-                    <option value="{{ $category->slug }}" @selected($filters[$filter] === $category->slug)>{{ $category->name }}</option>
+                    <option value="{{ $category->slug }}" @selected($filters[$filter] === $category->slug)>{{ $category->parent ? $category->parent->name.' — '.$category->name : $category->name }}</option>
                 @endforeach
             </select>
         </div>

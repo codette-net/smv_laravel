@@ -105,20 +105,28 @@ class VacancyController extends Controller
     /** @return array<string, Collection<int, Category>> */
     private function taxonomyOptions(): array
     {
-        return collect([
+        return collect($this->taxonomyFilterTypes())
+            ->map(fn (CategoryType $type): Collection => Category::query()
+                ->with('parent')
+                ->where('type', $type->value)
+                ->whereHas('vacancies', fn (Builder $query): Builder => $query
+                    ->publiclyVisible()
+                    ->whereHas('company', fn (Builder $query): Builder => $query->publiclyVisible()))
+                ->orderBy('name')
+                ->get())
+            ->all();
+    }
+
+    /** @return array<string, CategoryType> */
+    private function taxonomyFilterTypes(): array
+    {
+        return [
             'dienstverband' => CategoryType::employment_type,
             'werklocatie' => CategoryType::workplace,
             'sector' => CategoryType::sector,
             'functiegebied' => CategoryType::function_area,
             'ervaring' => CategoryType::experience,
-        ])->map(fn (CategoryType $type): Collection => Category::query()
-            ->where('type', $type->value)
-            ->whereHas('vacancies', fn (Builder $query): Builder => $query
-                ->publiclyVisible()
-                ->whereHas('company', fn (Builder $query): Builder => $query->publiclyVisible()))
-            ->orderBy('name')
-            ->get())
-            ->all();
+        ];
     }
 
     /** @return Collection<int, Company> */
@@ -167,7 +175,7 @@ class VacancyController extends Controller
         return collect($filters)
             ->filter(fn (string $value): bool => $value !== '')
             ->map(fn (string $value, string $key): array => [
-                'label' => $labels[$key].': '.$value,
+                'label' => $labels[$key].': '.$this->activeFilterValue($key, $value),
                 'url' => route('vacancies.index', array_diff_key($parameters, [$key => true])),
             ])
             ->values()
@@ -179,5 +187,26 @@ class VacancyController extends Controller
         return $query->whereHas('categories', fn (Builder $categoryQuery): Builder => $categoryQuery
             ->where('type', $type->value)
             ->where('slug', $slug));
+    }
+
+    private function activeFilterValue(string $key, string $value): string
+    {
+        $type = $this->taxonomyFilterTypes()[$key] ?? null;
+
+        if ($type !== null) {
+            return Category::query()
+                ->where('type', $type->value)
+                ->where('slug', $value)
+                ->value('name') ?? $value;
+        }
+
+        if ($key === 'categorie') {
+            return Category::query()
+                ->whereIn('type', [CategoryType::function_area->value, CategoryType::vacancy_category->value])
+                ->where('slug', $value)
+                ->value('name') ?? $value;
+        }
+
+        return $value;
     }
 }
