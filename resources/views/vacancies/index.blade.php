@@ -42,7 +42,7 @@
                         </div>
 
                         @if ($vacancies->hasPages())
-                            <div class="mt-10">{{ $vacancies->links() }}</div>
+                            <div class="mt-10">{{ $vacancies->links('pagination::tailwind') }}</div>
                         @endif
                     @else
                         <div class="relative rounded-xl border border-gray-200 bg-gray-50 px-6 py-10 text-center">

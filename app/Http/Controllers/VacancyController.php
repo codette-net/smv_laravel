@@ -161,9 +161,10 @@ class VacancyController extends Controller
             'deadline' => $query
                 ->orderByRaw('deadline_at IS NULL')
                 ->orderBy('deadline_at')
-                ->orderByDesc('published_at'),
-            'az' => $query->orderBy('title'),
-            default => $query->orderByDesc('published_at')->orderByDesc('created_at'),
+                ->orderByDesc('published_at')
+                ->orderByDesc('id'),
+            'az' => $query->orderBy('title')->orderByDesc('id'),
+            default => $query->orderByDesc('published_at')->orderByDesc('created_at')->orderByDesc('id'),
         };
     }
 

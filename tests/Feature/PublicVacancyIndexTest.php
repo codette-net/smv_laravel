@@ -201,7 +201,7 @@ test('the index supports safe newest deadline and alphabetical sorting', functio
 test('the index paginates while preserving filter query parameters', function () {
     $company = publicListingCompany();
 
-    foreach (range(1, 13) as $number) {
+    foreach (range(1, 25) as $number) {
         publicListingVacancy($company, [
             'title' => sprintf('Pagina vacature %02d', $number),
             'published_at' => now()->subMinutes($number),
@@ -210,13 +210,70 @@ test('the index paginates while preserving filter query parameters', function ()
 
     $this->get(route('vacancies.index', ['zoek' => 'Pagina vacature']))
         ->assertOk()
+        ->assertSee('25 vacatures gevonden')
         ->assertSee('Pagina vacature 01')
+        ->assertSee('Pagina vacature 12')
         ->assertDontSee('Pagina vacature 13')
         ->assertSee('zoek=Pagina%20vacature', false);
 
     $this->get(route('vacancies.index', ['zoek' => 'Pagina vacature', 'page' => 2]))
         ->assertOk()
-        ->assertSee('Pagina vacature 13');
+        ->assertSee('Pagina vacature 13')
+        ->assertSee('Pagina vacature 24')
+        ->assertDontSee('Pagina vacature 25');
+
+    $this->get(route('vacancies.index', ['zoek' => 'Pagina vacature', 'page' => 3]))
+        ->assertOk()
+        ->assertSee('Pagina vacature 25')
+        ->assertDontSee('Pagina vacature 24');
+});
+
+test('the index has stable pagination boundaries when sort values are equal', function () {
+    $company = publicListingCompany();
+
+    $newest = collect(range(1, 13))->map(fn (int $number) => publicListingVacancy($company, [
+        'title' => sprintf('Gelijke nieuwste %02d', $number),
+        'published_at' => now()->subDay(),
+        'created_at' => now()->subDay(),
+    ]));
+
+    $this->get(route('vacancies.index', ['zoek' => 'Gelijke nieuwste', 'sort' => 'nieuwste']))
+        ->assertOk()
+        ->assertSee($newest->last()->title)
+        ->assertDontSee($newest->first()->title);
+
+    $this->get(route('vacancies.index', ['zoek' => 'Gelijke nieuwste', 'sort' => 'nieuwste', 'page' => 2]))
+        ->assertOk()
+        ->assertSee($newest->first()->title);
+
+    $deadlines = collect(range(1, 13))->map(fn (int $number) => publicListingVacancy($company, [
+        'title' => sprintf('Gelijke deadline %02d', $number),
+        'deadline_at' => now()->addWeek(),
+        'published_at' => now()->subDay(),
+    ]));
+
+    $this->get(route('vacancies.index', ['zoek' => 'Gelijke deadline', 'sort' => 'deadline']))
+        ->assertOk()
+        ->assertSee($deadlines->last()->title)
+        ->assertDontSee($deadlines->first()->title);
+
+    $this->get(route('vacancies.index', ['zoek' => 'Gelijke deadline', 'sort' => 'deadline', 'page' => 2]))
+        ->assertOk()
+        ->assertSee($deadlines->first()->title);
+
+    $alphabetical = collect(range(1, 13))->map(fn () => publicListingVacancy($company, [
+        'title' => 'Gelijke alfabetische vacature',
+        'published_at' => now()->subDay(),
+    ]));
+
+    $this->get(route('vacancies.index', ['zoek' => 'Gelijke alfabetische vacature', 'sort' => 'az']))
+        ->assertOk()
+        ->assertSee('href="'.route('vacancies.show', $alphabetical->last()).'"', false)
+        ->assertDontSee('href="'.route('vacancies.show', $alphabetical->first()).'"', false);
+
+    $this->get(route('vacancies.index', ['zoek' => 'Gelijke alfabetische vacature', 'sort' => 'az', 'page' => 2]))
+        ->assertOk()
+        ->assertSee('href="'.route('vacancies.show', $alphabetical->first()).'"', false);
 });
 
 test('the index renders a Dutch empty state and handles company logos', function () {
