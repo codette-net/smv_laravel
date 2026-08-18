@@ -4,53 +4,55 @@
 @section('meta_description', 'Vind actuele sales- en marketingvacatures bij toonaangevende werkgevers.')
 
 @section('content')
-    <section class="border-b border-slate-200 bg-white">
-        <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-            <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Vacatures</p>
-            <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Vind jouw volgende vacature</h1>
-            <p class="mt-4 max-w-2xl text-lg leading-7 text-slate-600">Ontdek actuele vacatures in sales en marketing.</p>
+    <section class="mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="py-10 md:py-16">
+            <div class="mb-10 max-w-2xl">
+                <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-blue-600">Sales &amp; Marketing Vacatures</p>
+                <h1 class="font-inter text-3xl font-bold text-gray-800 md:text-4xl">Vind jouw volgende vacature</h1>
+                <p class="mt-3 text-lg text-gray-500">Ontdek actuele vacatures bij werkgevers die commercieel talent zoeken.</p>
+            </div>
+
+            <div class="md:flex md:justify-between">
+                <aside class="mb-8 md:order-1 md:mb-0 md:ml-12 md:w-64 md:shrink-0 lg:ml-20 lg:w-72">
+                    <div class="sticky top-8 rounded-xl border border-gray-200 bg-gray-50 p-5">
+                        <div class="mb-5 flex items-center justify-between">
+                            <h2 class="text-lg font-bold text-gray-800">Verfijn je zoekopdracht</h2>
+                            @if (count($activeFilters))
+                                <a class="text-sm font-medium text-indigo-500 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" href="{{ route('vacancies.index') }}">Wis</a>
+                            @endif
+                        </div>
+                        <x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :categories="$categories" :companies="$companies" />
+                    </div>
+                </aside>
+
+                <section class="min-w-0 md:grow" aria-labelledby="vacature-resultaten">
+                    <div class="mb-8 flex flex-col gap-4 border-b border-gray-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h2 class="font-inter text-3xl font-bold text-gray-800" id="vacature-resultaten">{{ $vacancies->total() }} {{ Str::plural('vacature', $vacancies->total()) }} gevonden</h2>
+                            <p class="mt-2 text-sm text-gray-500">Gebruik de filters om de resultaten te verfijnen.</p>
+                        </div>
+                        <x-vacancy.active-filters :filters="$activeFilters" />
+                    </div>
+
+                    @if ($vacancies->isNotEmpty())
+                        <div class="flex flex-col gap-2">
+                            @foreach ($vacancies as $vacancy)
+                                <x-vacancy.card :vacancy="$vacancy" />
+                            @endforeach
+                        </div>
+
+                        @if ($vacancies->hasPages())
+                            <div class="mt-10">{{ $vacancies->links() }}</div>
+                        @endif
+                    @else
+                        <div class="relative rounded-xl border border-gray-200 bg-gray-50 px-6 py-10 text-center">
+                            <h2 class="text-xl font-bold text-gray-800">Geen vacatures gevonden</h2>
+                            <p class="mt-2 text-gray-500">Probeer je zoekopdracht aan te passen of verwijder je filters.</p>
+                            <a class="btn mt-5 bg-indigo-500 text-white hover:bg-indigo-600" href="{{ route('vacancies.index') }}">Wis filters</a>
+                        </div>
+                    @endif
+                </section>
+            </div>
         </div>
     </section>
-
-    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div class="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
-            <aside class="self-start rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-                <details class="group" open>
-                    <summary class="flex cursor-pointer list-none items-center justify-between text-lg font-bold text-slate-900">
-                        Verfijn je zoekopdracht
-                        <span class="text-blue-700 group-open:rotate-180" aria-hidden="true">⌄</span>
-                    </summary>
-                    <div class="mt-5"><x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :categories="$categories" :companies="$companies" /></div>
-                </details>
-            </aside>
-
-            <section aria-labelledby="vacature-resultaten">
-                <div class="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900" id="vacature-resultaten">{{ $vacancies->total() }} {{ Str::plural('vacature', $vacancies->total()) }} gevonden</h2>
-                        <p class="mt-1 text-sm text-slate-500">Sorteer en verfijn de actuele vacatures.</p>
-                    </div>
-                    <x-vacancy.active-filters :filters="$activeFilters" />
-                </div>
-
-                @if ($vacancies->isNotEmpty())
-                    <div class="mt-6 grid gap-5 sm:grid-cols-2">
-                        @foreach ($vacancies as $vacancy)
-                            <x-vacancy.card :vacancy="$vacancy" />
-                        @endforeach
-                    </div>
-
-                    @if ($vacancies->hasPages())
-                        <div class="mt-10">{{ $vacancies->links() }}</div>
-                    @endif
-                @else
-                    <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
-                        <h2 class="text-lg font-bold text-slate-900">Geen vacatures gevonden</h2>
-                        <p class="mt-2 text-slate-600">Probeer je zoekopdracht aan te passen of verwijder je filters.</p>
-                        <a class="mt-5 inline-flex rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" href="{{ route('vacancies.index') }}">Wis filters</a>
-                    </div>
-                @endif
-            </section>
-        </div>
-    </div>
 @endsection

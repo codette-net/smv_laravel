@@ -1,42 +1,48 @@
 @props(['vacancy', 'detailUrl' => null])
 
-<article class="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-xs transition hover:border-blue-200 hover:shadow-sm">
-    <div class="flex items-start gap-4">
-        <div class="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 text-lg font-bold text-blue-700">
-            @if ($vacancy->company->publicLogoUrl())
-                <img class="h-full w-full object-cover" src="{{ $vacancy->company->publicLogoUrl() }}" alt="Logo van {{ $vacancy->company->name }}">
-            @else
-                {{ Str::upper(Str::substr($vacancy->company->name, 0, 1)) }}
-            @endif
-        </div>
-        <div class="min-w-0 grow">
-            @if ($vacancy->is_featured)
-                <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">Uitgelicht</span>
-            @endif
-            <h2 class="mt-2 text-lg font-bold leading-6 text-slate-900">{{ $vacancy->title }}</h2>
-            <a class="mt-1 inline-block text-sm font-medium text-blue-700 hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" href="{{ route('bedrijven.show', $vacancy->company) }}">{{ $vacancy->company->name }}</a>
-        </div>
-    </div>
+<article class="group">
+    <div @class(['rounded-xl px-4 py-6 transition duration-150 ease-in-out sm:px-5', 'bg-indigo-100' => $vacancy->is_featured])>
+        <div class="sm:flex sm:items-center sm:space-x-5">
+            <div class="mb-3 h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:mb-0">
+                @if ($vacancy->company->publicLogoUrl())
+                    <img class="h-full w-full object-cover" src="{{ $vacancy->company->publicLogoUrl() }}" alt="Logo van {{ $vacancy->company->name }}">
+                @else
+                    <span class="flex h-full w-full items-center justify-center text-lg font-bold text-indigo-500">{{ Str::upper(Str::substr($vacancy->company->name, 0, 1)) }}</span>
+                @endif
+            </div>
 
-    @if ($vacancy->location || $vacancy->categories->isNotEmpty())
-        <div class="mt-5 flex flex-wrap gap-2 text-sm text-slate-600">
-            @if ($vacancy->location)
-                <span>{{ $vacancy->location }}</span>
-            @endif
-            @foreach ($vacancy->categories->take(2) as $category)
-                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{{ $category->name }}</span>
-            @endforeach
-        </div>
-    @endif
+            <div class="grow lg:flex lg:items-center lg:justify-between lg:space-x-4">
+                <div>
+                    <div class="mb-1 flex items-start space-x-2">
+                        <a class="text-sm font-semibold text-gray-800 hover:text-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" href="{{ route('bedrijven.show', $vacancy->company) }}">{{ $vacancy->company->name }}</a>
+                        @if ($vacancy->is_featured)
+                            <svg aria-label="Uitgelichte vacature" class="mt-1 h-3 w-3 shrink-0 fill-amber-400" viewBox="0 0 12 12"><path d="M11.143 5.143A4.29 4.29 0 0 1 6.857.857a.857.857 0 0 0-1.714 0A4.29 4.29 0 0 1 .857 5.143a.857.857 0 0 0 0 1.714 4.29 4.29 0 0 1 4.286 4.286.857.857 0 0 0 1.714 0 4.29 4.29 0 0 1 4.286-4.286.857.857 0 0 0 0-1.714Z" /></svg>
+                        @endif
+                    </div>
+                    <h2 class="mb-2 text-lg font-bold text-gray-800">{{ $vacancy->title }}</h2>
+                    <div class="-m-1 flex flex-wrap">
+                        @if ($vacancy->salary_min && $vacancy->salary_max)
+                            <span class="m-1 inline-flex whitespace-nowrap rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium text-gray-500">€{{ number_format($vacancy->salary_min, 0, ',', '.') }} – €{{ number_format($vacancy->salary_max, 0, ',', '.') }}</span>
+                        @endif
+                        @if ($vacancy->location)
+                            <span class="m-1 inline-flex whitespace-nowrap rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium text-gray-500">{{ $vacancy->location }}</span>
+                        @endif
+                        @foreach ($vacancy->categories->take(2) as $category)
+                            <span class="m-1 inline-flex whitespace-nowrap rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">{{ $category->name }}</span>
+                        @endforeach
+                    </div>
+                </div>
 
-    <div class="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-sm">
-        @if ($vacancy->deadline_at)
-            <span class="text-slate-500">Deadline {{ $vacancy->deadline_at->translatedFormat('j F') }}</span>
-        @elseif ($vacancy->published_at)
-            <span class="text-slate-500">Geplaatst {{ $vacancy->published_at->translatedFormat('j F') }}</span>
-        @endif
-        @if ($detailUrl)
-            <a class="ml-auto font-semibold text-blue-700 transition hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" href="{{ $detailUrl }}">Bekijk vacature</a>
-        @endif
+                <div class="mt-5 flex min-w-[120px] items-center justify-between lg:mt-0 lg:justify-end">
+                    @if ($detailUrl)
+                        <a class="btn-sm bg-indigo-500 px-3 py-1.5 text-white shadow-xs hover:bg-indigo-600" href="{{ $detailUrl }}">Bekijk vacature <span class="ml-1 text-indigo-200">-&gt;</span></a>
+                    @elseif ($vacancy->deadline_at)
+                        <span class="text-sm italic text-gray-500">Deadline {{ $vacancy->deadline_at->translatedFormat('j F') }}</span>
+                    @elseif ($vacancy->published_at)
+                        <span class="text-sm italic text-gray-500">Geplaatst {{ $vacancy->published_at->translatedFormat('j F') }}</span>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </article>
