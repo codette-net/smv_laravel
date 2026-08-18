@@ -43,7 +43,7 @@ Planned tasks:
 
 ## Phase C — Imports
 
-- SMV-030 Import subsystem audit/design
+- SMV-030 Import subsystem audit/design — inspect real feeds and define the transport/format reader boundary, reusable mapping model, normalized vacancy representation, and Company/taxonomy resolution approach
 - SMV-031 Import sources
 - SMV-032 Parser/field discovery
 - SMV-033 Mapping model/backend
