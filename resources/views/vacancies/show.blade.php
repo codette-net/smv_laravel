@@ -97,10 +97,12 @@
                 @endif
 
                 <div class="mt-6 space-y-2">
-                    @if ($vacancy->application_url)
+                    @if ($vacancy->application_mode === \App\Enums\ApplicationMode::External && $vacancy->application_url)
                         <a class="btn flex w-full justify-center bg-slate-900 text-white hover:bg-slate-800" href="{{ $vacancy->application_url }}" target="_blank" rel="noopener noreferrer">Solliciteer nu</a>
-                    @elseif ($vacancy->application_email)
-                        <a class="btn flex w-full justify-center bg-slate-900 text-white hover:bg-slate-800" href="mailto:{{ $vacancy->application_email }}?subject={{ rawurlencode('Sollicitatie: '.$vacancy->title) }}">Solliciteer nu</a>
+                    @elseif ($vacancy->application_mode === \App\Enums\ApplicationMode::Email && $vacancy->application_email)
+                        <a class="btn flex w-full justify-center bg-slate-900 text-white hover:bg-slate-800" href="mailto:{{ $vacancy->application_email }}?subject={{ rawurlencode('Sollicitatie: '.$vacancy->title) }}">Solliciteer via e-mail</a>
+                    @elseif ($vacancy->application_mode === \App\Enums\ApplicationMode::Internal)
+                        <a class="btn flex w-full justify-center bg-slate-900 text-white hover:bg-slate-800" href="{{ route('applications.create', $vacancy) }}">Solliciteer nu</a>
                     @endif
                     <a class="btn flex w-full justify-center border border-slate-300 bg-white text-slate-700 hover:border-slate-400" href="{{ route('bedrijven.show', $vacancy->company) }}">Bekijk bedrijfsprofiel</a>
                 </div>

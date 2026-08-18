@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
 use App\Enums\VacancySource;
@@ -42,6 +43,7 @@ test('a publicly visible vacancy resolves by its canonical slug and renders its 
         'title' => 'Senior accountmanager',
         'location' => 'Utrecht',
         'application_url' => 'https://example.test/solliciteren',
+        'application_mode' => ApplicationMode::External,
     ]);
     $vacancy->company->update(['name' => 'Commercieel Collectief', 'tagline' => 'Groeien met commercieel talent']);
 
@@ -106,6 +108,7 @@ test('null optional fields do not render a fake deadline and email is a supporte
         'deadline_at' => null,
         'application_url' => null,
         'application_email' => 'solliciteren@example.test',
+        'application_mode' => ApplicationMode::Email,
         'salary_min' => null,
         'salary_max' => null,
         'rate_min' => null,

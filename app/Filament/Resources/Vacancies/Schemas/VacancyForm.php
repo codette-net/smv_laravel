@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Vacancies\Schemas;
 
+use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\VacancyStatus;
 use App\Models\Category;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class VacancyForm
@@ -101,17 +103,28 @@ class VacancyForm
                             ->label('Verloopt op'),
                     ]),
                 Section::make('Solliciteren')
-                    ->description('Gebruik een e-mailadres, een externe sollicitatielink of beide.')
+                    ->description('De gekozen manier bepaalt welke bestemming bezoekers op de vacaturepagina zien.')
                     ->columns(2)
                     ->schema([
+                        Select::make('application_mode')
+                            ->label('Sollicitatiemethode')
+                            ->options(ApplicationMode::class)
+                            ->required()
+                            ->default(ApplicationMode::Internal->value)
+                            ->live()
+                            ->columnSpanFull(),
                         TextInput::make('application_email')
                             ->label('Sollicitatie e-mailadres')
                             ->email()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->visible(fn (Get $get): bool => $get('application_mode') === ApplicationMode::Email->value)
+                            ->required(fn (Get $get): bool => $get('application_mode') === ApplicationMode::Email->value),
                         TextInput::make('application_url')
                             ->label('Externe sollicitatielink')
                             ->url()
-                            ->maxLength(2048),
+                            ->maxLength(2048)
+                            ->visible(fn (Get $get): bool => $get('application_mode') === ApplicationMode::External->value)
+                            ->required(fn (Get $get): bool => $get('application_mode') === ApplicationMode::External->value),
                     ]),
                 Section::make('Import en bron')
                     ->description('Deze herkomstgegevens worden beheerd door de importworkflow.')

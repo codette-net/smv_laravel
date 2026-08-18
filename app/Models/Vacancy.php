@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ApplicationMode;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use Database\Factories\VacancyFactory;
@@ -30,6 +31,7 @@ class Vacancy extends Model
         'location',
         'application_email',
         'application_url',
+        'application_mode',
         'salary_min',
         'salary_max',
         'rate_min',
@@ -59,6 +61,7 @@ class Vacancy extends Model
             'rate_max' => 'integer',
             'status' => VacancyStatus::class,
             'source' => VacancySource::class,
+            'application_mode' => ApplicationMode::class,
         ];
     }
 
