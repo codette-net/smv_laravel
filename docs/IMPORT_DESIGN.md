@@ -17,6 +17,7 @@ The design is reusable within SMV, but is deliberately not a universal ETL produ
 a standalone import SaaS. It optimizes for vacancy feeds, a clear Filament mapping
 workflow, safe reruns and commercially useful manual spreadsheet imports.
 
+
 ## Current foundation audit
 
 ### What exists and can be retained
