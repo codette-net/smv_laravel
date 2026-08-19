@@ -32,27 +32,70 @@ Status: Complete
 
 Planned tasks:
 
-- SMV-010 Company domain audit/completion — Next
+- SMV-010 Company domain audit/completion
 - SMV-011 Company Filament admin
 - SMV-012 Public company page
+- SMV-013 Public company index
 - SMV-020 Vacancy lifecycle audit/completion
 - SMV-021 Vacancy Filament admin
 - SMV-022 Vacancy listing/search/filter
+- SMV-022A Vacancy listing visual alignment
+- SMV-022B Vacancy taxonomy + Spatie Tags foundation
 - SMV-023 Vacancy detail
 - SMV-024 Application destination/internal application flow
 
 ## Phase C — Imports
 
-- SMV-030 Import subsystem audit/design — inspect real feeds and define the transport/format reader boundary, reusable mapping model, normalized vacancy representation, and Company/taxonomy resolution approach
-- SMV-031 Import sources
-- SMV-032 Parser/field discovery
-- SMV-033 Mapping model/backend
-- SMV-034 Filament mapping interface
-- SMV-035 Normalized preview
-- SMV-036 Validation/failure reporting
-- SMV-037 Import persistence/update/duplicate handling
-- SMV-038 Import run history/rerun
-- SMV-039 First real partner/feed adapter
+### SMV-030 Import subsystem audit/design
+Audit the stabilized import foundation against real feed examples before implementation.
+
+Must evaluate:
+
+- VNOM XML
+- Michael Page XML
+- provisional Orange Career / 8vance JSON
+- MVP format support: JSON, XML, CSV and XLSX
+- transport versus format separation
+- reader/parser boundary
+- record path and record selection/filtering
+- nested field/path discovery
+- reusable mapping model
+- normalized Vacancy representation
+- salary/content transformations
+- Company resolution
+- structured taxonomy and Spatie Tag resolution
+- provider-scoped upsert identity
+- normalized preview
+- validation/failure reporting
+
+Deliver a concrete architecture/schema/task plan for SMV-031 through SMV-039. Do not build the complete importer in SMV-030.
+
+### SMV-031 Import sources
+Implement ImportSource configuration for transport, format and source access.
+
+### SMV-032 Parser/field discovery
+Implement JSON/XML/CSV/XLSX readers, record extraction/selection where applicable, and field discovery.
+
+### SMV-033 Mapping model/backend
+Implement reusable field mappings, defaults, transforms and source-specific normalization configuration.
+
+### SMV-034 Filament mapping interface
+Implement the admin mapping workflow in Filament.
+
+### SMV-035 Normalized preview
+Show normalized Vacancy data, Company/taxonomy resolution and pre-import status.
+
+### SMV-036 Validation/failure reporting
+Implement record-level validation, warnings, failures and understandable admin reporting.
+
+### SMV-037 Import persistence/update/duplicate handling
+Implement format-independent Vacancy persistence/upsert using `import_source_id + source_reference`.
+
+### SMV-038 Import run history/rerun
+Implement run history, safe reruns, counters and missing-record reporting.
+
+### SMV-039 First real partner/feed adapter
+Implement and validate the first production-quality partner/feed configuration using the generic pipeline.
 
 ## Phase D — SEO migration foundation
 
