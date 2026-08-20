@@ -20,9 +20,7 @@ SMV-001 stabilized the existing foundation:
 
 The following are not implemented yet:
 
-- source transports/fetching
-- readers/parsers and source field discovery
-- record-path and record-selection configuration
+- source upload UI and production import execution
 - mapping model/backend and mapping UI
 - transformations and normalized preview
 - validation/failure workflow
@@ -68,7 +66,9 @@ First-class MVP formats:
 
 XLSX is intentionally included because manual spreadsheet import is commercially useful and valuable for the September presentation.
 
-No parser or spreadsheet package should be claimed as implemented until it is actually selected, installed and tested.
+SMV-032 uses the already-installed `league/csv` package for CSV and OpenSpout 4.32
+for streaming XLSX rows. JSON, XML, CSV and XLSX readers now converge into
+`SourceRecord`; mapping, normalization and persistence remain later work.
 
 ## Transport and format are separate concepts
 

@@ -32,8 +32,9 @@ workflow, safe reruns and commercially useful manual spreadsheet imports.
 | `Category` and Tags | five canonical Vacancy Category types and Spatie Tags | Reuse for controlled taxonomy and flexible tags. |
 | queues | database queue is the configured default | Use for production runs and expensive parsing after the synchronous sample/preview path is proven. |
 
-There is no reader/parser, mapping model, Import Filament resource, import job, source
-configuration UI, persistence pipeline, factory content or importer test coverage yet.
+SMV-031 provides ImportSource configuration and SMV-032 provides readers, source
+records, selection, field discovery and a guarded fetch boundary. Mapping, import job,
+persistence pipeline and preview UI remain future work.
 
 ### Corrections and additions required later
 
@@ -577,9 +578,10 @@ exception messages.
 ## Spreadsheet dependency recommendation
 
 `openspout/openspout` 4.32 is already present transitively through Filament Actions
-and its lock metadata supports PHP 8.3. It is a strong first choice for streaming XLSX
-and CSV reading in SMV-032, subject to an API spike and verification that production
-has `zip`, `xmlreader`, `libxml`, `dom`, `fileinfo` and suitable encoding support.
+and its lock metadata supports PHP 8.3. SMV-032 uses it for streaming XLSX rows after
+an API spike against the committed fixture. CSV uses the already-installed
+`league/csv` reader. Production deployment must still verify `zip`, `xmlreader`,
+`libxml`, `dom`, `fileinfo` and suitable encoding support.
 
 Do not add `maatwebsite/excel`/PhpSpreadsheet by default. Laravel Excel is a broader
 Laravel wrapper around PhpSpreadsheet and may be justified only if real spreadsheet
