@@ -166,12 +166,14 @@ test('import runs and imported vacancies belong to a provider-specific source', 
         'status' => CompanyStatus::Active,
     ]);
     $firstSource = ImportSource::create([
+        'company_id' => $company->id,
         'name' => 'Provider A',
         'slug' => 'provider-a',
         'type' => ImportType::xml,
         'is_active' => true,
     ]);
     $secondSource = ImportSource::create([
+        'company_id' => $company->id,
         'name' => 'Provider B',
         'slug' => 'provider-b',
         'type' => ImportType::json,

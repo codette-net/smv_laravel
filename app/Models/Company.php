@@ -103,6 +103,11 @@ class Company extends Model implements HasMedia
         return $this->hasMany(Vacancy::class);
     }
 
+    public function importSources(): HasMany
+    {
+        return $this->hasMany(ImportSource::class);
+    }
+
     public function blogPosts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
