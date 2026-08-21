@@ -29,6 +29,12 @@ The following are not implemented yet:
 - queued execution and safe rerun workflow
 - real partner/feed adapters
 
+SMV-033 adds reusable `ImportMapping` / `ImportMappingField` records, a code-owned
+destination registry and a side-effect-free normalized mapping result. Salary and rate
+now retain independent nullable currency and period metadata; supported periods are
+hour, day, week, month and year. Mapping does not yet resolve taxonomy values or write
+Companies, Vacancies, Tags or Categories.
+
 Future import code must use `import_source_id` / `ImportSource` as provider identity. It must not use legacy `imports.source` for that purpose.
 
 Structured imported vacancy attributes such as employment type, workplace, sector, function area and experience must map to the controlled `Category` taxonomy by type; flexible descriptive values may map to Spatie Tags.

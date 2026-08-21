@@ -74,6 +74,11 @@ class ImportSource extends Model
         return $this->hasMany(Vacancy::class);
     }
 
+    public function mappings(): HasMany
+    {
+        return $this->hasMany(ImportMapping::class);
+    }
+
     public function scopeApprovedForAutomaticRun($query)
     {
         return $query->where('is_active', true)->whereNotNull('approved_at')->whereNotNull('approved_by');
