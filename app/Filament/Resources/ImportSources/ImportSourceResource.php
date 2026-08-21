@@ -4,12 +4,14 @@ namespace App\Filament\Resources\ImportSources;
 
 use App\Enums\ImportFormat;
 use App\Enums\ImportTransport;
+use App\Filament\Resources\ImportMappings\ImportMappingResource;
 use App\Filament\Resources\ImportSources\Pages\CreateImportSource;
 use App\Filament\Resources\ImportSources\Pages\EditImportSource;
 use App\Filament\Resources\ImportSources\Pages\ListImportSources;
 use App\Filament\Resources\ImportSources\Pages\ViewImportSource;
 use App\Models\ImportSource;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
@@ -62,7 +64,7 @@ class ImportSourceResource extends Resource
                 TernaryFilter::make('is_active')->label('Actief'),
                 TernaryFilter::make('approved_at')->label('Goedgekeurd')->nullable(),
             ])
-            ->recordActions([ViewAction::make(), EditAction::make()]);
+            ->recordActions([Action::make('mapping')->label('Mapping configureren')->url(fn (ImportSource $record): string => ImportMappingResource::getUrl('create', ['import_source_id' => $record->id])), ViewAction::make(), EditAction::make()]);
     }
 
     public static function getPages(): array
