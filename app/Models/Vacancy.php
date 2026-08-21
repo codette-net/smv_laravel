@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ApplicationMode;
+use App\Enums\CompensationPeriod;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use Database\Factories\VacancyFactory;
@@ -34,8 +35,12 @@ class Vacancy extends Model
         'application_mode',
         'salary_min',
         'salary_max',
+        'salary_currency',
+        'salary_period',
         'rate_min',
         'rate_max',
+        'rate_currency',
+        'rate_period',
         'reference',
         'source_reference',
         'published_at',
@@ -59,6 +64,8 @@ class Vacancy extends Model
             'salary_max' => 'integer',
             'rate_min' => 'integer',
             'rate_max' => 'integer',
+            'salary_period' => CompensationPeriod::class,
+            'rate_period' => CompensationPeriod::class,
             'status' => VacancyStatus::class,
             'source' => VacancySource::class,
             'application_mode' => ApplicationMode::class,
