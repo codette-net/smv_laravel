@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ImportMappings;
 use App\Filament\Resources\ImportMappings\Pages\CreateImportMapping;
 use App\Filament\Resources\ImportMappings\Pages\EditImportMapping;
 use App\Filament\Resources\ImportMappings\Pages\ListImportMappings;
+use App\Filament\Resources\ImportMappings\Pages\PreviewImportMapping;
 use App\Imports\Mapping\DestinationRegistry;
 use App\Imports\Mapping\MappingCompletion;
 use App\Imports\Mapping\SourceFieldOptions;
@@ -63,6 +64,6 @@ class ImportMappingResource extends Resource
 
     public static function getPages(): array
     {
-        return ['index' => ListImportMappings::route('/'), 'create' => CreateImportMapping::route('/create'), 'edit' => EditImportMapping::route('/{record}/edit')];
+        return ['index' => ListImportMappings::route('/'), 'create' => CreateImportMapping::route('/create'), 'edit' => EditImportMapping::route('/{record}/edit'), 'preview' => PreviewImportMapping::route('/{record}/preview')];
     }
 }
