@@ -31,6 +31,20 @@ test('administrators can open mapping UI while non-admin panel roles cannot', fu
     $this->actingAs($employer)->get(ImportMappingResource::getUrl())->assertForbidden();
 });
 
+test('preview access follows the import mapping policy for every panel role', function () {
+    $source = ImportSource::factory()->create(['format' => ImportFormat::Json, 'record_path' => 'jobs.*', 'selection_rules' => null, 'configuration' => ['sample_path' => base_path('tests/Fixtures/Imports/orange-career/provisional-example.json')]]);
+    $mapping = ImportMapping::factory()->create(['import_source_id' => $source->id]);
+    ImportMappingField::factory()->create(['import_mapping_id' => $mapping->id, 'destination_key' => 'source_reference', 'source_paths' => ['id']]);
+    ImportMappingField::factory()->create(['import_mapping_id' => $mapping->id, 'destination_key' => 'vacancy.title', 'source_paths' => ['title']]);
+
+    foreach (['super-admin', 'admin', 'editor'] as $role) {
+        $this->actingAs(mappingAdmin($role))->get(ImportMappingResource::getUrl('preview', ['record' => $mapping]))->assertSuccessful();
+    }
+    foreach (['employer', 'candidate'] as $role) {
+        $this->actingAs(mappingAdmin($role))->get(ImportMappingResource::getUrl('preview', ['record' => $mapping]))->assertForbidden();
+    }
+});
+
 test('source field discovery exposes nested and repeated fixture paths without rendering raw source HTML', function () {
     $source = ImportSource::factory()->create(['configuration' => ['sample_path' => base_path('tests/Fixtures/Imports/michael-page/jobs.xml')], 'record_path' => 'job']);
     $options = app(SourceFieldOptions::class)->for($source);
