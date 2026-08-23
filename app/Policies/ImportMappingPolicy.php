@@ -36,4 +36,9 @@ class ImportMappingPolicy
     {
         return false;
     }
+
+    public function execute(User $user, ImportMapping $mapping): bool
+    {
+        return false;
+    }
 }

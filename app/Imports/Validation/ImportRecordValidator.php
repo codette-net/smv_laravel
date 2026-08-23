@@ -67,7 +67,7 @@ class ImportRecordValidator
                 if (($result['unresolved'] ?? false)) {
                     $unresolved[] = ['code' => 'taxonomy_unresolved', 'field' => "taxonomy.{$type->value}", 'source_value' => $value, 'message' => $type->getLabel().': nog niet gekoppeld.'];
                 } else {
-                    $resolved[] = ['field' => "taxonomy.{$type->value}", 'category' => $result['category']->name];
+                    $resolved[] = ['field' => "taxonomy.{$type->value}", 'category' => $result['category']->name, 'category_id' => $result['category']->id, 'type' => $type->value];
                 }
             }
         }

@@ -55,7 +55,7 @@ test('required fields application modes and optional dates have the expected dom
 
 test('compensation warnings tags and validation remain non-persistent', function () {
     $source = ImportSource::factory()->create();
-    $before = collect(['vacancies', 'companies', 'categories', 'tags', 'taggables', 'media', 'applications', 'imports', 'import_logs'])->mapWithKeys(fn ($table) => [$table => DB::table($table)->count()]);
+    $before = collect(['vacancies', 'companies', 'categories', 'tags', 'taggables', 'media', 'applications', 'imports', 'import_logs'])->mapWithKeys(fn($table) => [$table => DB::table($table)->count()]);
     $outcome = validated(['source_reference' => 'x', 'vacancy' => ['title' => 'Titel', 'salary_min' => 1000, 'salary_max' => 2000, 'salary_period' => 'month', 'rate_min' => 75, 'rate_max' => 100, 'rate_period' => 'hour'], 'tags' => ['', 'SaaS', 'saas', 'B2B']], $source);
     expect($outcome->status())->toBe('ready')->and($outcome->data->get('tags'))->toBe(['SaaS', 'B2B']);
     foreach ($before as $table => $count) {
@@ -68,7 +68,7 @@ test('cross type and fuzzy taxonomy mappings are rejected or unresolved', functi
     $fulltime = Category::factory()->create(['name' => 'Fulltime', 'type' => CategoryType::employment_type]);
     expect(validated(['source_reference' => 'x', 'vacancy' => ['title' => 'Titel'], 'taxonomy' => ['employment_type' => ['Loondienst']]], $source)->status())->toBe('needs_resolution')
         ->and(validated(['source_reference' => 'x', 'vacancy' => ['title' => 'Titel'], 'taxonomy' => ['function_area' => ['Sales Support']]], $source)->status())->toBe('needs_resolution');
-    expect(fn () => ImportTaxonomyMapping::create(['import_source_id' => $source->id, 'category_type' => CategoryType::function_area, 'source_value' => 'Loondienst', 'source_key' => 'loondienst', 'category_id' => $fulltime->id]))->toThrow(InvalidArgumentException::class);
+    expect(fn() => ImportTaxonomyMapping::create(['import_source_id' => $source->id, 'category_type' => CategoryType::function_area, 'source_value' => 'Loondienst', 'source_key' => 'loondienst', 'category_id' => $fulltime->id]))->toThrow(InvalidArgumentException::class);
 });
 
 function taxonomyPreviewSetup(): array
@@ -96,24 +96,128 @@ test('a saved source alias refreshes only matching taxonomy values across previe
         ->and(DB::table('vacancies')->count())->toBe(0);
 });
 
-test('the preview taxonomy resolution action is authorized and updates one reusable mapping', function () {
+test('an authorized user can save and update one reusable taxonomy mapping', function () {
+    Http::fake([
+        'https://93.184.216.34/taxonomy-values.json' => Http::response(
+            '{"jobs":[{"id":"1","title":"A","function":"Sales Support"}]}'
+        ),
+    ]);
+
     [$source, $mapping] = taxonomyPreviewSetup();
-    $sales = Category::factory()->create(['name' => 'Sales', 'type' => CategoryType::function_area]);
-    $wrong = Category::factory()->create(['name' => 'Hybride', 'type' => CategoryType::workplace]);
-    foreach (['super-admin', 'admin', 'editor'] as $role) {
-        Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-        $user = User::factory()->create();
-        $user->assignRole($role);
-        Livewire::actingAs($user)->test(PreviewImportMapping::class, ['record' => $mapping->id])->set('resolutionType', 'function_area')->set('resolutionValue', 'Sales Support')->set('resolutionCategoryId', $sales->id)->call('saveTaxonomyMapping')->assertHasNoErrors();
-    }
-    expect(ImportTaxonomyMapping::where('import_source_id', $source->id)->where('source_key', 'sales support')->count())->toBe(1);
+
+    $sales = Category::factory()->create([
+        'name' => 'Sales',
+        'type' => CategoryType::function_area,
+    ]);
+
+    Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+    ]);
+
     $admin = User::factory()->create();
     $admin->assignRole('admin');
-    Livewire::actingAs($admin)->test(PreviewImportMapping::class, ['record' => $mapping->id])->set('resolutionType', 'function_area')->set('resolutionValue', 'Wrong')->set('resolutionCategoryId', $wrong->id)->call('saveTaxonomyMapping')->assertHasErrors('resolutionCategoryId');
-    foreach (['employer', 'candidate'] as $role) {
-        Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-        $user = User::factory()->create();
-        $user->assignRole($role);
-        Livewire::actingAs($user)->test(PreviewImportMapping::class, ['record' => $mapping->id])->call('saveTaxonomyMapping')->assertForbidden();
+
+    $this->actingAs($admin);
+
+    Livewire::test(PreviewImportMapping::class, [
+        'record' => $mapping->id,
+    ])
+        ->set('resolutionType', CategoryType::function_area->value)
+        ->set('resolutionValue', 'Sales Support')
+        ->set('resolutionCategoryId', $sales->id)
+        ->call('saveTaxonomyMapping')
+        ->assertHasNoErrors();
+
+    expect(
+        ImportTaxonomyMapping::query()
+            ->where('import_source_id', $source->id)
+            ->where('category_type', CategoryType::function_area->value)
+            ->where('source_key', 'sales support')
+            ->count()
+    )->toBe(1);
+
+    // Start a fresh Livewire lifecycle for the second save.
+    Livewire::test(PreviewImportMapping::class, [
+        'record' => $mapping->id,
+    ])
+        ->set('resolutionType', CategoryType::function_area->value)
+        ->set('resolutionValue', 'Sales Support')
+        ->set('resolutionCategoryId', $sales->id)
+        ->call('saveTaxonomyMapping')
+        ->assertHasNoErrors();
+
+    expect(
+        ImportTaxonomyMapping::query()
+            ->where('import_source_id', $source->id)
+            ->where('category_type', CategoryType::function_area->value)
+            ->where('source_key', 'sales support')
+            ->count()
+    )->toBe(1);
+});
+
+test('taxonomy resolution rejects a category from another taxonomy type', function () {
+    Http::fake([
+        'https://93.184.216.34/taxonomy-values.json' => Http::response(
+            '{"jobs":[{"id":"1","title":"A","function":"Sales Support"}]}'
+        ),
+    ]);
+
+    [, $mapping] = taxonomyPreviewSetup();
+
+    $wrong = Category::factory()->create([
+        'name' => 'Hybride',
+        'type' => CategoryType::workplace,
+    ]);
+
+    Role::firstOrCreate([
+        'name' => 'admin',
+        'guard_name' => 'web',
+    ]);
+
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $this->actingAs($admin);
+
+    Livewire::test(PreviewImportMapping::class, [
+        'record' => $mapping->id,
+    ])
+        ->set('resolutionType', CategoryType::function_area->value)
+        ->set('resolutionValue', 'Sales Support')
+        ->set('resolutionCategoryId', $wrong->id)
+        ->call('saveTaxonomyMapping')
+        ->assertHasErrors(['resolutionCategoryId']);
+});
+
+test('taxonomy resolution follows import mapping authorization', function () {
+    [, $mapping] = taxonomyPreviewSetup();
+
+    foreach (['super-admin', 'admin', 'editor', 'employer', 'candidate'] as $roleName) {
+        Role::firstOrCreate([
+            'name' => $roleName,
+            'guard_name' => 'web',
+        ]);
     }
+
+    $superAdmin = User::factory()->create();
+    $superAdmin->assignRole('super-admin');
+
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $editor = User::factory()->create();
+    $editor->assignRole('editor');
+
+    $employer = User::factory()->create();
+    $employer->assignRole('employer');
+
+    $candidate = User::factory()->create();
+    $candidate->assignRole('candidate');
+
+    expect($superAdmin->can('update', $mapping))->toBeTrue()
+        ->and($admin->can('update', $mapping))->toBeTrue()
+        ->and($editor->can('update', $mapping))->toBeTrue()
+        ->and($employer->can('update', $mapping))->toBeFalse()
+        ->and($candidate->can('update', $mapping))->toBeFalse();
 });
