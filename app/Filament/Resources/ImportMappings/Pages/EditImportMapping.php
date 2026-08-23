@@ -5,8 +5,10 @@ namespace App\Filament\Resources\ImportMappings\Pages;
 use App\Filament\Resources\ImportMappings\ImportMappingResource;
 use App\Imports\Mapping\ImportMapper;
 use App\Imports\Mapping\SourceFieldOptions;
+use App\Imports\VacancyImportRunner;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Contracts\View\View;
 
@@ -17,6 +19,10 @@ class EditImportMapping extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('execute')->label('Import uitvoeren')->requiresConfirmation()->modalDescription(fn (): string => "Voer mapping [{$this->record->name}] uit voor bron [{$this->record->importSource->name}].")->authorize('execute')->action(function (): void {
+                $run = app(VacancyImportRunner::class)->run($this->record->load('fields'));
+                Notification::make()->title('Import voltooid')->body("Aangemaakt: {$run->imported_rows}; bijgewerkt: {$run->updated_rows}; mislukt: {$run->failed_rows}.")->success()->send();
+            }),
             Action::make('preview')->label('Preview import')->url(fn (): string => ImportMappingResource::getUrl('preview', ['record' => $this->record])),
             Action::make('sample')->label('Voorbeeld controleren')->modalHeading('Genormaliseerd voorbeeld')->modalContent(function (): View {
                 $record = app(SourceFieldOptions::class)->firstRecordFor($this->record->importSource);
