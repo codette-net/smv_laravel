@@ -757,6 +757,13 @@ payloads or a generic transformation-language editor.
 
 ## Open business questions
 
+## SMV-036 implementation note
+
+The pre-persistence validation layer emits structured ephemeral outcomes: ready,
+warning, needs resolution and error. Taxonomy resolution is source-scoped explicit
+mapping followed only by an unambiguous exact canonical match. It never fuzzy-matches
+or creates Categories; ImportSource Company is the owner and Tags remain flexible.
+
 The following require source documentation, real sample snapshots or business input
 before production configuration:
 
