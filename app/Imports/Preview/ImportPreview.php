@@ -9,6 +9,7 @@ use App\Imports\Mapping\ImportMapper;
 use App\Imports\Mapping\MappingCompletion;
 use App\Imports\RecordSelector;
 use App\Imports\SourceFetcher;
+use App\Imports\Validation\ImportRecordValidator;
 use App\Models\ImportMapping;
 use App\Models\ImportSource;
 use RuntimeException;
@@ -29,17 +30,19 @@ class ImportPreview
                 break;
             }
             $result = app(ImportMapper::class)->map($record, $mapping, $source);
+            $outcome = app(ImportRecordValidator::class)->validate($result->data, $source);
             $records[] = new PreviewRecord(
                 $record->position,
                 $result,
+                $outcome,
                 $mapping->fields->map(fn ($field) => ['destination' => $field->destination_key, 'paths' => $field->source_paths, 'operation' => $field->operation])->all(),
                 $this->boundedSource($record->data),
             );
         }
-        $counts = ['previewed' => count($records), 'ready' => 0, 'warnings' => 0, 'errors' => 0];
+        $counts = ['previewed' => count($records), 'ready' => 0, 'warnings' => 0, 'needs_resolution' => 0, 'errors' => 0];
         foreach ($records as $record) {
             match ($record->status()) {
-                'Klaar' => $counts['ready']++, 'Waarschuwing' => $counts['warnings']++, default => $counts['errors']++
+                'Klaar voor import' => $counts['ready']++, 'Waarschuwing' => $counts['warnings']++, 'Actie vereist' => $counts['needs_resolution']++, default => $counts['errors']++
             };
         }
 

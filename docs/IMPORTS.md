@@ -35,6 +35,13 @@ now retain independent nullable currency and period metadata; supported periods 
 hour, day, week, month and year. Mapping does not yet resolve taxonomy values or write
 Companies, Vacancies, Tags or Categories.
 
+SMV-036 adds an ephemeral domain-validation and resolution boundary. It classifies
+records as ready, warning, needs resolution or error. Explicit taxonomy aliases are
+source-scoped `ImportTaxonomyMapping` records; only an unambiguous exact Category
+name/slug match is automatic. No fuzzy matching or Category creation occurs. The
+ImportSource Company remains the owner, flexible Tags need no controlled resolution,
+and Vacancy persistence remains SMV-037.
+
 Future import code must use `import_source_id` / `ImportSource` as provider identity. It must not use legacy `imports.source` for that purpose.
 
 Structured imported vacancy attributes such as employment type, workplace, sector, function area and experience must map to the controlled `Category` taxonomy by type; flexible descriptive values may map to Spatie Tags.

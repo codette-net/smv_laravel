@@ -24,7 +24,7 @@ test('a bounded preview normalizes multiple records without persistence', functi
         ImportMappingField::factory()->create(['import_mapping_id' => $mapping->id, 'destination_key' => $destination, 'source_paths' => $paths, 'position' => $i]);
     }
     $preview = app(ImportPreview::class)->build($source, $mapping->fresh('fields'), 1);
-    expect($preview['counts']['previewed'])->toBe(1)->and($preview['records'][0]->status())->toBe('Klaar');
+    expect($preview['counts']['previewed'])->toBe(1)->and($preview['records'][0]->status())->toBe('Klaar voor import');
 });
 
 function previewSource(ImportFormat $format, string $fixture, string $path): array
@@ -183,7 +183,7 @@ test('preview filters only alter the rendered state and not source or domain dat
     $tables = ['vacancies', 'companies', 'categories', 'tags', 'media', 'imports', 'import_logs', 'applications'];
     $before = collect($tables)->mapWithKeys(fn (string $table): array => [$table => DB::table($table)->count()]);
 
-    foreach (['Alles', 'Klaar', 'Waarschuwing', 'Fout'] as $filter) {
+    foreach (['Alles', 'Klaar voor import', 'Waarschuwing', 'Actie vereist', 'Fout'] as $filter) {
         Livewire::actingAs($admin)->test(PreviewImportMapping::class, ['record' => $mapping->id])->set('filter', $filter)->assertSet('filter', $filter);
     }
     foreach ($before as $table => $count) {
