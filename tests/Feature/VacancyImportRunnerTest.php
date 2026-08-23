@@ -2,15 +2,19 @@
 
 use App\Enums\CategoryType;
 use App\Enums\ImportFormat;
+use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
 use App\Imports\VacancyImportRunner;
 use App\Models\Category;
+use App\Models\Import;
+use App\Models\ImportLog;
 use App\Models\ImportMapping;
 use App\Models\ImportMappingField;
 use App\Models\ImportSource;
 use App\Models\ImportTaxonomyMapping;
 use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Spatie\Tags\Tag;
 
 uses(RefreshDatabase::class);
@@ -59,10 +63,28 @@ function xmlRunnableMapping(string $fixture, array $fields): ImportMapping
 test('runner creates then provider-scoped updates without duplicate vacancies', function () {
     $mapping = runnableMapping();
     $first = app(VacancyImportRunner::class)->run($mapping);
-    expect($first->imported_rows)->toBe(2)->and(Vacancy::count())->toBe(2);
+    expect($first->importSource->is($mapping->importSource))->toBeTrue()
+        ->and($first->status)->toBe(ImportStatus::Completed)
+        ->and($first->started_at)->not->toBeNull()
+        ->and($first->finished_at)->not->toBeNull()
+        ->and($first->total_rows)->toBe(2)
+        ->and($first->imported_rows)->toBe(2)
+        ->and($first->updated_rows)->toBe(0)
+        ->and($first->skipped_rows)->toBe(0)
+        ->and($first->failed_rows)->toBe(0)
+        ->and($first->importLogs->pluck('context')->pluck('code')->all())->each->toBe('created')
+        ->and(Vacancy::count())->toBe(2);
     $slug = Vacancy::first()->slug;
     $second = app(VacancyImportRunner::class)->run($mapping);
-    expect($second->updated_rows)->toBe(2)->and(Vacancy::count())->toBe(2)->and(Vacancy::first()->slug)->toBe($slug);
+    expect(Import::count())->toBe(2)
+        ->and($second->total_rows)->toBe(2)
+        ->and($second->imported_rows)->toBe(0)
+        ->and($second->updated_rows)->toBe(2)
+        ->and($second->skipped_rows)->toBe(0)
+        ->and($second->failed_rows)->toBe(0)
+        ->and($second->importLogs->pluck('context')->pluck('code')->all())->each->toBe('updated')
+        ->and(Vacancy::count())->toBe(2)
+        ->and(Vacancy::first()->slug)->toBe($slug);
 });
 
 test('resolved mapped taxonomy attaches without creating categories while unrelated types remain intact', function () {
@@ -91,10 +113,60 @@ test('taxonomy values resolve independently and unresolved records do not block 
     $account = Category::factory()->create(['name' => 'Accountmanagement', 'type' => CategoryType::function_area]);
     $communication = Category::factory()->create(['name' => 'Communicatie', 'type' => CategoryType::function_area]);
     $run = app(VacancyImportRunner::class)->run($mapping);
-    expect($run->imported_rows)->toBe(2)->and($run->failed_rows)->toBe(1)->and(Vacancy::count())->toBe(2)
+    expect($run->imported_rows)->toBe(2)->and($run->skipped_rows)->toBe(1)->and($run->failed_rows)->toBe(0)->and(Vacancy::count())->toBe(2)
         ->and(Vacancy::where('source_reference', 'A')->first()->categories()->whereKey($account)->exists())->toBeTrue()
         ->and(Vacancy::where('source_reference', 'C')->first()->categories()->whereKey($communication)->exists())->toBeTrue()
-        ->and(Vacancy::where('source_reference', 'B')->exists())->toBeFalse();
+        ->and(Vacancy::where('source_reference', 'B')->exists())->toBeFalse()
+        ->and(ImportLog::query()->where('import_id', $run->id)->get()->contains(fn (ImportLog $log): bool => data_get($log->context, 'source_reference') === 'B' && data_get($log->context, 'code') === 'validation_or_resolution'))->toBeTrue();
+});
+
+test('technical record failures are isolated and logged without leaking exception details', function () {
+    $mapping = controlledRunnableMapping([['id' => 'A', 'title' => 'A', 'function' => 'Accountmanagement'], ['id' => 'B', 'title' => 'B', 'function' => 'Accountmanagement'], ['id' => 'C', 'title' => 'C', 'function' => 'Accountmanagement']]);
+    Category::factory()->create(['name' => 'Accountmanagement', 'type' => CategoryType::function_area]);
+    $event = 'eloquent.creating: '.Vacancy::class;
+    Event::listen($event, function (Vacancy $vacancy): void {
+        if ($vacancy->source_reference === 'B') {
+            throw new RuntimeException('Bearer super-secret processing failure with internal stack details');
+        }
+    });
+
+    try {
+        $run = app(VacancyImportRunner::class)->run($mapping);
+    } finally {
+        Event::forget($event);
+    }
+
+    $failure = $run->importLogs->first(fn (ImportLog $log): bool => data_get($log->context, 'code') === 'processing_failed');
+    $storedLog = json_encode(['message' => $failure?->message, 'context' => $failure?->context], JSON_THROW_ON_ERROR);
+
+    expect($run->imported_rows)->toBe(2)
+        ->and($run->skipped_rows)->toBe(0)
+        ->and($run->failed_rows)->toBe(1)
+        ->and(Vacancy::whereIn('source_reference', ['A', 'C'])->count())->toBe(2)
+        ->and(Vacancy::where('source_reference', 'B')->exists())->toBeFalse()
+        ->and(data_get($failure?->context, 'position'))->toBe(2)
+        ->and(data_get($failure?->context, 'source_reference'))->toBe('B')
+        ->and($storedLog)->not->toContain('super-secret', 'Bearer', 'stack', 'title');
+});
+
+test('fatal source failures retain a safe failed history run', function () {
+    $mapping = runnableMapping();
+    $mapping->importSource->forceFill([
+        'credentials' => ['authorization' => 'Bearer source-secret'],
+        'configuration' => ['sample_path' => storage_path('framework/missing-source-secret.json')],
+    ])->save();
+
+    $run = app(VacancyImportRunner::class)->run($mapping);
+    $failure = $run->importLogs->sole();
+    $storedLog = json_encode(['message' => $failure->message, 'context' => $failure->context], JSON_THROW_ON_ERROR);
+
+    expect($run->exists)->toBeTrue()
+        ->and($run->status)->toBe(ImportStatus::Failed)
+        ->and($run->started_at)->not->toBeNull()
+        ->and($run->finished_at)->not->toBeNull()
+        ->and($run->total_rows)->toBe(0)
+        ->and(data_get($failure->context, 'code'))->toBe('source_failed')
+        ->and($storedLog)->not->toContain('source-secret', 'Bearer', 'authorization', 'missing-source-secret', 'stack');
 });
 
 test('VNOM XML persists generic configured mappings and remains idempotent', function () {

@@ -277,10 +277,14 @@ test('the index has stable pagination boundaries when sort values are equal', fu
 });
 
 test('the index renders a Dutch empty state and handles company logos', function () {
-    Storage::fake('public');
+    config(['filesystems.disks.company-logo-test' => [
+        'driver' => 'local',
+        'root' => storage_path('framework/testing/disks/company-logo-test'),
+    ]]);
+    Storage::fake('company-logo-test');
     $company = publicListingCompany(['name' => 'Bedrijf met logo']);
     $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
-    $company->addMedia(UploadedFile::fake()->createWithContent('logo.png', $png))->toMediaCollection('logo');
+    $company->addMedia(UploadedFile::fake()->createWithContent('logo.png', $png))->toMediaCollection('logo', 'company-logo-test');
     publicListingVacancy($company, ['title' => 'Vacature met logo']);
 
     $this->get(route('vacancies.index'))

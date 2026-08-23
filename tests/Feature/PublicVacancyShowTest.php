@@ -75,9 +75,13 @@ test('an unknown vacancy slug returns 404', function () {
 });
 
 test('the detail renders structured taxonomy tags and media-backed company branding', function () {
-    Storage::fake('public');
+    config(['filesystems.disks.vacancy-branding-test' => [
+        'driver' => 'local',
+        'root' => storage_path('framework/testing/disks/vacancy-branding-test'),
+    ]]);
+    Storage::fake('vacancy-branding-test');
     $vacancy = publicDetailVacancy(['title' => 'Marketing specialist']);
-    $vacancy->company->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('logo');
+    $vacancy->company->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection('logo', 'vacancy-branding-test');
 
     $categories = collect([
         Category::factory()->create(['name' => 'Fulltime', 'type' => CategoryType::employment_type]),

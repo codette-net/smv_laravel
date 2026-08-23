@@ -28,27 +28,28 @@ class VacancyImportRunner
             $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true) ? app(SourceFetcher::class)->fetch($source) : (is_string($path) && is_file($path) ? SourcePayload::fromPath($path) : throw new RuntimeException('De importbron is niet leesbaar.'));
             foreach (app(RecordSelector::class)->filter(app(ImportReaderResolver::class)->for($source)->records($source, $payload), $source->selection_rules) as $record) {
                 $run->increment('total_rows');
+                $outcome = null;
                 try {
                     $result = app(ImportMapper::class)->map($record, $mapping->load('fields'), $source);
                     $outcome = app(ImportRecordValidator::class)->validate($result->data, $source);
                     if (! $outcome->canImport()) {
-                        $run->increment('failed_rows');
-                        $this->log($run, ImportLogLevel::Warning, 'Record overgeslagen.', $record->position, $outcome);
+                        $run->increment('skipped_rows');
+                        $this->log($run, ImportLogLevel::Warning, 'Record overgeslagen.', $record->position, $outcome, 'validation_or_resolution');
 
                         continue;
                     }
                     $created = DB::transaction(fn () => $this->persist($source, $mapping, $outcome));
                     $run->increment($created ? 'imported_rows' : 'updated_rows');
-                    $this->log($run, ImportLogLevel::Info, $created ? 'Vacature aangemaakt.' : 'Vacature bijgewerkt.', $record->position, $outcome);
+                    $this->log($run, ImportLogLevel::Info, $created ? 'Vacature aangemaakt.' : 'Vacature bijgewerkt.', $record->position, $outcome, $created ? 'created' : 'updated');
                 } catch (\Throwable $e) {
                     $run->increment('failed_rows');
-                    $this->log($run, ImportLogLevel::Error, 'Record kon niet worden verwerkt.', $record->position);
+                    $this->log($run, ImportLogLevel::Error, 'Record kon niet worden verwerkt.', $record->position, $outcome, 'processing_failed');
                 }
             }
             $run->forceFill(['status' => ImportStatus::Completed, 'finished_at' => now()])->save();
         } catch (\Throwable $e) {
             $run->forceFill(['status' => ImportStatus::Failed, 'finished_at' => now()])->save();
-            $this->log($run, ImportLogLevel::Error, 'Importbron kon niet worden verwerkt.');
+            $this->log($run, ImportLogLevel::Error, 'Importbron kon niet worden verwerkt.', null, null, 'source_failed');
         }
 
         return $run->fresh('importLogs');
@@ -94,8 +95,8 @@ class VacancyImportRunner
         return $created;
     }
 
-    private function log(Import $run, ImportLogLevel $level, string $message, int|string|null $position = null, $outcome = null): void
+    private function log(Import $run, ImportLogLevel $level, string $message, int|string|null $position = null, $outcome = null, ?string $code = null): void
     {
-        ImportLog::create(['import_id' => $run->id, 'level' => $level, 'message' => $message, 'context' => array_filter(['position' => $position, 'source_reference' => $outcome?->data->get('source_reference')])]);
+        ImportLog::create(['import_id' => $run->id, 'level' => $level, 'message' => $message, 'context' => array_filter(['position' => $position, 'source_reference' => $outcome?->data->get('source_reference'), 'code' => $code])]);
     }
 }
