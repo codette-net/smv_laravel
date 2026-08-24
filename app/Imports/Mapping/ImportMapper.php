@@ -24,6 +24,14 @@ class ImportMapper
                 throw new InvalidArgumentException("Unsupported operation for [{$definition->key}].");
             }
             $raw = $this->value($source, $field->source_paths ?? [], $field->operation, $field->configuration ?? []);
+            if ($this->hasIncompatibleScalarShape($definition->key, $raw)) {
+                $sourcePath = implode(', ', $field->source_paths ?? []) ?: 'vaste waarde';
+                $errors[] = is_array($raw)
+                    ? "Bronveld '{$sourcePath}' bevat meerdere waarden en kan niet direct aan '{$definition->label}' worden gekoppeld."
+                    : "Bronveld '{$sourcePath}' bevat een samengestelde waarde en kan niet direct aan '{$definition->label}' worden gekoppeld.";
+
+                continue;
+            }
             if ($field->operation === 'transform') {
                 $raw = $this->transform($raw, $field->configuration['transform'] ?? null);
             }
@@ -38,6 +46,15 @@ class ImportMapper
         }
 
         return new NormalizationResult(new NormalizedVacancyData($values), $warnings, $errors);
+    }
+
+    private function hasIncompatibleScalarShape(string $destination, mixed $value): bool
+    {
+        if ($destination === 'tags' || str_starts_with($destination, 'taxonomy.')) {
+            return false;
+        }
+
+        return is_array($value) || is_object($value);
     }
 
     private function value(SourceRecord $source, array $paths, string $operation, array $config): mixed
@@ -73,7 +90,7 @@ class ImportMapper
                 return null;
             }
 
-return $period->value;
+            return $period->value;
         }
 
         return $value;

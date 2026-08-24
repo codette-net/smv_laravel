@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ImportSources\Pages;
 
+use App\Filament\Resources\ImportSources\ImportSourceForm;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
 use App\Models\ImportSource;
 use Filament\Resources\Pages\CreateRecord;
@@ -18,7 +19,7 @@ class CreateImportSource extends CreateRecord
         unset($data['approved_for_automatic_run']);
         abort_unless(! $this->approve || auth()->user()?->can('approve', ImportSource::class), 403);
 
-        return $data;
+        return ImportSourceForm::prepareForSave($data);
     }
 
     protected function afterCreate(): void

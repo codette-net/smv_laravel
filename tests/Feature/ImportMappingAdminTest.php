@@ -2,7 +2,9 @@
 
 use App\Enums\ImportFormat;
 use App\Filament\Resources\ImportMappings\ImportMappingResource;
+use App\Filament\Resources\ImportMappings\Pages\CreateImportMapping;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
+use App\Imports\Mapping\DestinationRegistry;
 use App\Imports\Mapping\ImportMapper;
 use App\Imports\Mapping\MappingCompletion;
 use App\Imports\Mapping\SourceFieldOptions;
@@ -11,6 +13,7 @@ use App\Models\ImportMappingField;
 use App\Models\ImportSource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -65,6 +68,34 @@ test('mapping completion state derives from the required registry destinations',
     expect(app(MappingCompletion::class)->for($mapping))->toBe('Onvolledig');
     ImportMappingField::factory()->create(['import_mapping_id' => $mapping->id, 'destination_key' => 'source_reference']);
     expect(app(MappingCompletion::class)->for($mapping))->toBe('Klaar voor preview');
+});
+
+test('mapping UI presents required identity first and explains existing operations in Dutch', function () {
+    $admin = mappingAdmin('admin');
+    $source = ImportSource::factory()->create();
+    $definitions = array_values(app(DestinationRegistry::class)->all());
+
+    expect($definitions[0]->key)->toBe('source_reference')
+        ->and($definitions[0]->required)->toBeTrue()
+        ->and($definitions[1]->key)->toBe('vacancy.title')
+        ->and($definitions[1]->required)->toBeTrue();
+
+    Livewire::actingAs($admin)->test(CreateImportMapping::class)
+        ->fillForm([
+            'import_source_id' => $source->id,
+            'name' => 'UX mapping',
+            'fields' => [[
+                'destination_key' => 'source_reference',
+                'operation' => 'direct',
+                'source_paths' => ['identifier'],
+            ]],
+        ])
+        ->assertSee('Unieke referentie uit de bron')
+        ->assertSee('Direct koppelen')
+        ->assertSee('Vaste waarde')
+        ->assertSee('Velden combineren')
+        ->assertSee('Transformeren')
+        ->assertSee('Neem de waarde rechtstreeks over uit één bronveld.');
 });
 
 test('a bounded configured sample can be normalized without domain persistence', function () {

@@ -7,7 +7,6 @@ use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
-use App\Imports\Data\SourcePayload;
 use App\Imports\Mapping\ImportMapper;
 use App\Imports\Validation\ImportRecordValidator;
 use App\Models\Import;
@@ -15,7 +14,6 @@ use App\Models\ImportLog;
 use App\Models\ImportMapping;
 use App\Models\Vacancy;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
 
 class VacancyImportRunner
 {
@@ -24,8 +22,9 @@ class VacancyImportRunner
         $source = $mapping->importSource()->with('company')->firstOrFail();
         $run = Import::create(['import_source_id' => $source->id, 'status' => ImportStatus::Processing, 'started_at' => now(), 'mapping' => ['mapping_id' => $mapping->id]]);
         try {
-            $path = data_get($source->configuration, 'sample_path');
-            $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true) ? app(SourceFetcher::class)->fetch($source) : (is_string($path) && is_file($path) ? SourcePayload::fromPath($path) : throw new RuntimeException('De importbron is niet leesbaar.'));
+            $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true)
+                ? app(SourceFetcher::class)->fetch($source)
+                : app(LocalSourceLoader::class)->forSource($source);
             foreach (app(RecordSelector::class)->filter(app(ImportReaderResolver::class)->for($source)->records($source, $payload), $source->selection_rules) as $record) {
                 $run->increment('total_rows');
                 $outcome = null;

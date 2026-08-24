@@ -10,11 +10,14 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 use Illuminate\Contracts\View\View;
 
 class EditImportMapping extends EditRecord
 {
     protected static string $resource = ImportMappingResource::class;
+
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     protected function getHeaderActions(): array
     {
@@ -24,7 +27,7 @@ class EditImportMapping extends EditRecord
                 Notification::make()->title('Import voltooid')->body("Aangemaakt: {$run->imported_rows}; bijgewerkt: {$run->updated_rows}; overgeslagen: {$run->skipped_rows}; mislukt: {$run->failed_rows}.")->success()->send();
             }),
             Action::make('preview')->label('Preview import')->url(fn (): string => ImportMappingResource::getUrl('preview', ['record' => $this->record])),
-            Action::make('sample')->label('Voorbeeld controleren')->modalHeading('Genormaliseerd voorbeeld')->modalContent(function (): View {
+            Action::make('sample')->label('Voorbeeld controleren')->modalHeading('Genormaliseerd voorbeeld')->modalWidth(Width::SevenExtraLarge)->modalContent(function (): View {
                 $record = app(SourceFieldOptions::class)->firstRecordFor($this->record->importSource);
                 $result = $record ? app(ImportMapper::class)->map($record, $this->record->load('fields'), $this->record->importSource) : null;
 
