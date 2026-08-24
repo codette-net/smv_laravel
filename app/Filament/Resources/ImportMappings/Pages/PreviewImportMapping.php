@@ -9,12 +9,15 @@ use App\Models\Category;
 use App\Models\ImportTaxonomyMapping;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class PreviewImportMapping extends ViewRecord
 {
     protected static string $resource = ImportMappingResource::class;
+
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     public array $preview = [];
 
@@ -84,6 +87,17 @@ class PreviewImportMapping extends ViewRecord
     public function categoriesForResolution(): array
     {
         return Category::query()->where('type', $this->resolutionType)->orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    public function prepareTaxonomyResolution(string $type, string $value): void
+    {
+        if (CategoryType::tryFrom($type) === null || blank($value)) {
+            return;
+        }
+
+        $this->resolutionType = $type;
+        $this->resolutionValue = $value;
+        $this->resolutionCategoryId = null;
     }
 
     protected function getHeaderActions(): array

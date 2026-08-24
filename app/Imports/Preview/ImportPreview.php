@@ -3,8 +3,8 @@
 namespace App\Imports\Preview;
 
 use App\Enums\ImportTransport;
-use App\Imports\Data\SourcePayload;
 use App\Imports\ImportReaderResolver;
+use App\Imports\LocalSourceLoader;
 use App\Imports\Mapping\ImportMapper;
 use App\Imports\Mapping\MappingCompletion;
 use App\Imports\RecordSelector;
@@ -22,8 +22,9 @@ class ImportPreview
             throw new RuntimeException('De importmapping is onvolledig.');
         }
 
-        $path = data_get($source->configuration, 'sample_path');
-        $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true) ? app(SourceFetcher::class)->fetch($source) : (is_string($path) && is_file($path) ? SourcePayload::fromPath($path) : throw new RuntimeException('Er is geen leesbaar lokaal voorbeeldbestand geconfigureerd.'));
+        $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true)
+            ? app(SourceFetcher::class)->fetch($source)
+            : app(LocalSourceLoader::class)->forSource($source);
         $records = [];
         foreach (app(RecordSelector::class)->filter(app(ImportReaderResolver::class)->for($source)->records($source, $payload), $source->selection_rules) as $record) {
             if (count($records) >= $limit) {

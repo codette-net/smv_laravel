@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ImportSources\Pages;
 
+use App\Filament\Resources\ImportSources\ImportSourceForm;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
 use Filament\Resources\Pages\EditRecord;
 
@@ -15,16 +16,18 @@ class EditImportSource extends EditRecord
     {
         $data['approved_for_automatic_run'] = $this->record->approved_at !== null;
 
-        return $data;
+        return ImportSourceForm::prepareForFill($data);
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $this->approve = (bool) ($data['approved_for_automatic_run'] ?? false);
+        $this->approve = array_key_exists('approved_for_automatic_run', $data)
+            ? (bool) $data['approved_for_automatic_run']
+            : $this->record->approved_at !== null;
         unset($data['approved_for_automatic_run']);
         abort_unless(auth()->user()?->can('approve', $this->record) || $this->approve === ($this->record->approved_at !== null), 403);
 
-        return $data;
+        return ImportSourceForm::prepareForSave($data, $this->record);
     }
 
     protected function afterSave(): void

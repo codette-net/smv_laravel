@@ -12,11 +12,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use InvalidArgumentException;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class ImportSource extends Model
 {
     /** @use HasFactory<ImportSourceFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasSlug, SoftDeletes;
 
     protected $fillable = [
         'company_id',
@@ -52,6 +54,14 @@ class ImportSource extends Model
             'approved_at' => 'datetime',
             'last_imported_at' => 'datetime',
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function company(): BelongsTo

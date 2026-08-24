@@ -190,3 +190,42 @@ test('preview filters only alter the rendered state and not source or domain dat
         expect(DB::table($table)->count())->toBe($count);
     }
 });
+
+test('preview renders Dutch summaries safe record details and contextual taxonomy resolution', function () {
+    Http::fake(['https://93.184.216.34/ux-preview.json' => Http::response(json_encode([
+        'jobs' => [
+            ['id' => 'ux-1', 'title' => 'Veilige titel', 'description' => str_repeat('Lange inhoud ', 80), 'salary' => 3000, 'function' => 'Sales Support'],
+            ['title' => '<script>alert("onveilig")</script>', 'description' => '<b>Niet vertrouwen</b>'],
+        ],
+    ]))]);
+    $source = ImportSource::factory()->create(['transport' => ImportTransport::Http, 'format' => ImportFormat::Json, 'endpoint_url' => 'https://93.184.216.34/ux-preview.json', 'record_path' => 'jobs.*', 'selection_rules' => null]);
+    $mapping = ImportMapping::factory()->create(['import_source_id' => $source->id]);
+    foreach ([
+        ['source_reference', ['id']],
+        ['vacancy.title', ['title']],
+        ['vacancy.description', ['description']],
+        ['vacancy.salary_min', ['salary']],
+        ['taxonomy.function_area', ['function']],
+    ] as $position => [$destination, $paths]) {
+        ImportMappingField::factory()->create(['import_mapping_id' => $mapping->id, 'destination_key' => $destination, 'source_paths' => $paths, 'position' => $position]);
+    }
+    Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $this->actingAs($admin)->get(ImportMappingResource::getUrl('preview', ['record' => $mapping]))
+        ->assertSuccessful()
+        ->assertSee('bekeken')
+        ->assertSee('klaar voor import')
+        ->assertSee('waarschuwingen')
+        ->assertSee('actie vereist')
+        ->assertSee('fouten')
+        ->assertSee('Waarom heeft dit record deze status?')
+        ->assertSee('Compensatieperiode ontbreekt of is onbekend.')
+        ->assertSee('Functiegebied: nog niet gekoppeld.')
+        ->assertSee('Bronwaarde: Sales Support.')
+        ->assertSee('Taxonomiewaarde koppelen')
+        ->assertSee('Koppelen aan')
+        ->assertSee('&lt;script&gt;alert', false)
+        ->assertDontSee('<script>alert', false);
+});

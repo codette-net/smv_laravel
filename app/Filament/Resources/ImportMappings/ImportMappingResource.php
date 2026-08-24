@@ -40,15 +40,23 @@ class ImportMappingResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Mappingprofiel')->columns(2)->schema([
+            Section::make('Mappingprofiel')->columns(2)->columnSpanFull()->schema([
                 Select::make('import_source_id')->label('Importbron')->relationship('importSource', 'name')->required()->live()->searchable(),
                 TextInput::make('name')->label('Naam')->required()->default('Standaard mapping'),
                 Toggle::make('is_active')->label('Actief')->default(true), Toggle::make('is_default')->label('Standaardmapping')->default(true),
             ]),
-            Section::make('Veldkoppelingen')->description('Selecteer een bronveld per SMV-doelveld. Leeg laten betekent niet mappen.')->schema([
+            Section::make('Veldkoppelingen')->description('Koppel minimaal de verplichte bronreferentie en vacaturetitel. Leeg laten betekent niet mappen.')->columnSpanFull()->schema([
                 Repeater::make('fields')->relationship()->orderColumn('position')->schema([
-                    Select::make('destination_key')->label('SMV-veld')->options(fn () => collect(app(DestinationRegistry::class)->all())->mapWithKeys(fn ($item) => [$item->key => "{$item->group} — {$item->label}"])->all())->required()->searchable(),
-                    Select::make('operation')->label('Bewerking')->options(['direct' => 'Direct', 'default' => 'Standaardwaarde', 'combine' => 'Samenvoegen', 'transform' => 'Transformeren'])->required()->live(),
+                    Select::make('destination_key')->label('SMV-veld')->options(fn () => collect(app(DestinationRegistry::class)->all())->mapWithKeys(fn ($item) => [$item->key => "{$item->group}: {$item->label}"])->all())->required()->searchable()->live()
+                        ->helperText(fn (Get $get): ?string => $get('destination_key') === 'source_reference' ? 'Unieke referentie uit de bron. Hiermee herkent SMV dezelfde vacature bij een volgende import.' : null),
+                    Select::make('operation')->label('Bewerking')->options(['direct' => 'Direct koppelen', 'default' => 'Vaste waarde', 'combine' => 'Velden combineren', 'transform' => 'Transformeren'])->required()->live()
+                        ->helperText(fn (Get $get): ?string => match ($get('operation')) {
+                            'direct' => 'Neem de waarde rechtstreeks over uit één bronveld.',
+                            'default' => 'Gebruik voor iedere vacature uit deze bron dezelfde vaste waarde.',
+                            'combine' => 'Voeg meerdere bronvelden samen tot één SMV-veld.',
+                            'transform' => 'Zet een bronwaarde eerst om, bijvoorbeeld een datum, boolean of salarisperiode.',
+                            default => null,
+                        }),
                     Select::make('source_paths')->label('Bronveld(en)')->multiple()->searchable()->options(function (Get $get): array {
                         $source = ImportSource::find($get('../../import_source_id'));
 
@@ -57,7 +65,7 @@ class ImportMappingResource extends Resource
                     TextInput::make('configuration.value')->label('Standaardwaarde')->visible(fn (Get $get) => $get('operation') === 'default'),
                     Select::make('configuration.transform')->label('Transformatie')->options(['trim' => 'Spaties verwijderen', 'string' => 'Tekst', 'integer' => 'Geheel getal', 'boolean' => 'Boolean', 'date' => 'Datum', 'annual_salary_to_monthly' => 'Jaarsalaris naar maand'])->visible(fn (Get $get) => $get('operation') === 'transform'),
                     TextInput::make('configuration.separator')->label('Scheidingsteken')->default("\n\n")->visible(fn (Get $get) => $get('operation') === 'combine'),
-                ])->columns(2)->addActionLabel('Veld koppelen')->defaultItems(0),
+                ])->columns(4)->addActionLabel('Veld koppelen')->defaultItems(0)->columnSpanFull(),
             ]),
         ]);
     }

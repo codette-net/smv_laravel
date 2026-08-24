@@ -2,21 +2,22 @@
 
 namespace App\Imports\Mapping;
 
-use App\Imports\Data\SourcePayload;
 use App\Imports\Data\SourceRecord;
 use App\Imports\FieldDiscovery;
 use App\Imports\ImportReaderResolver;
+use App\Imports\LocalSourceLoader;
 use App\Models\ImportSource;
 
 class SourceFieldOptions
 {
     public function firstRecordFor(ImportSource $source): ?SourceRecord
     {
-        $path = data_get($source->configuration, 'sample_path');
-        if (! is_string($path) || ! is_file($path)) {
+        try {
+            $payload = app(LocalSourceLoader::class)->forSource($source);
+        } catch (\Throwable) {
             return null;
         }
-        foreach (app(ImportReaderResolver::class)->for($source)->records($source, SourcePayload::fromPath($path)) as $record) {
+        foreach (app(ImportReaderResolver::class)->for($source)->records($source, $payload) as $record) {
             return $record;
         }
 
@@ -26,12 +27,13 @@ class SourceFieldOptions
     /** @return array<string, string> */
     public function for(ImportSource $source): array
     {
-        $path = data_get($source->configuration, 'sample_path');
-        if (! is_string($path) || ! is_file($path)) {
+        try {
+            $payload = app(LocalSourceLoader::class)->forSource($source);
+        } catch (\Throwable) {
             return [];
         }
         $records = [];
-        foreach (app(ImportReaderResolver::class)->for($source)->records($source, SourcePayload::fromPath($path)) as $record) {
+        foreach (app(ImportReaderResolver::class)->for($source)->records($source, $payload) as $record) {
             $records[] = $record;
             if (count($records) === 5) {
                 break;
@@ -44,12 +46,13 @@ class SourceFieldOptions
     /** @return array<string, array{type: string, present: int, samples: array<int, mixed>}> */
     public function metadataFor(ImportSource $source): array
     {
-        $path = data_get($source->configuration, 'sample_path');
-        if (! is_string($path) || ! is_file($path)) {
+        try {
+            $payload = app(LocalSourceLoader::class)->forSource($source);
+        } catch (\Throwable) {
             return [];
         }
         $records = [];
-        foreach (app(ImportReaderResolver::class)->for($source)->records($source, SourcePayload::fromPath($path)) as $record) {
+        foreach (app(ImportReaderResolver::class)->for($source)->records($source, $payload) as $record) {
             $records[] = $record;
             if (count($records) === 5) {
                 break;
