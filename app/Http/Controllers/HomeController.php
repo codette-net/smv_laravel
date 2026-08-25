@@ -11,7 +11,7 @@ class HomeController extends Controller
         // temporary to test out
         $vacancies = Vacancy::query()
             ->with('company')
-            ->where('status', 'published')
+            ->publiclyVisible()
             ->latest()
             ->take(10)
             ->get();

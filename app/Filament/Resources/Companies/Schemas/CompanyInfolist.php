@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Models\Company;
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class CompanyInfolist
