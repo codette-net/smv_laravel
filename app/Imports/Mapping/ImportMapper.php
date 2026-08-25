@@ -33,7 +33,10 @@ class ImportMapper
                 continue;
             }
             if ($field->operation === 'transform') {
-                $raw = $this->transform($raw, $field->configuration['transform'] ?? null);
+                $raw = $this->transform($raw, $field->configuration['transform'] ?? null, $warnings);
+            }
+            if ($definition->key === 'vacancy.description' && $raw !== null) {
+                $raw = app(VacancyDescriptionSanitizer::class)->sanitize((string) $raw);
             }
             if ($raw !== null && $raw !== []) {
                 data_set($values, $definition->key, $this->normalize($definition->key, $raw, $warnings));
@@ -45,7 +48,7 @@ class ImportMapper
             }
         }
 
-        return new NormalizationResult(new NormalizedVacancyData($values), $warnings, $errors);
+        return new NormalizationResult(new NormalizedVacancyData($values), array_values(array_unique($warnings)), $errors);
     }
 
     private function hasIncompatibleScalarShape(string $destination, mixed $value): bool
@@ -70,8 +73,20 @@ class ImportMapper
         return $values[0] ?? null;
     }
 
-    private function transform(mixed $value, ?string $transform): mixed
+    private function transform(mixed $value, ?string $transform, array &$warnings): mixed
     {
+        if (str_starts_with((string) $transform, 'compensation_text_')) {
+            $part = substr((string) $transform, strlen('compensation_text_'));
+            if (! in_array($part, ['min', 'max', 'currency', 'period'], true)) {
+                throw new InvalidArgumentException('Unknown compensation text transform.');
+            }
+
+            $parsed = app(CompensationTextParser::class)->parse($value);
+            $warnings = array_merge($warnings, $parsed['warnings']);
+
+            return $parsed[$part];
+        }
+
         return match ($transform) {
             'trim' => trim((string) $value), 'string' => (string) $value, 'integer' => (int) $value, 'boolean' => filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE), 'date' => $value === null || $value === '' ? null : Carbon::parse($value)->toIso8601String(), 'annual_salary_to_monthly' => is_numeric($value) ? (int) round($value / 12) : throw new InvalidArgumentException('Annual salary must be numeric.'), default => throw new InvalidArgumentException('Unknown import transform.')
         };

@@ -2,55 +2,68 @@
 
 namespace App\Imports\Mapping;
 
+use App\Enums\ImportTransport;
 use App\Imports\Data\SourceRecord;
 use App\Imports\FieldDiscovery;
 use App\Imports\ImportReaderResolver;
 use App\Imports\LocalSourceLoader;
+use App\Imports\SourceFetcher;
 use App\Models\ImportSource;
+use Illuminate\Support\Facades\Cache;
 
 class SourceFieldOptions
 {
     public function firstRecordFor(ImportSource $source): ?SourceRecord
     {
-        try {
-            $payload = app(LocalSourceLoader::class)->forSource($source);
-        } catch (\Throwable) {
-            return null;
-        }
-        foreach (app(ImportReaderResolver::class)->for($source)->records($source, $payload) as $record) {
-            return $record;
-        }
+        $discovery = $this->isRemote($source) ? Cache::get($this->cacheKey($source)) : $this->discoverSafely($source);
+        $record = $discovery['records'][0] ?? null;
 
-        return null;
+        return is_array($record) ? new SourceRecord($record['position'], $record['data'], $record['record_path']) : null;
     }
 
     /** @return array<string, string> */
     public function for(ImportSource $source): array
     {
-        try {
-            $payload = app(LocalSourceLoader::class)->forSource($source);
-        } catch (\Throwable) {
-            return [];
-        }
-        $records = [];
-        foreach (app(ImportReaderResolver::class)->for($source)->records($source, $payload) as $record) {
-            $records[] = $record;
-            if (count($records) === 5) {
-                break;
-            }
-        }
+        $discovery = $this->isRemote($source) ? Cache::get($this->cacheKey($source)) : $this->discoverSafely($source);
 
-        return collect(app(FieldDiscovery::class)->discover($records))->mapWithKeys(fn ($field) => [$field->path => "{$field->path} ({$field->type}, {$field->present}×)"])->all();
+        return collect($discovery['metadata'] ?? [])->mapWithKeys(fn (array $field, string $path) => [$path => "{$path} ({$field['type']}, {$field['present']}×)"])->all();
     }
 
     /** @return array<string, array{type: string, present: int, samples: array<int, mixed>}> */
     public function metadataFor(ImportSource $source): array
     {
-        try {
-            $payload = app(LocalSourceLoader::class)->forSource($source);
-        } catch (\Throwable) {
-            return [];
+        $discovery = $this->isRemote($source) ? Cache::get($this->cacheKey($source)) : $this->discoverSafely($source);
+
+        return $discovery['metadata'] ?? [];
+    }
+
+    /** @return array<string, array{type: string, present: int, samples: array<int, mixed>}> */
+    public function refresh(ImportSource $source): array
+    {
+        $discovery = $this->discover($source);
+        if ($this->isRemote($source)) {
+            Cache::put($this->cacheKey($source), $discovery, now()->addDay());
         }
+
+        return $discovery['metadata'];
+    }
+
+    /** @return array{records: list<array{position: int|string, data: array<string, mixed>, record_path: ?string}>, metadata: array<string, array{type: string, present: int, samples: array<int, mixed>}>} */
+    private function discoverSafely(ImportSource $source): array
+    {
+        try {
+            return $this->discover($source);
+        } catch (\Throwable) {
+            return ['records' => [], 'metadata' => []];
+        }
+    }
+
+    /** @return array{records: list<array{position: int|string, data: array<string, mixed>, record_path: ?string}>, metadata: array<string, array{type: string, present: int, samples: array<int, mixed>}>} */
+    private function discover(ImportSource $source): array
+    {
+        $payload = $this->isRemote($source)
+            ? app(SourceFetcher::class)->fetch($source)
+            : app(LocalSourceLoader::class)->forSource($source);
         $records = [];
         foreach (app(ImportReaderResolver::class)->for($source)->records($source, $payload) as $record) {
             $records[] = $record;
@@ -58,7 +71,35 @@ class SourceFieldOptions
                 break;
             }
         }
+        $metadata = collect(app(FieldDiscovery::class)->discover($records))->mapWithKeys(fn ($field) => [$field->path => ['type' => $field->type, 'present' => $field->present, 'samples' => array_map(fn ($sample) => str($sample)->limit(120)->toString(), $field->samples)]])->all();
 
-        return collect(app(FieldDiscovery::class)->discover($records))->mapWithKeys(fn ($field) => [$field->path => ['type' => $field->type, 'present' => $field->present, 'samples' => array_map(fn ($sample) => str($sample)->limit(120)->toString(), $field->samples)]])->all();
+        return [
+            'records' => array_map(fn (SourceRecord $record): array => ['position' => $record->position, 'data' => $record->data, 'record_path' => $record->recordPath], $records),
+            'metadata' => $metadata,
+        ];
+    }
+
+    private function isRemote(ImportSource $source): bool
+    {
+        return ! $this->hasControlledLocalSource($source)
+            && in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true);
+    }
+
+    private function hasControlledLocalSource(ImportSource $source): bool
+    {
+        return filled(data_get($source->configuration, 'source_path'))
+            || filled(data_get($source->configuration, 'sample_path'));
+    }
+
+    private function cacheKey(ImportSource $source): string
+    {
+        return 'import-source-fields:'.hash('sha256', implode('|', [
+            (string) $source->getKey(),
+            $source->transport->value,
+            $source->format->value,
+            (string) $source->endpoint_url,
+            (string) $source->record_path,
+            (string) $source->updated_at?->getTimestamp(),
+        ]));
     }
 }
