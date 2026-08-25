@@ -131,3 +131,19 @@ test('import navigation has one ordered group with sources mappings and history'
         ->and(ImportResource::getNavigationSort())->toBe(3)
         ->and(ImportResource::getNavigationLabel())->toBe('Importhistorie');
 });
+
+test('old processing runs show a non-mutating duration warning', function () {
+    $run = recordedImportRun();
+    $run->update([
+        'status' => ImportStatus::Processing,
+        'started_at' => now()->subHour(),
+        'finished_at' => null,
+    ]);
+
+    $this->actingAs(importHistoryUser('admin'))
+        ->get(ImportResource::getUrl())
+        ->assertSuccessful()
+        ->assertSee('Deze import lijkt langer te duren dan verwacht.');
+
+    expect($run->fresh()->status)->toBe(ImportStatus::Processing);
+});

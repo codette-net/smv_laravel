@@ -51,9 +51,10 @@ class ImportSourceForm
                     ->visible(fn (Get $get): bool => self::isUpload($get('transport')))
                     ->helperText('Upload één JSON-, XML-, CSV- of XLSX-bestand (maximaal 50 MB). Het bestand wordt privé opgeslagen.')
                     ->columnSpanFull(),
-                TextInput::make('endpoint_url')->label('URL / endpoint')->url()->maxLength(2048)
+                TextInput::make('endpoint_url')->label('Feed-URL of API-endpoint')->url()->maxLength(2048)
                     ->visible(fn (Get $get): bool => self::isRemote($get('transport')))
                     ->required(fn (Get $get): bool => self::isRemote($get('transport')))
+                    ->helperText('De bron wordt alleen opgehaald wanneer je na opslaan bewust Bron analyseren kiest.')
                     ->columnSpanFull(),
                 TextInput::make('record_path')->label('Recordpad')->maxLength(255)->placeholder('response.jobs.*')
                     ->helperText('Geeft aan waar de afzonderlijke vacatures in de bron staan. Bijvoorbeeld response.jobs.* bij een passende JSON-structuur; het juiste pad verschilt per feed.')

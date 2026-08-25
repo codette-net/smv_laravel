@@ -11,4 +11,6 @@ class CreateImportMapping extends CreateRecord
     protected static string $resource = ImportMappingResource::class;
 
     protected Width|string|null $maxContentWidth = Width::Full;
+
+    protected ?bool $hasUnsavedDataChangesAlert = true;
 }

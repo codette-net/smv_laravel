@@ -61,11 +61,39 @@ class ImportMappingResource extends Resource
                         $source = ImportSource::find($get('../../import_source_id'));
 
                         return $source ? app(SourceFieldOptions::class)->for($source) : [];
-                    })->visible(fn (Get $get) => $get('operation') !== 'default'),
+                    })
+                        ->placeholder(function (Get $get): string {
+                            $source = ImportSource::find($get('../../import_source_id'));
+
+                            return $source && app(SourceFieldOptions::class)->for($source) === []
+                                ? 'Nog geen bronvelden beschikbaar'
+                                : 'Kies één of meer bronvelden';
+                        })
+                        ->noSearchResultsMessage('Geen passend bronveld gevonden.')
+                        ->helperText(function (Get $get): ?string {
+                            $source = ImportSource::find($get('../../import_source_id'));
+                            if (! $source || app(SourceFieldOptions::class)->for($source) !== []) {
+                                return null;
+                            }
+
+                            return 'Analyseer eerst de importbron. Status: '.app(SourceFieldOptions::class)->stateFor($source).'.';
+                        })
+                        ->visible(fn (Get $get) => $get('operation') !== 'default'),
                     TextInput::make('configuration.value')->label('Standaardwaarde')->visible(fn (Get $get) => $get('operation') === 'default'),
                     Select::make('configuration.transform')->label('Transformatie')->options(['trim' => 'Spaties verwijderen', 'string' => 'Tekst', 'integer' => 'Geheel getal', 'boolean' => 'Boolean', 'date' => 'Datum', 'annual_salary_to_monthly' => 'Jaarsalaris naar maand', 'compensation_text_min' => 'Compensatietekst: minimumbedrag', 'compensation_text_max' => 'Compensatietekst: maximumbedrag', 'compensation_text_currency' => 'Compensatietekst: valuta', 'compensation_text_period' => 'Compensatietekst: periode'])->visible(fn (Get $get) => $get('operation') === 'transform'),
                     TextInput::make('configuration.separator')->label('Scheidingsteken')->default("\n\n")->visible(fn (Get $get) => $get('operation') === 'combine'),
-                ])->columns(4)->addActionLabel('Veld koppelen')->defaultItems(0)->columnSpanFull(),
+                ])
+                    ->itemLabel(function (array $state): string {
+                        $destination = $state['destination_key'] ?? null;
+
+                        return $destination && isset(app(DestinationRegistry::class)->all()[$destination])
+                            ? app(DestinationRegistry::class)->all()[$destination]->label
+                            : 'Nieuwe veldkoppeling';
+                    })
+                    ->columns(2)
+                    ->addActionLabel('Veld koppelen')
+                    ->defaultItems(0)
+                    ->columnSpanFull(),
             ]),
         ]);
     }
