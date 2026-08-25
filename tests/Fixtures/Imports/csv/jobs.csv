@@ -1,0 +1,3 @@
+source_reference,title,company,location,salary_min,salary_max,salary_period,function_area,sector
+TEST-001,Accountmanager SaaS,Demo BV,Utrecht,3500,4500,month,Sales,SaaS
+TEST-002,Marketing Specialist,Voorbeeld BV,Rotterdam,3200,4000,month,Marketing,E-commerce
