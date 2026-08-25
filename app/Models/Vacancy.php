@@ -43,6 +43,9 @@ class Vacancy extends Model
         'rate_period',
         'reference',
         'source_reference',
+        'last_seen_at',
+        'last_seen_import_id',
+        'missing_since',
         'published_at',
         'deadline_at',
         'expires_at',
@@ -58,6 +61,8 @@ class Vacancy extends Model
             'published_at' => 'datetime',
             'deadline_at' => 'datetime',
             'expires_at' => 'datetime',
+            'last_seen_at' => 'datetime',
+            'missing_since' => 'datetime',
             'is_featured' => 'boolean',
             'is_filled' => 'boolean',
             'salary_min' => 'integer',
@@ -93,6 +98,11 @@ class Vacancy extends Model
     public function importSource(): BelongsTo
     {
         return $this->belongsTo(ImportSource::class);
+    }
+
+    public function lastSeenImport(): BelongsTo
+    {
+        return $this->belongsTo(Import::class, 'last_seen_import_id');
     }
 
     public function categories(): MorphToMany

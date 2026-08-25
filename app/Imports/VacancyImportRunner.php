@@ -21,6 +21,9 @@ class VacancyImportRunner
     {
         $source = $mapping->importSource()->with('company')->firstOrFail();
         $run = Import::create(['import_source_id' => $source->id, 'status' => ImportStatus::Processing, 'started_at' => now(), 'mapping' => ['mapping_id' => $mapping->id]]);
+        $seenReferences = [];
+        $persistedVacancies = [];
+        $reconciliationIsReliable = true;
         try {
             $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true)
                 ? app(SourceFetcher::class)->fetch($source)
@@ -31,19 +34,33 @@ class VacancyImportRunner
                 try {
                     $result = app(ImportMapper::class)->map($record, $mapping->load('fields'), $source);
                     $outcome = app(ImportRecordValidator::class)->validate($result->data, $source);
+                    $reference = $outcome->data->get('source_reference');
+                    if (is_scalar($reference) && filled(trim((string) $reference))) {
+                        $seenReferences[] = trim((string) $reference);
+                    } else {
+                        $reconciliationIsReliable = false;
+                    }
                     if (! $outcome->canImport()) {
                         $run->increment('skipped_rows');
                         $this->log($run, ImportLogLevel::Warning, 'Record overgeslagen.', $record->position, $outcome, 'validation_or_resolution');
 
                         continue;
                     }
-                    $created = DB::transaction(fn () => $this->persist($source, $mapping, $outcome));
-                    $run->increment($created ? 'imported_rows' : 'updated_rows');
-                    $this->log($run, ImportLogLevel::Info, $created ? 'Vacature aangemaakt.' : 'Vacature bijgewerkt.', $record->position, $outcome, $created ? 'created' : 'updated');
+                    $persistence = DB::transaction(fn () => $this->persist($source, $mapping, $outcome));
+                    $persistedVacancies[$persistence['vacancy_id']] = $persistence;
+                    $run->increment($persistence['created'] ? 'imported_rows' : 'updated_rows');
+                    $this->log($run, ImportLogLevel::Info, $persistence['created'] ? 'Vacature aangemaakt.' : 'Vacature bijgewerkt.', $record->position, $outcome, $persistence['created'] ? 'created' : 'updated');
                 } catch (\Throwable $e) {
+                    $reconciliationIsReliable = false;
                     $run->increment('failed_rows');
                     $this->log($run, ImportLogLevel::Error, 'Record kon niet worden verwerkt.', $record->position, $outcome, 'processing_failed');
                 }
+            }
+            $this->finalizeSeenVacancies($run, $persistedVacancies);
+            if ($reconciliationIsReliable) {
+                $this->detectMissingVacancies($run, $source->id, array_values(array_unique($seenReferences)));
+            } else {
+                $this->log($run, ImportLogLevel::Warning, 'Controle op ontbrekende vacatures is overgeslagen omdat deze run niet volledig betrouwbaar was.', null, null, 'missing_detection_skipped');
             }
             $run->forceFill(['status' => ImportStatus::Completed, 'finished_at' => now()])->save();
         } catch (\Throwable $e) {
@@ -54,12 +71,14 @@ class VacancyImportRunner
         return $run->fresh('importLogs');
     }
 
-    private function persist($source, ImportMapping $mapping, $outcome): bool
+    /** @return array{created: bool, vacancy_id: int, source_reference: string, was_missing: bool} */
+    private function persist($source, ImportMapping $mapping, $outcome): array
     {
         $data = $outcome->data;
         $reference = (string) $data->get('source_reference');
         $vacancy = Vacancy::where('import_source_id', $source->id)->where('source_reference', $reference)->first();
         $created = $vacancy === null;
+        $wasMissing = $vacancy?->missing_since !== null;
         $allowed = ['title', 'description', 'location', 'published_at', 'deadline_at', 'expires_at', 'application_mode', 'application_url', 'application_email', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'rate_min', 'rate_max', 'rate_currency', 'rate_period'];
         $fields = $mapping->fields->pluck('destination_key')->all();
         $attributes = [];
@@ -91,11 +110,64 @@ class VacancyImportRunner
             $vacancy->syncTags($data->get('tags', []));
         }
 
-        return $created;
+        return ['created' => $created, 'vacancy_id' => $vacancy->id, 'source_reference' => $reference, 'was_missing' => $wasMissing];
     }
 
-    private function log(Import $run, ImportLogLevel $level, string $message, int|string|null $position = null, $outcome = null, ?string $code = null): void
+    /** @param array<int, array{created: bool, vacancy_id: int, source_reference: string, was_missing: bool}> $vacancies */
+    private function finalizeSeenVacancies(Import $run, array $vacancies): void
     {
-        ImportLog::create(['import_id' => $run->id, 'level' => $level, 'message' => $message, 'context' => array_filter(['position' => $position, 'source_reference' => $outcome?->data->get('source_reference'), 'code' => $code])]);
+        if ($vacancies === []) {
+            return;
+        }
+
+        $now = now();
+        Vacancy::query()->whereKey(array_keys($vacancies))->update([
+            'last_seen_at' => $now,
+            'last_seen_import_id' => $run->id,
+            'missing_since' => null,
+        ]);
+
+        foreach ($vacancies as $vacancy) {
+            if (! $vacancy['was_missing']) {
+                continue;
+            }
+
+            $run->increment('restored_rows');
+            $this->log($run, ImportLogLevel::Info, 'Vacature is teruggekeerd in de importbron.', null, null, 'restored_in_source', [
+                'source_reference' => $vacancy['source_reference'],
+                'vacancy_id' => $vacancy['vacancy_id'],
+            ]);
+        }
+    }
+
+    /** @param list<string> $seenReferences */
+    private function detectMissingVacancies(Import $run, int $sourceId, array $seenReferences): void
+    {
+        Vacancy::query()
+            ->where('import_source_id', $sourceId)
+            ->when($seenReferences !== [], fn ($query) => $query->whereNotIn('source_reference', $seenReferences))
+            ->orderBy('id')
+            ->each(function (Vacancy $vacancy) use ($run): void {
+                if ($vacancy->missing_since === null) {
+                    $vacancy->forceFill(['missing_since' => now()])->save();
+                    $run->increment('missing_rows');
+                    $message = 'Vacature ontbreekt voor het eerst in de importbron.';
+                    $code = 'missing_from_source';
+                } else {
+                    $message = 'Vacature ontbreekt nog steeds in de importbron.';
+                    $code = 'still_missing_from_source';
+                }
+
+                $this->log($run, ImportLogLevel::Warning, $message, null, null, $code, [
+                    'source_reference' => $vacancy->source_reference,
+                    'vacancy_id' => $vacancy->id,
+                ]);
+            });
+    }
+
+    /** @param array<string, int|string|null> $context */
+    private function log(Import $run, ImportLogLevel $level, string $message, int|string|null $position = null, $outcome = null, ?string $code = null, array $context = []): void
+    {
+        ImportLog::create(['import_id' => $run->id, 'level' => $level, 'message' => $message, 'context' => array_filter(array_merge(['position' => $position, 'source_reference' => $outcome?->data->get('source_reference'), 'code' => $code], $context))]);
     }
 }

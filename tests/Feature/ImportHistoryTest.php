@@ -39,6 +39,8 @@ function recordedImportRun(): Import
         'updated_rows' => 1,
         'skipped_rows' => 1,
         'failed_rows' => 1,
+        'missing_rows' => 2,
+        'restored_rows' => 1,
         'started_at' => now()->subMinute(),
         'finished_at' => now(),
     ]);
@@ -47,6 +49,12 @@ function recordedImportRun(): Import
         'level' => ImportLogLevel::Warning,
         'message' => 'Record veilig overgeslagen.',
         'context' => ['position' => 3, 'source_reference' => 'safe-3', 'code' => 'validation_or_resolution', 'authorization' => 'Bearer history-secret', 'raw_payload' => ['private' => true], 'trace' => 'internal stack'],
+    ]);
+    ImportLog::create([
+        'import_id' => $run->id,
+        'level' => ImportLogLevel::Warning,
+        'message' => 'Vacature ontbreekt voor het eerst in de importbron.',
+        'context' => ['source_reference' => 'missing-safe-4', 'vacancy_id' => 44, 'code' => 'missing_from_source'],
     ]);
 
     return $run->fresh(['importSource.company', 'importLogs']);
@@ -81,13 +89,18 @@ test('only administrators can list and view safe read-only import history', func
             ->assertSee('Veilige bron')
             ->assertSee('Historisch bedrijf')
             ->assertSee('Overgeslagen')
-            ->assertSee('Mislukt');
+            ->assertSee('Mislukt')
+            ->assertSee('Nieuw ontbrekend')
+            ->assertSee('Teruggekeerd');
 
         $this->actingAs($users[$role])->get(ImportResource::getUrl('view', ['record' => $run]))
             ->assertSuccessful()
             ->assertSee('Record veilig overgeslagen.')
             ->assertSee('safe-3')
             ->assertSee('validation_or_resolution')
+            ->assertSee('Vacature ontbreekt voor het eerst in de importbron.')
+            ->assertSee('missing-safe-4')
+            ->assertSee('missing_from_source')
             ->assertDontSee('Bearer')
             ->assertDontSee('authorization')
             ->assertDontSee('history-secret')
