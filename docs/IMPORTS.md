@@ -408,24 +408,38 @@ recordType
 lastactivitydate
 ```
 
-Likely mapping candidates:
+SMV-039 validated the following production configuration through the generic pipeline:
 
 ```text
-title           -> title
-identifier      -> source_reference (verify against multiple records)
-company         -> company
-city            -> location
-description     -> description
-applyUrl        -> application_url
-date            -> published_at
-function        -> function_area
-experience      -> experience mapping
-jobtype         -> source-specific employment/contract mapping
-category        -> source-specific taxonomy mapping
-salary          -> salary normalization
+transport       HTTP (private upload for local verification)
+format          XML
+record path     job
+selection       function contains Sales OR function contains Marketing
+
+identifier      -> source_reference
+title           -> vacancy.title
+description     -> vacancy.description (generic safe-HTML sanitization at persistence)
+city            -> vacancy.location
+date            -> vacancy.published_at (date transform)
+default         -> vacancy.application_mode = external
+applyUrl        -> vacancy.application_url
+salary          -> salary min/max/currency/period (generic compensation-text transforms)
+function        -> taxonomy.function_area
 ```
 
-Important ambiguity: `Loondienst` is not automatically the same thing as `Fulltime`.
+The ImportSource Company **VNOM** is authoritative. Source `company` never reassigns a
+Vacancy or overwrites the Company profile. `identifier` is the strongest stable opaque
+identity candidate in the available snapshots; verify it against another production
+snapshot before unattended activation. The public HTTPS feed requires no documented
+credentials, but automatic execution still requires an active source and explicit
+admin/super-admin approval.
+
+`Loondienst` is not automatically the same thing as `Fulltime`. Experience strings
+such as `1 tot 3 jaar` have no approved Junior/Medior/Senior rule, and source `category`
+such as `Office` is not proven to mean canonical sector or function area. These fields
+remain unmapped until business-approved aliases exist. Full reproducible Filament
+settings, ignored fields, lifecycle behavior and the manual checklist live in
+`tests/Fixtures/Imports/vnom/notes.md`.
 
 ### Michael Page XML
 

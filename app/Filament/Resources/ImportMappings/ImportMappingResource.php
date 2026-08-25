@@ -45,7 +45,7 @@ class ImportMappingResource extends Resource
                 TextInput::make('name')->label('Naam')->required()->default('Standaard mapping'),
                 Toggle::make('is_active')->label('Actief')->default(true), Toggle::make('is_default')->label('Standaardmapping')->default(true),
             ]),
-            Section::make('Veldkoppelingen')->description('Koppel minimaal de verplichte bronreferentie en vacaturetitel. Leeg laten betekent niet mappen.')->columnSpanFull()->schema([
+            Section::make('Veldkoppelingen')->description('Koppel minimaal de verplichte bronreferentie en vacaturetitel. Leeg laten betekent niet mappen. Gebruik bij een HTTP/API-bron eerst “Bronvelden vernieuwen” op de importbron.')->columnSpanFull()->schema([
                 Repeater::make('fields')->relationship()->orderColumn('position')->schema([
                     Select::make('destination_key')->label('SMV-veld')->options(fn () => collect(app(DestinationRegistry::class)->all())->mapWithKeys(fn ($item) => [$item->key => "{$item->group}: {$item->label}"])->all())->required()->searchable()->live()
                         ->helperText(fn (Get $get): ?string => $get('destination_key') === 'source_reference' ? 'Unieke referentie uit de bron. Hiermee herkent SMV dezelfde vacature bij een volgende import.' : null),
@@ -63,7 +63,7 @@ class ImportMappingResource extends Resource
                         return $source ? app(SourceFieldOptions::class)->for($source) : [];
                     })->visible(fn (Get $get) => $get('operation') !== 'default'),
                     TextInput::make('configuration.value')->label('Standaardwaarde')->visible(fn (Get $get) => $get('operation') === 'default'),
-                    Select::make('configuration.transform')->label('Transformatie')->options(['trim' => 'Spaties verwijderen', 'string' => 'Tekst', 'integer' => 'Geheel getal', 'boolean' => 'Boolean', 'date' => 'Datum', 'annual_salary_to_monthly' => 'Jaarsalaris naar maand'])->visible(fn (Get $get) => $get('operation') === 'transform'),
+                    Select::make('configuration.transform')->label('Transformatie')->options(['trim' => 'Spaties verwijderen', 'string' => 'Tekst', 'integer' => 'Geheel getal', 'boolean' => 'Boolean', 'date' => 'Datum', 'annual_salary_to_monthly' => 'Jaarsalaris naar maand', 'compensation_text_min' => 'Compensatietekst: minimumbedrag', 'compensation_text_max' => 'Compensatietekst: maximumbedrag', 'compensation_text_currency' => 'Compensatietekst: valuta', 'compensation_text_period' => 'Compensatietekst: periode'])->visible(fn (Get $get) => $get('operation') === 'transform'),
                     TextInput::make('configuration.separator')->label('Scheidingsteken')->default("\n\n")->visible(fn (Get $get) => $get('operation') === 'combine'),
                 ])->columns(4)->addActionLabel('Veld koppelen')->defaultItems(0)->columnSpanFull(),
             ]),

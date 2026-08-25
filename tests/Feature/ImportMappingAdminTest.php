@@ -1,9 +1,11 @@
 <?php
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportTransport;
 use App\Filament\Resources\ImportMappings\ImportMappingResource;
 use App\Filament\Resources\ImportMappings\Pages\CreateImportMapping;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
+use App\Filament\Resources\ImportSources\Pages\EditImportSource;
 use App\Imports\Mapping\DestinationRegistry;
 use App\Imports\Mapping\ImportMapper;
 use App\Imports\Mapping\MappingCompletion;
@@ -13,6 +15,7 @@ use App\Models\ImportMappingField;
 use App\Models\ImportSource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 
@@ -52,6 +55,36 @@ test('source field discovery exposes nested and repeated fixture paths without r
     $source = ImportSource::factory()->create(['configuration' => ['sample_path' => base_path('tests/Fixtures/Imports/michael-page/jobs.xml')], 'record_path' => 'job']);
     $options = app(SourceFieldOptions::class)->for($source);
     expect($options)->toHaveKeys(['salary.min', 'description.bulletPoints.*', 'location.text', 'sector.term']);
+});
+
+test('remote source fields are fetched explicitly once and reused from bounded discovery cache', function () {
+    Http::fake([
+        'https://93.184.216.34/vnom.xml' => Http::response(file_get_contents(base_path('tests/Fixtures/Imports/vnom/jobs_for_test.xml')), 200, ['Content-Type' => 'application/xml']),
+    ]);
+    $source = ImportSource::factory()->create([
+        'transport' => ImportTransport::Http,
+        'format' => ImportFormat::Xml,
+        'endpoint_url' => 'https://93.184.216.34/vnom.xml',
+        'record_path' => 'job',
+        'credentials' => null,
+        'configuration' => [],
+    ]);
+    $options = app(SourceFieldOptions::class);
+
+    expect($options->for($source))->toBe([]);
+    Http::assertNothingSent();
+
+    $metadata = $options->refresh($source);
+    expect($metadata)->toHaveKeys(['identifier', 'referencenumber', 'title', 'description', 'city', 'salary', 'function', 'jobtype', 'experience', 'category', 'applyUrl'])
+        ->and($options->for($source))->toHaveKeys(['identifier', 'title', 'applyUrl'])
+        ->and($options->metadataFor($source))->toBe($metadata)
+        ->and($options->firstRecordFor($source)?->get('identifier'))->toBe('a1WWy000001RVvBMAW');
+    Http::assertSentCount(1);
+
+    Livewire::actingAs(mappingAdmin('admin'))
+        ->test(EditImportSource::class, ['record' => $source->id])
+        ->assertActionVisible('refreshSourceFields');
+    Http::assertSentCount(1);
 });
 
 test('the import source mapping action points to mapping configuration', function () {
