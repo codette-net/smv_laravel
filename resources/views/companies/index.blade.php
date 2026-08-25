@@ -2,6 +2,7 @@
 
 @section('title', 'Bedrijven | Sales en Marketing Vacatures')
 @section('meta_description', 'Ontdek bedrijven met actuele sales- en marketingvacatures.')
+@section('canonical', $seoCanonical)
 
 @section('content')
     <section class="border-b border-slate-200 bg-white">

@@ -2,15 +2,18 @@
 
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\VacancyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::redirect('/home', '/', 301);
+
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 
 Route::get('/bedrijven', [CompanyController::class, 'index'])->name('companies.index');
 Route::get('/bedrijven/{company}', [CompanyController::class, 'show'])->name('bedrijven.show');

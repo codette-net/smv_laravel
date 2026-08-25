@@ -6,6 +6,7 @@ use App\Enums\CategoryType;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Vacancy;
+use App\Support\Seo\StructuredData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -67,6 +68,9 @@ class VacancyController extends Controller
 
         $this->applySort($vacancies, $sort);
 
+        $hasFilters = collect($request->query())->except('page')->filter(fn ($value): bool => filled($value))->isNotEmpty();
+        $page = max(1, $request->integer('page', 1));
+
         return view('vacancies.index', [
             'vacancies' => $vacancies->paginate(12)->withQueryString(),
             'filters' => $filters,
@@ -76,6 +80,10 @@ class VacancyController extends Controller
             'taxonomyOptions' => $this->taxonomyOptions(),
             'companies' => $this->companies(),
             'activeFilters' => $this->activeFilters($filters, $sort),
+            'seoCanonical' => $hasFilters || $page === 1
+                ? route('vacancies.index')
+                : route('vacancies.index', ['page' => $page]),
+            'seoRobots' => $hasFilters ? 'noindex, follow' : 'index, follow',
         ]);
     }
 
@@ -100,6 +108,7 @@ class VacancyController extends Controller
             'taxonomy' => $this->vacancyTaxonomy($vacancy),
             'logoUrl' => $vacancy->company->publicLogoUrl(),
             'relatedVacancies' => $relatedVacancies,
+            'structuredData' => StructuredData::jobPosting($vacancy),
         ]);
     }
 

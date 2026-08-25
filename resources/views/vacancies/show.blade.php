@@ -1,7 +1,12 @@
 @extends('layouts.public')
 
-@section('title', $vacancy->title.' | Sales en Marketing Vacatures')
-@section('meta_description', Str::limit(Str::squish(strip_tags($vacancy->description)), 155))
+@section('title', $vacancy->title.($vacancy->location ? ' vacature in '.$vacancy->location : ' vacature').' | Sales en Marketing Vacatures')
+@section('meta_description', Str::limit(\App\Support\Seo\StructuredData::plainText($vacancy->description), 155))
+@section('canonical', route('vacancies.show', $vacancy))
+@section('og_type', 'article')
+@push('structured_data')
+    <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endpush
 
 @section('content')
     <div class="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 lg:flex-row lg:gap-12 lg:py-14">

@@ -60,8 +60,15 @@ MERGE    content consolidated into a stronger relevant destination
 Avoid redirecting unrelated removed content to the homepage.
 Avoid redirect chains.
 
-Public vacancy slugs are stable after creation. The final Laravel route strategy remains
-unresolved until SMV-040 and must be decided using the legacy inventory inputs below.
+Public Vacancy and Company slugs are stable after creation. The implemented Laravel
+canonical patterns are `/vacatures/{vacancy-slug}` and `/bedrijven/{company-slug}`.
+The clean listing routes are `/vacatures` and `/bedrijven`; the canonical homepage is
+`/`. These patterns must now be compared with the legacy inventory rather than changed
+without evidence.
+
+Filtered vacancy URLs are not migration landing pages: they canonicalize to
+`/vacatures` and are `noindex, follow`. Pagination is self-canonical. External apply
+links, feed URLs and import references never replace an SMV canonical URL.
 
 ## Redirect mapping template
 
@@ -124,4 +131,8 @@ After cutover:
 - Ahrefs exports
 - Search Console top pages/queries
 - current WordPress permalink/taxonomy structures
-- final Laravel route strategy (SMV-040)
+- mapping of actual WordPress permalink/taxonomy patterns to the concrete Laravel routes
+
+Deterministic redirects can be implemented once the legacy permalink patterns and slug
+parity are proven. URLs without a close equivalent require an explicit 410, merge or
+retention decision; they must not be blanket-redirected to `/`.

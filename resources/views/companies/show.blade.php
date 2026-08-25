@@ -2,6 +2,10 @@
 
 @section('title', $company->name.' | Sales en Marketing Vacatures')
 @section('meta_description', $metaDescription)
+@section('canonical', route('bedrijven.show', $company))
+@push('structured_data')
+    <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endpush
 
 @section('content')
     <section class="relative overflow-hidden bg-slate-900">
