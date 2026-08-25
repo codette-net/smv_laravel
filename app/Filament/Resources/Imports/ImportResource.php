@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Imports;
 
+use App\Enums\ImportStatus;
 use App\Filament\Resources\Imports\Pages\ListImports;
 use App\Filament\Resources\Imports\Pages\ViewImport;
 use App\Models\Import;
@@ -36,7 +37,7 @@ class ImportResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->modifyQueryUsing(fn ($query) => $query->with('importSource.company'))->columns([TextColumn::make('importSource.name')->label('Bron'), TextColumn::make('importSource.company.name')->label('Bedrijf'), TextColumn::make('status')->badge(), TextColumn::make('total_rows')->label('Totaal'), TextColumn::make('imported_rows')->label('Nieuw'), TextColumn::make('updated_rows')->label('Bijgewerkt'), TextColumn::make('skipped_rows')->label('Overgeslagen'), TextColumn::make('failed_rows')->label('Mislukt'), TextColumn::make('missing_rows')->label('Nieuw ontbrekend'), TextColumn::make('restored_rows')->label('Teruggekeerd'), TextColumn::make('started_at')->dateTime(), TextColumn::make('finished_at')->dateTime()])->recordActions([ViewAction::make()]);
+        return $table->modifyQueryUsing(fn ($query) => $query->with('importSource.company'))->columns([TextColumn::make('importSource.name')->label('Bron'), TextColumn::make('importSource.company.name')->label('Bedrijf'), TextColumn::make('status')->badge()->description(fn (Import $record): ?string => $record->status === ImportStatus::Processing && $record->started_at?->lt(now()->subMinutes(30)) ? 'Deze import lijkt langer te duren dan verwacht.' : null), TextColumn::make('total_rows')->label('Totaal'), TextColumn::make('imported_rows')->label('Nieuw'), TextColumn::make('updated_rows')->label('Bijgewerkt'), TextColumn::make('skipped_rows')->label('Overgeslagen'), TextColumn::make('failed_rows')->label('Mislukt'), TextColumn::make('missing_rows')->label('Nieuw ontbrekend'), TextColumn::make('restored_rows')->label('Teruggekeerd'), TextColumn::make('started_at')->dateTime(), TextColumn::make('finished_at')->dateTime()])->recordActions([ViewAction::make()]);
     }
 
     public static function infolist(Schema $schema): Schema

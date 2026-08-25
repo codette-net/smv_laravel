@@ -731,6 +731,13 @@ An import run should make it possible to understand:
 
 Avoid logging secrets or excessive personal data.
 
+### Operational limitation for large imports
+
+Large remote imports currently execute synchronously. Background/chunked execution and
+stale-run recovery are required before unattended production scheduling. Import history
+may indicate that an old processing run appears to be taking longer than expected, but
+the UI does not mutate or recover that run automatically.
+
 ## Future domain concepts
 
 The precise mapping schema remains an SMV-030 design outcome.

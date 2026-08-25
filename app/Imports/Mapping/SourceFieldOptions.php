@@ -15,7 +15,7 @@ class SourceFieldOptions
 {
     public function firstRecordFor(ImportSource $source): ?SourceRecord
     {
-        $discovery = $this->isRemote($source) ? Cache::get($this->cacheKey($source)) : $this->discoverSafely($source);
+        $discovery = $this->isRemote($source) ? $this->cachedDiscovery($source) : $this->discoverSafely($source);
         $record = $discovery['records'][0] ?? null;
 
         return is_array($record) ? new SourceRecord($record['position'], $record['data'], $record['record_path']) : null;
@@ -24,7 +24,7 @@ class SourceFieldOptions
     /** @return array<string, string> */
     public function for(ImportSource $source): array
     {
-        $discovery = $this->isRemote($source) ? Cache::get($this->cacheKey($source)) : $this->discoverSafely($source);
+        $discovery = $this->isRemote($source) ? $this->cachedDiscovery($source) : $this->discoverSafely($source);
 
         return collect($discovery['metadata'] ?? [])->mapWithKeys(fn (array $field, string $path) => [$path => "{$path} ({$field['type']}, {$field['present']}×)"])->all();
     }
@@ -32,7 +32,7 @@ class SourceFieldOptions
     /** @return array<string, array{type: string, present: int, samples: array<int, mixed>}> */
     public function metadataFor(ImportSource $source): array
     {
-        $discovery = $this->isRemote($source) ? Cache::get($this->cacheKey($source)) : $this->discoverSafely($source);
+        $discovery = $this->isRemote($source) ? $this->cachedDiscovery($source) : $this->discoverSafely($source);
 
         return $discovery['metadata'] ?? [];
     }
@@ -42,10 +42,33 @@ class SourceFieldOptions
     {
         $discovery = $this->discover($source);
         if ($this->isRemote($source)) {
+            $discovery['fingerprint'] = $this->fingerprint($source);
+            $discovery['analyzed_at'] = now()->toIso8601String();
             Cache::put($this->cacheKey($source), $discovery, now()->addDay());
         }
 
         return $discovery['metadata'];
+    }
+
+    public function stateFor(ImportSource $source): string
+    {
+        if (! $this->isRemote($source)) {
+            return 'Lokale bronvelden beschikbaar';
+        }
+
+        $cached = Cache::get($this->cacheKey($source));
+        if (! is_array($cached)) {
+            return 'Nog niet geanalyseerd';
+        }
+        if (($cached['fingerprint'] ?? null) !== $this->fingerprint($source)) {
+            return 'Bron gewijzigd, opnieuw analyseren';
+        }
+
+        $analyzedAt = isset($cached['analyzed_at']) ? date_create_immutable($cached['analyzed_at']) : null;
+
+        return $analyzedAt
+            ? 'Geanalyseerd: '.$analyzedAt->setTimezone(now()->timezone)->format('d-m-Y H:i')
+            : 'Geanalyseerd';
     }
 
     /** @return array{records: list<array{position: int|string, data: array<string, mixed>, record_path: ?string}>, metadata: array<string, array{type: string, present: int, samples: array<int, mixed>}>} */
@@ -93,13 +116,26 @@ class SourceFieldOptions
 
     private function cacheKey(ImportSource $source): string
     {
-        return 'import-source-fields:'.hash('sha256', implode('|', [
+        return 'import-source-fields:'.$source->getKey();
+    }
+
+    private function fingerprint(ImportSource $source): string
+    {
+        return hash('sha256', implode('|', [
             (string) $source->getKey(),
             $source->transport->value,
             $source->format->value,
             (string) $source->endpoint_url,
             (string) $source->record_path,
-            (string) $source->updated_at?->getTimestamp(),
         ]));
+    }
+
+    private function cachedDiscovery(ImportSource $source): ?array
+    {
+        $cached = Cache::get($this->cacheKey($source));
+
+        return is_array($cached) && ($cached['fingerprint'] ?? null) === $this->fingerprint($source)
+            ? $cached
+            : null;
     }
 }

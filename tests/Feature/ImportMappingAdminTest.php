@@ -4,6 +4,7 @@ use App\Enums\ImportFormat;
 use App\Enums\ImportTransport;
 use App\Filament\Resources\ImportMappings\ImportMappingResource;
 use App\Filament\Resources\ImportMappings\Pages\CreateImportMapping;
+use App\Filament\Resources\ImportMappings\Pages\EditImportMapping;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
 use App\Filament\Resources\ImportSources\Pages\EditImportSource;
 use App\Imports\Mapping\DestinationRegistry;
@@ -76,6 +77,7 @@ test('remote source fields are fetched explicitly once and reused from bounded d
 
     $metadata = $options->refresh($source);
     expect($metadata)->toHaveKeys(['identifier', 'referencenumber', 'title', 'description', 'city', 'salary', 'function', 'jobtype', 'experience', 'category', 'applyUrl'])
+        ->and($options->stateFor($source))->toStartWith('Geanalyseerd:')
         ->and($options->for($source))->toHaveKeys(['identifier', 'title', 'applyUrl'])
         ->and($options->metadataFor($source))->toBe($metadata)
         ->and($options->firstRecordFor($source)?->get('identifier'))->toBe('a1WWy000001RVvBMAW');
@@ -85,6 +87,47 @@ test('remote source fields are fetched explicitly once and reused from bounded d
         ->test(EditImportSource::class, ['record' => $source->id])
         ->assertActionVisible('refreshSourceFields');
     Http::assertSentCount(1);
+
+    $source->update(['record_path' => 'source.job']);
+    expect($options->stateFor($source->fresh()))->toBe('Bron gewijzigd, opnieuw analyseren')
+        ->and($options->for($source->fresh()))->toBe([]);
+    Http::assertSentCount(1);
+});
+
+test('mapping creation never autosaves and existing mappings retain validated manual save', function () {
+    $admin = mappingAdmin('admin');
+    $source = ImportSource::factory()->create([
+        'transport' => ImportTransport::Upload,
+        'format' => ImportFormat::Json,
+        'record_path' => 'jobs.*',
+        'configuration' => ['sample_path' => base_path('tests/Fixtures/Imports/orange-career/provisional-example.json')],
+    ]);
+
+    Livewire::actingAs($admin)->test(CreateImportMapping::class)
+        ->fillForm(['import_source_id' => $source->id, 'name' => 'Nog niet opgeslagen'])
+        ->assertSet('data.name', 'Nog niet opgeslagen');
+    expect(ImportMapping::where('name', 'Nog niet opgeslagen')->exists())->toBeFalse();
+
+    $mapping = ImportMapping::factory()->create(['import_source_id' => $source->id, 'name' => 'Handmatig opslaan']);
+    $component = Livewire::actingAs($admin)->test(EditImportMapping::class, ['record' => $mapping->id]);
+    $initialHash = $component->get('savedDataHash');
+
+    $component->set('data.name', 'Gewijzigde mapping')
+        ->assertSet('saveState', 'Wijzigingen niet opgeslagen');
+    expect($mapping->fresh()->name)->toBe('Handmatig opslaan')
+        ->and($component->get('savedDataHash'))->toBe($initialHash);
+
+    $component->call('save')
+        ->assertHasNoFormErrors()
+        ->assertSet('saveState', 'Opgeslagen');
+    expect($mapping->fresh()->name)->toBe('Gewijzigde mapping')
+        ->and($component->get('savedDataHash'))->not->toBe($initialHash);
+
+    $component->set('data.name', '')
+        ->call('save')
+        ->assertHasFormErrors(['name' => 'required'])
+        ->assertSet('saveState', 'Wijzigingen niet opgeslagen');
+    expect($mapping->fresh()->name)->toBe('Gewijzigde mapping');
 });
 
 test('the import source mapping action points to mapping configuration', function () {

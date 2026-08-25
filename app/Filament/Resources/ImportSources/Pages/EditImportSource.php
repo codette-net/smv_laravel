@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ImportSources\Pages;
 
+use App\Enums\ImportTransport;
 use App\Filament\Resources\ImportSources\ImportSourceForm;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
 use App\Imports\Mapping\SourceFieldOptions;
@@ -19,8 +20,14 @@ class EditImportSource extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('sourceAnalysisState')
+                ->label(fn (): string => app(SourceFieldOptions::class)->stateFor($this->record))
+                ->disabled()
+                ->color('gray')
+                ->visible(fn (): bool => in_array($this->record->transport, [ImportTransport::Http, ImportTransport::Api], true)),
             Action::make('refreshSourceFields')
-                ->label('Bronvelden vernieuwen')
+                ->label('Bron analyseren')
+                ->visible(fn (): bool => in_array($this->record->transport, [ImportTransport::Http, ImportTransport::Api], true))
                 ->action(function (): void {
                     try {
                         $fields = app(SourceFieldOptions::class)->refresh($this->record->fresh());

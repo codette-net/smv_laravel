@@ -19,9 +19,29 @@ class EditImportMapping extends EditRecord
 
     protected Width|string|null $maxContentWidth = Width::Full;
 
+    protected ?bool $hasUnsavedDataChangesAlert = true;
+
+    public string $saveState = 'Opgeslagen';
+
+    public function updatedData(): void
+    {
+        $this->saveState = 'Wijzigingen niet opgeslagen';
+    }
+
+    protected function beforeSave(): void
+    {
+        $this->saveState = 'Opslaan...';
+    }
+
+    protected function afterSave(): void
+    {
+        $this->saveState = 'Opgeslagen';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('saveState')->label(fn (): string => $this->saveState)->disabled()->color(fn (): string => $this->saveState === 'Opgeslagen' ? 'success' : 'warning'),
             Action::make('execute')->label('Import uitvoeren')->requiresConfirmation()->modalDescription(fn (): string => "Voer mapping [{$this->record->name}] uit voor bron [{$this->record->importSource->name}].")->authorize('execute')->action(function (): void {
                 $run = app(VacancyImportRunner::class)->run($this->record->load('fields'));
                 Notification::make()->title('Import voltooid')->body("Aangemaakt: {$run->imported_rows}; bijgewerkt: {$run->updated_rows}; overgeslagen: {$run->skipped_rows}; mislukt: {$run->failed_rows}.")->success()->send();
