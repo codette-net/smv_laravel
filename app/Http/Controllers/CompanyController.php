@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Support\Seo\StructuredData;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CompanyController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $companies = Company::query()
             ->publiclyVisible()
@@ -22,6 +24,9 @@ class CompanyController extends Controller
 
         return view('companies.index', [
             'companies' => $companies,
+            'seoCanonical' => $request->integer('page', 1) > 1
+                ? route('companies.index', ['page' => $request->integer('page')])
+                : route('companies.index'),
         ]);
     }
 
@@ -37,13 +42,14 @@ class CompanyController extends Controller
             ->latest()
             ->get();
 
-        $description = Str::squish(strip_tags($company->description ?? $company->tagline ?? ''));
+        $description = StructuredData::plainText($company->description ?? $company->tagline);
 
         return view('companies.show', [
             'company' => $company,
             'coverUrl' => $company->publicCoverUrl(),
             'logoUrl' => $company->publicLogoUrl(),
             'metaDescription' => Str::limit($description, 155),
+            'structuredData' => StructuredData::organization($company, withContext: true),
             'vacancies' => $vacancies,
         ]);
     }

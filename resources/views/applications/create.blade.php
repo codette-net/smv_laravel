@@ -1,6 +1,8 @@
 @extends('layouts.public')
 
 @section('title', 'Solliciteren op '.$vacancy->title.' | Sales en Marketing Vacatures')
+@section('robots', 'noindex, nofollow')
+@section('canonical', route('vacancies.show', $vacancy))
 
 @section('content')
     <section class="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:py-14">
