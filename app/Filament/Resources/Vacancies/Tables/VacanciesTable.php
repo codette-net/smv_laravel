@@ -78,6 +78,12 @@ class VacanciesTable
                 TextColumn::make('importSource.name')
                     ->label('Importbron')
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('missing_since')
+                    ->label('Ontbreekt sinds')
+                    ->dateTime()
+                    ->placeholder('-')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('deleted_at')
                     ->label('Verwijderd op')
                     ->dateTime()
@@ -109,6 +115,9 @@ class VacanciesTable
                 Filter::make('publicly_visible')
                     ->label('Momenteel publiek')
                     ->query(fn (Builder $query): Builder => $query->publiclyVisible()),
+                TernaryFilter::make('missing_since')
+                    ->label('Ontbreekt in importbron')
+                    ->nullable(),
                 TrashedFilter::make()
                     ->label('Verwijderd'),
             ])
