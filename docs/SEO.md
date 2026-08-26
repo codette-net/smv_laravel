@@ -84,8 +84,11 @@ Avoid thin pages when there is insufficient company information.
 
 ## Blog SEO
 
-The simple Blog can support organic growth through useful content and internal linking.
-Blog implementation should support:
+The native Blog now uses the shared metadata, canonical, Open Graph, BlogPosting
+structured-data and sitemap foundation. Only published, non-future posts are public or
+included in the sitemap. WordPress articles are not migrated in the MVP.
+
+Future Blog work may support:
 
 - clean slugs
 - metadata

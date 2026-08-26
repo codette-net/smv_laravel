@@ -3,12 +3,33 @@
 namespace App\Support\Seo;
 
 use App\Enums\CompensationPeriod;
+use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\Vacancy;
 use Illuminate\Support\Str;
 
 class StructuredData
 {
+    /** @return array<string, mixed> */
+    public static function blogPosting(BlogPost $blogPost): array
+    {
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BlogPosting',
+            'headline' => $blogPost->title,
+            'description' => self::plainText($blogPost->excerpt ?: $blogPost->content),
+            'mainEntityOfPage' => route('blog.show', $blogPost),
+            'datePublished' => $blogPost->published_at?->toAtomString(),
+            'dateModified' => $blogPost->updated_at->toAtomString(),
+        ];
+
+        if ($image = $blogPost->publicFeaturedImageUrl()) {
+            $data['image'] = Str::startsWith($image, ['http://', 'https://']) ? $image : url($image);
+        }
+
+        return array_filter($data);
+    }
+
     /** @return array<string, mixed> */
     public static function jobPosting(Vacancy $vacancy): array
     {

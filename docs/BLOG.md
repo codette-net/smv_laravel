@@ -4,8 +4,8 @@
 
 Provide a simple content module that can be managed comfortably through Filament and used for September presentation content plus ongoing SEO/content work.
 
-Blog is part of the MVP. Its model/schema foundation exists, but Filament editorial CRUD
-and the public blog are not complete.
+Blog is part of the MVP and is implemented as a compact native Laravel/Filament module.
+Old WordPress articles are deliberately not migrated or imported.
 
 ## Delivery priority
 
@@ -14,7 +14,7 @@ low-risk presentation/content module does not displace core delivery.
 
 ## Minimal domain
 
-### Post
+### BlogPost
 
 Required fields/concepts:
 
@@ -25,33 +25,32 @@ Required fields/concepts:
 - featured image (optional)
 - publication status
 - published_at
-- blog category relation
-- SEO metadata or shared SEO mechanism
+- optional featured image through the existing Spatie Media Library
+- soft deletes
 
-### Category
-
-- name
-- slug
+Posts are publicly visible only when status is `published`, `published_at` is present
+and not in the future, and the record is not soft-deleted. Slugs are generated when
+empty, unique, and stable after creation.
 
 ## Admin
 
-Filament should provide a straightforward interface for:
+Filament provides a straightforward interface for:
 
 - list/search/filter posts
 - create/edit posts
-- select category
 - set publication state/date
-- upload/select featured image if implemented
-- edit SEO metadata if not derived/shared elsewhere
+- upload/select a featured image through Media Library
 
 ## Public frontend
 
 - blog index
-- category filtering/navigation if inexpensive
 - blog detail
 - reuse existing Tailwind components
 - responsive layout
-- SEO metadata/canonical
+- shared metadata/canonical/Open Graph output, BlogPosting JSON-LD and sitemap inclusion
+
+Routes are `/blog` and `/blog/{blogPost-slug}`. `/` is the only homepage; `/home` is
+intentionally not routed.
 
 ## Optional lightweight integration
 
@@ -65,3 +64,4 @@ If simple and useful, allow editorial links/relations to relevant companies or v
 - page builder
 - custom block-editor platform
 - newsletter automation
+- categories, tags and author pages

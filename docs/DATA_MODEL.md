@@ -150,7 +150,14 @@ and must be based on real feed examples rather than invented here.
 
 ## Blog
 
-Future minimal public/editorial concepts:
+`BlogPost` is a native Laravel content model. Its MVP fields are title, stable unique
+slug, nullable excerpt, content, legacy `featured_image` compatibility reference,
+Media Library `featured` media, status, `published_at`, timestamps and `deleted_at`.
+The existing required `author_id` remains for schema compatibility but is not shown on
+public pages. `publiclyVisible()` requires a published, non-future post; soft-deleted
+posts are excluded. WordPress blog content is deliberately not migrated or imported.
+
+### Legacy planning reference
 
 ### posts
 

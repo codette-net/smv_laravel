@@ -99,10 +99,10 @@ Implement and validate the first production-quality partner/feed configuration u
 
 ## Phase D — SEO migration foundation
 
-- SMV-040 Current route/SEO audit
-- SMV-041 Metadata/canonical foundation
-- SMV-042 JobPosting structured data
-- SMV-043 Sitemap/robots
+- SMV-040 Current route/SEO audit — completed as the technical SEO foundation
+- SMV-041 Metadata/canonical foundation — completed
+- SMV-042 JobPosting structured data — completed
+- SMV-043 Sitemap/robots — completed
 - SMV-044 Legacy URL inventory import
 - SMV-045 Redirect implementation/testing
 - SMV-046 Staging SEO crawl/checklist
@@ -117,10 +117,9 @@ Planned, with exact scope dependent on current implementation and business requi
 
 ## Phase F — Blog / presentation content
 
-- SMV-060 Blog domain + migration
-- SMV-061 Blog Filament resource
-- SMV-062 Blog public index/detail
-- SMV-063 Blog SEO/internal links
+- SMV-040 Native Laravel/Filament blog — completed: BlogPost domain, Filament CRUD,
+  public index/detail, shared SEO and sitemap integration
+- future: optional editorial internal linking and richer Blog SEO after content exists
 
 ## Phase G — Polish/release
 
