@@ -52,9 +52,11 @@ Filament provides a straightforward interface for:
 Routes are `/blog` and `/blog/{blogPost-slug}`. `/` is the only homepage; `/home` is
 intentionally not routed.
 
-## Optional lightweight integration
+## Deferred follow-up
 
-If simple and useful, allow editorial links/relations to relevant companies or vacancies. Do not create a recommendation engine for MVP.
+SMV-061 will cover Blog taxonomies and editorial relations to relevant Companies and
+Vacancies. It may add categories, tags and explicit editorial relationships, but must
+not become a recommendation engine.
 
 ## Explicitly out of scope
 
@@ -64,4 +66,5 @@ If simple and useful, allow editorial links/relations to relevant companies or v
 - page builder
 - custom block-editor platform
 - newsletter automation
-- categories, tags and author pages
+- categories, tags and editorial Company/Vacancy relations (SMV-061)
+- author pages
