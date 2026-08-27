@@ -117,9 +117,11 @@ Planned, with exact scope dependent on current implementation and business requi
 
 ## Phase F — Blog / presentation content
 
-- SMV-040 Native Laravel/Filament blog — completed: BlogPost domain, Filament CRUD,
+- SMV-060 Native Laravel/Filament blog — completed: BlogPost domain, Filament CRUD,
   public index/detail, shared SEO and sitemap integration
-- future: optional editorial internal linking and richer Blog SEO after content exists
+- SMV-061 Blog taxonomy and editorial relations — deferred: blog categories, tags and
+  editorial relations to vacancies and companies
+- future: richer Blog SEO after content exists
 
 ## Phase G — Polish/release
 
