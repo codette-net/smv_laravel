@@ -1,0 +1,27 @@
+@extends('layouts.public')
+
+@section('title', $heading.' | Blog | Sales en Marketing Vacatures')
+@section('meta_description', $metaDescription)
+@section('canonical', $canonical)
+
+@section('content')
+    <section class="border-b border-slate-200 bg-white">
+        <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+            <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">{{ $eyebrow }}</p>
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{{ $heading }}</h1>
+            <p class="mt-4 max-w-2xl text-lg leading-7 text-slate-600">Artikelen over sales, marketing en recruitment.</p>
+        </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" aria-labelledby="blog-overzicht">
+        <h2 class="sr-only" id="blog-overzicht">Artikelen</h2>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ($posts as $post)
+                <x-blog.card :post="$post" />
+            @endforeach
+        </div>
+        @if ($posts->hasPages())
+            <div class="mt-10">{{ $posts->links() }}</div>
+        @endif
+    </section>
+@endsection

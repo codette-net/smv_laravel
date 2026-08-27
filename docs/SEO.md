@@ -17,6 +17,10 @@ redirect implementation and launch verification remain release work.
 - vacancy detail: `/vacatures/{vacancy-slug}`
 - company listing: `/bedrijven`
 - company detail: `/bedrijven/{company-slug}`
+- blog index: `/blog`
+- blog detail: `/blog/{blog-post-slug}`
+- blog category archive: `/blog/categorie/{category-slug}`
+- blog tag archive: `/blog/tag/{tag-slug}`
 
 Vacancy and Company route binding uses stable slugs. Updating a title/name does not
 regenerate an existing slug. Application destinations, import source references and
@@ -34,9 +38,10 @@ Application form and confirmation pages are `noindex, nofollow` and canonicalize
 vacancy detail page.
 
 The dynamic `/sitemap.xml` contains only the homepage, clean listing pages, publicly
-visible Companies and publicly visible Vacancies belonging to public Companies. The
-query is chunked. `/robots.txt` advertises the sitemap in production and blocks crawling
-in non-production environments.
+visible Companies and publicly visible Vacancies belonging to public Companies. It also
+contains published Blog posts plus Blog category and typed Blog tag archives only when
+they have at least one publicly visible Blog post. The query is chunked. `/robots.txt`
+advertises the sitemap in production and blocks crawling in non-production environments.
 
 ## Structured data
 
@@ -88,14 +93,13 @@ The native Blog now uses the shared metadata, canonical, Open Graph, BlogPosting
 structured-data and sitemap foundation. Only published, non-future posts are public or
 included in the sitemap. WordPress articles are not migrated in the MVP.
 
-Future Blog work may support:
+BlogPosting JSON-LD includes non-empty `articleSection` values from `blog_category`
+Categories and `keywords` from typed `blog` tags. Category and tag archives have their
+own title, description and canonical URL, are normally indexable, and intentionally do
+not emit BlogPosting structured data for the archive itself.
 
-- clean slugs
-- metadata
-- canonical URL
-- categories
-- published state
-- internal links to relevant vacancies/companies where editorially useful
+Future Blog work may support richer editorial content and further Blog SEO once there
+is sufficient content to justify it.
 
 ## Technical SEO
 
