@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\Vacancy;
+use Illuminate\Contracts\View\View;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        // temporary to test out
-        $vacancies = Vacancy::query()
-            ->with('company')
-            ->publiclyVisible()
-            ->latest()
-            ->take(10)
-            ->get();
-
-        return view('home', compact('vacancies'));
+        return view('home', [
+            'vacancies' => Vacancy::query()
+                ->publiclyVisible()
+                ->with('company')
+                ->latest()
+                ->take(10)
+                ->get(),
+            'latestBlogPost' => BlogPost::query()
+                ->publiclyVisible()
+                ->with('media')
+                ->latest('published_at')
+                ->first(),
+        ]);
     }
 }

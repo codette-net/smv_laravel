@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\Vacancy;
 use Illuminate\Http\Response;
@@ -15,7 +16,8 @@ class SeoController extends Controller
         $sitemap = Sitemap::create()
             ->add(Url::create(route('home')))
             ->add(Url::create(route('vacancies.index')))
-            ->add(Url::create(route('companies.index')));
+            ->add(Url::create(route('companies.index')))
+            ->add(Url::create(route('blog.index')));
 
         Vacancy::query()
             ->publiclyVisible()
@@ -35,6 +37,16 @@ class SeoController extends Controller
                 foreach ($companies as $company) {
                     $sitemap->add(Url::create(route('bedrijven.show', $company))
                         ->setLastModificationDate($company->updated_at));
+                }
+            });
+
+        BlogPost::query()
+            ->publiclyVisible()
+            ->select(['id', 'slug', 'updated_at'])
+            ->chunkById(500, function ($blogPosts) use ($sitemap): void {
+                foreach ($blogPosts as $blogPost) {
+                    $sitemap->add(Url::create(route('blog.show', $blogPost))
+                        ->setLastModificationDate($blogPost->updated_at));
                 }
             });
 

@@ -3,6 +3,7 @@
 @section('title')
     home
 @endsection
+@section('canonical', route('home'))
 
 @section('content')
 
