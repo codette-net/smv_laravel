@@ -4,6 +4,8 @@ use App\Filament\Resources\BlogPosts\BlogPostResource;
 use App\Models\BlogPost;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -33,6 +35,26 @@ test('only publicly visible blog posts resolve on the public detail route', func
     $this->get(route('blog.show', $draft))->assertNotFound();
     $this->get(route('blog.show', $scheduled))->assertNotFound();
     $this->get('/blog/onbekend-artikel')->assertNotFound();
+});
+
+test('the blog index and detail use the public Media Library URL for a featured image', function () {
+    Storage::fake('public');
+    $post = BlogPost::factory()->published()->create(['title' => 'Artikel met omslagafbeelding']);
+    $post->addMedia(UploadedFile::fake()->image('omslag.png'))->toMediaCollection('featured');
+
+    $imageUrl = $post->fresh()->publicFeaturedImageUrl();
+
+    expect($imageUrl)->toMatch('/^(https?:\\/\\/|\\/)/');
+
+    $this->get(route('blog.index'))
+        ->assertOk()
+        ->assertSee('src="'.$imageUrl.'"', false);
+
+    $this->get(route('blog.show', $post))
+        ->assertOk()
+        ->assertSee('src="'.$imageUrl.'"', false)
+        ->assertSee('alt="Omslagafbeelding bij Artikel met omslagafbeelding"', false)
+        ->assertSee('prose-headings:text-slate-900', false);
 });
 
 test('blog posts have stable unique slugs and support a manual slug before publication', function () {
@@ -77,8 +99,13 @@ test('blog SEO metadata structured data and sitemap include only public posts', 
         ->assertDontSee(route('blog.show', $scheduled), false);
 });
 
-test('the canonical root homepage remains available and home no longer exists', function () {
-    $this->get(route('home'))->assertOk();
+test('the canonical root homepage uses HomeController and home no longer exists', function () {
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertViewIs('home')
+        ->assertViewHas('vacancies')
+        ->assertViewHas('latestBlogPost')
+        ->assertSee('<link rel="canonical" href="'.route('home').'">', false);
     $this->get('/home')->assertNotFound();
 });
 

@@ -16,6 +16,8 @@
     strategy: base;
 }
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {

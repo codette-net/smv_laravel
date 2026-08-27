@@ -21,8 +21,8 @@
             @endif
         </header>
         @if ($featuredImageUrl)
-            <img class="mt-8 w-full rounded-xl object-cover" src="{{ $featuredImageUrl }}" alt="" loading="eager">
+            <img class="mt-8 aspect-[16/9] w-full rounded-xl object-cover" src="{{ $featuredImageUrl }}" alt="Omslagafbeelding bij {{ $blogPost->title }}" loading="eager">
         @endif
-        <div class="prose prose-slate mt-8 max-w-none leading-7">{!! $blogPost->content !!}</div>
+        <div class="prose prose-slate prose-headings:text-slate-900 prose-a:font-semibold prose-a:text-blue-700 prose-a:no-underline hover:prose-a:text-blue-800 prose-blockquote:border-blue-500 prose-blockquote:text-slate-600 prose-img:rounded-xl mt-8 max-w-none leading-7">{!! $blogPost->content !!}</div>
     </article>
 @endsection

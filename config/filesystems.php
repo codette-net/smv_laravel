@@ -1,5 +1,11 @@
 <?php
 
+$publicUrl = env('APP_URL', 'http://localhost');
+
+if (! preg_match('#^https?://#i', $publicUrl)) {
+    $publicUrl = 'http://'.$publicUrl;
+}
+
 return [
 
     /*
@@ -41,7 +47,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => rtrim($publicUrl, '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
