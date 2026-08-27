@@ -27,6 +27,9 @@ Required fields/concepts:
 - published_at
 - optional featured image through the existing Spatie Media Library
 - soft deletes
+- optional multiple `blog_category` Categories through the existing polymorphic taxonomy
+- optional typed Spatie Tags with type `blog`
+- optional manual editorial relations to Vacancies and Companies
 
 Posts are publicly visible only when status is `published`, `published_at` is present
 and not in the future, and the record is not soft-deleted. Slugs are generated when
@@ -44,7 +47,9 @@ Filament provides a straightforward interface for:
 ## Public frontend
 
 - blog index
-- blog detail
+- blog detail with visible categories, tags and related public content
+- category archive: `/blog/categorie/{category-slug}`
+- tag archive: `/blog/tag/{tag-slug}`
 - reuse existing Tailwind components
 - responsive layout
 - shared metadata/canonical/Open Graph output, BlogPosting JSON-LD and sitemap inclusion
@@ -52,11 +57,19 @@ Filament provides a straightforward interface for:
 Routes are `/blog` and `/blog/{blogPost-slug}`. `/` is the only homepage; `/home` is
 intentionally not routed.
 
-## Deferred follow-up
+## Taxonomy and editorial relations
 
-SMV-061 will cover Blog taxonomies and editorial relations to relevant Companies and
-Vacancies. It may add categories, tags and explicit editorial relationships, but must
-not become a recommendation engine.
+SMV-061 uses the generic polymorphic `Category` model with type `blog_category`, so
+Blog categories remain separate from Vacancy taxonomies. Blog tags use the existing
+Spatie Tags integration with type `blog`, separated from Vacancy tags.
+
+Editorial users can manually select multiple related Vacancies and Companies. These
+relations are retained when a related record later becomes non-public, but the public
+Blog page renders only `Vacancy::publiclyVisible()` Vacancies and publicly visible
+Companies. Category and tag archives likewise show only publicly visible posts.
+
+The feature deliberately does not infer or generate recommendations. WordPress Blog
+import remains a separate future migration decision.
 
 ## Explicitly out of scope
 
@@ -66,5 +79,4 @@ not become a recommendation engine.
 - page builder
 - custom block-editor platform
 - newsletter automation
-- categories, tags and editorial Company/Vacancy relations (SMV-061)
 - author pages

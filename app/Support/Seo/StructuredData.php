@@ -2,6 +2,7 @@
 
 namespace App\Support\Seo;
 
+use App\Enums\CategoryType;
 use App\Enums\CompensationPeriod;
 use App\Models\BlogPost;
 use App\Models\Company;
@@ -25,6 +26,26 @@ class StructuredData
 
         if ($image = $blogPost->publicFeaturedImageUrl()) {
             $data['image'] = Str::startsWith($image, ['http://', 'https://']) ? $image : url($image);
+        }
+
+        $categories = $blogPost->categories
+            ->where('type', CategoryType::blog_category)
+            ->pluck('name')
+            ->values()
+            ->all();
+
+        if ($categories !== []) {
+            $data['articleSection'] = $categories;
+        }
+
+        $tags = $blogPost->tags
+            ->where('type', 'blog')
+            ->pluck('name')
+            ->values()
+            ->all();
+
+        if ($tags !== []) {
+            $data['keywords'] = $tags;
         }
 
         return array_filter($data);

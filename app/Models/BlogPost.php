@@ -8,17 +8,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
 class BlogPost extends Model implements HasMedia
 {
     /** @use HasFactory<BlogPostFactory> */
-    use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasSlug, HasTags, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'author_id',
@@ -86,5 +88,15 @@ class BlogPost extends Model implements HasMedia
     public function categories(): MorphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
+    }
+
+    public function vacancies(): BelongsToMany
+    {
+        return $this->belongsToMany(Vacancy::class, 'blog_post_vacancy');
+    }
+
+    public function companies(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'blog_post_company');
     }
 }

@@ -155,7 +155,19 @@ slug, nullable excerpt, content, legacy `featured_image` compatibility reference
 Media Library `featured` media, status, `published_at`, timestamps and `deleted_at`.
 The existing required `author_id` remains for schema compatibility but is not shown on
 public pages. `publiclyVisible()` requires a published, non-future post; soft-deleted
-posts are excluded. WordPress blog content is deliberately not migrated or imported.
+posts are excluded.
+
+SMV-061 adds optional controlled content relations without a second taxonomy system:
+
+- multiple `Category` records through the existing `categoryables` morph relation,
+  restricted to `CategoryType::blog_category` in Blog administration and public queries;
+- multiple Spatie Tags through `HasTags`, restricted to type `blog`;
+- `blog_post_vacancy` and `blog_post_company` many-to-many pivots for manually selected
+  related content.
+
+The public Blog only renders related records when their existing public visibility
+scope permits it. The relation itself is retained for editorial continuity. WordPress
+blog content is deliberately not migrated or imported.
 
 ### Legacy planning reference
 
