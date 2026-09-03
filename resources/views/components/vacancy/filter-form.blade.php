@@ -1,6 +1,10 @@
-@props(['filters', 'sort', 'sortOptions', 'locations', 'taxonomyOptions', 'companies'])
+@props(['filters', 'sort', 'sortOptions', 'locations', 'taxonomyOptions', 'companies', 'variant' => 'sidebar'])
 
-<form action="{{ route('vacancies.index') }}" class="grid grid-cols-2 gap-6 md:grid-cols-1" method="GET" x-data>
+<form action="{{ route('vacancies.index') }}" @class([
+    'grid gap-6',
+    'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' => $variant === 'homepage',
+    'grid-cols-2 md:grid-cols-1' => $variant !== 'homepage',
+]) method="GET" x-data>
     <div class="col-span-full">
         <label class="mb-3 block text-sm font-semibold text-gray-800" for="zoek">Zoeken</label>
         <div class="relative">

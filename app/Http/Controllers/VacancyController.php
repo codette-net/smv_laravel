@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\CategoryType;
 use App\Models\Category;
-use App\Models\Company;
 use App\Models\Vacancy;
 use App\Support\Seo\StructuredData;
+use App\Support\Vacancies\VacancyFilterOptions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -14,13 +14,7 @@ use Illuminate\Support\Collection;
 
 class VacancyController extends Controller
 {
-    private const SORTS = [
-        'nieuwste' => 'Nieuwste',
-        'deadline' => 'Deadline eerst',
-        'az' => 'A–Z',
-    ];
-
-    public function index(Request $request): View
+    public function index(Request $request, VacancyFilterOptions $filterOptions): View
     {
         $filters = [
             'zoek' => trim((string) $request->query('zoek', '')),
@@ -33,7 +27,7 @@ class VacancyController extends Controller
             'functiegebied' => trim((string) $request->query('functiegebied', '')),
             'ervaring' => trim((string) $request->query('ervaring', '')),
         ];
-        $sort = array_key_exists($request->query('sort'), self::SORTS)
+        $sort = array_key_exists($request->query('sort'), VacancyFilterOptions::SORTS)
             ? $request->query('sort')
             : 'nieuwste';
 
@@ -75,10 +69,10 @@ class VacancyController extends Controller
             'vacancies' => $vacancies->paginate(12)->withQueryString(),
             'filters' => $filters,
             'sort' => $sort,
-            'sortOptions' => self::SORTS,
-            'locations' => $this->locations(),
-            'taxonomyOptions' => $this->taxonomyOptions(),
-            'companies' => $this->companies(),
+            'sortOptions' => VacancyFilterOptions::SORTS,
+            'locations' => $filterOptions->locations(),
+            'taxonomyOptions' => $filterOptions->taxonomyOptions(),
+            'companies' => $filterOptions->companies(),
             'activeFilters' => $this->activeFilters($filters, $sort),
             'seoCanonical' => $hasFilters || $page === 1
                 ? route('vacancies.index')
@@ -110,58 +104,6 @@ class VacancyController extends Controller
             'relatedVacancies' => $relatedVacancies,
             'structuredData' => StructuredData::jobPosting($vacancy),
         ]);
-    }
-
-    /** @return array<int, string> */
-    private function locations(): array
-    {
-        return Vacancy::query()
-            ->publiclyVisible()
-            ->whereHas('company', fn (Builder $query): Builder => $query->publiclyVisible())
-            ->whereNotNull('location')
-            ->whereRaw("TRIM(location) <> ''")
-            ->selectRaw('TRIM(location) as location')
-            ->distinct()
-            ->orderBy('location')
-            ->pluck('location')
-            ->all();
-    }
-
-    /** @return array<string, Collection<int, Category>> */
-    private function taxonomyOptions(): array
-    {
-        return collect($this->taxonomyFilterTypes())
-            ->map(fn (CategoryType $type): Collection => Category::query()
-                ->with('parent')
-                ->where('type', $type->value)
-                ->whereHas('vacancies', fn (Builder $query): Builder => $query
-                    ->publiclyVisible()
-                    ->whereHas('company', fn (Builder $query): Builder => $query->publiclyVisible()))
-                ->orderBy('name')
-                ->get())
-            ->all();
-    }
-
-    /** @return array<string, CategoryType> */
-    private function taxonomyFilterTypes(): array
-    {
-        return [
-            'dienstverband' => CategoryType::employment_type,
-            'werklocatie' => CategoryType::workplace,
-            'sector' => CategoryType::sector,
-            'functiegebied' => CategoryType::function_area,
-            'ervaring' => CategoryType::experience,
-        ];
-    }
-
-    /** @return Collection<int, Company> */
-    private function companies()
-    {
-        return Company::query()
-            ->publiclyVisible()
-            ->whereHas('vacancies', fn (Builder $query): Builder => $query->publiclyVisible())
-            ->orderBy('name')
-            ->get(['id', 'name', 'slug']);
     }
 
     private function applySort(Builder $query, string $sort): void
@@ -217,7 +159,7 @@ class VacancyController extends Controller
 
     private function activeFilterValue(string $key, string $value): string
     {
-        $type = $this->taxonomyFilterTypes()[$key] ?? null;
+        $type = VacancyFilterOptions::taxonomyFilterTypes()[$key] ?? null;
 
         if ($type !== null) {
             return Category::query()
@@ -239,7 +181,7 @@ class VacancyController extends Controller
     /** @return array<string, Collection<int, Category>> */
     private function vacancyTaxonomy(Vacancy $vacancy): array
     {
-        return collect($this->taxonomyFilterTypes())
+        return collect(VacancyFilterOptions::taxonomyFilterTypes())
             ->map(fn (CategoryType $type): Collection => $vacancy->categories
                 ->where('type', $type)
                 ->values())
