@@ -82,15 +82,21 @@ The three non-negotiable MVP priorities are:
 
 The simple Blog module is also part of the MVP, but is deliberately scheduled late because Filament can provide the editorial interface quickly and it is primarily useful for content, SEO and the September presentation.
 
-## Frontend rules
+## Frontend implementation rules
 
-Existing Tailwind templates and components form the primary design system.
+Existing Blade templates and components are the visual source of truth.
 
-Priority order:
+When implementing frontend functionality:
 
-1. Reuse an existing component.
-2. Adapt or compose existing components.
-3. Create a new component only when the project has no suitable existing pattern.
+- Locate and reuse the existing component intended for the feature.
+- Preserve its HTML structure, Tailwind classes, responsive behavior and visual design.
+- Add or connect data and behavior without rebuilding the presentation.
+- Do not replace handcrafted components with newly generated generic Tailwind markup.
+- Do not create a second component when a suitable component already exists.
+- Do not perform visual cleanup, redesign or class normalization unless explicitly requested.
+- If the existing component cannot support the requested functionality without structural or visual changes, stop and report the conflict before editing it.
+- Inspect the relevant templates and their current usage before making changes.
+- Review the final diff for unintended changes to markup or Tailwind classes.
 
 Reuse existing:
 
