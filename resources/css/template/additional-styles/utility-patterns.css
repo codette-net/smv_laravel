@@ -15,7 +15,7 @@
     @apply text-2xl font-bold;
 }
 
-@media (width >= theme(--breakpoint-md)) {
+@media (width >= 48rem) {
     .h1 {
         @apply text-6xl;
     }
@@ -25,19 +25,19 @@
     }
 }
 
-/* Buttons */
 .btn,
 .btn-sm {
-    @apply font-medium inline-flex items-center justify-center border border-transparent rounded-xs leading-snug transition duration-150 ease-in-out;
+    @apply text-sm font-medium inline-flex items-center justify-center rounded-lg whitespace-nowrap transition-all;
 }
 
 .btn {
-    @apply px-6 py-3;
+    @apply px-4 py-2.75 shadow-lg;
 }
 
 .btn-sm {
-    @apply px-4 py-2;
+    @apply px-3 py-1.25 shadow-sm;
 }
+
 
 /* Forms */
 input[type="search"]::-webkit-search-decoration,
