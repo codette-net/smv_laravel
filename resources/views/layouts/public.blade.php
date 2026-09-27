@@ -23,7 +23,7 @@
 </head>
 <body class="bg-slate-50 font-inter text-slate-700 antialiased">
 <div class="flex min-h-screen flex-col overflow-hidden">
-    <x-app.header/>
+    <x-app.header-new/>
 
     <main class="grow">
         @yield('content')

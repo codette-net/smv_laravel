@@ -3,32 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
-use App\Models\Vacancy;
 use App\Support\Vacancies\VacancyFilterOptions;
+use App\Support\Vacancies\VacancySearch;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(VacancyFilterOptions $filterOptions): View
+    public function index(Request $request, VacancyFilterOptions $filterOptions, VacancySearch $vacancySearch): View
     {
+        $filters = $vacancySearch->filters($request, $filterOptions);
+        $sort = $vacancySearch->sort($request);
+        $hasFilters = collect($request->query())->except('page')->filter(fn ($value): bool => filled($value))->isNotEmpty();
+        $hasAdditionalFilters = collect($filters)
+            ->except('zoek')
+            ->contains(fn (string $value): bool => filled($value))
+            || filled($request->query('sort'));
+
         return view('home', [
-            'vacancies' => Vacancy::query()
-                ->publiclyVisible()
-                ->with(['company.media', 'categories'])
-                ->latest()
-                ->take(10)
-                ->get(),
+            'vacancies' => $vacancySearch->query($filters, $sort)->paginate(6)->withQueryString(),
             'latestBlogPost' => BlogPost::query()
                 ->publiclyVisible()
                 ->with(['media', 'categories', 'tags'])
                 ->latest('published_at')
                 ->first(),
-            'filters' => $filterOptions->emptyFilters(),
-            'sort' => 'nieuwste',
+            'filters' => $filters,
+            'sort' => $sort,
             'sortOptions' => VacancyFilterOptions::SORTS,
             'locations' => $filterOptions->locations(),
             'taxonomyOptions' => $filterOptions->taxonomyOptions(),
             'companies' => $filterOptions->companies(),
+            'hasFilters' => $hasFilters,
+            'hasAdditionalFilters' => $hasAdditionalFilters,
         ]);
     }
 }
