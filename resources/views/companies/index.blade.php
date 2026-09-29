@@ -25,7 +25,7 @@
 
             @if ($companies->hasPages())
                 <div class="mt-10">
-                    {{ $companies->links() }}
+                    {{ $companies->links('pagination::tailwind') }}
                 </div>
             @endif
         @else

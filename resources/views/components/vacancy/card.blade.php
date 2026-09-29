@@ -110,7 +110,7 @@
 
             <img
                 src="{{ $imageUrl }}"
-                alt="{{ $vacancy->company->name }}"
+                alt="Logo van {{ $vacancy->company->name }}"
                 @class([
                     'h-full w-full object-contain',
                     'p-7' => !$isPremium,

@@ -161,7 +161,7 @@
 
                             @if ($vacancy->deadline_at)
                                 <div>
-                                    Solliciteren vóór
+                                    Solliciteren vóór:
                                     <span class="font-medium text-gray-800">
                                         {{ $vacancy->deadline_at->translatedFormat('j F Y') }}
                                     </span>
@@ -251,6 +251,7 @@
 
                                     <div class="m-1">
                                         <span class="btn-xs rounded-full border-gray-200 px-2.5 py-1 text-xs text-gray-800 shadow-none">
+                                            <span class="sr-only">{{ ucfirst($key) }}:</span>
                                             {{ $category->parent
                                                 ? $category->parent->name . ' — ' . $category->name
                                                 : $category->name }}

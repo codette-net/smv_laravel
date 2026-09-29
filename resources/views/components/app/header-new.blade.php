@@ -11,10 +11,11 @@
     $loginRoute = 'filament.dashboard.auth.login';
 @endphp
 
-<header class="top-2 w-full z-30 transition-[top] duration-200 md:top-6" x-data="{ stuck: false }" x-init="new IntersectionObserver(([entry]) => stuck = ! entry.isIntersecting, { threshold: 0 }).observe(document.getElementById('public-nav-sentinel'))" :class="stuck ? 'fixed' : 'absolute'">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+<header class="z-30 transition-[background-color,border-color,box-shadow,top] duration-200 motion-reduce:transition-none" x-data="{ stuck: false }" x-init="new IntersectionObserver(([entry]) => stuck = ! entry.isIntersecting, { threshold: 0 }).observe(document.getElementById('public-nav-sentinel'))" :class="stuck ? 'fixed inset-x-0 top-0 border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur' : 'absolute inset-x-0 top-2 md:top-6'">
+    <div class="mx-auto transition-[max-width,padding] duration-200 motion-reduce:transition-none" :class="stuck ? 'max-w-7xl px-4 sm:px-6' : 'max-w-6xl px-4 sm:px-6'">
         <div
-            class="relative flex items-center justify-between gap-3 h-14 rounded-2xl px-3 backdrop-blur-xs bg-white/90 shadow-lg shadow-black/[0.03] before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] before:[mask-composite:exclude_!important] before:pointer-events-none">
+            class="relative flex h-14 items-center justify-between gap-3 px-3 transition-[border-radius,box-shadow,background-color] duration-200 motion-reduce:transition-none"
+            :class="stuck ? 'bg-transparent' : 'rounded-2xl bg-white/90 shadow-lg shadow-black/[0.03] backdrop-blur-xs'">
 
             <!-- Site branding -->
             <div class="flex-1 flex items-center">
