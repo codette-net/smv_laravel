@@ -41,7 +41,7 @@
         @if ($vacancies->isNotEmpty())
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($vacancies as $vacancy)
-                    <x-vacancy.new-card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)" />
+                    <x-vacancy.card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)" />
                 @endforeach
             </div>
             @if ($vacancies->hasPages())
