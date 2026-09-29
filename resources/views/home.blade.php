@@ -5,31 +5,23 @@
 @section('canonical', route('home'))
 
 @section('content')
-    <section class="bg-slate-950 text-white">
-        <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-            <div class="max-w-3xl">
-                <p class="text-sm font-semibold uppercase tracking-widest text-blue-300">Sales &amp; Marketing Vacatures</p>
-                <h1 class="mt-4 font-playfair-display text-4xl font-bold tracking-tight sm:text-5xl">Vind jouw volgende commerciële uitdaging</h1>
-                <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">Ontdek actuele vacatures en werkgevers die passen bij jouw ervaring in sales, marketing en commercie.</p>
-                <a class="btn mt-8 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancies.index') }}">Bekijk alle vacatures</a>
-            </div>
-        </div>
+    <section class="relative">
+        <div class="pointer-events-none absolute inset-0 -z-10 bg-slate-900 [clip-path:polygon(0_0,_5760px_0,_5760px_calc(100%_-_160px),_0_100%)]" aria-hidden="true"></div>
+        <div class="relative mx-auto max-w-6xl px-4 sm:px-6"><div class="pt-32 pb-28 md:pt-40 md:pb-44"><div class="mx-auto max-w-xl text-center md:mx-0 md:text-left"><p class="text-sm font-semibold uppercase tracking-widest text-blue-300">Sales &amp; Marketing Vacatures</p><h1 class="mt-4 font-playfair-display text-4xl font-bold tracking-tight text-slate-100 sm:text-5xl">Vind jouw volgende commerciële uitdaging</h1><p class="mt-6 text-xl text-slate-400">Ontdek actuele vacatures en werkgevers die passen bij jouw ervaring in sales, marketing en commercie.</p><a class="btn mt-8 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancies.index') }}">Bekijk alle vacatures <span class="ml-1 text-blue-300">→</span></a></div></div></div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" aria-labelledby="vacature-zoeker">
-        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+    <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
+        <div class="lg:flex lg:items-start lg:gap-10">
+            <aside class="mb-8 lg:sticky lg:top-24 lg:mb-0 lg:w-72 lg:shrink-0"><div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
             <div class="max-w-2xl">
                 <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Zoek vacatures</p>
-                <h2 class="mt-2 text-2xl font-bold tracking-tight text-slate-900" id="vacature-zoeker">Waar ben je naar op zoek?</h2>
-                <p class="mt-2 text-slate-600">Verfijn je zoekopdracht en bekijk de actuele resultaten.</p>
+                <h2 class="mt-2 text-lg font-bold tracking-tight text-gray-800" id="vacature-zoeker">Verfijn je zoekopdracht</h2>
             </div>
-            <div class="mt-7">
+            <div class="mt-5">
                 <x-home.vacancy-search :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :taxonomy-options="$taxonomyOptions" :companies="$companies" :has-filters="$hasFilters" :has-additional-filters="$hasAdditionalFilters" />
             </div>
-        </div>
-    </section>
-
-    <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" aria-labelledby="recente-vacatures">
+            </div></aside>
+            <section class="min-w-0 lg:grow" aria-labelledby="recente-vacatures">
         <div class="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Actueel aanbod</p>
@@ -39,7 +31,7 @@
         </div>
 
         @if ($vacancies->isNotEmpty())
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($vacancies as $vacancy)
                     <x-vacancy.card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)" />
                 @endforeach
@@ -50,6 +42,8 @@
         @else
             <div class="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">Er zijn op dit moment geen actuele vacatures.</div>
         @endif
+            </section>
+        </div>
     </section>
 
     @if ($latestBlogPost)

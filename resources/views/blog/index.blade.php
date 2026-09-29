@@ -5,12 +5,8 @@
 @section('canonical', route('blog.index'))
 
 @section('content')
-    <section class="border-b border-slate-200 bg-white">
-        <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-            <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Inzichten</p>
-            <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Blog</h1>
-            <p class="mt-4 max-w-2xl text-lg leading-7 text-slate-600">Praktische artikelen over sales, marketing en recruitment.</p>
-        </div>
+    <section class="relative"><div class="pointer-events-none absolute inset-0 -z-10 bg-slate-900 [clip-path:polygon(0_0,_5760px_0,_5760px_calc(100%_-_100px),_0_100%)]" aria-hidden="true"></div>
+        <div class="mx-auto max-w-6xl px-4 pb-24 pt-32 text-center sm:px-6 md:pt-40"><p class="text-sm font-semibold uppercase tracking-widest text-blue-300">Inzichten</p><h1 class="mt-3 font-playfair-display text-4xl text-slate-100">Blog</h1><p class="mx-auto mt-4 max-w-2xl text-lg text-slate-400">Praktische artikelen over sales, marketing en recruitment.</p></div>
     </section>
 
     <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14" aria-labelledby="blog-overzicht">

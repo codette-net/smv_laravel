@@ -1,6 +1,6 @@
 @props(['filters', 'sort', 'sortOptions', 'locations', 'taxonomyOptions', 'companies', 'hasFilters' => false, 'hasAdditionalFilters' => false])
 
-<form action="{{ route('home') }}" class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3" method="GET" x-data="{ filtersOpen: @js($hasAdditionalFilters) }">
+<form action="{{ route('home') }}" class="grid grid-cols-1 gap-6" method="GET" x-data="{ filtersOpen: @js($hasAdditionalFilters) }">
     <div class="col-span-full">
         <label class="mb-3 block text-sm font-semibold text-gray-800" for="zoek">Zoeken</label>
         <div class="relative">
@@ -23,7 +23,7 @@
         @endif
     </div>
 
-    <div class="col-span-full grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3" id="homepage-aanvullende-filters" x-cloak x-show="filtersOpen" x-transition.opacity>
+    <div class="col-span-full grid grid-cols-1 gap-6" id="homepage-aanvullende-filters" x-cloak x-show="filtersOpen" x-transition.opacity>
         <div>
             <label class="mb-3 block text-sm font-semibold text-gray-800" for="locatie">Locatie</label>
             <select class="form-select w-full text-sm" id="locatie" name="locatie" x-on:change="$el.form.requestSubmit()">

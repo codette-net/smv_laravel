@@ -4,11 +4,14 @@
         ['label' => 'Vacatures', 'route' => 'vacancies.index', 'active' => ['vacancies.*']],
         ['label' => 'Bedrijven', 'route' => 'companies.index', 'active' => ['companies.*', 'bedrijven.*']],
         ['label' => 'Blog', 'route' => 'blog.index', 'active' => ['blog.*']],
+        ['label' => 'Over ons', 'route' => 'about', 'active' => ['about']],
+        ['label' => 'Tarieven', 'route' => 'pricing', 'active' => ['pricing']],
+        ['label' => 'Contact', 'route' => 'contact', 'active' => ['contact']],
     ];
     $loginRoute = 'filament.dashboard.auth.login';
 @endphp
 
-<header class="fixed top-2 md:top-6 w-full z-30">
+<header class="top-2 w-full z-30 transition-[top] duration-200 md:top-6" x-data="{ stuck: false }" x-init="new IntersectionObserver(([entry]) => stuck = ! entry.isIntersecting, { threshold: 0 }).observe(document.getElementById('public-nav-sentinel'))" :class="stuck ? 'fixed' : 'absolute'">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div
             class="relative flex items-center justify-between gap-3 h-14 rounded-2xl px-3 backdrop-blur-xs bg-white/90 shadow-lg shadow-black/[0.03] before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] before:[mask-composite:exclude_!important] before:pointer-events-none">
@@ -23,7 +26,7 @@
             </div>
 
             <!-- Desktop navigation -->
-            <nav class="hidden md:flex md:grow z-40" aria-label="Hoofdnavigatie">
+            <nav class="hidden lg:flex lg:grow z-40" aria-label="Hoofdnavigatie">
 
                 <ul class="text-sm flex grow justify-center flex-wrap items-center gap-4 lg:gap-8">
                     @foreach ($navigation as $item)
@@ -41,35 +44,26 @@
                     @endforeach
 
                 </ul>
-                <!-- Desktop sign in links -->
-                <ul class="flex-1 flex justify-end items-center gap-3 z-40">
-
-                    @auth
-                        <li>
-                            <a class="btn-sm text-gray-800 bg-white hover:bg-gray-50 shadow-sm" href="{{ route('filament.dashboard.pages.dashboard') }}">{{ auth()->user()->name}}</a>
-                        </li>
-                        <li>
-                            <form method="POST" action="{{ route('filament.dashboard.auth.logout') }}">
-                                @csrf
-                                <button type="submit" class="btn-sm text-gray-200 bg-gray-800 hover:bg-gray-900 shadow-sm">Logout</button>
-                            </form>
-                        </li>
-                    @else
-                        <li>
-                            <a class="btn-sm text-gray-800 bg-white hover:bg-gray-50 shadow-sm" href="{{ route($loginRoute) }}">Login</a>
-                        </li>
-                        <li>
-                            <a class="btn-sm text-gray-200 bg-gray-800 hover:bg-gray-900 shadow-sm"
-                               href="signup.html">Register</a>
-                        </li>
-                    @endauth
-                </ul>
+                <div class="relative flex flex-1 justify-end z-40" x-data="{ open: false }">
+                    <button class="inline-flex size-9 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" type="button" aria-controls="account-menu" :aria-expanded="open" x-on:click="open = ! open">
+                        <span class="sr-only">Accountmenu</span>
+                        <svg aria-hidden="true" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.5-1.632Z" /></svg>
+                    </button>
+                    <div class="absolute right-0 top-full mt-3 w-48 rounded-xl bg-white p-2 shadow-lg shadow-black/[0.08] ring-1 ring-gray-200" id="account-menu" x-cloak x-show="open" x-transition @click.outside="open = false" @keydown.escape.window="open = false">
+                        @auth
+                            <a class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" href="{{ route('filament.dashboard.pages.dashboard') }}">Dashboard</a>
+                            <form method="POST" action="{{ route('filament.dashboard.auth.logout') }}">@csrf<button class="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100" type="submit">Uitloggen</button></form>
+                        @else
+                            <a class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" href="{{ route($loginRoute) }}">Inloggen</a>
+                        @endauth
+                    </div>
+                </div>
             </nav>
 
 
 
             <!-- Mobile menu -->
-            <div class="flex md:hidden z-50" x-data="{ expanded: false }">
+            <div class="flex lg:hidden z-50" x-data="{ expanded: false }">
 
                 <!-- Hamburger button -->
                 <button
@@ -107,29 +101,12 @@
                 >
 
                     <ul class="text-sm p-2">
-                        <li>
-                            <a class="flex text-gray-700 hover:bg-gray-100 rounded-lg py-1.5 px-2" href="pricing.html">Pricing</a>
-                        </li>
-                        <li>
-                            <a class="flex text-gray-700 hover:bg-gray-100 rounded-lg py-1.5 px-2"
-                               href="customers.html">Customers</a>
-                        </li>
-                        <li>
-                            <a class="flex text-gray-700 hover:bg-gray-100 rounded-lg py-1.5 px-2"
-                               href="blog.html">Blog</a>
-                        </li>
-                        <li>
-                            <a class="flex text-gray-700 hover:bg-gray-100 rounded-lg py-1.5 px-2"
-                               href="documentation.html">Docs</a>
-                        </li>
-                        <li>
-                            <a class="flex text-gray-700 hover:bg-gray-100 rounded-lg py-1.5 px-2" href="support.html">Support
-                                center</a>
-                        </li>
-                        <li>
-                            <a class="flex text-gray-700 hover:bg-gray-100 rounded-lg py-1.5 px-2"
-                               href="apps.html">Apps</a>
-                        </li>
+                        @foreach ($navigation as $item)
+                            <li><a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route($item['route']) }}" @click="expanded = false">{{ $item['label'] }}</a></li>
+                        @endforeach
+                        @guest
+                            <li class="mt-2 border-t border-gray-100 pt-2"><a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route($loginRoute) }}">Inloggen</a></li>
+                        @endguest
                     </ul>
                 </nav>
 

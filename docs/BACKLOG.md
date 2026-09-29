@@ -1,4 +1,4 @@
-# SMV Agent Backlog
+sm# SMV Agent Backlog
 
 ## How to use this backlog
 
@@ -119,7 +119,7 @@ Planned, with exact scope dependent on current implementation and business requi
 
 - SMV-060 Native Laravel/Filament blog — completed: BlogPost domain, Filament CRUD,
   public index/detail, shared SEO and sitemap integration
-- SMV-061 Blog taxonomy and editorial relations — completed: typed blog categories and
+- SMV-061 Blog taxonomy[apps.html](../../codette/Tailwindtemplates/simple-html/simple-html/apps.html) and editorial relations — completed: typed blog categories and
   tags, manual Vacancy/Company relations, public archives and SEO/sitemap integration
 - future: richer Blog SEO after content exists
 
