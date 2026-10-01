@@ -2,10 +2,10 @@
 
 ## Status and scope
 
-This is the authoritative SMV-030 design for implementing SMV-031 through SMV-039.
-It is based on the current Laravel foundation and the provisional VNOM, Michael Page
-and Orange Career / 8vance feed examples. It does not implement an importer, select a
-provider adapter, or require schema changes by itself.
+This is the authoritative SMV-030 design that guided SMV-031 through SMV-039. Those
+tickets have since implemented the generic pipeline. The proposed schemas and task plan
+below are retained as historical design context; `docs/IMPORTS.md` and the current code
+describe the operational implementation status.
 
 Those three feeds are representative validation examples only. They do not constrain
 the core architecture to their exact nesting, identifiers, arrays, field names,

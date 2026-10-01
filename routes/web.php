@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\BlogPostController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\VacancyController;
 use App\Models\Category;
@@ -12,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Tags\Tag;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/over-ons', [PublicPageController::class, 'about'])->name('about');
+Route::get('/tarieven', [PublicPageController::class, 'pricing'])->name('pricing');
+Route::get('/contact', [PublicPageController::class, 'contact'])->name('contact');
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');

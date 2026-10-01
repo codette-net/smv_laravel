@@ -2,12 +2,11 @@
 
 ## Status
 
-The repository audit is complete. A broad Eloquent/schema foundation exists and the
-inconsistencies identified by the audit were stabilized in SMV-001. Public recruitment
-flows remain mostly prototype/incomplete; imports have foundation models and identity
-but no execution pipeline; technical SEO is largely pending.
-
-Sections below distinguish this current foundation from required MVP modules.
+The repository audit and foundation stabilization are complete. The application now has
+working public recruitment flows, Filament administration, a format-independent import
+pipeline, a native Blog and the technical SEO foundation. The remaining work is mostly
+commercial-scope confirmation, content/brand approval, legacy URL migration and release
+hardening.
 
 ## Guiding principles
 
@@ -44,25 +43,27 @@ Applications
 Packages / Orders / Payments
 
 Imports
-├── sources, runs and logs (foundation exists)
-├── provider-scoped vacancy identity (exists)
-├── mappings (future)
-├── parsing/transformation (future)
-├── validation (future)
-└── persistence/reporting pipeline (future)
+├── upload, HTTP and API source configuration
+├── JSON/XML/CSV/XLSX readers and bounded discovery
+├── reusable mappings, transforms and normalized preview
+├── validation plus source-scoped taxonomy resolution
+├── provider-scoped Vacancy upsert
+├── safe run history/logging and missing-record reporting
+└── synchronous execution (queue/scheduling remain deferred)
 
 Blog
-├── posts
-├── categories
-├── SEO
-└── optional links to recruitment content
+├── posts and Media Library cover images
+├── typed categories and tags
+├── manual Vacancy/Company relations
+├── public index/detail/archive routes
+└── metadata, BlogPosting JSON-LD and sitemap integration
 
 SEO / migration
-├── metadata
-├── structured data
-├── sitemap
-├── canonicals
-└── redirects
+├── metadata, Open Graph and environment-aware robots
+├── JobPosting, Organization and BlogPosting structured data
+├── dynamic sitemap
+├── clean and paginated canonicals
+└── legacy inventory/redirects (deferred pending exports)
 ```
 
 ## Request/application layering
@@ -106,6 +107,13 @@ public flow.
 
 The public interface and SEO-facing copy are Dutch; internal identifiers and developer
 documentation may remain English.
+
+The production public surface uses `layouts.public`, `HomeController`, the dedicated
+public controllers and Blade components under `components/ui`, `components/vacancy`,
+`components/company`, `components/blog` and `components/home`. The older
+`pages/component`, `pages/job`, `vacatures` prototype views and dashboard-style layout
+are not routed. They still need an explicit keep-as-catalogue or removal decision;
+their unresolved `<x-app-layout>` dependency currently prevents `artisan view:cache`.
 
 Do not add Vue/React/another design system without explicit approval.
 

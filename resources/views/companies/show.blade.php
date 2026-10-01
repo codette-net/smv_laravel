@@ -76,9 +76,7 @@
 
                     @if ($company->is_featured)
                         <div class="mb-2">
-                            <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600">
-                                ✦ Uitgelicht bedrijf
-                            </span>
+                            <x-ui.badge variant="info">Uitgelicht bedrijf</x-ui.badge>
                         </div>
                     @endif
 

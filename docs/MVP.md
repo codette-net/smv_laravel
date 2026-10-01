@@ -6,7 +6,22 @@ Build a stable, commercially credible first version of the new Sales en Marketin
 
 The MVP is the foundation of a recruitment platform. It must already support the core job-board business flow, company presence, reliable vacancy ingestion, strong search-engine migration fundamentals and enough content capability to support sales/demo use.
 
-Current repository reality: a broad domain/schema foundation exists and SMV-001 stabilized its key inconsistencies. Public recruitment flows and Company/Vacancy management have since been progressively implemented; the import pipeline remains the next major subsystem, technical SEO remains largely pending, and the Mosaic/Tailwind base provides substantial reusable frontend components and assets.
+Current repository reality (audited 1 October 2026): the recruitment core, Company and
+Vacancy administration, the internal/external/e-mail application flow, the generic
+JSON/XML/CSV/XLSX import pipeline, the technical SEO foundation and the native Blog are
+implemented and covered by feature tests. The current public frontend also includes the
+canonical homepage, vacancy and company discovery/detail pages, Blog archives and the
+static Dutch pages `/over-ons`, `/tarieven` and `/contact`.
+
+The main remaining MVP/release work is no longer foundational implementation. It is:
+
+- make the currently disabled Contact form operational;
+- confirm the required commercial package/payment/employer-posting scope;
+- replace or approve provisional public copy and template imagery;
+- inventory and map valuable legacy URLs once exports are available;
+- remove or quarantine obsolete prototype/showcase views that currently break
+  `artisan view:cache`;
+- complete accessibility, end-to-end, migration and launch validation.
 
 ## Presentation target
 
@@ -111,9 +126,10 @@ The MVP must be capable of demonstrating:
 
 ### Blog
 
-A simple Blog is part of MVP scope but late in delivery order.
-
-The Blog model/schema foundation exists; public pages and Filament editorial CRUD are not yet complete.
+A simple Blog is part of MVP scope and is implemented as a native Laravel/Filament
+module. It includes public index/detail pages, typed Blog categories and tags, archives,
+Media Library cover images, manual relations to public Vacancies and Companies, shared
+SEO/JSON-LD and sitemap integration.
 
 Reason:
 
@@ -122,7 +138,8 @@ Reason:
 - useful for ongoing SEO/content strategy
 - can help create internal links to companies/vacancies
 
-Keep it simple enough that it cannot jeopardize import, recruitment or SEO work.
+WordPress Blog content has deliberately not been imported. Comments, newsletters,
+author pages and automatic related-content matching remain outside the MVP.
 
 ### CMS/pages
 

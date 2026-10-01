@@ -14,13 +14,14 @@ class CompanyController extends Controller
     {
         $companies = Company::query()
             ->publiclyVisible()
-            ->with('media')
+            ->with(['media', 'categories'])
             ->withCount([
                 'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
             ])
             ->orderByDesc('is_featured')
             ->orderBy('name')
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
         return view('companies.index', [
             'companies' => $companies,

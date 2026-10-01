@@ -10,37 +10,28 @@ The MVP should support real SMV vacancy-feed requirements without turning the im
 
 ## Current implementation status
 
-SMV-001 stabilized the existing foundation:
+SMV-031 through SMV-039 are implemented. The current generic pipeline provides:
 
-- `ImportSource`, `Import` and `ImportLog` model/schema foundations
-- `import_source_id` provider relationships
-- provider-scoped vacancy identity using `import_source_id + source_reference`
-- relevant import enums and casts
-- nullable legacy `imports.source` compatibility data
+- admin-configured upload, HTTP and API sources with private uploaded files and guarded
+  remote fetching;
+- JSON, XML, CSV and XLSX readers converging on `SourceRecord`;
+- record selection, bounded field discovery and reusable `ImportMapping` records;
+- a code-owned destination registry, transforms and side-effect-free normalized preview;
+- validation plus source-scoped explicit taxonomy aliases without fuzzy matching or
+  automatic Category creation;
+- provider-owned Company resolution and provider-scoped Vacancy upsert through
+  `import_source_id + source_reference`;
+- mapped Category/Tag persistence, stable slugs and idempotent reruns;
+- safe Import history/logs, created/updated/skipped/failed counters and reversible
+  missing/restored source reporting;
+- production-quality VNOM configuration validated through the generic pipeline, plus
+  end-to-end parity coverage for representative VNOM, Michael Page, Orange Career,
+  CSV and XLSX fixtures.
 
-The following are not implemented yet:
-
-- source upload UI and production import execution
-- mapping model/backend and mapping UI
-- transformations and normalized preview
-- validation/failure workflow
-- company/taxonomy resolution
-- vacancy persistence/upsert pipeline
-- queued execution and safe rerun workflow
-- real partner/feed adapters
-
-SMV-033 adds reusable `ImportMapping` / `ImportMappingField` records, a code-owned
-destination registry and a side-effect-free normalized mapping result. Salary and rate
-now retain independent nullable currency and period metadata; supported periods are
-hour, day, week, month and year. Mapping does not yet resolve taxonomy values or write
-Companies, Vacancies, Tags or Categories.
-
-SMV-036 adds an ephemeral domain-validation and resolution boundary. It classifies
-records as ready, warning, needs resolution or error. Explicit taxonomy aliases are
-source-scoped `ImportTaxonomyMapping` records; only an unambiguous exact Category
-name/slug match is automatic. No fuzzy matching or Category creation occurs. The
-ImportSource Company remains the owner, flexible Tags need no controlled resolution,
-and Vacancy persistence remains SMV-037.
+Production execution is currently synchronous. Queue/chunk scheduling, retry policy,
+stale-run recovery and unattended activation are operational follow-up work, not hidden
+completed features. Source identifiers and business mappings still require provider
+approval before enabling an automatic production feed.
 
 Future import code must use `import_source_id` / `ImportSource` as provider identity. It must not use legacy `imports.source` for that purpose.
 
@@ -791,24 +782,9 @@ Do not attempt to build:
 
 Modularity is desirable because SMV has multiple feed providers, but real SMV vacancy-feed requirements remain the priority.
 
-## Next import task
+## Next import work
 
-SMV-030 must audit the stabilized import foundation against real feed examples and design the smallest reusable pipeline before implementation begins.
-
-SMV-030 must explicitly evaluate:
-
-- VNOM XML
-- Michael Page XML
-- provisional Orange Career / 8vance JSON
-- JSON/XML/CSV/XLSX format support
-- transport/format separation
-- reader boundary
-- record path and record selection
-- nested field/path discovery
-- mapping schema
-- normalized vacancy representation
-- salary/content transformations
-- company resolution
-- structured taxonomy/Spatie Tag resolution
-- provider-scoped upsert identity
-- preview and failure-reporting requirements
+Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. The next import
+work should be operationally scoped: approve a real source and identity/mapping policy,
+then separately design queue/scheduling and recovery based on measured production feed
+size and cadence. Provider-specific code remains a last resort for a proven generic gap.

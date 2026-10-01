@@ -81,9 +81,7 @@
 
                     @if ($vacancy->is_featured)
                         <div class="mb-2">
-                            <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                                Uitgelichte vacature
-                            </span>
+                            <x-ui.badge variant="warning">Uitgelichte vacature</x-ui.badge>
                         </div>
                     @endif
 
@@ -161,7 +159,7 @@
 
                             @if ($vacancy->deadline_at)
                                 <div>
-                                    Solliciteren vóór
+                                    Solliciteren vóór:
                                     <span class="font-medium text-gray-800">
                                         {{ $vacancy->deadline_at->translatedFormat('j F Y') }}
                                     </span>
@@ -251,6 +249,7 @@
 
                                     <div class="m-1">
                                         <span class="btn-xs rounded-full border-gray-200 px-2.5 py-1 text-xs text-gray-800 shadow-none">
+                                            <span class="sr-only">{{ ucfirst($key) }}:</span>
                                             {{ $category->parent
                                                 ? $category->parent->name . ' — ' . $category->name
                                                 : $category->name }}

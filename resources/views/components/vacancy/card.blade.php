@@ -28,7 +28,13 @@
 
 <article
     @class([
-        'group relative flex h-full overflow-hidden rounded-2xl border transition-all duration-200',
+        'group relative flex h-full overflow-hidden rounded-2xl border transition-all duration-200
+        bg-white/20 p-2 shadow-lg shadow-black/3 transition hover:bg-white/90
+        before:pointer-events-none before:absolute before:inset-0 before:-z-10
+        before:rounded-[inherit] before:border before:border-transparent
+        before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box]
+         before:[mask:linear-gradient(white_0_0)_padding-box,linear-gradient(white_0_0)]
+          before:[mask-composite:exclude_!important]',
 
         // Standard + featured = vertical card
         'flex-col' => !$isPremium,
@@ -54,23 +60,11 @@
     {{-- Badge --}}
     @if ($isFeatured || $isPremium)
         <div class="absolute left-4 top-4 z-20">
-            <span
-                @class([
-                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ring-1 ring-inset',
-                    'bg-white/95 text-indigo-600 ring-indigo-100'
-                        => $isFeatured,
-                    'bg-amber-50/95 text-amber-700 ring-amber-200'
-                        => $isPremium,
-                ])
-            >
-                @if ($isPremium)
-                    <span aria-hidden="true">★</span>
-                    Premium vacature
-                @else
-                    <span aria-hidden="true">✦</span>
-                    Uitgelicht
-                @endif
-            </span>
+            @if ($isPremium)
+                <x-ui.badge icon="bolt" variant="dark">Premium vacature</x-ui.badge>
+            @else
+                <x-ui.badge variant="primary">Uitgelicht</x-ui.badge>
+            @endif
         </div>
     @endif
 
@@ -101,7 +95,7 @@
     <a
         href="{{ $detailUrl ?? '#' }}"
         @class([
-            'relative flex items-center justify-center overflow-hidden bg-gray-50',
+            'relative flex items-center justify-center overflow-hidden bg-gray-50 rounded-t-lg',
             'aspect-[4/3] w-full' => !$isPremium,
             'min-h-64 md:h-full' => $isPremium,
         ])
@@ -110,7 +104,7 @@
 
             <img
                 src="{{ $imageUrl }}"
-                alt="{{ $vacancy->company->name }}"
+                alt="Logo van {{ $vacancy->company->name }}"
                 @class([
                     'h-full w-full object-contain',
                     'p-7' => !$isPremium,
@@ -139,8 +133,8 @@
     <div
         @class([
             'flex min-w-0 grow flex-col',
-            'p-5' => !$isPremium,
-            'p-6 md:p-7' => $isPremium,
+            'p-4' => !$isPremium,
+            'p-5 md:p-6' => $isPremium,
         ])
     >
 
@@ -150,7 +144,7 @@
             {{-- Company --}}
             <a
                 href="{{ route('bedrijven.show', $vacancy->company) }}"
-                class="text-sm font-medium text-gray-600 transition hover:text-indigo-600"
+                class="text-sm font-medium text-gray-600 transition hover:text-indigo-600 text-balance mb-2"
             >
                 {{ $vacancy->company->name }}
             </a>
@@ -159,7 +153,7 @@
             {{-- Title --}}
             <h2
                 @class([
-                    'mt-1 font-bold leading-tight tracking-tight text-gray-900',
+                    'my-2 font-bold leading-tight tracking-tight text-gray-900 text-balance',
                     'text-xl' => !$isPremium,
                     'text-2xl lg:text-3xl' => $isPremium,
                 ])
@@ -172,13 +166,15 @@
                 </a>
             </h2>
 
+            @if ($vacancy->location)
+                <x-ui.badge variant="dark">{{ $vacancy->location }}</x-ui.badge>
+            @endif
+
 
             {{-- Salary --}}
             @if ($salary)
                 <div class="mt-4">
-                    <span class="inline-flex rounded-lg bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-600">
-                        {{ $salary }}
-                    </span>
+                    <x-ui.badge variant="primary">{{ $salary }}</x-ui.badge>
                 </div>
             @endif
 
@@ -186,16 +182,9 @@
             {{-- Metadata --}}
             <div class="mt-4 flex flex-wrap gap-2">
 
-                @if ($vacancy->location)
-                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1 text-sm text-gray-600">
-                        {{ $vacancy->location }}
-                    </span>
-                @endif
 
-                @foreach ($vacancy->categories->take($isPremium ? 4 : 3) as $category)
-                    <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-sm text-gray-600">
-                        {{ $category->name }}
-                    </span>
+                @foreach ($vacancy->categories->take($isPremium ? 4 : 2) as $category)
+                    <x-ui.badge size="xs" variant="info">{{ $category->name }}</x-ui.badge>
                 @endforeach
 
             </div>

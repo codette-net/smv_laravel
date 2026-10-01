@@ -1,0 +1,41 @@
+@extends('layouts.public')
+
+@section('title', 'Contact | Sales en Marketing Vacatures')
+@section('meta_description', 'Neem contact op met Sales en Marketing Vacatures.')
+@section('canonical', route('contact'))
+
+@section('content')
+    <div class="flex">
+        <div class="w-full md:w-1/2">
+            <div class="flex min-h-screen flex-col justify-center">
+                <div class="px-5 py-24 sm:px-6">
+                    <div class="mx-auto w-full max-w-md">
+                        <a class="mb-8 inline-flex" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
+                            <img src="{{ Vite::asset('resources/images/smv_profile.png') }}" width="32" height="32" alt="Sales en Marketing Vacatures">
+                        </a>
+                        <h1 class="mb-5 font-playfair-display text-4xl text-slate-800">Neem contact op</h1>
+                        <p class="mb-8 text-slate-500">Heb je een vraag over vacatures, zichtbaarheid of samenwerken? Laat je gegevens achter; een verzendkoppeling volgt nog.</p>
+                        <form aria-describedby="contact-notice">
+                            <div class="space-y-4">
+                                <x-ui.input name="contact-email" label="E-mailadres" type="email" autocomplete="email" disabled />
+                                <x-ui.input name="contact-name" label="Naam" autocomplete="name" disabled />
+                                <x-ui.textarea name="contact-message" label="Bericht" disabled />
+                            </div>
+                            <p class="mt-5 text-sm text-slate-500" id="contact-notice">Dit formulier is visueel voorbereid; verzending is nog niet geconfigureerd.</p>
+                            <x-ui.button class="mt-5 w-full justify-center" type="submit" disabled>Bericht versturen</x-ui.button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="relative hidden bg-slate-900 md:block md:w-1/2" aria-hidden="true">
+            <img class="absolute inset-0 h-full w-full object-cover opacity-10" src="{{ asset('images/request-demo-bg.jpg') }}" width="760" height="900" alt="">
+            <div class="flex min-h-screen items-center">
+                <div class="mx-auto max-w-lg px-6">
+                    <h2 class="font-playfair-display text-4xl text-slate-100">Sales en Marketing Vacatures</h2>
+                    <p class="mt-4 italic text-slate-400">De plek voor commerciële professionals en ambitieuze werkgevers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

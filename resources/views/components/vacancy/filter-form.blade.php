@@ -6,56 +6,32 @@
     'grid-cols-2 md:grid-cols-1' => $variant !== 'homepage',
 ]) method="GET" x-data>
     <div class="col-span-full">
-        <label class="mb-3 block text-sm font-semibold text-gray-800" for="zoek">Zoeken</label>
+        <label class="block text-sm font-medium mb-1" for="zoek">Zoeken</label>
         <div class="relative">
-            <input class="form-input w-full py-2.5 pl-3 pr-10 text-sm" id="zoek" name="zoek" type="search" value="{{ $filters['zoek'] }}" placeholder="Functie of bedrijf" @if ($autoSubmit) @input.debounce.450ms="$el.form.requestSubmit()" @endif>
-            <button class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition hover:text-indigo-500" type="submit">
+            <input class="form-input w-full pl-9" id="zoek" name="zoek" type="search" value="{{ $filters['zoek'] }}" placeholder="Functie of bedrijf" @if ($autoSubmit) x-on:input.debounce.450ms="$el.form.requestSubmit()" @endif>
+            <button class="absolute inset-0 right-auto group" type="submit" aria-label="Zoeken">
                 <span class="sr-only">Zoeken</span>
-                <svg aria-hidden="true" class="h-5 w-5 fill-current" viewBox="0 0 20 20"><path d="M8.5 3a5.5 5.5 0 1 0 3.44 9.79l4.13 4.12 1.06-1.06-4.12-4.13A5.5 5.5 0 0 0 8.5 3Zm0 1.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" /></svg>
+                <svg class="shrink-0 fill-current text-gray-400 group-hover:text-gray-500 ml-3 mr-2" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M7 14c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7Zm0-12C4.243 2 2 4.243 2 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5Z" /><path d="m15.707 14.293-2.393-2.393a8.019 8.019 0 0 1-1.414 1.414l2.393 2.393a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414Z" /></svg>
             </button>
         </div>
     </div>
 
-    <div>
-        <label class="mb-3 block text-sm font-semibold text-gray-800" for="locatie">Locatie</label>
-        <select class="form-select w-full text-sm" id="locatie" name="locatie" @if ($autoSubmit) @change="$el.form.requestSubmit()" @endif>
-            <option value="">Alle locaties</option>
-            @foreach ($locations as $location)
-                <option value="{{ $location }}" @selected($filters['locatie'] === $location)>{{ $location }}</option>
-            @endforeach
-        </select>
-    </div>
+    <x-ui.select-dropdown name="locatie" label="Locatie" :options="collect($locations)->mapWithKeys(fn ($location) => [$location => $location])" :value="$filters['locatie']" placeholder="Alle locaties" x-on:change="{{ $autoSubmit ? '$el.form.requestSubmit()' : '' }}" />
 
     @foreach (['dienstverband' => 'Dienstverband', 'werklocatie' => 'Werklocatie', 'sector' => 'Sector', 'functiegebied' => 'Functiegebied', 'ervaring' => 'Ervaring'] as $filter => $label)
-        <div>
-            <label class="mb-3 block text-sm font-semibold text-gray-800" for="{{ $filter }}">{{ $label }}</label>
-            <select class="form-select w-full text-sm" id="{{ $filter }}" name="{{ $filter }}" @if ($autoSubmit) @change="$el.form.requestSubmit()" @endif>
-                <option value="">Alle opties</option>
-                @foreach ($taxonomyOptions[$filter] as $category)
-                    <option value="{{ $category->slug }}" @selected($filters[$filter] === $category->slug)>{{ $category->parent ? $category->parent->name.' — '.$category->name : $category->name }}</option>
-                @endforeach
-            </select>
-        </div>
+        <x-ui.select-dropdown
+            :name="$filter"
+            :label="$label"
+            :options="collect($taxonomyOptions[$filter])->mapWithKeys(fn ($category) => [$category->slug => $category->parent ? $category->parent->name.' — '.$category->name : $category->name])"
+            :value="$filters[$filter]"
+            placeholder="Alle opties"
+            x-on:change="{{ $autoSubmit ? '$el.form.requestSubmit()' : '' }}"
+        />
     @endforeach
 
-    <div>
-        <label class="mb-3 block text-sm font-semibold text-gray-800" for="bedrijf">Bedrijf</label>
-        <select class="form-select w-full text-sm" id="bedrijf" name="bedrijf" @if ($autoSubmit) @change="$el.form.requestSubmit()" @endif>
-            <option value="">Alle bedrijven</option>
-            @foreach ($companies as $company)
-                <option value="{{ $company->slug }}" @selected($filters['bedrijf'] === $company->slug)>{{ $company->name }}</option>
-            @endforeach
-        </select>
-    </div>
+    <x-ui.select-dropdown name="bedrijf" label="Bedrijf" :options="collect($companies)->mapWithKeys(fn ($company) => [$company->slug => $company->name])" :value="$filters['bedrijf']" placeholder="Alle bedrijven" x-on:change="{{ $autoSubmit ? '$el.form.requestSubmit()' : '' }}" />
 
-    <div>
-        <label class="mb-3 block text-sm font-semibold text-gray-800" for="sort">Sorteren</label>
-        <select class="form-select w-full text-sm" id="sort" name="sort" @if ($autoSubmit) @change="$el.form.requestSubmit()" @endif>
-            @foreach ($sortOptions as $value => $label)
-                <option value="{{ $value }}" @selected($sort === $value)>{{ $label }}</option>
-            @endforeach
-        </select>
-    </div>
+    <x-ui.select-dropdown name="sort" label="Sorteren" :options="$sortOptions" :value="$sort" placeholder="Sorteren" x-on:change="{{ $autoSubmit ? '$el.form.requestSubmit()' : '' }}" />
 
-    <button class="btn col-span-full justify-center bg-indigo-500 text-white hover:bg-indigo-600" type="submit">Vacatures tonen</button>
+    <x-ui.button class="col-span-full justify-center" type="submit">Vacatures tonen</x-ui.button>
 </form>

@@ -3,6 +3,9 @@
         ['label' => 'Vacatures', 'route' => 'vacancies.index'],
         ['label' => 'Bedrijven', 'route' => 'companies.index'],
         ['label' => 'Blog', 'route' => 'blog.index'],
+        ['label' => 'Over ons', 'route' => 'about'],
+        ['label' => 'Tarieven', 'route' => 'pricing'],
+        ['label' => 'Contact', 'route' => 'contact'],
     ];
     $loginRoute = 'filament.dashboard.auth.login';
 @endphp
