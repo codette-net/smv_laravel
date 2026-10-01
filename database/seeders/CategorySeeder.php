@@ -2,122 +2,51 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CategoryType;
 use App\Models\Category;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use Spatie\Tags\Tag;
 
-/**
- * Class User
- *
- * @package App\Models
- * @mixin Builder
- */
 class CategorySeeder extends Seeder
 {
-
     public function run(): void
     {
-        $categories = [
+        $this->seedCategories(CategoryType::employment_type, ['Fulltime', 'Parttime', 'Freelance', 'Stage']);
+        $this->seedCategories(CategoryType::workplace, ['Op locatie', 'Hybride', 'Remote']);
+        $this->seedCategories(CategoryType::function_area, ['Sales', 'Marketing', 'Business Development', 'Accountmanagement', 'Communicatie']);
+        $this->seedCategories(CategoryType::experience, ['Starter', 'Junior', 'Medior', 'Senior']);
 
-            'vacancy_category' => [
-                'Sales',
-                'Marketing',
-                'Online Marketing',
-                'Digital Marketing',
-                'SEO',
-                'SEA',
-                'Content Marketing',
-                'E-commerce',
-                'Customer Success',
-                'Business Development',
-                'Account Management',
-                'Inside Sales',
-                'Field Sales',
-                'Retail',
-                'Management',
-                'HR',
-                'Recruitment',
-                'Communicatie',
-            ],
-            'job_type' => [
-                'Fulltime',
-                'Parttime',
-                'Freelance',
-                'Stage',
-                'Tijdelijk',
-            ],
+        $sectors = $this->seedCategories(CategoryType::sector, ['IT', 'Horeca', 'Financiële dienstverlening', 'Retail', 'Zakelijke dienstverlening']);
+        $this->seedCategories(CategoryType::sector, ['SaaS', 'E-commerce'], $sectors['IT']->id);
+        $this->seedCategories(CategoryType::sector, ['Fintech'], $sectors['Financiële dienstverlening']->id);
 
-            'career_level' => [
-                'Starter',
-                'Junior',
-                'Medior',
-                'Senior',
-                'Lead',
-                'Manager',
-                'Director',
-            ],
+        $this->seedCategories(CategoryType::company_category, ['Recruitment Bureau', 'Marketing Agency', 'SaaS', 'B2B', 'Corporate', 'Scale-up', 'Startup', 'Non-profit', 'Media', 'Consultancy']);
+        $this->seedCategories(CategoryType::blog_category, ['Carrière', 'Sollicitatietips', 'CV', 'LinkedIn', 'Sales', 'Marketing', 'Werkgeluk', 'AI', 'Arbeidsmarkt', 'Employer Branding', 'Recruitment', 'Persoonlijke Ontwikkeling', 'Salaris', 'Remote Werken', 'Leiderschap']);
 
-            'experience' => [
-                '0-2 jaar',
-                '2-5 jaar',
-                '5-10 jaar',
-                '10+ jaar',
-            ],
-
-            'qualification' => [
-                'MBO',
-                'HBO',
-                'WO',
-            ],
-
-            'company_category' => [
-                'Recruitment Bureau',
-                'Marketing Agency',
-                'Retail',
-                'SaaS',
-                'E-commerce',
-                'B2B',
-                'Corporate',
-                'Scale-up',
-                'Startup',
-                'Non-profit',
-                'Media',
-                'Consultancy',
-            ],
-
-            'blog_category' => [
-                'Carrière',
-                'Sollicitatietips',
-                'CV',
-                'LinkedIn',
-                'Sales',
-                'Marketing',
-                'Werkgeluk',
-                'AI',
-                'Arbeidsmarkt',
-                'Employer Branding',
-                'Recruitment',
-                'Persoonlijke Ontwikkeling',
-                'Salaris',
-                'Remote Werken',
-                'Leiderschap',
-            ],
-
-        ];
-
-        foreach ($categories as $type => $items) {
-            foreach ($items as $name) {
-                Category::firstOrCreate(
-                    [
-                        'type' => $type,
-                        'slug' => Str::slug($name),
-                    ],
-                    [
-                        'name' => $name,
-                    ]
-                );
-            }
+        foreach (['AI', 'Content', 'SaaS', 'B2B', 'CRM', 'SEO'] as $tag) {
+            Tag::findOrCreate($tag);
         }
+    }
+
+    /** @return array<string, Category> */
+    private function seedCategories(CategoryType $type, array $names, ?int $parentId = null): array
+    {
+        $categories = [];
+
+        foreach ($names as $name) {
+            $category = Category::firstOrCreate(
+                ['type' => $type->value, 'slug' => Str::slug($name)],
+                ['name' => $name, 'parent_id' => $parentId],
+            );
+
+            if ($category->parent_id !== $parentId) {
+                $category->update(['parent_id' => $parentId]);
+            }
+
+            $categories[$name] = $category;
+        }
+
+        return $categories;
     }
 }

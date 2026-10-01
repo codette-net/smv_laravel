@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<source>
+    <job>
+        <identifier><![CDATA[repeat-1]]></identifier>
+        <title><![CDATA[Accountmanager]]></title>
+        <function><![CDATA[Sales]]></function>
+        <tag><![CDATA[B2B]]></tag>
+        <tag><![CDATA[SaaS]]></tag>
+    </job>
+</source>

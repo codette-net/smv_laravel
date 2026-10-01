@@ -88,5 +88,6 @@ process pages may be retired after review; the Laravel site does not have to rep
 every historical WordPress page.
 
 Use a relevant equivalent for redirects and avoid blanket redirects to the homepage.
-The final public route strategy remains open until SMV-040. Current URL inventories,
-Ahrefs exports and Search Console inputs are still outstanding and must not be inferred.
+SMV-040 established the Laravel route strategy; it must now be compared with the legacy
+site. Current URL inventories, Ahrefs exports and Search Console inputs are still
+outstanding and must not be inferred.

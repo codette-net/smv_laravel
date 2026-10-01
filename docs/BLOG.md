@@ -4,8 +4,8 @@
 
 Provide a simple content module that can be managed comfortably through Filament and used for September presentation content plus ongoing SEO/content work.
 
-Blog is part of the MVP. Its model/schema foundation exists, but Filament editorial CRUD
-and the public blog are not complete.
+Blog is part of the MVP and is implemented as a compact native Laravel/Filament module.
+Old WordPress articles are deliberately not migrated or imported.
 
 ## Delivery priority
 
@@ -14,7 +14,7 @@ low-risk presentation/content module does not displace core delivery.
 
 ## Minimal domain
 
-### Post
+### BlogPost
 
 Required fields/concepts:
 
@@ -25,37 +25,51 @@ Required fields/concepts:
 - featured image (optional)
 - publication status
 - published_at
-- blog category relation
-- SEO metadata or shared SEO mechanism
+- optional featured image through the existing Spatie Media Library
+- soft deletes
+- optional multiple `blog_category` Categories through the existing polymorphic taxonomy
+- optional typed Spatie Tags with type `blog`
+- optional manual editorial relations to Vacancies and Companies
 
-### Category
-
-- name
-- slug
+Posts are publicly visible only when status is `published`, `published_at` is present
+and not in the future, and the record is not soft-deleted. Slugs are generated when
+empty, unique, and stable after creation.
 
 ## Admin
 
-Filament should provide a straightforward interface for:
+Filament provides a straightforward interface for:
 
 - list/search/filter posts
 - create/edit posts
-- select category
 - set publication state/date
-- upload/select featured image if implemented
-- edit SEO metadata if not derived/shared elsewhere
+- upload/select a featured image through Media Library
 
 ## Public frontend
 
 - blog index
-- category filtering/navigation if inexpensive
-- blog detail
+- blog detail with visible categories, tags and related public content
+- category archive: `/blog/categorie/{category-slug}`
+- tag archive: `/blog/tag/{tag-slug}`
 - reuse existing Tailwind components
 - responsive layout
-- SEO metadata/canonical
+- shared metadata/canonical/Open Graph output, BlogPosting JSON-LD and sitemap inclusion
 
-## Optional lightweight integration
+Routes are `/blog` and `/blog/{blogPost-slug}`. `/` is the only homepage; `/home` is
+intentionally not routed.
 
-If simple and useful, allow editorial links/relations to relevant companies or vacancies. Do not create a recommendation engine for MVP.
+## Taxonomy and editorial relations
+
+SMV-061 uses the generic polymorphic `Category` model with type `blog_category`, so
+Blog categories remain separate from Vacancy taxonomies. Blog tags use the existing
+Spatie Tags integration with type `blog`, separated from Vacancy tags.
+
+Editorial users can manually select multiple related Vacancies and Companies. These
+relations are retained when a related record later becomes non-public, but the public
+Blog page renders only `Vacancy::publiclyVisible()` Vacancies and publicly visible
+Companies. Category and tag archives likewise show only publicly visible posts.
+
+The feature deliberately does not infer or generate recommendations. WordPress Blog
+import remains a separate future migration decision.
 
 ## Explicitly out of scope
 
@@ -65,3 +79,4 @@ If simple and useful, allow editorial links/relations to relevant companies or v
 - page builder
 - custom block-editor platform
 - newsletter automation
+- author pages

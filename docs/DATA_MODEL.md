@@ -108,6 +108,22 @@ Company
 └── Commercial/package relations as needed
 ```
 
+## Structured taxonomies and tags
+
+`Category` remains the controlled polymorphic taxonomy model. Vacancy-facing category
+types are `employment_type` (Dienstverband), `workplace` (Werklocatie), `sector`,
+`function_area` (Functiegebied), and `experience` (Ervaring). Categories have stable,
+type-scoped slugs and may have a same-type parent; Sector uses this for its practical
+one-level hierarchy. Legacy `vacancy_category`, `job_type`, `career_level` and
+`qualification` values, plus existing Company and Blog category types, remain readable
+compatibility taxonomies; new Vacancy administration and public filters use only the
+five canonical types.
+
+Flexible descriptive Vacancy tags use Spatie Laravel Tags, not `Category`. Tags such
+as AI, CRM, SaaS and B2B are free-form; filterable employment, workplace, sector,
+function-area and experience values must remain structured Categories. Future imports
+may map source values to Category IDs/slugs by type and may separately attach Tags.
+
 ## Vacancy import provenance
 
 Imported vacancy provenance uses `ImportSource`. `import_source_id` is the authoritative
@@ -134,7 +150,26 @@ and must be based on real feed examples rather than invented here.
 
 ## Blog
 
-Future minimal public/editorial concepts:
+`BlogPost` is a native Laravel content model. Its MVP fields are title, stable unique
+slug, nullable excerpt, content, legacy `featured_image` compatibility reference,
+Media Library `featured` media, status, `published_at`, timestamps and `deleted_at`.
+The existing required `author_id` remains for schema compatibility but is not shown on
+public pages. `publiclyVisible()` requires a published, non-future post; soft-deleted
+posts are excluded.
+
+SMV-061 adds optional controlled content relations without a second taxonomy system:
+
+- multiple `Category` records through the existing `categoryables` morph relation,
+  restricted to `CategoryType::blog_category` in Blog administration and public queries;
+- multiple Spatie Tags through `HasTags`, restricted to type `blog`;
+- `blog_post_vacancy` and `blog_post_company` many-to-many pivots for manually selected
+  related content.
+
+The public Blog only renders related records when their existing public visibility
+scope permits it. The relation itself is retained for editorial continuity. WordPress
+blog content is deliberately not migrated or imported.
+
+### Legacy planning reference
 
 ### posts
 

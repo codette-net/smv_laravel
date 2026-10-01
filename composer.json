@@ -10,12 +10,14 @@
         "bezhansalleh/filament-shield": "*",
         "filament/filament": "*",
         "filament/spatie-laravel-media-library-plugin": "5.5.0",
+        "filament/spatie-laravel-tags-plugin": "*",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "spatie/laravel-activitylog": "*",
         "spatie/laravel-permission": "*",
         "spatie/laravel-sitemap": "*",
-        "spatie/laravel-sluggable": "*"
+        "spatie/laravel-sluggable": "*",
+        "spatie/laravel-tags": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "*",

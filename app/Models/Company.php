@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\CompanyStatus;
 use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -67,6 +69,31 @@ class Company extends Model implements HasMedia
             ->singleFile();
     }
 
+    public function isPubliclyVisible(): bool
+    {
+        return $this->status === CompanyStatus::Active;
+    }
+
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->where('status', CompanyStatus::Active->value);
+    }
+
+    public function publicLogoUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('logo') ?: $this->logo;
+    }
+
+    public function publicCoverUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('cover') ?: $this->cover_image;
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -77,9 +104,19 @@ class Company extends Model implements HasMedia
         return $this->hasMany(Vacancy::class);
     }
 
+    public function importSources(): HasMany
+    {
+        return $this->hasMany(ImportSource::class);
+    }
+
     public function blogPosts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
+    }
+
+    public function relatedBlogPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(BlogPost::class, 'blog_post_company');
     }
 
     public function orders(): HasMany

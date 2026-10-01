@@ -43,4 +43,11 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function superAdmin(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('super-admin');
+        });
+    }
 }

@@ -5,9 +5,51 @@
 SEO is part of the MVP architecture and release criteria.
 It must not be postponed until after routes, content and migration behavior have become difficult to change.
 
-The repository currently has little production SEO implementation. Metadata,
-canonicals, structured data, sitemap/robots behavior and redirects remain release work,
-not implemented features.
+The public recruitment pages now have the MVP technical SEO foundation: reusable
+metadata/Open Graph output, canonical URLs, environment-aware robots directives, a
+dynamic public-entity sitemap and JobPosting/Organization structured data. Legacy
+redirect implementation and launch verification remain release work.
+
+## Current canonical routes
+
+- homepage: `/`
+- vacancy listing: `/vacatures`
+- vacancy detail: `/vacatures/{vacancy-slug}`
+- company listing: `/bedrijven`
+- company detail: `/bedrijven/{company-slug}`
+- blog index: `/blog`
+- blog detail: `/blog/{blog-post-slug}`
+- blog category archive: `/blog/categorie/{category-slug}`
+- blog tag archive: `/blog/tag/{tag-slug}`
+
+Vacancy and Company route binding uses stable slugs. Updating a title/name does not
+regenerate an existing slug. Application destinations, import source references and
+provider URLs are never canonical public URLs.
+
+## Metadata and indexability policy
+
+The public Blade layout provides title, description, canonical, robots and baseline
+Open Graph fields. Non-production environments always output `noindex, nofollow`.
+
+Clean listing pages and unfiltered pagination pages are indexable and self-canonical.
+Vacancy search, filter and sort combinations remain usable but output `noindex, follow`
+and canonicalize to `/vacatures`; no programmatic taxonomy landing pages are implied.
+Application form and confirmation pages are `noindex, nofollow` and canonicalize to the
+vacancy detail page.
+
+The dynamic `/sitemap.xml` contains only the homepage, clean listing pages, publicly
+visible Companies and publicly visible Vacancies belonging to public Companies. It also
+contains published Blog posts plus Blog category and typed Blog tag archives only when
+they have at least one publicly visible Blog post. The query is chunked. `/robots.txt`
+advertises the sitemap in production and blocks crawling in non-production environments.
+
+## Structured data
+
+Public Vacancy detail pages output JobPosting JSON-LD from known domain data only.
+Employment type is omitted because current taxonomy labels are not yet mapped safely to
+Schema.org values. Salary is included only when a valid currency, period and value/range
+are present; rate data is not silently presented as salary. Company pages output bounded
+Organization data and only include real configured profile URLs/media.
 
 ## Public-page requirements
 
@@ -37,8 +79,9 @@ Vacancy pages should support:
 
 Structured data must reflect visible/current vacancy data and should not present expired or unavailable jobs as active.
 
-Public vacancy slugs are stable after creation and should not change merely because a
-vacancy title is edited. The final public route strategy remains open until SMV-040.
+Public Vacancy slugs are stable after creation and do not change merely because a
+Vacancy title is edited. SMV-040 established `/vacatures/{vacancy-slug}` as the
+canonical detail pattern.
 
 ## Company SEO
 
@@ -47,15 +90,17 @@ Avoid thin pages when there is insufficient company information.
 
 ## Blog SEO
 
-The simple Blog can support organic growth through useful content and internal linking.
-Blog implementation should support:
+The native Blog now uses the shared metadata, canonical, Open Graph, BlogPosting
+structured-data and sitemap foundation. Only published, non-future posts are public or
+included in the sitemap. WordPress articles are not migrated in the MVP.
 
-- clean slugs
-- metadata
-- canonical URL
-- categories
-- published state
-- internal links to relevant vacancies/companies where editorially useful
+BlogPosting JSON-LD includes non-empty `articleSection` values from `blog_category`
+Categories and `keywords` from typed `blog` tags. Category and tag archives have their
+own title, description and canonical URL, are normally indexable, and intentionally do
+not emit BlogPosting structured data for the archive itself.
+
+Future Blog work may support richer editorial content and further Blog SEO once there
+is sufficient content to justify it.
 
 ## Technical SEO
 
@@ -81,6 +126,23 @@ Use crawlable HTML links rather than relying only on JavaScript actions.
 
 Staging should be protected from indexing.
 Before production launch explicitly verify that production is indexable and does not inherit staging restrictions.
+
+## Production SEO launch checklist
+
+- confirm `APP_ENV=production` and the canonical application URL/HTTPS host
+- crawl staging while verifying it remains `noindex`
+- validate representative JobPosting and Organization JSON-LD
+- verify `/robots.txt` and `/sitemap.xml` on the production host
+- import and test the approved legacy redirect map without chains
+- compare high-value legacy pages with their Laravel destinations
+- submit the production sitemap in Search Console
+- crawl production immediately after cutover and monitor 404s, redirects and indexing
+- monitor Search Console, analytics and important rankings after launch
+
+Future work includes the legacy redirect inventory/implementation, Search Console and
+analytics setup, redirect monitoring, taxonomy landing-page strategy, richer content and
+Blog SEO, and an automated sitemap refresh strategy if dynamic generation no longer fits
+production scale.
 
 ## Ahrefs-oriented checks
 

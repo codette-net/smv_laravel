@@ -1,0 +1,537 @@
+<?xml version="1.0"?>
+<jobs>	<job>
+    <uniqueJobID>JN-082026-7086590_MP_NL</uniqueJobID>
+    <id>929946</id>
+    <ref>JN-082026-7086590</ref>
+    <brand>MP</brand>
+    <title>Medewerker Crediteurenadministratie</title>
+    <employer>
+        <name></name>
+        <id></id>
+        <hide></hide>
+    </employer>
+    <logoImage>
+        <type></type>
+        <tmp_name></tmp_name>
+        <name></name>
+        <w></w>
+        <h></h>
+        <path></path>
+    </logoImage>
+    <language>en</language>
+    <country>
+        <![CDATA[NL]]>
+    </country>
+    <contractType>2</contractType>
+    <active>1</active>
+    <published>2026-08-19 04:50:00</published>
+    <salary>
+        <max>42000</max>
+        <currency>EUR</currency>
+        <min>30000</min>
+        <period>3</period>
+        <show>1</show>
+    </salary>
+    <status>1</status>
+    <client_authorised>1</client_authorised>
+    <searchable>1</searchable>
+    <updated>2026-08-19 04:50:00</updated>
+    <description>
+        <role>
+            <![CDATA[<ul><li>Verwerken, registreren, coderen en boeken van inkomende facturen.</li><li>Controleren van facturen en voorbereiden van betalingen.</li><li>Beheren van het volledige digitale crediteurenproces voor meerdere entiteiten.</li><li>Onderzoeken en oplossen van factuurverschillen in samenwerking met interne afdelingen en leveranciers.</li><li>Behandelen van betalingsherinneringen en leveranciersvragen.</li><li>Controleren en reconciliëren van tussenrekeningen en grootboekrekeningen.</li><li>Signaleren en benutten van betalingskortingen waar mogelijk.</li><li>Bijdragen aan procesoptimalisatie en verdere digitalisering van financiële processen.</li><li>Zorgen voor een correcte en tijdige financiële administratie.</li><li>Ondersteunen bij het beheer van financiële systemen en automatiseringsoplossingen.</li></ul><p><br><br></p>
+]]>
+        </role>
+        <bulletPoints>
+            <bulletPoints_0>Werk in een stabiele organisatie waar je eigenaarschap krijgt.</bulletPoints_0>
+            <bulletPoints_1>Krijg volop ruimte om jezelf verder te ontwikkelen binnen finance.</bulletPoints_1>
+        </bulletPoints>
+        <candidate>
+            <![CDATA[<ul><li>Afgeronde mbo-opleiding in Finance, Bedrijfsadministratie of een vergelijkbare richting.</li><li>Ervaring binnen crediteurenadministratie, financiële administratie of een vergelijkbare functie is een sterke pré.</li><li>Beschikbaar voor minimaal <strong>32 uur per week</strong>.</li><li>Kennis van Microsoft Excel.</li><li>Ervaring met <strong>SAP</strong> is een pré.</li><li>Affiniteit met automatisering en digitale procesverbetering.</li><li>Nauwkeurig, gestructureerd en kwaliteitsgericht.</li><li>Goede communicatieve vaardigheden.</li><li>In staat om effectief samen te werken met collega's en leveranciers.</li><li>Proactieve en hands-on instelling.</li><li>Goede beheersing van de Nederlandse taal.</li></ul><p><br><br></p>
+]]>
+        </candidate>
+        <company>
+            <![CDATA[<p>Onze opdrachtgever is een succesvolle en financieel gezonde organisatie met een informele, no-nonsense bedrijfscultuur. Het bedrijf combineert de stabiliteit van een gevestigde onderneming met de dynamiek van een organisatie die continu investeert in groei, digitalisering en de ontwikkeling van haar medewerkers.</p>
+]]>
+        </company>
+        <deal>
+            <![CDATA[<ul><li>Een functie voor <strong>32 tot 40 uur per week</strong>.</li><li>Werken binnen een stabiele en groeiende organisatie.</li><li>Een informele en collegiale werkomgeving.</li><li>Veel ruimte voor persoonlijke en professionele ontwikkeling.</li><li>Mogelijkheden om ervaring op te doen met procesverbetering en digitalisering.</li><li>Een afwisselende functie met verantwoordelijkheid en eigenaarschap.</li><li>Goede begeleiding en samenwerking binnen een betrokken finance team.</li><li>Langetermijnperspectief binnen een organisatie die investeert in haar medewerkers.</li></ul><p><br><br></p>
+]]>
+        </deal>
+    </description>
+    <summary>
+        <content>
+            <![CDATA[<p>Voor een groeiende organisatie zijn wij op zoek naar een Medewerker Crediteurenadministratie die verantwoordelijk is voor een correct en efficiënt verloop van het accounts payable proces. Je komt terecht in een hecht finance team waar nauwkeurigheid, samenwerking en continue verbetering centraal staan.</p>
+]]>
+        </content>
+        <title>Medewerker Crediteurenadministratie</title>
+    </summary>
+    <created>2026-08-19 04:50:00</created>
+    <international>0</international>
+    <minisite>
+        <type>0</type>
+        <ref/>
+    </minisite>
+    <productType>0</productType>
+    <job_level></job_level>
+    <Contract_Duration/>
+    <Executive_NonExecutive>0</Executive_NonExecutive>
+    <company_type></company_type>
+    <Job_Start_Date></Job_Start_Date>
+    <Opportunity_Type></Opportunity_Type>
+    <consultant>
+        <name>Nazar Yilmaz</name>
+        <email>nazaryilmaz@pagepersonnel.nl</email>
+        <cvxemail>nazaryilmaz.17742.8587@pagenl.aplitrak.com</cvxemail>
+        <office></office>
+        <telephone>+31 1 0217 6512</telephone>
+    </consultant>
+    <Job_Detail_URL>https://michaelpage.nl/en/job-detail/medewerker-crediteurenadministratie/ref/jn-082026-7086590</Job_Detail_URL>
+    <location>
+        <code>38973</code>
+        <text>Rotterdam</text>
+        <term>Rotterdam</term>
+    </location>
+    <sector>
+        <code>IS003000</code>
+        <term>Banking Financial Services</term>
+    </sector>
+    <subSector>
+        <code>IS003001</code>
+        <term>Accounting / Finance</term>
+    </subSector>
+    <industry>
+        <code>IS0146</code>
+        <term>
+            <![CDATA[Transport & Distribution]]>
+        </term>
+    </industry>
+</job>
+    <job>
+        <uniqueJobID>JN-082026-7086627_MP_NL</uniqueJobID>
+        <id>929966</id>
+        <ref>JN-082026-7086627</ref>
+        <brand>MP</brand>
+        <title>Customer Service medewerker</title>
+        <employer>
+            <name></name>
+            <id></id>
+            <hide></hide>
+        </employer>
+        <logoImage>
+            <type></type>
+            <tmp_name></tmp_name>
+            <name></name>
+            <w></w>
+            <h></h>
+            <path></path>
+        </logoImage>
+        <language>nl</language>
+        <country>
+            <![CDATA[NL]]>
+        </country>
+        <contractType>2</contractType>
+        <active>1</active>
+        <published>2026-08-19 05:05:44</published>
+        <salary>
+            <max>42000</max>
+            <currency>EUR</currency>
+            <min>30000</min>
+            <period>3</period>
+            <show>1</show>
+        </salary>
+        <status>1</status>
+        <client_authorised>1</client_authorised>
+        <searchable>1</searchable>
+        <updated>2026-08-19 05:05:44</updated>
+        <description>
+            <role>
+                <![CDATA[<ul><li>Fungeren als eerste aanspreekpunt voor klanten.</li><li>Verwerken en opvolgen van klantorders in het systeem.</li><li>Coördineren van transporten en leveringen met interne en externe stakeholders.</li><li>Proactief informeren van klanten over orderstatussen en eventuele afwijkingen.</li><li>Oplossen van klantvragen, klachten en logistieke uitdagingen.</li><li>Samenwerken met afdelingen zoals Planning, Warehouse, Operations en Transport.</li><li>Monitoren van leverprestaties en service levels.</li><li>Signaleren van procesverbeteringen om de klanttevredenheid verder te verhogen.</li><li>Zorgdragen voor een correcte administratieve verwerking van klantgegevens, orders en transportdocumentatie.</li><li>Opbouwen en onderhouden van duurzame klantrelaties.</li></ul><p><br><br></p>
+]]>
+            </role>
+            <bulletPoints>
+                <bulletPoints_0>Word de verbindende schakel tussen klanten en logistiek.</bulletPoints_0>
+                <bulletPoints_1>Krijg de kans om impact te maken op de klanttevredenheid &#xE9;n processen.</bulletPoints_1>
+            </bulletPoints>
+            <candidate>
+                <![CDATA[<ul><li>MBO+ of HBO werk- en denkniveau.</li><li>Ervaring binnen Customer Service, Customer Support of Customer Care.</li><li>Achtergrond binnen logistiek, supply chain, transport of warehousing.</li><li>Uitstekende communicatieve vaardigheden.</li><li>Goede beheersing van zowel de Nederlandse als Engelse taal.</li><li>Klantgerichte en proactieve instelling.</li><li>Sterk probleemoplossend vermogen en goed kunnen schakelen onder tijdsdruk.</li><li>Ervaring met ERP- of klantmanagementsystemen is een pré.</li><li>Nauwkeurig, georganiseerd en stressbestendig.</li><li>Beschikbaar voor minimaal 32 uur per week.</li><li>In het bezit van eigen vervoer is een sterke pré vanwege de bereikbaarheid van de locatie.</li></ul><p><br><br></p>
+]]>
+            </candidate>
+            <company>
+                <![CDATA[<p>Onze opdrachtgever is een groeiende en internationale organisatie actief binnen de logistieke en supply chain sector. Met een klantgerichte aanpak, korte communicatielijnen en een sterke focus op kwaliteit en service biedt de organisatie een dynamische werkomgeving waar initiatief wordt gewaardeerd en ontwikkeling wordt gestimuleerd.</p>
+]]>
+            </company>
+            <deal>
+                <![CDATA[<ul><li>Een afwisselende functie binnen een dynamische logistieke omgeving.</li><li>Werken in een internationale organisatie met ambitieuze groeiplannen.</li><li>Veel contact met klanten, transporteurs en interne stakeholders.</li><li>Ruimte voor persoonlijke ontwikkeling en doorgroeimogelijkheden.</li><li>Een informele en collegiale werksfeer.</li><li>Marktconforme arbeidsvoorwaarden.</li><li>Een organisatie waar initiatief, eigenaarschap en samenwerking worden gewaardeerd.</li><li>De mogelijkheid om een directe bijdrage te leveren aan klanttevredenheid en operationeel succes.</li></ul><p><br><br></p>
+]]>
+            </deal>
+        </description>
+        <summary>
+            <content>
+                <![CDATA[<p>Voor een internationale organisatie zijn wij op zoek naar een <strong>Customer Service Medewerker</strong> met affiniteit voor logistiek. In deze rol ben je verantwoordelijk voor het onderhouden van klantrelaties, het coördineren van orders en transporten en het zorgen voor een optimale klantervaring van bestelling tot levering.</p>
+]]>
+            </content>
+            <title>Customer Service Medewerker</title>
+        </summary>
+        <created>2026-08-19 05:05:44</created>
+        <international>0</international>
+        <minisite>
+            <type>0</type>
+            <ref/>
+        </minisite>
+        <productType>0</productType>
+        <job_level></job_level>
+        <Contract_Duration/>
+        <Executive_NonExecutive>0</Executive_NonExecutive>
+        <company_type></company_type>
+        <Job_Start_Date></Job_Start_Date>
+        <Opportunity_Type></Opportunity_Type>
+        <consultant>
+            <name>Nazar Yilmaz</name>
+            <email>nazaryilmaz@pagepersonnel.nl</email>
+            <cvxemail>nazaryilmaz.35986.8587@pagenl.aplitrak.com</cvxemail>
+            <office></office>
+            <telephone>+31 1 0217 6512</telephone>
+        </consultant>
+        <Job_Detail_URL>https://michaelpage.nl/job-detail/customer-service-medewerker/ref/jn-082026-7086627</Job_Detail_URL>
+        <location>
+            <code>38973</code>
+            <text>Rotterdam</text>
+            <term>Rotterdam</term>
+        </location>
+        <sector>
+            <code>IS079000</code>
+            <term>Sales Support</term>
+        </sector>
+        <subSector>
+            <code>IS079010</code>
+            <term>Customer Service</term>
+        </subSector>
+        <industry>
+            <code>IS0146</code>
+            <term>
+                <![CDATA[Transport & Distribution]]>
+            </term>
+        </industry>
+    </job>
+    <job>
+        <uniqueJobID>JN-082026-7086590_MP_NL</uniqueJobID>
+        <id>929946</id>
+        <ref>JN-082026-7086590</ref>
+        <brand>MP</brand>
+        <title>Medewerker Crediteurenadministratie</title>
+        <employer>
+            <name></name>
+            <id></id>
+            <hide></hide>
+        </employer>
+        <logoImage>
+            <type></type>
+            <tmp_name></tmp_name>
+            <name></name>
+            <w></w>
+            <h></h>
+            <path></path>
+        </logoImage>
+        <language>en</language>
+        <country>
+            <![CDATA[NL]]>
+        </country>
+        <contractType>2</contractType>
+        <active>1</active>
+        <published>2026-08-19 04:50:00</published>
+        <salary>
+            <max>42000</max>
+            <currency>EUR</currency>
+            <min>30000</min>
+            <period>3</period>
+            <show>1</show>
+        </salary>
+        <status>1</status>
+        <client_authorised>1</client_authorised>
+        <searchable>1</searchable>
+        <updated>2026-08-19 04:50:00</updated>
+        <description>
+            <role>
+                <![CDATA[<ul><li>Verwerken, registreren, coderen en boeken van inkomende facturen.</li><li>Controleren van facturen en voorbereiden van betalingen.</li><li>Beheren van het volledige digitale crediteurenproces voor meerdere entiteiten.</li><li>Onderzoeken en oplossen van factuurverschillen in samenwerking met interne afdelingen en leveranciers.</li><li>Behandelen van betalingsherinneringen en leveranciersvragen.</li><li>Controleren en reconciliëren van tussenrekeningen en grootboekrekeningen.</li><li>Signaleren en benutten van betalingskortingen waar mogelijk.</li><li>Bijdragen aan procesoptimalisatie en verdere digitalisering van financiële processen.</li><li>Zorgen voor een correcte en tijdige financiële administratie.</li><li>Ondersteunen bij het beheer van financiële systemen en automatiseringsoplossingen.</li></ul><p><br><br></p>
+]]>
+            </role>
+            <bulletPoints>
+                <bulletPoints_0>Werk in een stabiele organisatie waar je eigenaarschap krijgt.</bulletPoints_0>
+                <bulletPoints_1>Krijg volop ruimte om jezelf verder te ontwikkelen binnen finance.</bulletPoints_1>
+            </bulletPoints>
+            <candidate>
+                <![CDATA[<ul><li>Afgeronde mbo-opleiding in Finance, Bedrijfsadministratie of een vergelijkbare richting.</li><li>Ervaring binnen crediteurenadministratie, financiële administratie of een vergelijkbare functie is een sterke pré.</li><li>Beschikbaar voor minimaal <strong>32 uur per week</strong>.</li><li>Kennis van Microsoft Excel.</li><li>Ervaring met <strong>SAP</strong> is een pré.</li><li>Affiniteit met automatisering en digitale procesverbetering.</li><li>Nauwkeurig, gestructureerd en kwaliteitsgericht.</li><li>Goede communicatieve vaardigheden.</li><li>In staat om effectief samen te werken met collega's en leveranciers.</li><li>Proactieve en hands-on instelling.</li><li>Goede beheersing van de Nederlandse taal.</li></ul><p><br><br></p>
+]]>
+            </candidate>
+            <company>
+                <![CDATA[<p>Onze opdrachtgever is een succesvolle en financieel gezonde organisatie met een informele, no-nonsense bedrijfscultuur. Het bedrijf combineert de stabiliteit van een gevestigde onderneming met de dynamiek van een organisatie die continu investeert in groei, digitalisering en de ontwikkeling van haar medewerkers.</p>
+]]>
+            </company>
+            <deal>
+                <![CDATA[<ul><li>Een functie voor <strong>32 tot 40 uur per week</strong>.</li><li>Werken binnen een stabiele en groeiende organisatie.</li><li>Een informele en collegiale werkomgeving.</li><li>Veel ruimte voor persoonlijke en professionele ontwikkeling.</li><li>Mogelijkheden om ervaring op te doen met procesverbetering en digitalisering.</li><li>Een afwisselende functie met verantwoordelijkheid en eigenaarschap.</li><li>Goede begeleiding en samenwerking binnen een betrokken finance team.</li><li>Langetermijnperspectief binnen een organisatie die investeert in haar medewerkers.</li></ul><p><br><br></p>
+]]>
+            </deal>
+        </description>
+        <summary>
+            <content>
+                <![CDATA[<p>Voor een groeiende organisatie zijn wij op zoek naar een Medewerker Crediteurenadministratie die verantwoordelijk is voor een correct en efficiënt verloop van het accounts payable proces. Je komt terecht in een hecht finance team waar nauwkeurigheid, samenwerking en continue verbetering centraal staan.</p>
+]]>
+            </content>
+            <title>Medewerker Crediteurenadministratie</title>
+        </summary>
+        <created>2026-08-19 04:50:00</created>
+        <international>0</international>
+        <minisite>
+            <type>0</type>
+            <ref/>
+        </minisite>
+        <productType>0</productType>
+        <job_level></job_level>
+        <Contract_Duration/>
+        <Executive_NonExecutive>0</Executive_NonExecutive>
+        <company_type></company_type>
+        <Job_Start_Date></Job_Start_Date>
+        <Opportunity_Type></Opportunity_Type>
+        <consultant>
+            <name>Nazar Yilmaz</name>
+            <email>nazaryilmaz@pagepersonnel.nl</email>
+            <cvxemail>nazaryilmaz.17742.8587@pagenl.aplitrak.com</cvxemail>
+            <office></office>
+            <telephone>+31 1 0217 6512</telephone>
+        </consultant>
+        <Job_Detail_URL>https://michaelpage.nl/en/job-detail/medewerker-crediteurenadministratie/ref/jn-082026-7086590</Job_Detail_URL>
+        <location>
+            <code>38973</code>
+            <text>Rotterdam</text>
+            <term>Rotterdam</term>
+        </location>
+        <sector>
+            <code>IS003000</code>
+            <term>Banking Financial Services</term>
+        </sector>
+        <subSector>
+            <code>IS003001</code>
+            <term>Accounting / Finance</term>
+        </subSector>
+        <industry>
+            <code>IS0146</code>
+            <term>
+                <![CDATA[Transport & Distribution]]>
+            </term>
+        </industry>
+    </job>
+    <job>
+        <uniqueJobID>JN-082026-7084517_MP_NL</uniqueJobID>
+        <id>929436</id>
+        <ref>JN-082026-7084517</ref>
+        <brand>MP</brand>
+        <title>Commercieel Medewerker Binnendienst</title>
+        <employer>
+            <name></name>
+            <id></id>
+            <hide></hide>
+        </employer>
+        <logoImage>
+            <type></type>
+            <tmp_name></tmp_name>
+            <name></name>
+            <w></w>
+            <h></h>
+            <path></path>
+        </logoImage>
+        <language>nl</language>
+        <country>
+            <![CDATA[NL]]>
+        </country>
+        <contractType>1</contractType>
+        <active>1</active>
+        <published>2026-08-19 11:50:52</published>
+        <salary>
+            <max>44400</max>
+            <currency>EUR</currency>
+            <min>32400</min>
+            <period>3</period>
+            <show>1</show>
+        </salary>
+        <status>1</status>
+        <client_authorised>1</client_authorised>
+        <searchable>1</searchable>
+        <updated>2026-08-19 11:50:52</updated>
+        <description>
+            <role>
+                <![CDATA[<ul><li>Je bent het eerste aanspreekpunt voor klanten en zorgt voor een snelle en professionele afhandeling van vragen, aanvragen en orders.</li><li>Je bewaakt de verkoop mailbox, coördineert inkomende verzoeken en zorgt voor een vlekkeloze afhandeling.</li><li>Je ondersteunt het salesproces door offertes op te volgen, commerciële kansen te signaleren en klantrelatie verder uit te bouwen.</li><li>Je analyseert veelvoorkomende klantvragen en denkt actief mee over verbeteringen en automatisering en om processen efficiënter te maken.</li><li>Je draagt bij aan de commerciële groei van de organisatie door mee te denken over klant acties, verbeteringen in de klantreis en nieuwe verkoopkansen.</li></ul>
+]]>
+            </role>
+            <bulletPoints>
+                <bulletPoints_0>Werken voor een Internationaal bedrijf!</bulletPoints_0>
+                <bulletPoints_1>Een dynamische werkomgeving en takkenpakket!</bulletPoints_1>
+            </bulletPoints>
+            <candidate>
+                <![CDATA[<ul><li>Je bent beschikbaar voor 32 tot 40 uur per week.</li><li>Je beheerst zowel de Nederlandse als Engelse taal uitstekend, zowel mondeling als schriftelijk.</li><li>Je hebt een afgeronde HBO opleiding, het liefst in de richting van Sales, marketing of international business.</li><li>Je hebt relevante werkervaring binnen service of sales.</li><li>Uitstekende communicatieve vaardigheden en een professionele, daadkrachtige houding.<br></li><li>Zelfstandig, ondernemend en tegelijkertijd een echte teamspeler die graag samenwerkt aan gezamenlijke doelstellingen.<br></li></ul>
+]]>
+            </candidate>
+            <company>
+                <![CDATA[<p>Onze opdrachtgever is een B2B-speler binnen de visuele communicatie- en promotie sector. Het bedrijf levert uiteenlopende custom-made branding-, signing- en promotie oplossingen aan een breed netwerk van verkopers.Om de sterke groei te ondersteunen, zet de organisatie stevig in op digitalisering, slimme technologieën en automatisering. Daarbij staan innovatie, ondernemerschap en continu verbeteren centraal. Je krijgt veel vrijheid om met nieuwe ideeën te komen, processen efficiënter te maken en zo direct impact te hebben op de toekomst van het bedrijf.<br>Ter uitbreiding van het team zijn zij op zoek naar een <strong>Commercieel Medewerker Binnendienst</strong>. In deze veelzijdige functie vorm je de schakel tussen klanten, verkoop en interne processen. Je ondersteunt de commerciële activiteiten, bewaakt een soepel verloop van aanvragen en orders en denkt actief mee over verbeteringen in de klant-reis en interne werkwijzen.<br><br>Deze rol is ideaal voor iemand die commercieel inzicht combineert met een proactieve houding en energie krijgt van het optimaliseren van processen in een dynamische werkomgeving. <br><br></p>
+]]>
+            </company>
+            <deal>
+                <![CDATA[<ul><li>Salarisindicatie tussen €2.700 en €3.700 bruto per maand op basis van een fulltime dienstverband en relevante werkervaring</li><li>25 vakantiedagen voor een goede werk-privé-balans.</li><li>8% vakantie geld </li><li>Reiskostenvergoeding van €0,23 per kilometer.</li><li>Een solide pensioenregeling.</li><li>Doorgroeimogelijkheden (onder andere naar de buitendienst). </li><li>Werk-trips naar het buitenland. </li></ul>
+]]>
+            </deal>
+        </description>
+        <summary>
+            <content>
+                <![CDATA[<p><strong>Bouw mee aan de toekomst. </strong>Je stapt niet in een standaard binnendienst-rol, maar in een functie die je zelf slimmer maakt. Je zorgt dat orders en klantvragen vandaag soepel verlopen, terwijl je tegelijkertijd processen verbetert, automatiseert en commerciële kansen spot. Ideaal voor iemand die energie krijgt van aanpakken, optimaliseren én meebouwen aan een groeiende organisatie die volop inzet op AI en innovatie.</p>
+]]>
+            </content>
+            <title>Commercieel Medewerker Binnendienst</title>
+        </summary>
+        <created>2026-08-19 11:50:52</created>
+        <international>0</international>
+        <minisite>
+            <type>0</type>
+            <ref/>
+        </minisite>
+        <productType>0</productType>
+        <job_level></job_level>
+        <Contract_Duration/>
+        <Executive_NonExecutive>0</Executive_NonExecutive>
+        <company_type></company_type>
+        <Job_Start_Date></Job_Start_Date>
+        <Opportunity_Type></Opportunity_Type>
+        <consultant>
+            <name>Yinke Holtus</name>
+            <email>yinkeholtus@pagepersonnel.nl</email>
+            <cvxemail>yinkeholtus.21702.8587@pagenl.aplitrak.com</cvxemail>
+            <office></office>
+            <telephone>+31 102176524</telephone>
+        </consultant>
+        <Job_Detail_URL>https://michaelpage.nl/job-detail/commercieel-medewerker-binnendienst/ref/jn-082026-7084517</Job_Detail_URL>
+        <location>
+            <code>38973</code>
+            <text>Rotterdam</text>
+            <term>Rotterdam</term>
+        </location>
+        <sector>
+            <code>IS026000</code>
+            <term>Sales</term>
+        </sector>
+        <subSector>
+            <code>IS026018</code>
+            <term>Inside Sales</term>
+        </subSector>
+        <industry>
+            <code>IS0123</code>
+            <term>Retail</term>
+        </industry>
+    </job>
+    <job>
+        <uniqueJobID>JN-082026-7084623_MP_NL</uniqueJobID>
+        <id>927326</id>
+        <ref>JN-082026-7084623</ref>
+        <brand>MP</brand>
+        <title>Open Application - Marketing Professionals in Healthcare - NL</title>
+        <employer>
+            <name></name>
+            <id></id>
+            <hide></hide>
+        </employer>
+        <logoImage>
+            <type></type>
+            <tmp_name></tmp_name>
+            <name></name>
+            <w></w>
+            <h></h>
+            <path></path>
+        </logoImage>
+        <language>en</language>
+        <country>
+            <![CDATA[NL]]>
+        </country>
+        <contractType>1</contractType>
+        <active>1</active>
+        <published>2026-08-17 03:12:32</published>
+        <salary>
+            <max>80000</max>
+            <currency>EUR</currency>
+            <min>65000</min>
+            <period>4</period>
+            <show>0</show>
+        </salary>
+        <status>1</status>
+        <client_authorised>1</client_authorised>
+        <searchable>1</searchable>
+        <updated>2026-08-17 03:12:32</updated>
+        <description>
+            <role>
+                <![CDATA[<p>Depending on the opportunity, you will play a key role in driving product adoption, market growth, and customer engagement within the healthcare sector. Your expertise will be matched with vacancies that fit your background, ambitions, and industry experience.<br></p><ul><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Develop and execute marketing plans for healthcare products and solutions</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Manage product launches, campaigns, and go-to-market activities</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Collaborate with sales teams to increase market penetration and customer engagement</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Analyse market trends, competitor activity, and customer insights</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Engage with healthcare professionals, distributors, and key stakeholders across the Netherlands</li></ul>
+
+]]>
+            </role>
+            <bulletPoints>
+                <bulletPoints_0>Submit your CV to be the first in line for new opportunities that open this fall</bulletPoints_0>
+                <bulletPoints_1>Join a specialised network trusted by leading healthcare employers</bulletPoints_1>
+            </bulletPoints>
+            <candidate>
+                <![CDATA[<p>You bring a strong understanding of healthcare marketing and know how to operate within the Dutch market. You are looking to explore new opportunities and are interested in being considered for future vacancies in MedTech or Pharma.<br></p><ul><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Experience as a Marketing Specialist, Marketing Generalist, Marketing Manager, or Product Manager</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Background within the medical devices or pharmaceutical industry</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Current residence in the Netherlands</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Proven working experience within the Dutch market</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Strong project management and stakeholder management skills</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Fluent in English; Dutch is an advantage for many opportunities</li><li class="___ccc16d0 fje8fi8 f1ng9h0j f1bwykku f18jd3zf">Bachelor's degree or higher in Marketing, Business, Life Sciences, or a related field</li></ul>
+
+]]>
+            </candidate>
+            <company>
+                <![CDATA[<p>Our clients are established international and Benelux-based organisations operating in the medical devices and pharmaceutical sectors. They range from innovative scale-ups to market-leading healthcare companies looking to strengthen their commercial and marketing teams in the Netherlands.</p>
+]]>
+            </company>
+            <deal>
+                <![CDATA[<ul><li>Competitive salary packages aligned with experience and seniority</li><li>Bonus schemes and attractive secondary employment benefits</li><li>Opportunities with recognised international and local healthcare employers</li><li>Access to positions that may not be publicly advertised</li><li>Long-term career opportunities across MedTech and Pharmaceutical organisations in the</li></ul>
+]]>
+            </deal>
+        </description>
+        <summary>
+            <content>
+                <![CDATA[<p>Are you a Marketing Specialist, Marketing Generalist, Marketing Manager, or Product Manager with experience in the medical devices or pharmaceutical industry? Submit your application now to be considered for confidential opportunities expected to open across the Netherlands this autumn.</p>
+]]>
+            </content>
+            <title>Open Application - Marketing Professionals in Healthcare - NL</title>
+        </summary>
+        <created>2026-08-17 03:12:32</created>
+        <international>0</international>
+        <minisite>
+            <type>0</type>
+            <ref/>
+        </minisite>
+        <productType>0</productType>
+        <job_level></job_level>
+        <Contract_Duration/>
+        <Executive_NonExecutive>0</Executive_NonExecutive>
+        <company_type></company_type>
+        <Job_Start_Date></Job_Start_Date>
+        <Opportunity_Type></Opportunity_Type>
+        <consultant>
+            <name>Kaitlyn Halleran</name>
+            <email>kaitlynhalleran@michaelpage.nl</email>
+            <cvxemail>kaitlynhalleran.12442.8587@pagenl.aplitrak.com</cvxemail>
+            <office></office>
+            <telephone>+31137999259</telephone>
+        </consultant>
+        <Job_Detail_URL>https://michaelpage.nl/en/job-detail/open-application-marketing-professionals-healthcare-nl/ref/jn-082026-7084623</Job_Detail_URL>
+        <location>
+            <code>38524</code>
+            <text>Netherlands</text>
+            <term>Netherlands</term>
+        </location>
+        <sector>
+            <code>IS073000</code>
+            <term>
+                <![CDATA[Healthcare & Life Sciences]]>
+            </term>
+        </sector>
+        <subSector>
+            <code>IS018018</code>
+            <term>Marketing</term>
+        </subSector>
+        <industry>
+            <code>IS0046</code>
+            <term>Healthcare / Pharmaceutical</term>
+        </industry>
+    </job>
+</jobs>

@@ -1,0 +1,27 @@
+{
+  "jobs": [
+    {
+      "company": {"name": "Orange Career", "email": "info@orangecareer.test", "logo_url": "https://assets.example.test/logo.jpg"},
+      "title": "Sales medewerker",
+      "detailed_location": {"city": "Eindhoven", "region": "Noord-Brabant"},
+      "working_hours_minimum": 32,
+      "working_hours_maximum": 40,
+      "salary_low": 2500,
+      "salary_high": 3000,
+      "salary_type": "month",
+      "salary_currency": "EUR",
+      "primary_contact_person": {"name": "Voorbeeld contact", "email": "contact@orangecareer.test"},
+      "tags": ["SaaS", "B2B"]
+    },
+    {
+      "company": {"name": "Orange Career"},
+      "title": "Marketing specialist",
+      "detailed_location": {"city": "Tilburg"},
+      "working_hours_minimum": 24,
+      "salary_low": 2800,
+      "salary_currency": "EUR",
+      "primary_contact_person": {"email": "contact@orangecareer.test"},
+      "tags": ["Content"]
+    }
+  ]
+}

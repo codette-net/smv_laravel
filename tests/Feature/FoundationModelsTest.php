@@ -96,6 +96,21 @@ test('vacancies with identical titles receive distinct slugs', function () {
         ->and($secondVacancy->slug)->not->toBe($firstVacancy->slug);
 });
 
+test('vacancy factories defer collision-safe slug generation to the model', function () {
+    $company = Company::factory()->create();
+    $firstVacancy = Vacancy::factory()->create([
+        'company_id' => $company->id,
+        'title' => 'Accountmanager',
+    ]);
+    $secondVacancy = Vacancy::factory()->create([
+        'company_id' => $company->id,
+        'title' => 'Accountmanager',
+    ]);
+
+    expect($firstVacancy->slug)->toBe('accountmanager')
+        ->and($secondVacancy->slug)->not->toBe($firstVacancy->slug);
+});
+
 test('manual vacancies do not require import identity', function () {
     User::factory()->create();
     $company = Company::factory()->create();
@@ -151,12 +166,14 @@ test('import runs and imported vacancies belong to a provider-specific source', 
         'status' => CompanyStatus::Active,
     ]);
     $firstSource = ImportSource::create([
+        'company_id' => $company->id,
         'name' => 'Provider A',
         'slug' => 'provider-a',
         'type' => ImportType::xml,
         'is_active' => true,
     ]);
     $secondSource = ImportSource::create([
+        'company_id' => $company->id,
         'name' => 'Provider B',
         'slug' => 'provider-b',
         'type' => ImportType::json,
