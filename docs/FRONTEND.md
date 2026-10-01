@@ -34,9 +34,9 @@ Public frontend:
 - Vite
 - Mosaic-derived Blade components/templates
 
-The current frontend is only partially implemented.
-Some layouts/pages are prototypes or template conversions rather than completed
-application flows.
+The canonical public frontend is implemented on `layouts.public`. Some older
+layouts/pages remain prototypes or template conversions and are not part of the routed
+application.
 
 Blade `x-*` components are a preferred production pattern. Existing demo routes, route
 names, layout wiring and prototype page architecture are not authoritative. Preserve
@@ -182,16 +182,28 @@ Establish one coherent public layout from the useful existing patterns. Do not c
 parallel architecture merely to avoid adapting existing components, and do not treat
 the current layout wiring as a contract when it is incomplete or broken.
 
-## Existing public views
+## Current public routes and components
 
-Current top-level views include:
+The production public surface currently includes:
 
-```text
-home.blade.php
-welcome.blade.php
-```
+- `/`: controller-backed homepage with server-side Vacancy search/filter/sort,
+  six-result pagination and latest public Blog post;
+- `/vacatures` and `/vacatures/{slug}`: canonical discovery and detail flow with
+  public lifecycle filtering, taxonomy filters, deterministic sorting, related
+  Vacancies and one application destination;
+- `/bedrijven` and `/bedrijven/{slug}`: public Company listing/detail pages with
+  Media Library-first imagery and public Vacancy counts/relations;
+- `/blog`, Blog detail, typed category archives and typed tag archives;
+- `/over-ons`, `/tarieven` and `/contact`;
+- shared responsive header/account menu and footer.
 
-These are existing experiments/prototypes and are not authoritative production pages.
+Reusable production components include `components/ui` form controls, buttons and
+badges; Vacancy and Company cards; the homepage and listing filters; Blog cards; and
+Laravel pagination. Search and filter state stays in GET URLs and Alpine adds debounced
+or immediate submission plus loading feedback without replacing the server-side flow.
+
+`home.blade.php` is the canonical homepage. `welcome.blade.php`, `pages/component`,
+`pages/job`, `vacatures` and onboarding views are not routed production pages.
 
 ## CSS
 
@@ -359,3 +371,33 @@ Before changing the frontend, Codex should create a short inventory containing:
 
 The repository-level inventory is complete; each public-flow task should still confirm
 its canonical view and reusable components before replacing prototype wiring.
+
+## Audit status (1 October 2026)
+
+The recent public-site pass has completed much of the intended SMV-070 consistency
+work: the production pages share the light SMV/Tidy-derived surface, cards, controls,
+responsive filters, header and footer. SMV-071 remains partial until keyboard/screen
+reader behavior and responsive pages have received a deliberate accessibility pass.
+The Vacancy card currently renders a bookmark button without persistence/interaction,
+and its premium variant is dormant presentation code because no persisted listing tier
+exists. Treat neither as completed commercial functionality.
+
+The old component catalogue and job prototypes are not reachable from `routes/web.php`,
+but Laravel still compiles every Blade view during `artisan view:cache`. Because those
+views reference an unregistered `<x-app-layout>`, the release cache command currently
+fails. Resolve this by deliberately removing/quarantining obsolete prototypes or by
+making the retained catalogue independently compilable; do not wire it into public
+routes merely to keep it.
+
+Repository content/brand readiness is mixed:
+
+- `resources/images/smv-logo.svg` and `smv_profile.png`, plus the blue/slate palette and
+  current typography, are the concrete SMV brand inputs used by production pages;
+- Dutch homepage, About, pricing, contact and footer copy exists and can be reviewed in
+  context, but no separate approved client-copy/brand decision document is present;
+- the Contact form is intentionally disabled and says that submission is not configured;
+- pricing uses “Op aanvraag” and needs commercial approval rather than invented prices;
+- About/contact hero photography came from the original template asset import and
+  should be treated as replaceable until the client explicitly approves it;
+- the repository still contains a large unused Mosaic asset library. Do not delete it
+  blindly, but audit usages before release and retain only licensed/needed assets.

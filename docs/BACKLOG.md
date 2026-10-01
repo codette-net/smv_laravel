@@ -1,132 +1,188 @@
-sm# SMV Agent Backlog
+# SMV Agent Backlog
 
 ## How to use this backlog
 
-The repository audit and SM V-001 foundation stabilization are complete. This is the
-agreed delivery order; individual task boundaries may still be refined when their
-current implementation is inspected.
+This status was reconciled with the repository on 1 October 2026. Status means:
 
-Every task should eventually contain:
+- **DONE** — accepted behavior exists in code and tests.
+- **PARTIALLY DONE** — useful behavior exists, but the named acceptance boundary is not complete.
+- **NOT STARTED** — no coherent implementation exists yet.
+- **OBSOLETE** — superseded and should not be implemented as written.
+- **NEEDS REVIEW** — a foundation exists, but business scope must be confirmed before implementation.
 
-- Goal
-- Existing context
-- Requirements
-- Out of scope
-- Acceptance criteria
-- Tests
+Every implementation ticket should retain a focused goal, existing context, requirements,
+out-of-scope boundary, acceptance criteria and tests. Do not infer completion from this
+document when current code proves otherwise.
 
 ## Phase A — Agent readiness / audit
 
-### SMV-001 Repository audit
-Status: Complete
-
-### Foundation stabilization
-Status: Complete
-Result of SMV-001 audit.
-Core schema/model inconsistencies, authorization and baseline tests stabilized.
-
-### SMV-002 Documentation sync
-Status: Complete
+| Ticket | Status | Repository result |
+| --- | --- | --- |
+| SMV-001 Repository audit and foundation stabilization | **DONE** | Schema/model inconsistencies, authorization, slugs, soft deletes, import identity and baseline tests were stabilized. |
+| SMV-002 Documentation sync | **DONE** | Foundation documentation was synchronized; this audit updates later delivery status. |
 
 ## Phase B — Recruitment core
 
-Planned tasks:
-
-- SMV-010 Company domain audit/completion
-- SMV-011 Company Filament admin
-- SMV-012 Public company page
-- SMV-013 Public company index
-- SMV-020 Vacancy lifecycle audit/completion
-- SMV-021 Vacancy Filament admin
-- SMV-022 Vacancy listing/search/filter
-- SMV-022A Vacancy listing visual alignment
-- SMV-022B Vacancy taxonomy + Spatie Tags foundation
-- SMV-023 Vacancy detail
-- SMV-024 Application destination/internal application flow
+| Ticket | Status | Repository result |
+| --- | --- | --- |
+| SMV-010 Company domain audit/completion | **DONE** | Stable slugs, status/public scope, profile fields, taxonomy, Media Library and factories/tests exist. |
+| SMV-011 Company Filament admin | **DONE** | Policy-backed Company CRUD, media and taxonomy administration exist. |
+| SMV-012 Public Company page | **DONE** | Slug-bound public profile with media, Organization JSON-LD and public Vacancies exists. |
+| SMV-013 Public Company index | **DONE** | Public-only paginated listing, Vacancy counts and featured presentation exist. |
+| SMV-020 Vacancy lifecycle audit/completion | **DONE** | `Vacancy::publiclyVisible()` is the canonical lifecycle boundary. |
+| SMV-021 Vacancy Filament admin | **DONE** | Vacancy CRUD, taxonomy, typed tags, publication and application destination fields exist. |
+| SMV-022 Vacancy listing/search/filter | **DONE** | GET-based search, Company/location/taxonomy filters, deterministic sorting and pagination exist. |
+| SMV-022A Vacancy listing visual alignment | **DONE** | Production listing/cards use the Tidy/Mosaic-derived component system. |
+| SMV-022B Vacancy taxonomy + Spatie Tags | **DONE** | Five controlled Vacancy taxonomies and flexible Spatie tags are separated. |
+| SMV-023 Vacancy detail | **DONE** | Public-only detail, related Vacancies, Company links and JobPosting JSON-LD exist. |
+| SMV-024 Application destination/internal flow | **DONE** | External, e-mail and internal modes, validated private CV storage, notification and read-only admin review exist. |
 
 ## Phase C — Imports
 
-### SMV-030 Import subsystem audit/design
-Audit the stabilized import foundation against real feed examples before implementation.
+| Ticket | Status | Repository result |
+| --- | --- | --- |
+| SMV-030 Import subsystem audit/design | **DONE** | Generic architecture and provider/security decisions are documented. |
+| SMV-031 Import sources | **DONE** | Upload/HTTP/API configuration, private uploads, approvals and guarded source access exist. |
+| SMV-032 Parser/field discovery | **DONE** | JSON/XML/CSV/XLSX readers, selection, bounded discovery and safe remote fetch exist. |
+| SMV-033 Mapping model/backend | **DONE** | Reusable mappings, destination registry, transforms and normalized DTO exist. |
+| SMV-034 Filament mapping interface | **DONE** | Discovery, mapping completeness, clear/reset and bounded normalized sample feedback exist. |
+| SMV-035 Normalized preview | **DONE** | Multi-record, filtered, remote-capable, side-effect-free preview exists. |
+| SMV-036 Validation/failure reporting | **DONE** | Structured validation/resolution outcomes and source-scoped taxonomy aliases exist. |
+| SMV-037 Import persistence/update/duplicate handling | **DONE** | SMV-037A/B/C provide provider-scoped atomic upsert, run accounting/history and format parity. |
+| SMV-038 Import rerun lifecycle | **DONE** | Safe reruns plus reversible missing/still-missing/restored reporting exist without auto-deletion. |
+| SMV-039 First production partner/feed configuration | **DONE** | VNOM is validated through generic configuration and tests; automatic production activation still requires provider identity/mapping approval and operations limits. |
 
-Must evaluate:
-
-- VNOM XML
-- Michael Page XML
-- provisional Orange Career / 8vance JSON
-- MVP format support: JSON, XML, CSV and XLSX
-- transport versus format separation
-- reader/parser boundary
-- record path and record selection/filtering
-- nested field/path discovery
-- reusable mapping model
-- normalized Vacancy representation
-- salary/content transformations
-- Company resolution
-- structured taxonomy and Spatie Tag resolution
-- provider-scoped upsert identity
-- normalized preview
-- validation/failure reporting
-
-Deliver a concrete architecture/schema/task plan for SMV-031 through SMV-039. Do not build the complete importer in SMV-030.
-
-### SMV-031 Import sources
-Implement ImportSource configuration for transport, format and source access.
-
-### SMV-032 Parser/field discovery
-Implement JSON/XML/CSV/XLSX readers, record extraction/selection where applicable, and field discovery.
-
-### SMV-033 Mapping model/backend
-Implement reusable field mappings, defaults, transforms and source-specific normalization configuration.
-
-### SMV-034 Filament mapping interface
-Implement the admin mapping workflow in Filament.
-
-### SMV-035 Normalized preview
-Show normalized Vacancy data, Company/taxonomy resolution and pre-import status.
-
-### SMV-036 Validation/failure reporting
-Implement record-level validation, warnings, failures and understandable admin reporting.
-
-### SMV-037 Import persistence/update/duplicate handling
-Implement format-independent Vacancy persistence/upsert using `import_source_id + source_reference`.
-
-### SMV-038 Import run history/rerun
-Implement run history, safe reruns, counters and missing-record reporting.
-
-### SMV-039 First real partner/feed adapter
-Implement and validate the first production-quality partner/feed configuration using the generic pipeline.
+Import execution is synchronous. Queues, scheduling, automatic retries and stale-run
+recovery are deliberately not represented as completed functionality.
 
 ## Phase D — SEO migration foundation
 
-- SMV-040 Current route/SEO audit — completed as the technical SEO foundation
-- SMV-041 Metadata/canonical foundation — completed
-- SMV-042 JobPosting structured data — completed
-- SMV-043 Sitemap/robots — completed
-- SMV-044 Legacy URL inventory import
-- SMV-045 Redirect implementation/testing
-- SMV-046 Staging SEO crawl/checklist
+| Ticket | Status | Repository result |
+| --- | --- | --- |
+| SMV-040 Current route/SEO audit | **DONE** | Canonical public route and indexability policy established. |
+| SMV-041 Metadata/canonical foundation | **DONE** | Shared metadata, Open Graph, robots directives and pagination canonicals exist. |
+| SMV-042 Structured data | **DONE** | JobPosting, Organization and BlogPosting JSON-LD exist. |
+| SMV-043 Sitemap/robots | **DONE** | Dynamic public-only sitemap and environment-aware robots response exist. |
+| SMV-044 Legacy URL inventory import | **NOT STARTED** | Blocked on live crawl/Ahrefs/Search Console/WordPress export input. |
+| SMV-045 Redirect implementation/testing | **NOT STARTED** | Depends on an approved SMV-044 decision map. |
+| SMV-046 Staging SEO crawl/checklist | **NOT STARTED** | Depends on deployable staging plus the redirect/content set. |
 
 ## Phase E — Commercial flow
 
-Planned, with exact scope dependent on current implementation and business requirements:
+| Ticket | Status | Repository result |
+| --- | --- | --- |
+| SMV-050 Packages audit/completion | **NEEDS REVIEW** | Package schema/model exist, but public/admin product behavior, pricing and entitlement rules are not agreed. |
+| SMV-051 Orders/payments audit/completion | **NEEDS REVIEW** | Historical models/schema exist; no confirmed checkout/provider/reconciliation MVP flow exists. |
+| SMV-052 Employer vacancy-posting flow | **NOT STARTED** | No employer dashboard or public posting workflow exists; depends on SMV-050/051 scope decisions. |
 
-- SMV-050 Packages audit/completion
-- SMV-051 Orders/payments audit/completion
-- SMV-052 Employer vacancy-posting flow
+## Phase F — Blog / content
 
-## Phase F — Blog / presentation content
-
-- SMV-060 Native Laravel/Filament blog — completed: BlogPost domain, Filament CRUD,
-  public index/detail, shared SEO and sitemap integration
-- SMV-061 Blog taxonomy[apps.html](../../codette/Tailwindtemplates/simple-html/simple-html/apps.html) and editorial relations — completed: typed blog categories and
-  tags, manual Vacancy/Company relations, public archives and SEO/sitemap integration
-- future: richer Blog SEO after content exists
+| Ticket | Status | Repository result |
+| --- | --- | --- |
+| SMV-060 Native Laravel/Filament Blog | **DONE** | BlogPost domain, Filament CRUD, Media Library, public index/detail, SEO and sitemap exist. |
+| SMV-061 Blog taxonomy and editorial relations | **DONE** | Typed categories/tags, manual Vacancy/Company relations, archives, JSON-LD and sitemap behavior exist. |
+| SMV-062 Operational public Contact flow | **NOT STARTED** | The current Contact page is intentionally disabled and stores/sends nothing. |
+| SMV-063 Public content and brand approval pass | **NOT STARTED** | Current Dutch copy and SMV logo/palette exist, but pricing, contact details, imagery and final client approval are not documented. |
 
 ## Phase G — Polish/release
 
-- SMV-070 Frontend consistency pass
-- SMV-071 Responsive/accessibility pass
-- SMV-072 End-to-end smoke tests
-- SMV-073 Migration dry run
-- SMV-074 Production launch checklist
+| Ticket | Status | Exact remainder |
+| --- | --- | --- |
+| SMV-070 Frontend consistency pass | **PARTIALLY DONE** | Shared public layout, Tidy-derived cards/controls, responsive navigation, homepage filters, Company pages and static pages are aligned. Final client content/visual sign-off remains; the Vacancy bookmark is non-functional and premium-card markup has no persisted listing-tier domain yet. |
+| SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. A deliberate keyboard/screen-reader/mobile audit is still required, especially for the custom listbox, account menus and disabled/non-functional actions. |
+| SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. |
+| SMV-073 Migration dry run | **NOT STARTED** | Needs production-like data/export inputs and deployment environment. |
+| SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
+| SMV-075 Prototype/showcase and release-cache cleanup | **NOT STARTED** | Unrouted prototype/showcase views still reference missing `<x-app-layout>` and break `artisan view:cache`; conflict-copy files, console logging and unused UI/assets need evidence-based cleanup. |
+| SMV-076 Public SEO regression hardening | **NOT STARTED** | Later public pages exposed follow-up gaps: Blog index pagination canonicalizes to page 1, shared head values render raw, and sitemap/indexability policy for the new static pages needs an explicit decision. |
+
+## Next work queue
+
+### A. Functional / MVP
+
+#### SMV-062 — Operational public Contact flow
+
+- **Status:** NOT STARTED
+- **Why now:** the navigation exposes `/contact`, but its fields and submit button are disabled.
+- **Scope:** Form Request, CSRF-protected delivery/storage decision, spam protection appropriate to risk, Dutch success/error state and privacy-safe tests.
+- **Dependencies:** confirmed recipient/retention/privacy requirements.
+- **Acceptance:** a visitor can submit successfully; failures are understandable; no personal data leaks to logs; automated validation/delivery tests pass.
+
+#### SMV-050 — Packages and commercial scope audit
+
+- **Status:** NEEDS REVIEW
+- **Why now:** `/tarieven` is public while package/pricing/entitlement behavior is still placeholder-level.
+- **Scope:** reconcile Package/Order/Payment foundations with the actual launch offer; decide whether checkout and SMV-051/052 are launch requirements.
+- **Dependencies:** approved products, prices, VAT/payment and employer workflow decisions.
+- **Acceptance:** documented keep/change/defer decisions, schema gap list and small follow-up tickets; no speculative checkout implementation.
+
+### B. Content / public site
+
+#### SMV-063 — Public content and brand approval pass
+
+- **Status:** NOT STARTED
+- **Why now:** the production layout exists, so client copy and assets can be reviewed in context.
+- **Scope:** approve/replace homepage, About, pricing, Contact and footer copy; confirm logo use, palette, typography, photography, contact details and CTA wording.
+- **Dependencies:** client approval and final assets/contact/commercial information.
+- **Acceptance:** no self-declared placeholder copy or unapproved template photography remains; asset provenance/usage is recorded; metadata matches final copy.
+
+#### SMV-044 — Legacy URL inventory import
+
+- **Status:** NOT STARTED
+- **Why now:** technical SEO is ready, but launch cannot safely preserve legacy equity without real exports.
+- **Scope:** import crawl, Ahrefs, Search Console and WordPress URL data into the documented CSV inventory and assign KEEP/301/410/NOINDEX/MERGE decisions.
+- **Dependencies:** external exports and content decisions.
+- **Acceptance:** every high-value URL has an approved destination/action; no blanket homepage redirects; sensitive exports stay out of Git.
+
+### C. Release / cleanup
+
+#### SMV-076 — Public SEO regression hardening
+
+- **Status:** NOT STARTED
+- **Why now:** later Blog pagination and static public pages were added after the completed SEO foundation.
+- **Scope:** self-canonical Blog index pagination; safely escaped title/meta/canonical output; explicit sitemap/indexability policy for About, pricing, Contact and filtered homepage URLs.
+- **Dependencies:** final route/content decisions from SMV-063.
+- **Acceptance:** page 1/page 2 canonical tests pass, stored titles cannot break head markup, and every indexable static route has a documented sitemap decision.
+
+#### SMV-075 — Prototype/showcase and release-cache cleanup
+
+- **Status:** NOT STARTED
+- **Why now:** `artisan view:cache` currently fails on an unrouted showcase view using missing `<x-app-layout>`.
+- **Scope:** classify/remove/quarantine obsolete prototype views and duplicate components/assets; remove tracked conflict copies and debug console output; verify escaped head metadata. Preserve any genuinely useful catalogue source deliberately.
+- **Dependencies:** none.
+- **Acceptance:** `view:cache`, build and full tests pass; no routed production view is lost; every removed asset/component is proven unused.
+
+#### SMV-071 — Responsive and accessibility completion
+
+- **Status:** PARTIALLY DONE
+- **Why now:** custom navigation/listbox/filter interactions now exist on every major public route.
+- **Scope:** keyboard, focus, screen-reader names/state, reduced motion, mobile overflow and inactive-action audit; fix only verified issues.
+- **Dependencies:** stable SMV-070 markup.
+- **Acceptance:** critical public flows are keyboard-usable at mobile/desktop breakpoints and documented accessibility checks pass.
+
+#### SMV-072 — Critical-path end-to-end smoke suite
+
+- **Status:** PARTIALLY DONE
+- **Why now:** feature tests are broad, but release confidence also needs browser-level route and interaction coverage.
+- **Scope:** homepage search, Vacancy filtering/detail/application, Company/Blog navigation, admin login and one import preview/run/history happy path.
+- **Dependencies:** SMV-062 and SMV-075 preferably complete.
+- **Acceptance:** repeatable staging/local smoke checklist or automated browser suite with no console/runtime errors.
+
+#### SMV-073 — Production-like migration dry run
+
+- **Status:** NOT STARTED
+- **Why now:** verifies migrations, private/public storage, seed policy and import runtime before cutover.
+- **Scope:** disposable production-like environment, backup/restore rehearsal, migrations, builds, representative feed run and rollback/incident notes.
+- **Dependencies:** hosting/staging details, SMV-044/045 and content dataset.
+- **Acceptance:** timed repeatable runbook with verified data/media/import integrity and named rollback owner.
+
+#### SMV-074 — Production launch checklist
+
+- **Status:** NOT STARTED
+- **Why now:** final integration gate rather than another feature phase.
+- **Scope:** environment, queues if adopted, mail, storage, HTTPS, robots/sitemap, redirects, analytics/Search Console, monitoring and post-launch checks.
+- **Dependencies:** SMV-046, SMV-062/063 and SMV-071–073.
+- **Acceptance:** signed checklist, production smoke pass, indexability verified and rollback/monitoring responsibilities assigned.
+
+SMV-045 and SMV-046 remain mandatory after the SMV-044 inventory and a staging host are
+available, but are not independently actionable before those dependencies exist.

@@ -79,8 +79,9 @@ Vacancy pages should support:
 
 Structured data must reflect visible/current vacancy data and should not present expired or unavailable jobs as active.
 
-Public vacancy slugs are stable after creation and should not change merely because a
-vacancy title is edited. The final public route strategy remains open until SMV-040.
+Public Vacancy slugs are stable after creation and do not change merely because a
+Vacancy title is edited. SMV-040 established `/vacatures/{vacancy-slug}` as the
+canonical detail pattern.
 
 ## Company SEO
 
