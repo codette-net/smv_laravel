@@ -67,30 +67,6 @@
             @endif
         </div>
     @endif
-
-
-    {{-- Bookmark --}}
-    <button
-        type="button"
-        class="absolute right-4 top-4 z-20 flex size-9 items-center justify-center rounded-full bg-white/95 text-gray-700 shadow-sm ring-1 ring-gray-200 transition hover:text-indigo-600 hover:shadow-md"
-        aria-label="Vacature opslaan"
-    >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-        >
-            <path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"/>
-        </svg>
-    </button>
-
-
     {{-- Media --}}
     <a
         href="{{ $detailUrl ?? '#' }}"

@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -120,13 +121,27 @@ test('the shared public shell is rendered on public pages', function () {
         ->assertSee('href="'.route('filament.dashboard.auth.login').'"', false);
 });
 
-test('the public account menu renders the authenticated account context and actions', function () {
+test('the public account menu hides the dashboard link without panel access', function () {
     $user = User::factory()->create(['name' => 'Publieke Gebruiker']);
 
     $this->actingAs($user)
         ->get(route('home'))
         ->assertOk()
         ->assertSee('Publieke Gebruiker')
+        ->assertDontSee('href="'.route('filament.dashboard.pages.dashboard').'"', false)
+        ->assertSee('action="'.route('filament.dashboard.auth.logout').'"', false);
+});
+
+test('the public account menu shows the dashboard link with panel access', function () {
+    Role::create(['name' => 'editor', 'guard_name' => 'web']);
+
+    $user = User::factory()->create(['name' => 'Redacteur']);
+    $user->assignRole('editor');
+
+    $this->actingAs($user)
+        ->get(route('home'))
+        ->assertOk()
+        ->assertSee('Redacteur')
         ->assertSee('href="'.route('filament.dashboard.pages.dashboard').'"', false)
         ->assertSee('action="'.route('filament.dashboard.auth.logout').'"', false);
 });
