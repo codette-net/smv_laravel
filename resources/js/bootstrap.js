@@ -12,8 +12,6 @@ AOS.init({
     easing: 'ease-out-cubic',
 });
 
-console.log(AOS)
-
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

@@ -88,12 +88,12 @@ recovery are deliberately not represented as completed functionality.
 
 | Ticket | Status | Exact remainder |
 | --- | --- | --- |
-| SMV-070 Frontend consistency pass | **PARTIALLY DONE** | Shared public layout, Tidy-derived cards/controls, responsive navigation, homepage filters, Company pages and static pages are aligned. Final client content/visual sign-off remains; the Vacancy bookmark is non-functional and premium-card markup has no persisted listing-tier domain yet. |
+| SMV-070 Frontend consistency pass | **PARTIALLY DONE** | Shared public layout, Tidy-derived cards/controls, responsive navigation, homepage filters, Company pages and static pages are aligned. Final client content/visual sign-off remains; premium-card markup has no persisted listing-tier domain yet. |
 | SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. A deliberate keyboard/screen-reader/mobile audit is still required, especially for the custom listbox, account menus and disabled/non-functional actions. |
 | SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. |
 | SMV-073 Migration dry run | **NOT STARTED** | Needs production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
-| SMV-075 Prototype/showcase and release-cache cleanup | **NOT STARTED** | Unrouted prototype/showcase views still reference missing `<x-app-layout>` and break `artisan view:cache`; conflict-copy files, console logging and unused UI/assets need evidence-based cleanup. |
+| SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
 | SMV-076 Public SEO regression hardening | **NOT STARTED** | Later public pages exposed follow-up gaps: Blog index pagination canonicalizes to page 1, shared head values render raw, and sitemap/indexability policy for the new static pages needs an explicit decision. |
 
 ## Next work queue
@@ -146,11 +146,11 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-075 — Prototype/showcase and release-cache cleanup
 
-- **Status:** NOT STARTED
-- **Why now:** `artisan view:cache` currently fails on an unrouted showcase view using missing `<x-app-layout>`.
-- **Scope:** classify/remove/quarantine obsolete prototype views and duplicate components/assets; remove tracked conflict copies and debug console output; verify escaped head metadata. Preserve any genuinely useful catalogue source deliberately.
+- **Status:** DONE
+- **Why now:** `artisan view:cache` failed on unrouted showcase views using a layout that contained anonymous-component syntax in the wrong directory.
+- **Result:** restored that existing layout as the compileable `<x-app-layout>` component; retained `/tidy-html`, `resources/views/pages/component/`, the Tidy job references and supporting components; removed only proven-unreferenced onboarding/duplicate prototypes and two tracked conflict copies. Debug logging and the non-functional Vacancy bookmark were removed, and the account menu now delegates dashboard visibility to `User::canAccessPanel()`.
 - **Dependencies:** none.
-- **Acceptance:** `view:cache`, build and full tests pass; no routed production view is lost; every removed asset/component is proven unused.
+- **Acceptance:** `view:cache`, the frontend build and full functional test suite pass; no routed production view was removed; every removed view/artefact was proven unreferenced or byte-identical to a retained reference.
 
 #### SMV-071 — Responsive and accessibility completion
 
