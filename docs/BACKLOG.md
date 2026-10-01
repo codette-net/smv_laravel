@@ -2,7 +2,7 @@ sm# SMV Agent Backlog
 
 ## How to use this backlog
 
-The repository audit and SMV-001 foundation stabilization are complete. This is the
+The repository audit and SM V-001 foundation stabilization are complete. This is the
 agreed delivery order; individual task boundaries may still be refined when their
 current implementation is inspected.
 

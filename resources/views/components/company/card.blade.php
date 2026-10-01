@@ -1,6 +1,15 @@
 @props(['company', 'logoUrl' => null])
 
-<article class="group relative flex h-full flex-col rounded-2xl bg-white/20 p-5 shadow-lg shadow-black/3 transition hover:bg-white/90 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask:linear-gradient(white_0_0)_padding-box,linear-gradient(white_0_0)] before:[mask-composite:exclude_!important]">
+@php($coverUrl = $company->is_featured ? $company->publicCoverUrl() : null)
+
+<article @class([
+    'group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/20 p-5 shadow-lg shadow-black/3 transition hover:bg-white/90 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask:linear-gradient(white_0_0)_padding-box,linear-gradient(white_0_0)] before:[mask-composite:exclude_!important]',
+    'sm:col-span-2 lg:col-span-2' => $company->is_featured,
+])>
+    @if ($coverUrl)
+        <img class="-mx-5 -mt-5 mb-5 h-44 w-[calc(100%+2.5rem)] object-cover" src="{{ $coverUrl }}" alt="" loading="lazy">
+    @endif
+
     <svg class="absolute top-5 right-5 transition-transform group-hover:rotate-45" xmlns="http://www.w3.org/2000/svg" width="9" height="9" aria-hidden="true">
         <path class="fill-slate-400" d="M1.065 9 0 7.93l6.456-6.46H1.508L1.519 0H9v7.477H7.516l.011-4.942L1.065 9Z" />
     </svg>
@@ -16,7 +25,7 @@
     </div>
 
     @if ($company->is_featured)
-        <span class="mb-2 inline-flex w-fit rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">Uitgelicht</span>
+        <x-ui.badge class="mb-2 w-fit" variant="info">Uitgelicht</x-ui.badge>
     @endif
 
     <h2 class="mb-1 text-lg font-bold text-slate-900">
@@ -32,7 +41,7 @@
     @if ($company->categories->isNotEmpty())
         <div class="mt-4 flex flex-wrap gap-1.5 text-xs font-medium text-slate-600">
             @foreach ($company->categories->take(2) as $category)
-                <span class="rounded-full bg-slate-100 px-2.5 py-1">{{ $category->name }}</span>
+                <x-ui.badge size="xs">{{ $category->name }}</x-ui.badge>
             @endforeach
         </div>
     @endif

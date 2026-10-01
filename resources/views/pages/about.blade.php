@@ -3,6 +3,7 @@
 @section('title', 'Over ons | Sales en Marketing Vacatures')
 @section('meta_description', 'Lees meer over Sales en Marketing Vacatures en onze focus op commercieel talent.')
 @section('canonical', route('about'))
+@section('header_theme', 'dark')
 
 @section('content')
     <section class="relative">

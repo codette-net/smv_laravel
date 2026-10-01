@@ -3,6 +3,7 @@
 @section('title', 'Tarieven | Sales en Marketing Vacatures')
 @section('meta_description', 'Bekijk de mogelijkheden voor het plaatsen van vacatures bij Sales en Marketing Vacatures.')
 @section('canonical', route('pricing'))
+@section('header_theme', 'dark')
 
 @section('content')
     <section class="relative"><div class="pointer-events-none absolute inset-0 -z-10 h-1/3 bg-slate-900 lg:h-[48rem] [clip-path:polygon(0_0,_5760px_0,_5760px_calc(100%_-_352px),_0_100%)]" aria-hidden="true"></div><div class="relative mx-auto max-w-6xl px-4 sm:px-6"><div class="pt-32 md:pt-40"><div class="mx-auto max-w-3xl pb-12 text-center"><h1 class="h1 font-playfair-display text-slate-100">Kies de zichtbaarheid die bij je vacature past</h1></div><div class="mx-auto grid max-w-sm gap-8 pb-16 lg:max-w-none lg:grid-cols-3 lg:gap-6">

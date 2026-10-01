@@ -9,6 +9,7 @@
         $seoCanonical = trim($__env->yieldContent('canonical', url()->current()));
         $seoRobots = config('app.env') === 'production' ? trim($__env->yieldContent('robots', 'index, follow')) : 'noindex, nofollow';
         $seoType = trim($__env->yieldContent('og_type', 'website'));
+        $darkHeaderAtTop = trim($__env->yieldContent('header_theme', 'light')) === 'dark';
     @endphp
     <title>{!! $seoTitle !!}</title>
     <meta name="description" content="{!! $seoDescription !!}">
@@ -24,7 +25,7 @@
 <body class="bg-slate-50 font-inter text-slate-700 antialiased">
 <div class="flex min-h-screen flex-col overflow-hidden">
     <div class="h-px" id="public-nav-sentinel" aria-hidden="true"></div>
-    <x-app.header-new/>
+    <x-app.header-new :dark-at-top="$darkHeaderAtTop" />
 
     <main class="grow">
         @yield('content')

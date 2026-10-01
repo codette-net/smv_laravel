@@ -81,9 +81,7 @@
 
                     @if ($vacancy->is_featured)
                         <div class="mb-2">
-                            <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                                Uitgelichte vacature
-                            </span>
+                            <x-ui.badge variant="warning">Uitgelichte vacature</x-ui.badge>
                         </div>
                     @endif
 

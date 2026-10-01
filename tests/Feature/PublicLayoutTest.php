@@ -5,6 +5,7 @@ use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Models\BlogPost;
 use App\Models\Company;
+use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -38,6 +39,7 @@ test('the homepage renders the shared public navigation footer and vacancy searc
         ->assertSee('name="locatie"', false)
         ->assertSee('name="dienstverband"', false)
         ->assertSee('name="functiegebied"', false)
+        ->assertSee('role="listbox"', false)
         ->assertSee('href="'.route('home').'"', false)
         ->assertSee('href="'.route('vacancies.index').'"', false)
         ->assertSee('href="'.route('companies.index').'"', false)
@@ -118,9 +120,23 @@ test('the shared public shell is rendered on public pages', function () {
         ->assertSee('href="'.route('filament.dashboard.auth.login').'"', false);
 });
 
+test('the public account menu renders the authenticated account context and actions', function () {
+    $user = User::factory()->create(['name' => 'Publieke Gebruiker']);
+
+    $this->actingAs($user)
+        ->get(route('home'))
+        ->assertOk()
+        ->assertSee('Publieke Gebruiker')
+        ->assertSee('href="'.route('filament.dashboard.pages.dashboard').'"', false)
+        ->assertSee('action="'.route('filament.dashboard.auth.logout').'"', false);
+});
+
 test('the vacancy index retains its auto-submit filter interaction', function () {
     $this->get(route('vacancies.index'))
         ->assertOk()
         ->assertSee('action="'.route('vacancies.index').'"', false)
-        ->assertSee('requestSubmit()', false);
+        ->assertSee('role="listbox"', false)
+        ->assertSee('requestSubmit()', false)
+        ->assertDontSee('homepage-aanvullende-filters', false)
+        ->assertDontSee('Meer filters');
 });

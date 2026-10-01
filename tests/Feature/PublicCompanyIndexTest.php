@@ -58,6 +58,22 @@ test('the company index renders Media Library logos and handles missing media', 
         ->assertSee($withoutMedia->name);
 });
 
+test('a featured company card renders its Media Library cover image', function () {
+    Storage::fake('public');
+    $company = listedCompany([
+        'is_featured' => true,
+        'name' => 'Uitgelichte Werkgever',
+    ]);
+    $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+    $company->addMedia(UploadedFile::fake()->createWithContent('cover.png', $png))->toMediaCollection('cover');
+
+    $this->get(route('companies.index'))
+        ->assertOk()
+        ->assertSee('Uitgelichte Werkgever')
+        ->assertSee('Uitgelicht')
+        ->assertSee($company->fresh()->publicCoverUrl(), false);
+});
+
 test('company vacancy counts follow the current public vacancy rule', function () {
     $company = listedCompany();
     listedVacancy($company, ['title' => 'Open vacature']);

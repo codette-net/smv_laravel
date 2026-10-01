@@ -3,6 +3,7 @@
 @section('title', 'Blog | Sales en Marketing Vacatures')
 @section('meta_description', 'Inzichten en praktische artikelen over sales, marketing en recruitment.')
 @section('canonical', route('blog.index'))
+@section('header_theme', 'dark')
 
 @section('content')
     <section class="relative"><div class="pointer-events-none absolute inset-0 -z-10 bg-slate-900 [clip-path:polygon(0_0,_5760px_0,_5760px_calc(100%_-_100px),_0_100%)]" aria-hidden="true"></div>

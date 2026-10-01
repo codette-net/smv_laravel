@@ -89,16 +89,10 @@
                     <div class="mb-1">
 
                         @if ($isPremium)
-
-                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
-                                ★ Premium vacature
-                            </span>
+                            <x-ui.badge icon="bolt" size="xs" variant="dark">Premium vacature</x-ui.badge>
 
                         @else
-
-                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600">
-                                ✦ Uitgelicht
-                            </span>
+                            <x-ui.badge size="xs" variant="primary">Uitgelicht</x-ui.badge>
 
                         @endif
 
@@ -182,17 +176,13 @@
 
             {{-- New --}}
             @if ($isNew)
-                <div class="inline-flex rounded-full bg-green-500/20 px-2.5 py-1 text-center text-xs font-medium text-green-700">
-                    Nieuw
-                </div>
+                <x-ui.badge size="xs" variant="success">Nieuw</x-ui.badge>
             @endif
 
 
             {{-- Featured --}}
             @if ($isFeatured && !$isNew)
-                <div class="inline-flex rounded-full bg-indigo-100 px-2.5 py-1 text-center text-xs font-medium text-indigo-700">
-                    Uitgelicht
-                </div>
+                <x-ui.badge size="xs" variant="primary">Uitgelicht</x-ui.badge>
             @endif
 
 

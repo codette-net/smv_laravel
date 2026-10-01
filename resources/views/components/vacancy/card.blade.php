@@ -60,23 +60,11 @@
     {{-- Badge --}}
     @if ($isFeatured || $isPremium)
         <div class="absolute left-4 top-4 z-20">
-            <span
-                @class([
-                    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ring-1 ring-inset',
-                    'text-indigo-600 ring-indigo-100'
-                        => $isFeatured,
-                    'text-amber-700 ring-amber-200'
-                        => $isPremium,
-                ])
-            >
-                @if ($isPremium)
-                    <span aria-hidden="true">★</span>
-                    Premium vacature
-                @else
-                    <span aria-hidden="true">✦</span>
-                    Uitgelicht
-                @endif
-            </span>
+            @if ($isPremium)
+                <x-ui.badge icon="bolt" variant="dark">Premium vacature</x-ui.badge>
+            @else
+                <x-ui.badge variant="primary">Uitgelicht</x-ui.badge>
+            @endif
         </div>
     @endif
 
@@ -179,18 +167,14 @@
             </h2>
 
             @if ($vacancy->location)
-                <span class="text-sm inline-flex font-medium bg-gray-700 text-gray-100 dark:bg-gray-200 dark:text-gray-600 rounded-full text-center px-2.5 py-1">
-                        {{ $vacancy->location }}
-                    </span>
+                <x-ui.badge variant="dark">{{ $vacancy->location }}</x-ui.badge>
             @endif
 
 
             {{-- Salary --}}
             @if ($salary)
                 <div class="mt-4">
-                    <span class="text-sm inline-flex font-medium bg-indigo-800 text-gray-100 rounded-full text-center px-2.5 py-1">
-                        {{ $salary }}
-                    </span>
+                    <x-ui.badge variant="primary">{{ $salary }}</x-ui.badge>
                 </div>
             @endif
 
@@ -200,9 +184,7 @@
 
 
                 @foreach ($vacancy->categories->take($isPremium ? 4 : 2) as $category)
-                    <span class="text-xs inline-flex grow-0 font-medium bg-sky-500/20 text-sky-700 rounded-full text-center px-2.5 py-1">
-                        {{ $category->name }}
-                    </span>
+                    <x-ui.badge size="xs" variant="info">{{ $category->name }}</x-ui.badge>
                 @endforeach
 
             </div>
