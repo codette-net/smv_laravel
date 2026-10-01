@@ -28,7 +28,13 @@
 
 <article
     @class([
-        'group relative flex h-full overflow-hidden rounded-2xl border transition-all duration-200',
+        'group relative flex h-full overflow-hidden rounded-2xl border transition-all duration-200
+        bg-white/20 p-2 shadow-lg shadow-black/3 transition hover:bg-white/90
+        before:pointer-events-none before:absolute before:inset-0 before:-z-10
+        before:rounded-[inherit] before:border before:border-transparent
+        before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box]
+         before:[mask:linear-gradient(white_0_0)_padding-box,linear-gradient(white_0_0)]
+          before:[mask-composite:exclude_!important]',
 
         // Standard + featured = vertical card
         'flex-col' => !$isPremium,
@@ -57,9 +63,9 @@
             <span
                 @class([
                     'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ring-1 ring-inset',
-                    'bg-white/95 text-indigo-600 ring-indigo-100'
+                    'text-indigo-600 ring-indigo-100'
                         => $isFeatured,
-                    'bg-amber-50/95 text-amber-700 ring-amber-200'
+                    'text-amber-700 ring-amber-200'
                         => $isPremium,
                 ])
             >
@@ -101,7 +107,7 @@
     <a
         href="{{ $detailUrl ?? '#' }}"
         @class([
-            'relative flex items-center justify-center overflow-hidden bg-gray-50',
+            'relative flex items-center justify-center overflow-hidden bg-gray-50 rounded-t-lg',
             'aspect-[4/3] w-full' => !$isPremium,
             'min-h-64 md:h-full' => $isPremium,
         ])
@@ -139,8 +145,8 @@
     <div
         @class([
             'flex min-w-0 grow flex-col',
-            'p-5' => !$isPremium,
-            'p-6 md:p-7' => $isPremium,
+            'p-4' => !$isPremium,
+            'p-5 md:p-6' => $isPremium,
         ])
     >
 
@@ -150,7 +156,7 @@
             {{-- Company --}}
             <a
                 href="{{ route('bedrijven.show', $vacancy->company) }}"
-                class="text-sm font-medium text-gray-600 transition hover:text-indigo-600"
+                class="text-sm font-medium text-gray-600 transition hover:text-indigo-600 text-balance mb-2"
             >
                 {{ $vacancy->company->name }}
             </a>
@@ -159,7 +165,7 @@
             {{-- Title --}}
             <h2
                 @class([
-                    'mt-1 font-bold leading-tight tracking-tight text-gray-900',
+                    'my-2 font-bold leading-tight tracking-tight text-gray-900 text-balance',
                     'text-xl' => !$isPremium,
                     'text-2xl lg:text-3xl' => $isPremium,
                 ])
@@ -172,11 +178,17 @@
                 </a>
             </h2>
 
+            @if ($vacancy->location)
+                <span class="text-sm inline-flex font-medium bg-gray-700 text-gray-100 dark:bg-gray-200 dark:text-gray-600 rounded-full text-center px-2.5 py-1">
+                        {{ $vacancy->location }}
+                    </span>
+            @endif
+
 
             {{-- Salary --}}
             @if ($salary)
                 <div class="mt-4">
-                    <span class="inline-flex rounded-lg bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-600">
+                    <span class="text-sm inline-flex font-medium bg-indigo-800 text-gray-100 rounded-full text-center px-2.5 py-1">
                         {{ $salary }}
                     </span>
                 </div>
@@ -186,14 +198,9 @@
             {{-- Metadata --}}
             <div class="mt-4 flex flex-wrap gap-2">
 
-                @if ($vacancy->location)
-                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1 text-sm text-gray-600">
-                        {{ $vacancy->location }}
-                    </span>
-                @endif
 
-                @foreach ($vacancy->categories->take($isPremium ? 4 : 3) as $category)
-                    <span class="inline-flex rounded-lg bg-gray-100 px-2.5 py-1 text-sm text-gray-600">
+                @foreach ($vacancy->categories->take($isPremium ? 4 : 2) as $category)
+                    <span class="text-xs inline-flex grow-0 font-medium bg-sky-500/20 text-sky-700 rounded-full text-center px-2.5 py-1">
                         {{ $category->name }}
                     </span>
                 @endforeach

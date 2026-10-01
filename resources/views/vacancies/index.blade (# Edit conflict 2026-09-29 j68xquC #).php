@@ -37,7 +37,7 @@
                     </div>
 
                     @if ($vacancies->isNotEmpty())
-                        <div class="grid gap-4 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
+                        <div class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
                             @foreach ($vacancies as $vacancy)
                                 <x-vacancy.card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)" />
                             @endforeach
@@ -48,7 +48,7 @@
                         @endif
                     @else
                         <div class="relative rounded-xl border border-gray-200 bg-gray-50 px-6 py-10 text-center">
-                            <h2 class="text-xl font-bold text-gray-800 text-pretty">Geen vacatures gevonden</h2>
+                            <h2 class="text-xl font-bold text-gray-800">Geen vacatures gevonden</h2>
                             <p class="mt-2 text-gray-500">Probeer je zoekopdracht aan te passen of verwijder je filters.</p>
                             <a class="btn mt-5 bg-indigo-500 text-white hover:bg-indigo-600" href="{{ route('vacancies.index') }}">Wis filters</a>
                         </div>

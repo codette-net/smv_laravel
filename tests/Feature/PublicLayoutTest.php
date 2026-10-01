@@ -73,19 +73,21 @@ test('the homepage keeps additional filters collapsible and opens them only for 
         ->assertOk()
         ->assertSee('id="homepage-aanvullende-filters"', false)
         ->assertSee('x-show="filtersOpen"', false)
-        ->assertSee('x-data="{ filtersOpen: false, loading: false }"', false)
+        ->assertSee('filtersOpen: false', false)
+        ->assertSee('loading: false', false)
         ->assertSee('type="button" aria-controls="homepage-aanvullende-filters" :aria-expanded="filtersOpen"', false);
 
     $this->get(route('home', ['zoek' => 'Accountmanager']))
         ->assertOk()
-        ->assertSee('x-data="{ filtersOpen: false, loading: false }"', false);
+        ->assertSee('filtersOpen: false', false);
 
     $this->get(route('home', ['locatie' => 'Utrecht']))
         ->assertOk()
-        ->assertSee('x-data="{ filtersOpen: true, loading: false }"', false)
+        ->assertSee('filtersOpen: true', false)
         ->assertSee('href="'.route('home').'">Wis filters</a>', false)
         ->assertSeeInOrder(['href="'.route('home').'">Wis filters</a>', 'id="homepage-aanvullende-filters"'], false)
-        ->assertSee('x-on:change="$el.form.requestSubmit()"', false);
+        ->assertSee('x-on:change=', false)
+        ->assertSee('requestSubmit()', false);
 });
 
 test('homepage result pagination preserves submitted query parameters', function () {

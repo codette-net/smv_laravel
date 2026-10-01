@@ -10,7 +10,7 @@
         <div class="relative mx-auto max-w-6xl px-4 sm:px-6"><div class="pt-32 pb-28 md:pt-40 md:pb-44"><div class="mx-auto max-w-xl text-center md:mx-0 md:text-left"><p class="text-sm font-semibold uppercase tracking-widest text-blue-300">Sales &amp; Marketing Vacatures</p><h1 class="mt-4 font-playfair-display text-4xl font-bold tracking-tight text-slate-100 sm:text-5xl">Vind jouw volgende commerciële uitdaging</h1><p class="mt-6 text-xl text-slate-400">Ontdek actuele vacatures en werkgevers die passen bij jouw ervaring in sales, marketing en commercie.</p><a class="btn mt-8 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancies.index') }}">Bekijk alle vacatures <span class="ml-1 text-blue-300">→</span></a></div></div></div>
     </section>
 
-    <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
+    <section class="mx-auto max-w-7xl  px-8 2xl:px-16 py-10 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
         <div class="lg:flex lg:items-start lg:gap-10">
             <aside class="mb-8 lg:sticky lg:top-24 lg:mb-0 lg:w-72 lg:shrink-0"><div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
             <div class="max-w-2xl">
@@ -31,7 +31,7 @@
         </div>
 
         @if ($vacancies->isNotEmpty())
-            <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="mt-8 grid gap-4 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
                 @foreach ($vacancies as $vacancy)
                     <x-vacancy.card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)" />
                 @endforeach
