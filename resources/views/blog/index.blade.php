@@ -2,7 +2,7 @@
 
 @section('title', 'Blog | Sales en Marketing Vacatures')
 @section('meta_description', 'Inzichten en praktische artikelen over sales, marketing en recruitment.')
-@section('canonical', route('blog.index'))
+@section('canonical', $canonical)
 @section('header_theme', 'dark')
 
 @section('content')
