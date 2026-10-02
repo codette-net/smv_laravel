@@ -16,6 +16,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/over-ons', [PublicPageController::class, 'about'])->name('about');
 Route::get('/tarieven', [PublicPageController::class, 'pricing'])->name('pricing');
 Route::get('/contact', [PublicPageController::class, 'contact'])->name('contact');
+Route::get('/adverteren', [PublicPageController::class, 'advertising'])->name('advertising');
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
