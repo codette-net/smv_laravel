@@ -17,8 +17,8 @@ test('the template-based public pages are available through their canonical rout
         ->assertOk()
         ->assertSee('sales@salesenmarketingvacatures.nl')
         ->assertSee('06 30852152')
-        ->assertDontSee('form-input w-full', false)
-        ->assertDontSee('form-textarea w-full', false);
+        ->assertSee('form-input w-full', false)
+        ->assertSee('form-textarea w-full', false);
 });
 
 test('static public pages expose clean canonicals and matching Open Graph metadata', function (string $routeName, string $title, string $description) {

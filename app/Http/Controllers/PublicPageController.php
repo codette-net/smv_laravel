@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ContactPurpose;
 use Illuminate\Contracts\View\View;
 
 class PublicPageController extends Controller
@@ -18,7 +19,9 @@ class PublicPageController extends Controller
 
     public function contact(): View
     {
-        return view('pages.contact');
+        return view('pages.contact', [
+            'contactPurposes' => ContactPurpose::options(),
+        ]);
     }
 
     public function advertising(): View

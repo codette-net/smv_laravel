@@ -13,6 +13,7 @@
     };
 
     $variantClass = match ($variant) {
+        'brand' => 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600',
         'secondary' => 'bg-white border-gray-200 hover:border-gray-300 text-gray-800',
         'tertiary' => 'bg-white border-gray-200 hover:border-gray-300 text-violet-500',
         'danger' => 'bg-red-500 hover:bg-red-600 text-white',

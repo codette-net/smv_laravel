@@ -15,6 +15,8 @@ SMV-063 public content pass. It is intended to keep the next stakeholder review 
 - Direct employer contact: `sales@salesenmarketingvacatures.nl` and `06 30852152`.
 - Response wording: on working days SMV tries to respond within 24 hours; this is not
   presented as an absolute SLA.
+- SMV-062 general Contact form: operational with configurable internal e-mail delivery,
+  cautious success wording and no database retention.
 - The eight supplied articles are normalized as native BlogPost seed content. The
   introductory e-mail in `blog_11082026.pdf` is not treated as an article.
 
@@ -47,8 +49,9 @@ SMV-063 public content pass. It is intended to keep the next stakeholder review 
 
 ## LATER
 
-- SMV-062: operational public Contact submission flow.
 - SMV-077: Company discovery and filtering.
+- Optional Contact autoresponder or stronger anti-spam protection, only when a concrete
+  communication or abuse need is confirmed.
 - Vacancy of the day/week/month and employer of the month.
 - More prominent stage and traineeship discovery where data quality supports it.
 - Job alerts and newsletter subscription.

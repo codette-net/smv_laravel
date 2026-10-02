@@ -194,7 +194,8 @@ The production public surface currently includes:
 - `/bedrijven` and `/bedrijven/{slug}`: public Company listing/detail pages with
   Media Library-first imagery and public Vacancy counts/relations;
 - `/blog`, Blog detail, typed category archives and typed tag archives;
-- `/adverteren`, `/over-ons`, `/tarieven` and `/contact`;
+- `/adverteren`, `/over-ons`, `/tarieven` and `/contact`, including the operational
+  general Contact form;
 - shared responsive header/account menu and footer.
 
 Reusable production components include `components/ui` form controls, buttons and
@@ -398,8 +399,10 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - `/adverteren` explains the employer proposition and the confirmed seven-step process;
 - pricing presents Standaard, Superior and Maatwerk without implying checkout or an
   automated ranking implementation;
-- Contact deliberately uses confirmed direct contact routes while SMV-062 remains the
-  future operational form backend;
+- Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062
+  general-purpose form. It reuses the shared input, textarea, select and button
+  primitives plus a Tidy-derived accessible status modal. Validation/failure feedback
+  remains inline and the form does not require an account;
 - homepage Company and Blog sections use live public data rather than hardcoded cards;
 - About/contact stock photography is limited to existing Tidy assets and remains subject
   to final stakeholder approval.
