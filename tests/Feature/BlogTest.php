@@ -319,6 +319,32 @@ test('blog archive canonicals are self-referential and normalize page one', func
         ->assertDontSee('<link rel="canonical" href="'.$tagUrl.'?page=2&utm_source=nieuwsbrief">', false);
 });
 
+test('blog index pagination is self canonical and ignores unrelated query parameters', function () {
+    foreach (range(1, 13) as $position) {
+        BlogPost::factory()->published()->create(['title' => "Indexartikel {$position}"]);
+    }
+
+    $blogUrl = route('blog.index');
+
+    $this->get($blogUrl)
+        ->assertOk()
+        ->assertSee('<link rel="canonical" href="'.$blogUrl.'">', false);
+
+    $this->get($blogUrl.'?page=1')
+        ->assertOk()
+        ->assertSee('<link rel="canonical" href="'.$blogUrl.'">', false)
+        ->assertDontSee('<link rel="canonical" href="'.$blogUrl.'?page=1">', false);
+
+    $this->get($blogUrl.'?page=2')
+        ->assertOk()
+        ->assertSee('<link rel="canonical" href="'.$blogUrl.'?page=2">', false);
+
+    $this->get($blogUrl.'?page=2&utm_source=nieuwsbrief')
+        ->assertOk()
+        ->assertSee('<link rel="canonical" href="'.$blogUrl.'?page=2">', false)
+        ->assertDontSee('<link rel="canonical" href="'.$blogUrl.'?page=2&utm_source=nieuwsbrief">', false);
+});
+
 test('blog structured data and sitemap include only public category and tag archives', function () {
     config(['app.env' => 'production']);
     $category = Category::factory()->create(['name' => 'Loopbaan', 'type' => CategoryType::blog_category]);

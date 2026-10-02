@@ -94,7 +94,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-073 Migration dry run | **NOT STARTED** | Needs production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
 | SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
-| SMV-076 Public SEO regression hardening | **NOT STARTED** | Later public pages exposed follow-up gaps: Blog index pagination canonicalizes to page 1, shared head values render raw, and sitemap/indexability policy for the new static pages needs an explicit decision. |
+| SMV-076 Public SEO regression hardening | **DONE** | Blog and archive pagination use clean self-canonicals, public metadata is escaped once at the output boundary, indexable static pages are present in the sitemap, and the environment-aware robots path matches the Filament dashboard. |
 
 ## Next work queue
 
@@ -138,10 +138,10 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-076 — Public SEO regression hardening
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Why now:** later Blog pagination and static public pages were added after the completed SEO foundation.
-- **Scope:** self-canonical Blog index pagination; safely escaped title/meta/canonical output; explicit sitemap/indexability policy for About, pricing, Contact and filtered homepage URLs.
-- **Dependencies:** final route/content decisions from SMV-063.
+- **Result:** the Blog index now follows the existing page-1-clean/page-2+-self-canonical policy and discards unrelated query parameters. Shared title, description, robots, canonical and Open Graph output is escaped exactly once; structured JSON-LD keeps its dedicated safe encoder. `/over-ons`, `/tarieven` and `/contact` are documented and included as public indexable sitemap entries. Production robots now excludes the actual `/dashboard` panel path; non-production remains fully blocked.
+- **Dependencies:** none for this technical correction; final copy and brand approval remain in SMV-063.
 - **Acceptance:** page 1/page 2 canonical tests pass, stored titles cannot break head markup, and every indexable static route has a documented sitemap decision.
 
 #### SMV-075 — Prototype/showcase and release-cache cleanup

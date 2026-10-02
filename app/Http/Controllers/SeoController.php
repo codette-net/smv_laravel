@@ -20,7 +20,10 @@ class SeoController extends Controller
             ->add(Url::create(route('home')))
             ->add(Url::create(route('vacancies.index')))
             ->add(Url::create(route('companies.index')))
-            ->add(Url::create(route('blog.index')));
+            ->add(Url::create(route('blog.index')))
+            ->add(Url::create(route('about')))
+            ->add(Url::create(route('pricing')))
+            ->add(Url::create(route('contact')));
 
         Vacancy::query()
             ->publiclyVisible()
@@ -100,7 +103,7 @@ class SeoController extends Controller
     public function robots(): Response
     {
         $content = config('app.env') === 'production'
-            ? "User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: ".route('sitemap')."\n"
+            ? "User-agent: *\nAllow: /\nDisallow: /dashboard\nSitemap: ".route('sitemap')."\n"
             : "User-agent: *\nDisallow: /\n";
 
         return response($content, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
