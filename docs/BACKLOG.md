@@ -82,7 +82,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-060 Native Laravel/Filament Blog | **DONE** | BlogPost domain, Filament CRUD, Media Library, public index/detail, SEO and sitemap exist. |
 | SMV-061 Blog taxonomy and editorial relations | **DONE** | Typed categories/tags, manual Vacancy/Company relations, archives, JSON-LD and sitemap behavior exist. |
 | SMV-062 Operational public Contact flow | **NOT STARTED** | The current Contact page is intentionally disabled and stores/sends nothing. |
-| SMV-063 Public content and brand approval pass | **NOT STARTED** | Current Dutch copy and SMV logo/palette exist, but pricing, contact details, imagery and final client approval are not documented. |
+| SMV-063 Public content and brand integration | **DONE** | The first stakeholder-led content pass, `/adverteren`, real Blog seed content, package presentation and content-status record exist; final approvals remain tracked in `CONTENT_STATUS.md`. |
 
 ## Phase G — Polish/release
 
@@ -94,7 +94,8 @@ recovery are deliberately not represented as completed functionality.
 | SMV-073 Migration dry run | **NOT STARTED** | Needs production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
 | SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
-| SMV-076 Public SEO regression hardening | **NOT STARTED** | Later public pages exposed follow-up gaps: Blog index pagination canonicalizes to page 1, shared head values render raw, and sitemap/indexability policy for the new static pages needs an explicit decision. |
+| SMV-076 Public SEO regression hardening | **DONE** | Blog and archive pagination use clean self-canonicals, public metadata is escaped once at the output boundary, indexable static pages are present in the sitemap, and the environment-aware robots path matches the Filament dashboard. |
+| SMV-077 Company discovery and filtering | **NOT STARTED** | Company search/filtering is deliberately separate from SMV-063. |
 
 ## Next work queue
 
@@ -120,11 +121,34 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-063 — Public content and brand approval pass
 
+- **Status:** DONE (first content round)
+- **Result:** the public homepage, employer proposition, package presentation, About,
+  Contact, Blog introduction, Company introduction, navigation and footer now use a
+  coherent Dutch content layer. Eight supplied articles are seeded idempotently with
+  native Blog taxonomy and Media Library covers.
+- **Remaining approvals:** final commercial, historical, reach, testimonial and image
+  decisions are listed in `CONTENT_STATUS.md`; none are presented publicly as facts.
+
+#### SMV-077 — Company discovery and filtering
+
 - **Status:** NOT STARTED
-- **Why now:** the production layout exists, so client copy and assets can be reviewed in context.
-- **Scope:** approve/replace homepage, About, pricing, Contact and footer copy; confirm logo use, palette, typography, photography, contact details and CTA wording.
-- **Dependencies:** client approval and final assets/contact/commercial information.
-- **Acceptance:** no self-declared placeholder copy or unapproved template photography remains; asset provenance/usage is recorded; metadata matches final copy.
+- **Why later:** SMV-063 improves Company discovery copy and homepage presentation but
+  does not expand the existing Company index query experience.
+- **Scope:** Company-name search, category/sector filtering, optional location only when
+  current data is reliable, browse-by-category, GET query-string state, pagination,
+  result count, featured-Company integration and a responsive desktop sidebar/filter UI
+  within the current SMV/Tidy design language.
+- **Out of scope:** speculative taxonomies, geocoding and a separate frontend stack.
+- **Acceptance:** public-only Company results remain deterministic and shareable; filters
+  combine correctly and work on desktop/mobile with focused regression coverage.
+
+#### Later content/discovery ideas (not committed MVP scope)
+
+- Vacancy of the day/week/month and employer of the month.
+- More prominent stage and traineeship discovery when the data supports it.
+- Job alerts/newsletter and function/career landing pages for Accountmanagement, Sales
+  and Marketing.
+- Additional employer/recruitment content and possible expansion beyond the Netherlands.
 
 #### SMV-044 — Legacy URL inventory import
 
@@ -138,10 +162,10 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-076 — Public SEO regression hardening
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Why now:** later Blog pagination and static public pages were added after the completed SEO foundation.
-- **Scope:** self-canonical Blog index pagination; safely escaped title/meta/canonical output; explicit sitemap/indexability policy for About, pricing, Contact and filtered homepage URLs.
-- **Dependencies:** final route/content decisions from SMV-063.
+- **Result:** the Blog index now follows the existing page-1-clean/page-2+-self-canonical policy and discards unrelated query parameters. Shared title, description, robots, canonical and Open Graph output is escaped exactly once; structured JSON-LD keeps its dedicated safe encoder. `/over-ons`, `/tarieven` and `/contact` are documented and included as public indexable sitemap entries. Production robots now excludes the actual `/dashboard` panel path; non-production remains fully blocked.
+- **Dependencies:** none for this technical correction; final copy and brand approval remain in SMV-063.
 - **Acceptance:** page 1/page 2 canonical tests pass, stored titles cannot break head markup, and every indexable static route has a documented sitemap decision.
 
 #### SMV-075 — Prototype/showcase and release-cache cleanup

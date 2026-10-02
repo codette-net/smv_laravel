@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CategoryType;
 use App\Models\BlogPost;
+use App\Models\Company;
 use App\Support\Vacancies\VacancyFilterOptions;
 use App\Support\Vacancies\VacancySearch;
 use Illuminate\Contracts\View\View;
@@ -19,14 +21,32 @@ class HomeController extends Controller
             ->except('zoek')
             ->contains(fn (string $value): bool => filled($value))
             || filled($request->query('sort'));
+        $latestBlogPosts = BlogPost::query()
+            ->publiclyVisible()
+            ->with([
+                'media',
+                'categories' => fn ($query) => $query->where('type', CategoryType::blog_category->value),
+                'tags' => fn ($query) => $query->where('type', 'blog'),
+            ])
+            ->latest('published_at')
+            ->latest('id')
+            ->limit(3)
+            ->get();
 
         return view('home', [
             'vacancies' => $vacancySearch->query($filters, $sort)->paginate(6)->withQueryString(),
-            'latestBlogPost' => BlogPost::query()
+            'featuredCompanies' => Company::query()
                 ->publiclyVisible()
-                ->with(['media', 'categories', 'tags'])
-                ->latest('published_at')
-                ->first(),
+                ->with(['media', 'categories'])
+                ->withCount([
+                    'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
+                ])
+                ->orderByDesc('is_featured')
+                ->orderBy('name')
+                ->limit(3)
+                ->get(),
+            'latestBlogPosts' => $latestBlogPosts,
+            'latestBlogPost' => $latestBlogPosts->first(),
             'filters' => $filters,
             'sort' => $sort,
             'sortOptions' => VacancyFilterOptions::SORTS,

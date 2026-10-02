@@ -34,7 +34,7 @@ test('the homepage renders the shared public navigation footer and vacancy searc
 
     $response->assertOk()
         ->assertViewIs('home')
-        ->assertSee('Vind jouw volgende commerciële uitdaging')
+        ->assertSee('Sales- en marketingvacatures zonder de ruis')
         ->assertSee('action="'.route('home').'"', false)
         ->assertSee('name="zoek"', false)
         ->assertSee('name="locatie"', false)
@@ -45,9 +45,37 @@ test('the homepage renders the shared public navigation footer and vacancy searc
         ->assertSee('href="'.route('vacancies.index').'"', false)
         ->assertSee('href="'.route('companies.index').'"', false)
         ->assertSee('href="'.route('blog.index').'"', false)
+        ->assertSee('href="'.route('advertising').'"', false)
         ->assertSee('href="'.route('filament.dashboard.auth.login').'"', false)
         ->assertSee('Footer navigatie')
         ->assertSee('© '.now()->year.' Sales en Marketing Vacatures');
+});
+
+test('the homepage presents public companies and the three latest public articles', function () {
+    Company::factory()->create([
+        'name' => 'Zichtbare werkgever',
+        'status' => CompanyStatus::Active,
+    ]);
+    Company::factory()->create([
+        'name' => 'Verborgen werkgever',
+        'status' => CompanyStatus::Draft,
+    ]);
+
+    foreach (range(1, 4) as $number) {
+        BlogPost::factory()->published()->create([
+            'title' => "Publiek artikel {$number}",
+            'published_at' => now()->subDays($number),
+        ]);
+    }
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('Zichtbare werkgever')
+        ->assertDontSee('Verborgen werkgever')
+        ->assertSee('Publiek artikel 1')
+        ->assertSee('Publiek artikel 2')
+        ->assertSee('Publiek artikel 3')
+        ->assertDontSee('Publiek artikel 4');
 });
 
 test('the homepage applies submitted vacancy filters and keeps its debounced search on the homepage', function () {
