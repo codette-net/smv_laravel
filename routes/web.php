@@ -4,6 +4,7 @@ use App\Enums\CategoryType;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\BlogPostController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\SeoController;
@@ -16,6 +17,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/over-ons', [PublicPageController::class, 'about'])->name('about');
 Route::get('/tarieven', [PublicPageController::class, 'pricing'])->name('pricing');
 Route::get('/contact', [PublicPageController::class, 'contact'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact')->name('contact.store');
+Route::get('/adverteren', [PublicPageController::class, 'advertising'])->name('advertising');
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');

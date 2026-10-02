@@ -73,7 +73,8 @@ recovery are deliberately not represented as completed functionality.
 | --- | --- | --- |
 | SMV-050 Packages audit/completion | **NEEDS REVIEW** | Package schema/model exist, but public/admin product behavior, pricing and entitlement rules are not agreed. |
 | SMV-051 Orders/payments audit/completion | **NEEDS REVIEW** | Historical models/schema exist; no confirmed checkout/provider/reconciliation MVP flow exists. |
-| SMV-052 Employer vacancy-posting flow | **NOT STARTED** | No employer dashboard or public posting workflow exists; depends on SMV-050/051 scope decisions. |
+| SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
+| SMV-078 Employer vacancy advertising flow & quick registration | **NOT STARTED** | Direct staged employer conversion is documented separately from general Contact and depends on an ownership/auth audit plus SMV-050/051 decisions. |
 
 ## Phase F — Blog / content
 
@@ -81,8 +82,8 @@ recovery are deliberately not represented as completed functionality.
 | --- | --- | --- |
 | SMV-060 Native Laravel/Filament Blog | **DONE** | BlogPost domain, Filament CRUD, Media Library, public index/detail, SEO and sitemap exist. |
 | SMV-061 Blog taxonomy and editorial relations | **DONE** | Typed categories/tags, manual Vacancy/Company relations, archives, JSON-LD and sitemap behavior exist. |
-| SMV-062 Operational public Contact flow | **NOT STARTED** | The current Contact page is intentionally disabled and stores/sends nothing. |
-| SMV-063 Public content and brand approval pass | **NOT STARTED** | Current Dutch copy and SMV logo/palette exist, but pricing, contact details, imagery and final client approval are not documented. |
+| SMV-062 Operational public Contact flow | **DONE** | The public form validates, rate-limits and honeypot-checks submissions, sends a configurable internal Laravel mail and persists no contact record. |
+| SMV-063 Public content and brand integration | **DONE** | The first stakeholder-led content pass, `/adverteren`, real Blog seed content, package presentation and content-status record exist; final approvals remain tracked in `CONTENT_STATUS.md`. |
 
 ## Phase G — Polish/release
 
@@ -95,6 +96,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
 | SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
 | SMV-076 Public SEO regression hardening | **DONE** | Blog and archive pagination use clean self-canonicals, public metadata is escaped once at the output boundary, indexable static pages are present in the sitemap, and the environment-aware robots path matches the Filament dashboard. |
+| SMV-077 Company discovery and filtering | **NOT STARTED** | Company search/filtering is deliberately separate from SMV-063. |
 
 ## Next work queue
 
@@ -102,29 +104,101 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-062 — Operational public Contact flow
 
-- **Status:** NOT STARTED
-- **Why now:** the navigation exposes `/contact`, but its fields and submit button are disabled.
-- **Scope:** Form Request, CSRF-protected delivery/storage decision, spam protection appropriate to risk, Dutch success/error state and privacy-safe tests.
-- **Dependencies:** confirmed recipient/retention/privacy requirements.
-- **Acceptance:** a visitor can submit successfully; failures are understandable; no personal data leaks to logs; automated validation/delivery tests pass.
+- **Status:** DONE
+- **Result:** `GET /contact` retains the public page and `POST /contact` accepts the short
+  general-purpose form through a Form Request. Laravel Mail sends one internal message
+  to `CONTACT_MAIL_TO`, using the visitor only as Reply-To. A named limiter and inaccessible
+  honeypot provide lightweight protection; success uses POST/redirect/GET and transport
+  failures return a neutral message. Contact messages are not stored in the database.
+- **Operations:** `.env.example` keeps `MAIL_MAILER=log` for safe local development.
+  Production must configure its mail transport, application sender and
+  `CONTACT_MAIL_TO`; `CONTACT_RATE_LIMIT_PER_MINUTE` defaults to five.
+- **Deferred:** a visitor autoresponder and stronger anti-spam tooling are not required
+  unless delivery or abuse data demonstrates a need.
 
 #### SMV-050 — Packages and commercial scope audit
 
 - **Status:** NEEDS REVIEW
 - **Why now:** `/tarieven` is public while package/pricing/entitlement behavior is still placeholder-level.
-- **Scope:** reconcile Package/Order/Payment foundations with the actual launch offer; decide whether checkout and SMV-051/052 are launch requirements.
+- **Scope:** reconcile Package/Order/Payment foundations with the actual launch offer; decide which package/entitlement behavior SMV-078 needs before checkout hand-off.
 - **Dependencies:** approved products, prices, VAT/payment and employer workflow decisions.
 - **Acceptance:** documented keep/change/defer decisions, schema gap list and small follow-up tickets; no speculative checkout implementation.
+
+#### SMV-078 — Employer vacancy advertising flow & quick registration
+
+- **Status:** NOT STARTED
+- **Product goal:** replace the ordinary employer journey `Adverteren → Contact → wait →
+  register → find Vacancy creation` with a direct `Adverteren → Vacature plaatsen`
+  action. SMV-062 remains the general contact/support/Maatwerk route and must not become
+  the standard Standaard/Superior placement form.
+- **Required audit first:** current User/Company ownership, whether one User can manage
+  multiple Companies, role/permission and Fortify behavior, Company creation,
+  Vacancy lifecycle/moderation, and public-dashboard versus Filament responsibilities.
+- **Design reference:** adapt the staged clarity and step indicator from
+  `job-board-html/post-a-job.html` to the current SMV/Tidy frontend. Do not copy the old
+  WordPress architecture or expose the Filament Vacancy resource publicly.
+- **Target stages:** (1) Kies pakket, (2) Vacaturegegevens, (3) Voorbeeld & controleren,
+  (4) Afronden. The mobile-friendly flow should show the current step, preserve valid
+  progress across back/forward where practical and display validation near fields.
+- **Authentication:** guests enter the product flow immediately. Audit a compact
+  employer login/registration step (potentially name, Company, e-mail and password)
+  only when identity is required, then return them to the same flow with the chosen
+  package and a safely bounded draft. Restore `Inloggen` and `Account aanmaken` in the
+  guest account menu, while keeping `Vacature plaatsen` a separate commercial CTA.
+- **Packages:** SMV-050 remains responsible for package/commercial-domain decisions.
+  Standaard and Superior may be selection options only after confirming their persisted
+  entitlement semantics; do not claim unsupported ranking. Maatwerk follows the
+  SMV-062 request/contact route.
+- **Payment boundary:** SMV-051 remains responsible for order/payment/provider and
+  reconciliation decisions. A first vertical slice may stop after package selection,
+  authentication, Vacancy form, preview and submission/order hand-off; it must not
+  invent a parallel payment model.
+- **Ownership/security:** establish who owns and may edit the Company/Vacancy before
+  exposing writes. Preserve only validated, non-sensitive draft state across
+  authentication; leave the exact Laravel mechanism open until the audit is complete.
+- **Related work:** SMV-062 supplies the general mail/contact pattern; SMV-050 supplies
+  package rules; SMV-051 supplies order/payment behavior; SMV-077 remains Company
+  discovery/filtering and does not implement employer onboarding.
+- **Out of scope until audited:** full employer dashboard, automatic publication,
+  speculative payment behavior and long-lived arbitrary session payloads.
+- **Acceptance:** an employer can start from a clear `Vacature plaatsen` CTA and follow
+  the four-stage journey without discovering registration first; an eligible signed-in
+  employer continues directly; a guest can authenticate/register and safely resume;
+  preview precedes submission; Maatwerk uses Contact; ownership and lifecycle rules are
+  enforced and covered by responsive/security tests.
 
 ### B. Content / public site
 
 #### SMV-063 — Public content and brand approval pass
 
+- **Status:** DONE (first content round)
+- **Result:** the public homepage, employer proposition, package presentation, About,
+  Contact, Blog introduction, Company introduction, navigation and footer now use a
+  coherent Dutch content layer. Eight supplied articles are seeded idempotently with
+  native Blog taxonomy and Media Library covers.
+- **Remaining approvals:** final commercial, historical, reach, testimonial and image
+  decisions are listed in `CONTENT_STATUS.md`; none are presented publicly as facts.
+
+#### SMV-077 — Company discovery and filtering
+
 - **Status:** NOT STARTED
-- **Why now:** the production layout exists, so client copy and assets can be reviewed in context.
-- **Scope:** approve/replace homepage, About, pricing, Contact and footer copy; confirm logo use, palette, typography, photography, contact details and CTA wording.
-- **Dependencies:** client approval and final assets/contact/commercial information.
-- **Acceptance:** no self-declared placeholder copy or unapproved template photography remains; asset provenance/usage is recorded; metadata matches final copy.
+- **Why later:** SMV-063 improves Company discovery copy and homepage presentation but
+  does not expand the existing Company index query experience.
+- **Scope:** Company-name search, category/sector filtering, optional location only when
+  current data is reliable, browse-by-category, GET query-string state, pagination,
+  result count, featured-Company integration and a responsive desktop sidebar/filter UI
+  within the current SMV/Tidy design language.
+- **Out of scope:** speculative taxonomies, geocoding and a separate frontend stack.
+- **Acceptance:** public-only Company results remain deterministic and shareable; filters
+  combine correctly and work on desktop/mobile with focused regression coverage.
+
+#### Later content/discovery ideas (not committed MVP scope)
+
+- Vacancy of the day/week/month and employer of the month.
+- More prominent stage and traineeship discovery when the data supports it.
+- Job alerts/newsletter and function/career landing pages for Accountmanagement, Sales
+  and Marketing.
+- Additional employer/recruitment content and possible expansion beyond the Netherlands.
 
 #### SMV-044 — Legacy URL inventory import
 

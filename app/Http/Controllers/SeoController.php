@@ -23,7 +23,8 @@ class SeoController extends Controller
             ->add(Url::create(route('blog.index')))
             ->add(Url::create(route('about')))
             ->add(Url::create(route('pricing')))
-            ->add(Url::create(route('contact')));
+            ->add(Url::create(route('contact')))
+            ->add(Url::create(route('advertising')));
 
         Vacancy::query()
             ->publiclyVisible()

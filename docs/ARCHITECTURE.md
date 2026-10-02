@@ -40,6 +40,12 @@ Vacancies
 
 Applications
 
+Contact
+├── public GET form plus rate-limited POST endpoint
+├── ContactRequest validation and honeypot normalization
+├── configurable internal Laravel Mail delivery
+└── no ContactMessage database persistence
+
 Packages / Orders / Payments
 
 Imports
@@ -81,6 +87,15 @@ Route
 ```
 
 Do not create Actions/Services purely to satisfy this diagram.
+
+The general Contact flow follows `Route → ContactController → ContactRequest →
+ContactRequestMail`. `CONTACT_MAIL_TO` selects the environment-specific internal
+recipient; Laravel's normal mail configuration controls sender and transport. Local
+development defaults to the `log` mailer. Production must configure its actual mailer,
+sender and recipient. The named `contact` limiter and a honeypot provide lightweight
+abuse protection without external services. Mail errors are reported through Laravel's
+exception handler but never shown verbatim to visitors, and no submitted Contact record
+is written to the database.
 
 ## Admin architecture
 

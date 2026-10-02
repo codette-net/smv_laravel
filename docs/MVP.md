@@ -11,17 +11,19 @@ Vacancy administration, the internal/external/e-mail application flow, the gener
 JSON/XML/CSV/XLSX import pipeline, the technical SEO foundation and the native Blog are
 implemented and covered by feature tests. The current public frontend also includes the
 canonical homepage, vacancy and company discovery/detail pages, Blog archives and the
-static Dutch pages `/over-ons`, `/tarieven` and `/contact`.
+static Dutch pages `/adverteren`, `/over-ons`, `/tarieven` and `/contact`. The Contact
+page includes a validated, spam-protected, e-mail-only general enquiry form.
 
 The main remaining MVP/release work is no longer foundational implementation. It is:
 
-- make the currently disabled Contact form operational;
 - confirm the required commercial package/payment/employer-posting scope;
-- replace or approve provisional public copy and template imagery;
+- complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
-- remove or quarantine obsolete prototype/showcase views that currently break
-  `artisan view:cache`;
 - complete accessibility, end-to-end, migration and launch validation.
+
+General Contact submissions use Laravel Mail with a configurable recipient, retain no
+database record and require no account. Direct employer Vacancy advertising remains a
+separate future staged flow (SMV-078), rather than expanding the Contact form.
 
 ## Presentation target
 
@@ -138,8 +140,9 @@ Reason:
 - useful for ongoing SEO/content strategy
 - can help create internal links to companies/vacancies
 
-WordPress Blog content has deliberately not been imported. Comments, newsletters,
-author pages and automatic related-content matching remain outside the MVP.
+Eight supplied stakeholder articles are available as idempotent native Blog seed
+content. This is not a general WordPress migration. Comments, newsletters, author pages
+and automatic related-content matching remain outside the MVP.
 
 ### CMS/pages
 

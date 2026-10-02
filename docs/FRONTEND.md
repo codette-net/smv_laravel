@@ -187,14 +187,15 @@ the current layout wiring as a contract when it is incomplete or broken.
 The production public surface currently includes:
 
 - `/`: controller-backed homepage with server-side Vacancy search/filter/sort,
-  six-result pagination and latest public Blog post;
+  six-result pagination, public Company presentation and three latest public Blog posts;
 - `/vacatures` and `/vacatures/{slug}`: canonical discovery and detail flow with
   public lifecycle filtering, taxonomy filters, deterministic sorting, related
   Vacancies and one application destination;
 - `/bedrijven` and `/bedrijven/{slug}`: public Company listing/detail pages with
   Media Library-first imagery and public Vacancy counts/relations;
 - `/blog`, Blog detail, typed category archives and typed tag archives;
-- `/over-ons`, `/tarieven` and `/contact`;
+- `/adverteren`, `/over-ons`, `/tarieven` and `/contact`, including the operational
+  general Contact form;
 - shared responsive header/account menu and footer.
 
 Reusable production components include `components/ui` form controls, buttons and
@@ -389,15 +390,23 @@ fails. Resolve this by deliberately removing/quarantining obsolete prototypes or
 making the retained catalogue independently compilable; do not wire it into public
 routes merely to keep it.
 
-Repository content/brand readiness is mixed:
+SMV-063 provides the first coherent Dutch content and brand layer:
 
 - `resources/images/smv-logo.svg` and `smv_profile.png`, plus the blue/slate palette and
-  current typography, are the concrete SMV brand inputs used by production pages;
-- Dutch homepage, About, pricing, contact and footer copy exists and can be reviewed in
-  context, but no separate approved client-copy/brand decision document is present;
-- the Contact form is intentionally disabled and says that submission is not configured;
-- pricing uses “Op aanvraag” and needs commercial approval rather than invented prices;
-- About/contact hero photography came from the original template asset import and
-  should be treated as replaceable until the client explicitly approves it;
-- the repository still contains a large unused Mosaic asset library. Do not delete it
-  blindly, but audit usages before release and retain only licensed/needed assets.
+  current typography, remain the concrete SMV brand inputs used by production pages;
+- the primary navigation is Home, Vacatures, Bedrijven, Blog and Adverteren on desktop
+  and mobile;
+- `/adverteren` explains the employer proposition and the confirmed seven-step process;
+- pricing presents Standaard, Superior and Maatwerk without implying checkout or an
+  automated ranking implementation;
+- Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062
+  general-purpose form. It reuses the shared input, textarea, select and button
+  primitives plus a Tidy-derived accessible status modal. Validation/failure feedback
+  remains inline and the form does not require an account;
+- homepage Company and Blog sections use live public data rather than hardcoded cards;
+- About/contact stock photography is limited to existing Tidy assets and remains subject
+  to final stakeholder approval.
+
+Open copy, commercial and asset approvals are maintained in `CONTENT_STATUS.md`. The
+repository still contains a large unused Mosaic asset library; audit usage before release
+instead of deleting it blindly.
