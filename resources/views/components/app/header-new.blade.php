@@ -6,9 +6,7 @@
         ['label' => 'Vacatures', 'route' => 'vacancies.index', 'active' => ['vacancies.*']],
         ['label' => 'Bedrijven', 'route' => 'companies.index', 'active' => ['companies.*', 'bedrijven.*']],
         ['label' => 'Blog', 'route' => 'blog.index', 'active' => ['blog.*']],
-        ['label' => 'Over ons', 'route' => 'about', 'active' => ['about']],
-        ['label' => 'Tarieven', 'route' => 'pricing', 'active' => ['pricing']],
-        ['label' => 'Contact', 'route' => 'contact', 'active' => ['contact']],
+        ['label' => 'Adverteren', 'route' => 'advertising', 'active' => ['advertising']],
     ];
     $loginRoute = 'filament.dashboard.auth.login';
     $user = auth()->user();
@@ -37,7 +35,10 @@
                     @foreach ($navigation as $item)
                         @php($isCurrent = request()->routeIs(...$item['active']))
                         <li class="px-3 py-1">
-                            <a @class(['flex items-center transition', 'underline' => $isCurrent])
+                            <a @class([
+                                'flex items-center transition decoration-2 underline-offset-8',
+                                'font-semibold underline' => $isCurrent,
+                            ])
                                :class="stuck ? 'text-gray-700 hover:text-gray-900' : @js($darkAtTop ? 'text-gray-200 hover:text-white' : 'text-gray-700 hover:text-gray-900')"
                                href="{{ route($item['route']) }}"
                                @if ($isCurrent) aria-current="page" @endif>{{ $item['label'] }}</a>
@@ -116,7 +117,11 @@
 
                     <ul class="text-sm p-2">
                         @foreach ($navigation as $item)
-                            <li><a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route($item['route']) }}" @click="expanded = false">{{ $item['label'] }}</a></li>
+                            @php($isCurrent = request()->routeIs(...$item['active']))
+                            <li><a @class([
+                                'flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100 decoration-2 underline-offset-4',
+                                'font-semibold underline' => $isCurrent,
+                            ]) href="{{ route($item['route']) }}" @if ($isCurrent) aria-current="page" @endif @click="expanded = false">{{ $item['label'] }}</a></li>
                         @endforeach
                         <li class="mt-2 border-t border-gray-100 pt-2">
                             @auth

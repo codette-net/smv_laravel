@@ -182,6 +182,7 @@ test('sitemap contains only canonical publicly visible entities', function () {
         ->assertSee(route('about'), false)
         ->assertSee(route('pricing'), false)
         ->assertSee(route('contact'), false)
+        ->assertSee(route('advertising'), false)
         ->assertSee(route('vacancies.show', $publicVacancy), false)
         ->assertSee(route('bedrijven.show', $publicCompany), false)
         ->assertDontSee(route('vacancies.show', $expiredVacancy), false)
@@ -190,7 +191,8 @@ test('sitemap contains only canonical publicly visible entities', function () {
 
     expect(substr_count($response->getContent(), '<loc>'.route('about').'</loc>'))->toBe(1)
         ->and(substr_count($response->getContent(), '<loc>'.route('pricing').'</loc>'))->toBe(1)
-        ->and(substr_count($response->getContent(), '<loc>'.route('contact').'</loc>'))->toBe(1);
+        ->and(substr_count($response->getContent(), '<loc>'.route('contact').'</loc>'))->toBe(1)
+        ->and(substr_count($response->getContent(), '<loc>'.route('advertising').'</loc>'))->toBe(1);
 });
 
 test('non production responses and robots prevent indexing while production robots advertises sitemap', function () {

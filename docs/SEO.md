@@ -24,6 +24,7 @@ redirect implementation and launch verification remain release work.
 - about: `/over-ons`
 - pricing: `/tarieven`
 - contact: `/contact`
+- employer advertising: `/adverteren`
 
 Vacancy and Company route binding uses stable slugs. Updating a title/name does not
 regenerate an existing slug. Application destinations, import source references and
@@ -48,9 +49,10 @@ vacancy detail page.
 The dynamic `/sitemap.xml` contains only the homepage, clean listing pages, publicly
 visible Companies and publicly visible Vacancies belonging to public Companies. It also
 contains published Blog posts plus Blog category and typed Blog tag archives only when
-they have at least one publicly visible Blog post. `/over-ons`, `/tarieven` and `/contact`
-are included because they are public, indexable content pages; the disabled Contact form
-does not make the page itself non-indexable. The entity queries are chunked.
+they have at least one publicly visible Blog post. `/over-ons`, `/tarieven`, `/contact`
+and `/adverteren` are included because they are public, indexable content pages; the
+absence of an operational Contact submission flow does not make the Contact information
+page itself non-indexable. The entity queries are chunked.
 `/robots.txt` advertises the sitemap and excludes the Filament `/dashboard` path in
 production, while non-production environments block crawling entirely.
 

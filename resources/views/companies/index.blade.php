@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Bedrijven | Sales en Marketing Vacatures')
-@section('meta_description', 'Ontdek bedrijven met actuele sales- en marketingvacatures.')
+@section('meta_description', 'Maak kennis met werkgevers en ontdek hun actuele sales- en marketingvacatures.')
 @section('canonical', $seoCanonical)
 
 @section('content')
@@ -21,7 +21,7 @@
                 <div class="text-center">
                     <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-blue-600">Werkgevers</p>
                     <h1 class="border-y py-5 text-4xl font-bold text-slate-900 [border-image:linear-gradient(to_right,transparent,var(--color-slate-300),transparent)_1] sm:text-5xl md:text-6xl">Ontdek bedrijven</h1>
-                    <p class="mx-auto mt-6 max-w-2xl text-lg text-slate-600">Maak kennis met werkgevers die op zoek zijn naar sales- en marketingtalent.</p>
+                    <p class="mx-auto mt-6 max-w-2xl text-lg text-slate-600">Maak kennis met werkgevers, lees waar zij voor staan en bekijk hun actuele sales- en marketingvacatures.</p>
                 </div>
             </div>
         </div>

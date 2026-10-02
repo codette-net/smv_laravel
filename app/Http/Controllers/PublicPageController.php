@@ -20,4 +20,9 @@ class PublicPageController extends Controller
     {
         return view('pages.contact');
     }
+
+    public function advertising(): View
+    {
+        return view('pages.advertising');
+    }
 }
