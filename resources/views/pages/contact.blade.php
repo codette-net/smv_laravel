@@ -58,7 +58,7 @@
                                 <x-ui.input name="name" label="Naam" autocomplete="name" required />
                                 <x-ui.input name="email" label="E-mailadres" type="email" autocomplete="email" required />
                                 <div class="sm:col-span-2">
-                                    <x-ui.select-dropdown name="purpose" label="Onderwerp / reden van contact" :options="$contactPurposes" required />
+                                    <x-ui.select-dropdown name="purpose" label="Onderwerp / reden van contact" :options="$contactPurposes" :value="$selectedContactPurpose" required />
                                 </div>
                                 <x-ui.input name="company" label="Bedrijfsnaam (optioneel)" autocomplete="organization" />
                                 <x-ui.input name="phone" label="Telefoonnummer (optioneel)" type="tel" autocomplete="tel" placeholder="Bijvoorbeeld +31 6 12345678" />

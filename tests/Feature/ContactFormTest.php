@@ -40,6 +40,22 @@ test('the contact page shows the public details and working form', function () {
         ->assertSee('name="message"', false);
 });
 
+test('an allowlisted advertising reason is preselected without changing the canonical', function () {
+    config(['app.env' => 'production']);
+
+    $this->get(route('contact', ['reason' => 'advertising']))
+        ->assertOk()
+        ->assertSee("value: 'advertising'", false)
+        ->assertSee('<link rel="canonical" href="'.route('contact').'">', false)
+        ->assertDontSee('reason=advertising', false);
+
+    $this->get(route('contact', ['reason' => 'not-allowed']))
+        ->assertOk()
+        ->assertSee("value: ''", false)
+        ->assertDontSee("value: 'not-allowed'", false)
+        ->assertSee('<link rel="canonical" href="'.route('contact').'">', false);
+});
+
 test('a valid contact request sends one internal email and uses post redirect get', function () {
     Mail::fake();
     config(['contact.mail_to' => 'contact-recipient@example.com']);

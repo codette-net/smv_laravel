@@ -14,8 +14,8 @@
                 <h1 class="mt-4 font-playfair-display text-4xl font-bold tracking-tight text-white sm:text-5xl">Uw vacature onder de aandacht bij sales- en marketingprofessionals</h1>
                 <p class="mt-6 max-w-2xl text-xl leading-8 text-slate-300">Van vacatureplaatsing tot aanvullende zichtbaarheid: we denken mee over een aanpak die past bij uw functie en wervingsvraag.</p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a class="btn bg-blue-600 text-white hover:bg-blue-700" href="{{ route('pricing') }}">Bekijk tarieven <span class="ml-1 text-blue-300">→</span></a>
-                    <a class="btn border border-slate-600 bg-slate-800 text-white hover:bg-slate-700" href="{{ route('contact') }}">Bespreek uw vacature</a>
+                    <a class="btn bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancy-placement.index') }}">Vacature plaatsen <span class="ml-1 text-blue-300">→</span></a>
+                    <a class="btn border border-slate-600 bg-slate-800 text-white hover:bg-slate-700" href="{{ route('pricing') }}">Bekijk tarieven</a>
                 </div>
             </div>
         </div>
@@ -67,8 +67,8 @@
                 <p class="mt-3 max-w-2xl text-slate-600">Bekijk de eerste pakketmogelijkheden of neem contact op over meerdere vacatures, terugkerende werving of aanvullende zichtbaarheid.</p>
             </div>
             <div class="flex shrink-0 flex-wrap gap-3">
-                <a class="btn bg-blue-600 text-white hover:bg-blue-700" href="{{ route('pricing') }}">Bekijk tarieven</a>
-                <a class="btn border border-slate-300 bg-white text-slate-800 hover:bg-slate-50" href="{{ route('contact') }}">Contact</a>
+                <a class="btn bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancy-placement.index') }}">Vacature plaatsen</a>
+                <a class="btn border border-slate-300 bg-white text-slate-800 hover:bg-slate-50" href="{{ route('contact', ['reason' => 'advertising']) }}">Maatwerk bespreken</a>
             </div>
         </div>
     </section>

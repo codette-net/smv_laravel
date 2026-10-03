@@ -383,12 +383,10 @@ The Vacancy card currently renders a bookmark button without persistence/interac
 and its premium variant is dormant presentation code because no persisted listing tier
 exists. Treat neither as completed commercial functionality.
 
-The old component catalogue and job prototypes are not reachable from `routes/web.php`,
-but Laravel still compiles every Blade view during `artisan view:cache`. Because those
-views reference an unregistered `<x-app-layout>`, the release cache command currently
-fails. Resolve this by deliberately removing/quarantining obsolete prototypes or by
-making the retained catalogue independently compilable; do not wire it into public
-routes merely to keep it.
+The retained component catalogue and job references are not reachable from
+`routes/web.php`, but remain independently compileable through `<x-app-layout>` after
+SMV-075. Obsolete prototype duplicates were removed; do not wire catalogue pages into
+public routes merely to preserve them.
 
 SMV-063 provides the first coherent Dutch content and brand layer:
 
@@ -397,6 +395,15 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - the primary navigation is Home, Vacatures, Bedrijven, Blog and Adverteren on desktop
   and mobile;
 - `/adverteren` explains the employer proposition and the confirmed seven-step process;
+- `/vacature-plaatsen` is the noindex four-step employer conversion flow: package,
+  Vacancy details, private preview and pending hand-off. Guests see the commercial
+  choice before public login/registration; mobile keeps a compact current-step label;
+- `/inloggen` and `/registreren` use the public layout and the existing `web` guard.
+  They return users to the selected placement flow through Laravel's intended URL;
+- `/account` is the normal public destination for authenticated users and is distinct
+  from the staff-only Filament `/dashboard`. Employers can complete owned Company
+  profiles and browse owned Vacancies through `/account/vacatures`; account routes are
+  private and `noindex, nofollow`;
 - pricing presents Standaard, Superior and Maatwerk without implying checkout or an
   automated ranking implementation;
 - Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062

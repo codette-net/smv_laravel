@@ -36,6 +36,7 @@ Vacancies
 ├── taxonomies
 ├── company
 ├── application destination
+├── owner-scoped public draft/preview/pending hand-off
 └── import provenance
 
 Applications
@@ -105,8 +106,43 @@ Import mapping is explicitly an admin UX problem as well as a backend problem.
 
 Current Filament panel access is limited to `super-admin`, `admin` and `editor`.
 Employer and candidate roles do not have unrestricted panel access. Editor permissions
-are conservative pending later editorial refinement; an employer dashboard is not yet
-implemented.
+are conservative pending later editorial refinement. The public `/account` area is
+separate from the Filament `/dashboard` panel.
+
+## Public employer placement
+
+The first SMV-078 slice uses the existing Laravel `web` guard rather than a second auth
+system. Public `/inloggen` and `/registreren` routes serve the shared public layout;
+Filament keeps its own panel login and remains restricted by `User::canAccessPanel()`.
+Registration assigns the Spatie `employer` role and creates one pending Company.
+
+Company ownership is the nullable `companies.user_id` foreign key. `User::companies()`
+is a one-to-many relation, so a User can manage zero, one or multiple Companies. There
+is no Company membership/team pivot. Vacancy draft authorization therefore follows the
+owning Company and never trusts a submitted Company outside that User's relation.
+
+The placement flow stores only bounded session state before persistence: an
+`AdvertisingPackage` selection and Laravel's normal intended URL. Once submitted, the
+Vacancy records `placement_package` as commercial intent, not as a paid entitlement.
+New public employer Vacancies remain `draft` through data entry/preview and become
+`pending` on hand-off. They are never published or featured by this flow. SMV-050 owns
+the definitive package/entitlement domain and SMV-051 owns Orders and Payments.
+
+SMV-078B adds a deliberately small public account foundation. Authenticated users enter
+through `/account`; employers can update only presentation/contact fields on Companies
+whose `user_id` they own and can list Vacancies belonging to those Companies. Status,
+owner, slug, featured state, import provenance and publication remain protected. Logo
+and cover replacement reuse the existing single-file Media Library collections.
+
+Vacancy publication is normalized server-side when a record transitions from a
+non-published status to `published`: a missing `published_at` becomes `now()`. An
+explicit future timestamp remains scheduled and an existing published record retains
+its original timestamp on unrelated edits. Public eligibility remains query-driven, so
+scheduled records become visible without a scheduler after the timestamp passes.
+`deadline_at` is the candidate application cutoff and `expires_at` is the listing's
+active-until boundary. Under the current MVP lifecycle both elapsed boundaries remove a
+Vacancy from public surfaces; their business meanings and administration labels remain
+separate.
 
 ## Public frontend
 
@@ -127,8 +163,9 @@ The production public surface uses `layouts.public`, `HomeController`, the dedic
 public controllers and Blade components under `components/ui`, `components/vacancy`,
 `components/company`, `components/blog` and `components/home`. The older
 `pages/component`, `pages/job`, `vacatures` prototype views and dashboard-style layout
-are not routed. They still need an explicit keep-as-catalogue or removal decision;
-their unresolved `<x-app-layout>` dependency currently prevents `artisan view:cache`.
+are not routed. The retained catalogue is compileable through `<x-app-layout>` and
+obsolete duplicates were removed in SMV-075, so `artisan view:cache` remains a release
+validation command rather than a known blocker.
 
 Do not add Vue/React/another design system without explicit approval.
 

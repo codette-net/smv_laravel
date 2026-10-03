@@ -17,6 +17,12 @@ SMV-063 public content pass. It is intended to keep the next stakeholder review 
   presented as an absolute SLA.
 - SMV-062 general Contact form: operational with configurable internal e-mail delivery,
   cautious success wording and no database retention.
+- SMV-078 employer entry: Standaard and Superior start at `/vacature-plaatsen`; Maatwerk
+  opens Contact with an allowlisted advertising reason. The chosen package remains a
+  non-binding intent until the separate commercial/payment work is completed.
+- SMV-078B account foundation: authenticated employers use `/account` for owned Company
+  profile completion and owned Vacancy status/history; `/dashboard` remains Filament for
+  authorized staff only.
 - The eight supplied articles are normalized as native BlogPost seed content. The
   introductory e-mail in `blog_11082026.pdf` is not treated as an article.
 

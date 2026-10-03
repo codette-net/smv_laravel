@@ -6,9 +6,9 @@
         ['label' => 'Vacatures', 'route' => 'vacancies.index', 'active' => ['vacancies.*']],
         ['label' => 'Bedrijven', 'route' => 'companies.index', 'active' => ['companies.*', 'bedrijven.*']],
         ['label' => 'Blog', 'route' => 'blog.index', 'active' => ['blog.*']],
-        ['label' => 'Adverteren', 'route' => 'advertising', 'active' => ['advertising']],
+        ['label' => 'Adverteren', 'route' => 'advertising', 'active' => ['advertising', 'vacancy-placement.*']],
     ];
-    $loginRoute = 'filament.dashboard.auth.login';
+    $loginRoute = 'login';
     $user = auth()->user();
     $canAccessDashboard = $user?->canAccessPanel(\Filament\Facades\Filament::getPanel('dashboard')) ?? false;
 @endphp
@@ -60,14 +60,15 @@
                                 <p class="truncate text-sm font-medium text-gray-800">{{ auth()->user()->name }}</p>
                                 <p class="truncate text-xs text-gray-500">{{ auth()->user()->email }}</p>
                             </div>
+                            <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('account.index') }}" x-on:click="open = false" x-on:focus="open = true">Mijn account</a>
                             @if ($canAccessDashboard)
                                 <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('filament.dashboard.pages.dashboard') }}" x-on:click="open = false" x-on:focus="open = true">Dashboard</a>
                             @endif
-                            <form method="POST" action="{{ route('filament.dashboard.auth.logout') }}">@csrf<button class="font-medium text-sm text-gray-600 hover:text-gray-800 block w-full py-1.5 px-3 text-left hover:bg-gray-50" type="submit">Uitloggen</button></form>
+                            <form method="POST" action="{{ route('logout') }}" x-data="{ submitting: false }" x-on:submit="if (submitting) { $event.preventDefault() } else { submitting = true }">@csrf<button class="font-medium text-sm text-gray-600 hover:text-gray-800 block w-full py-1.5 px-3 text-left hover:bg-gray-50 disabled:cursor-wait disabled:opacity-60" type="submit" x-bind:disabled="submitting">Uitloggen</button></form>
                         @else
                             <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route($loginRoute) }}" x-on:click="open = false" x-on:focus="open = true">Inloggen</a>
                             @if (Route::has('register'))
-                                <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('register') }}" x-on:click="open = false" x-on:focus="open = true">Registreren</a>
+                                <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('register') }}" x-on:click="open = false" x-on:focus="open = true">Account aanmaken</a>
                             @endif
                         @endauth
                     </div>
@@ -126,14 +127,15 @@
                         <li class="mt-2 border-t border-gray-100 pt-2">
                             @auth
                                 <p class="px-2 py-1.5 text-xs font-medium text-gray-500">{{ auth()->user()->name }}</p>
+                                <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('account.index') }}">Mijn account</a>
                                 @if ($canAccessDashboard)
                                     <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('filament.dashboard.pages.dashboard') }}">Dashboard</a>
                                 @endif
-                                <form method="POST" action="{{ route('filament.dashboard.auth.logout') }}">@csrf<button class="flex w-full rounded-lg px-2 py-1.5 text-left text-gray-700 hover:bg-gray-100" type="submit">Uitloggen</button></form>
+                                <form method="POST" action="{{ route('logout') }}" x-data="{ submitting: false }" x-on:submit="if (submitting) { $event.preventDefault() } else { submitting = true }">@csrf<button class="flex w-full rounded-lg px-2 py-1.5 text-left text-gray-700 hover:bg-gray-100 disabled:cursor-wait disabled:opacity-60" type="submit" x-bind:disabled="submitting">Uitloggen</button></form>
                             @else
                                 <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route($loginRoute) }}">Inloggen</a>
                                 @if (Route::has('register'))
-                                    <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('register') }}">Registreren</a>
+                                    <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('register') }}">Account aanmaken</a>
                                 @endif
                             @endauth
                         </li>

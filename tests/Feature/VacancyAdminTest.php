@@ -92,6 +92,61 @@ test('editing a vacancy does not overwrite its existing deadline', function () {
     expect($vacancy->fresh()->deadline_at?->equalTo($deadline))->toBeTrue();
 });
 
+test('admin publication without a date publishes now while later edits preserve the date', function () {
+    $administrator = vacancyAdminUser('admin');
+    $vacancy = Vacancy::factory()->create([
+        'company_id' => Company::factory(),
+        'status' => VacancyStatus::Pending,
+        'published_at' => null,
+        'is_filled' => false,
+        'deadline_at' => now()->addMonth(),
+        'expires_at' => now()->addMonths(2),
+    ]);
+
+    $this->actingAs($administrator);
+
+    Livewire::test(EditVacancy::class, ['record' => $vacancy->getRouteKey()])
+        ->fillForm([
+            'status' => VacancyStatus::Active->value,
+            'published_at' => null,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $publishedAt = $vacancy->fresh()->published_at;
+    expect($publishedAt?->equalTo(now()))->toBeTrue();
+
+    Livewire::test(EditVacancy::class, ['record' => $vacancy->getRouteKey()])
+        ->fillForm(['title' => 'Titel na publicatie'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($vacancy->fresh()->published_at?->equalTo($publishedAt))->toBeTrue();
+});
+
+test('admin publication preserves an explicitly selected future schedule', function () {
+    $administrator = vacancyAdminUser('admin');
+    $future = now()->addDay();
+    $vacancy = Vacancy::factory()->create([
+        'company_id' => Company::factory(),
+        'status' => VacancyStatus::Pending,
+        'published_at' => null,
+    ]);
+
+    $this->actingAs($administrator);
+
+    Livewire::test(EditVacancy::class, ['record' => $vacancy->getRouteKey()])
+        ->fillForm([
+            'status' => VacancyStatus::Active->value,
+            'published_at' => $future->toDateTimeString(),
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($vacancy->fresh()->published_at?->equalTo($future))->toBeTrue()
+        ->and(Vacancy::publiclyVisible()->whereKey($vacancy)->exists())->toBeFalse();
+});
+
 test('the vacancy resource respects the established administrative policy', function () {
     $vacancy = Vacancy::factory()->create(['company_id' => Company::factory()]);
     $editor = vacancyAdminUser('editor');
