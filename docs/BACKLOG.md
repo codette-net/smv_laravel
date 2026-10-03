@@ -74,7 +74,10 @@ recovery are deliberately not represented as completed functionality.
 | SMV-050 Packages audit/completion | **NEEDS REVIEW** | Package schema/model exist, but public/admin product behavior, pricing and entitlement rules are not agreed. |
 | SMV-051 Orders/payments audit/completion | **NEEDS REVIEW** | Historical models/schema exist; no confirmed checkout/provider/reconciliation MVP flow exists. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
-| SMV-078 Employer vacancy advertising flow & quick registration | **NOT STARTED** | Direct staged employer conversion is documented separately from general Contact and depends on an ownership/auth audit plus SMV-050/051 decisions. |
+| SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
+| SMV-079 Saved Vacancies | **NOT STARTED** | Candidate/user save/unsave persistence and an account list are deliberately deferred. |
+| SMV-080 Candidate application account history | **NOT STARTED** | A future account view may expose only internally observable SMV applications; external/e-mail applications cannot be tracked. |
+| SMV-081 Employer Vacancy rich-text editing | **NOT STARTED** | Safe formatting, sanitization, preview parity and public rendering remain separate from the working plain-text placement editor. |
 
 ## Phase F — Blog / content
 
@@ -124,48 +127,55 @@ recovery are deliberately not represented as completed functionality.
 - **Dependencies:** approved products, prices, VAT/payment and employer workflow decisions.
 - **Acceptance:** documented keep/change/defer decisions, schema gap list and small follow-up tickets; no speculative checkout implementation.
 
-#### SMV-078 — Employer vacancy advertising flow & quick registration
+#### SMV-078 — Employer vacancy advertising flow, account foundation and stabilization
+
+- **Status:** DONE (stabilized vertical slice)
+- **Result:** `/adverteren` and `/tarieven` lead Standaard/Superior visitors into the
+  public `/vacature-plaatsen` flow. Guests choose first, then use the normal Laravel
+  `web` guard through `/inloggen` or `/registreren`; the selected enum-backed intent and
+  intended destination are retained in the session. Registration creates an employer
+  User plus one owned pending Company. A User can own multiple Companies through
+  `companies.user_id`; there is no membership/team pivot.
+- **Vacancy boundary:** an authenticated owner creates a `draft` manual Vacancy for an
+  owned Company, previews it privately, and submits it as `pending`. The flow cannot set
+  publication, import identity or featured entitlement. Public visibility continues to
+  depend exclusively on `Vacancy::publiclyVisible()`.
+- **Packages:** `AdvertisingPackage` centralizes the already-published labels/prices and
+  `vacancies.placement_package` records intent only. It is deliberately not an Order,
+  payment or entitlement. Maatwerk uses the allowlisted SMV-062 Contact context.
+- **Security/SEO:** owner policies and Company-scoped validation protect every private
+  Vacancy mutation; auth and wizard pages are `noindex, nofollow`, use clean canonicals
+  and are absent from the sitemap. Ordinary employers retain no Filament access.
+- **Account/publication:** `/account` is the ordinary authenticated destination, with
+  owner-scoped Company profile/media editing and owned Vacancy history. Filament
+  publish-now fills a missing `published_at` on transition to `published`; explicit
+  future scheduling and historical publication dates are preserved. Deadline is the
+  application cutoff and expiry the listing cutoff; both currently end public visibility.
+- **Deferred:** SMV-050 still owns definitive package/entitlement rules; SMV-051 owns
+  Order/payment/provider handling. E-mail notifications, saved Vacancies, candidate
+  application history and employer rich-text editing are not represented as complete.
+
+#### SMV-079 — Saved Vacancies
 
 - **Status:** NOT STARTED
-- **Product goal:** replace the ordinary employer journey `Adverteren → Contact → wait →
-  register → find Vacancy creation` with a direct `Adverteren → Vacature plaatsen`
-  action. SMV-062 remains the general contact/support/Maatwerk route and must not become
-  the standard Standaard/Superior placement form.
-- **Required audit first:** current User/Company ownership, whether one User can manage
-  multiple Companies, role/permission and Fortify behavior, Company creation,
-  Vacancy lifecycle/moderation, and public-dashboard versus Filament responsibilities.
-- **Design reference:** adapt the staged clarity and step indicator from
-  `job-board-html/post-a-job.html` to the current SMV/Tidy frontend. Do not copy the old
-  WordPress architecture or expose the Filament Vacancy resource publicly.
-- **Target stages:** (1) Kies pakket, (2) Vacaturegegevens, (3) Voorbeeld & controleren,
-  (4) Afronden. The mobile-friendly flow should show the current step, preserve valid
-  progress across back/forward where practical and display validation near fields.
-- **Authentication:** guests enter the product flow immediately. Audit a compact
-  employer login/registration step (potentially name, Company, e-mail and password)
-  only when identity is required, then return them to the same flow with the chosen
-  package and a safely bounded draft. Restore `Inloggen` and `Account aanmaken` in the
-  guest account menu, while keeping `Vacature plaatsen` a separate commercial CTA.
-- **Packages:** SMV-050 remains responsible for package/commercial-domain decisions.
-  Standaard and Superior may be selection options only after confirming their persisted
-  entitlement semantics; do not claim unsupported ranking. Maatwerk follows the
-  SMV-062 request/contact route.
-- **Payment boundary:** SMV-051 remains responsible for order/payment/provider and
-  reconciliation decisions. A first vertical slice may stop after package selection,
-  authentication, Vacancy form, preview and submission/order hand-off; it must not
-  invent a parallel payment model.
-- **Ownership/security:** establish who owns and may edit the Company/Vacancy before
-  exposing writes. Preserve only validated, non-sensitive draft state across
-  authentication; leave the exact Laravel mechanism open until the audit is complete.
-- **Related work:** SMV-062 supplies the general mail/contact pattern; SMV-050 supplies
-  package rules; SMV-051 supplies order/payment behavior; SMV-077 remains Company
-  discovery/filtering and does not implement employer onboarding.
-- **Out of scope until audited:** full employer dashboard, automatic publication,
-  speculative payment behavior and long-lived arbitrary session payloads.
-- **Acceptance:** an employer can start from a clear `Vacature plaatsen` CTA and follow
-  the four-stage journey without discovering registration first; an eligible signed-in
-  employer continues directly; a guest can authenticate/register and safely resume;
-  preview precedes submission; Maatwerk uses Contact; ownership and lifecycle rules are
-  enforced and covered by responsive/security tests.
+- **Scope:** authenticated User-owned save/unsave persistence, one unique save per User
+  and Vacancy, a saved list under `/account`, and real saved state on public cards/detail.
+- **Lifecycle:** define what remains visible when a Vacancy expires, is archived or is
+  removed; do not restore a decorative bookmark until the action works end to end.
+
+#### SMV-080 — Candidate application account history
+
+- **Status:** NOT STARTED
+- **Scope:** relate authenticated Users to internal `Application` records where safely
+  available and show a private `Mijn sollicitaties` account view.
+- **Boundary:** SMV cannot promise status tracking for external links or e-mail
+  applications that never enter the internal Application domain.
+
+#### SMV-081 — Employer Vacancy rich-text editing
+
+- **Status:** NOT STARTED
+- **Scope:** safe employer-authored formatting, explicit sanitization rules, editor and
+  preview parity, and safe public rendering. Arbitrary HTML remains prohibited.
 
 ### B. Content / public site
 

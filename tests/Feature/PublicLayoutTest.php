@@ -46,7 +46,8 @@ test('the homepage renders the shared public navigation footer and vacancy searc
         ->assertSee('href="'.route('companies.index').'"', false)
         ->assertSee('href="'.route('blog.index').'"', false)
         ->assertSee('href="'.route('advertising').'"', false)
-        ->assertSee('href="'.route('filament.dashboard.auth.login').'"', false)
+        ->assertSee('href="'.route('login').'"', false)
+        ->assertSee('href="'.route('register').'"', false)
         ->assertSee('Footer navigatie')
         ->assertSee('© '.now()->year.' Sales en Marketing Vacatures');
 });
@@ -146,7 +147,8 @@ test('the shared public shell is rendered on public pages', function () {
         ->assertOk()
         ->assertSee('Hoofdnavigatie')
         ->assertSee('Footer navigatie')
-        ->assertSee('href="'.route('filament.dashboard.auth.login').'"', false);
+        ->assertSee('href="'.route('login').'"', false)
+        ->assertSee('href="'.route('register').'"', false);
 });
 
 test('the public account menu hides the dashboard link without panel access', function () {
@@ -157,7 +159,7 @@ test('the public account menu hides the dashboard link without panel access', fu
         ->assertOk()
         ->assertSee('Publieke Gebruiker')
         ->assertDontSee('href="'.route('filament.dashboard.pages.dashboard').'"', false)
-        ->assertSee('action="'.route('filament.dashboard.auth.logout').'"', false);
+        ->assertSee('action="'.route('logout').'"', false);
 });
 
 test('the public account menu shows the dashboard link with panel access', function () {
@@ -171,7 +173,7 @@ test('the public account menu shows the dashboard link with panel access', funct
         ->assertOk()
         ->assertSee('Redacteur')
         ->assertSee('href="'.route('filament.dashboard.pages.dashboard').'"', false)
-        ->assertSee('action="'.route('filament.dashboard.auth.logout').'"', false);
+        ->assertSee('action="'.route('logout').'"', false);
 });
 
 test('the vacancy index retains its auto-submit filter interaction', function () {

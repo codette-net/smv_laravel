@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,11 @@ class AppServiceProvider extends ServiceProvider
                 ->with('contact_error', 'U heeft te veel berichten kort na elkaar verstuurd. Wacht even en probeer het daarna opnieuw.')
                 ->withHeaders($headers),
         ));
+
+        RateLimiter::for('public-login', fn (Request $request): Limit => Limit::perMinute(5)
+            ->by('public-login:'.Str::lower((string) $request->input('email')).'|'.$request->ip()));
+
+        RateLimiter::for('public-registration', fn (Request $request): Limit => Limit::perMinute(3)
+            ->by('public-registration:'.$request->ip()));
     }
 }

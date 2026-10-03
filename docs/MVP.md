@@ -16,14 +16,23 @@ page includes a validated, spam-protected, e-mail-only general enquiry form.
 
 The main remaining MVP/release work is no longer foundational implementation. It is:
 
-- confirm the required commercial package/payment/employer-posting scope;
+- confirm the definitive commercial package/payment entitlement scope after the safe
+  public employer-posting slice;
 - complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
 - complete accessibility, end-to-end, migration and launch validation.
 
 General Contact submissions use Laravel Mail with a configurable recipient, retain no
-database record and require no account. Direct employer Vacancy advertising remains a
-separate future staged flow (SMV-078), rather than expanding the Contact form.
+database record and require no account. Direct employer Vacancy advertising is a
+separate staged flow (SMV-078), rather than an expansion of the Contact form. Guests may
+select Standaard or Superior, authenticate through the normal `web` guard, create a
+Vacancy draft for an owned Company, preview it and hand it off in `pending` state. The
+selected package is intent only: payment, entitlement and publication are not implied.
+The authenticated `/account` foundation lets an employer complete presentation/contact
+fields and Media Library branding for owned Companies and review owned Vacancies.
+Submitted Vacancies stay read-only while awaiting moderation. Publishing in Filament
+now supports publish-now by leaving the date empty and scheduling by choosing a future
+date; this does not grant employers publication rights.
 
 ## Presentation target
 

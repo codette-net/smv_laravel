@@ -19,7 +19,7 @@ class CompanyPolicy
 
     public function view(User $user, Company $company): bool
     {
-        return $user->hasRole('editor');
+        return $user->hasRole('editor') || $company->user_id === $user->id;
     }
 
     public function create(User $user): bool
@@ -29,7 +29,7 @@ class CompanyPolicy
 
     public function update(User $user, Company $company): bool
     {
-        return $user->hasRole('editor');
+        return $user->hasRole('editor') || $company->user_id === $user->id;
     }
 
     public function delete(User $user, Company $company): bool

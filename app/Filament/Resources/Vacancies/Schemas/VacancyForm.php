@@ -36,11 +36,6 @@ class VacancyForm
                             ->relationship('company', 'name')
                             ->searchable()
                             ->required(),
-                        Select::make('status')
-                            ->label('Status')
-                            ->options(VacancyStatus::class)
-                            ->required()
-                            ->default(VacancyStatus::Draft->value),
                         Toggle::make('is_featured')
                             ->label('Uitgelicht')
                             ->default(false),
@@ -91,16 +86,24 @@ class VacancyForm
                             ->minValue(0),
                     ]),
                 Section::make('Publicatie')
-                    ->description('Deadline en verloopdatum zijn afzonderlijke, optionele momenten.')
-                    ->columns(3)
+                    ->description('Beheer wanneer de vacature zichtbaar wordt en wanneer reageren of publicatie eindigt.')
+                    ->columns(2)
                     ->schema([
+                        Select::make('status')
+                            ->label('Status')
+                            ->options(VacancyStatus::class)
+                            ->required()
+                            ->default(VacancyStatus::Draft->value),
                         DateTimePicker::make('published_at')
-                            ->label('Publiceren op'),
-                        DateTimePicker::make('deadline_at')
-                            ->label('Sollicitatiedeadline')
-                            ->default(fn () => now()->addMonths(2)),
+                            ->label('Publiceren op')
+                            ->helperText('Laat leeg om bij de status Gepubliceerd direct te publiceren. Kies een toekomstig moment om de vacature later automatisch zichtbaar te maken.'),
                         DateTimePicker::make('expires_at')
-                            ->label('Verloopt op'),
+                            ->label('Verloopt op')
+                            ->helperText('Na dit moment is de vacature niet meer publiek actief.'),
+                        DateTimePicker::make('deadline_at')
+                            ->label('Solliciteren vóór')
+                            ->helperText('Na dit moment kunnen kandidaten niet meer solliciteren en is de vacature volgens de huidige MVP-regel niet meer publiek zichtbaar.')
+                            ->default(fn () => now()->addMonths(2)),
                     ]),
                 Section::make('Solliciteren')
                     ->description('De gekozen manier bepaalt welke bestemming bezoekers op de vacaturepagina zien.')

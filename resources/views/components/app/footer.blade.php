@@ -8,13 +8,14 @@
         'Voor werkgevers' => [
             ['label' => 'Adverteren', 'route' => 'advertising'],
             ['label' => 'Tarieven', 'route' => 'pricing'],
+            ['label' => 'Vacature plaatsen', 'route' => 'vacancy-placement.index'],
         ],
         'Over SMV' => [
             ['label' => 'Over ons', 'route' => 'about'],
             ['label' => 'Contact', 'route' => 'contact'],
         ],
     ];
-    $loginRoute = 'filament.dashboard.auth.login';
+    $loginRoute = 'login';
 @endphp
 
 <footer class="mt-12 border-t border-slate-200 bg-white text-slate-600">

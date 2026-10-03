@@ -6,35 +6,6 @@
 @section('header_theme', 'dark')
 
 @section('content')
-    @php
-        $plans = [
-            [
-                'name' => 'Standaard',
-                'price' => '€ 189',
-                'suffix' => 'excl. btw',
-                'intro' => 'Een gerichte plaatsing voor één sales- of marketingvacature.',
-                'features' => ['60 dagen zichtbaar', 'Reguliere positionering op SMV', 'Afstemming over aangeleverd materiaal'],
-                'featured' => false,
-            ],
-            [
-                'name' => 'Superior',
-                'price' => '€ 398',
-                'suffix' => 'excl. btw',
-                'intro' => 'Voor vacatures die in overleg aanvullende zichtbaarheid krijgen.',
-                'features' => ['60 dagen zichtbaar', 'Extra positionering en aandacht in overleg', 'Mogelijke nieuwsbrief- en socialinzet afgestemd op de functie'],
-                'featured' => true,
-            ],
-            [
-                'name' => 'Maatwerk',
-                'price' => 'Op aanvraag',
-                'suffix' => null,
-                'intro' => 'Voor meerdere vacatures, terugkerende werving of aanvullende campagneondersteuning.',
-                'features' => ['Aanpak afgestemd op uw wervingsvraag', 'Ruimte voor meerdere plaatsingen', 'Aanvullende zichtbaarheid en jobmarketing bespreekbaar'],
-                'featured' => false,
-            ],
-        ];
-    @endphp
-
     <section class="relative">
         <div class="pointer-events-none absolute inset-0 -z-10 h-1/3 bg-slate-900 lg:h-[48rem] [clip-path:polygon(0_0,_5760px_0,_5760px_calc(100%_-_352px),_0_100%)]" aria-hidden="true"></div>
         <div class="relative mx-auto max-w-6xl px-4 sm:px-6">
@@ -69,9 +40,14 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            <div class="mt-7 rounded-sm bg-slate-50 p-3">
-                                <a class="btn-sm w-full bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact') }}">{{ $plan['name'] === 'Maatwerk' ? 'Bespreek de mogelijkheden' : 'Vraag dit pakket aan' }} <span class="ml-1 text-blue-300">→</span></a>
-                            </div>
+                            <form class="mt-7 rounded-sm bg-slate-50 p-3" action="{{ route('vacancy-placement.package') }}" method="POST">
+                                @csrf
+                                <input name="package" type="hidden" value="{{ $plan['value'] }}">
+                                <x-ui.button class="w-full justify-center" type="submit" variant="brand">
+                                    {{ $plan['enters_flow'] ? 'Kies '.$plan['name'] : 'Bespreek de mogelijkheden' }}
+                                    <span class="ml-1 text-blue-300">→</span>
+                                </x-ui.button>
+                            </form>
                         </article>
                     @endforeach
                 </div>
@@ -87,7 +63,7 @@
                     <h2 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Bespreek de mogelijkheden</h2>
                     <p class="mt-3 max-w-2xl text-slate-600">We stemmen maatwerk, terugkerende plaatsingen en aanvullende ondersteuning graag rechtstreeks met u af.</p>
                 </div>
-                <a class="btn shrink-0 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact') }}">Neem contact op <span class="ml-1 text-blue-300">→</span></a>
+                <a class="btn shrink-0 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact', ['reason' => 'advertising']) }}">Neem contact op <span class="ml-1 text-blue-300">→</span></a>
             </div>
         </div>
     </section>

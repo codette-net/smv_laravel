@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\UpdateEmployerCompanyRequest;
+use App\Models\Company;
+use App\Models\Vacancy;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+
+class AccountController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $companies = $request->user()->companies()
+            ->with('media')
+            ->withCount('vacancies')
+            ->orderBy('name')
+            ->get();
+
+        $vacancies = Vacancy::query()
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->with('company')
+            ->latest('updated_at')
+            ->limit(5)
+            ->get();
+        $publicVacancyIds = $this->publicVacancyIds($vacancies->pluck('id')->all());
+
+        return view('account.index', compact('companies', 'vacancies', 'publicVacancyIds'));
+    }
+
+    public function vacancies(Request $request): View
+    {
+        $vacancies = Vacancy::query()
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->with('company')
+            ->latest('updated_at')
+            ->paginate(12);
+        $publicVacancyIds = $this->publicVacancyIds($vacancies->getCollection()->pluck('id')->all());
+
+        return view('account.vacancies', compact('vacancies', 'publicVacancyIds'));
+    }
+
+    public function editCompany(Company $company): View
+    {
+        $this->authorizeOwnedCompany($company);
+        $company->load('media');
+
+        return view('account.company-edit', compact('company'));
+    }
+
+    public function updateCompany(UpdateEmployerCompanyRequest $request, Company $company): RedirectResponse
+    {
+        $this->authorizeOwnedCompany($company);
+
+        $company->update($request->safe()->except(['logo', 'cover']));
+
+        if ($request->hasFile('logo')) {
+            $company->addMediaFromRequest('logo')->toMediaCollection('logo');
+        }
+
+        if ($request->hasFile('cover')) {
+            $company->addMediaFromRequest('cover')->toMediaCollection('cover');
+        }
+
+        return to_route('account.index')->with('account_status', 'Uw bedrijfsprofiel is bijgewerkt.');
+    }
+
+    /** @param array<int, int> $ids */
+    private function publicVacancyIds(array $ids): array
+    {
+        return Vacancy::query()
+            ->publiclyVisible()
+            ->whereKey($ids)
+            ->whereHas('company', fn ($query) => $query->publiclyVisible())
+            ->pluck('id')
+            ->all();
+    }
+
+    private function authorizeOwnedCompany(Company $company): void
+    {
+        Gate::authorize('update', $company);
+        abort_unless($company->user_id === auth()->id(), 403);
+    }
+}

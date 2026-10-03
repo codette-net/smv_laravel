@@ -89,6 +89,22 @@ class Company extends Model implements HasMedia
         return $this->getFirstMediaUrl('cover') ?: $this->cover_image;
     }
 
+    /** @return array<int, string> */
+    public function missingPublicProfileFields(): array
+    {
+        return collect([
+            'beschrijving' => $this->description,
+            'logo' => $this->publicLogoUrl(),
+            'website' => $this->website,
+            'locatie' => $this->location,
+        ])->filter(fn (mixed $value): bool => blank($value))->keys()->all();
+    }
+
+    public function hasCompletePublicProfile(): bool
+    {
+        return $this->missingPublicProfileFields() === [];
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

@@ -5,14 +5,15 @@ test('the template-based public pages are available through their canonical rout
     $this->get(route('advertising'))
         ->assertOk()
         ->assertSee('Van materiaal tot evaluatie')
+        ->assertSee('href="'.route('vacancy-placement.index').'"', false)
         ->assertSee('href="'.route('pricing').'"', false)
-        ->assertSee('href="'.route('contact').'"', false);
+        ->assertSee('href="'.route('contact', ['reason' => 'advertising']).'"', false);
     $this->get(route('pricing'))
         ->assertOk()
         ->assertSee('Standaard')
         ->assertSee('Superior')
         ->assertSee('Maatwerk')
-        ->assertSee('href="'.route('contact').'"', false);
+        ->assertSee('action="'.route('vacancy-placement.package').'"', false);
     $this->get(route('contact'))
         ->assertOk()
         ->assertSee('sales@salesenmarketingvacatures.nl')

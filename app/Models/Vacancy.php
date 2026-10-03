@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CompensationPeriod;
 use App\Enums\VacancySource;
@@ -23,6 +24,20 @@ class Vacancy extends Model
 {
     /** @use HasFactory<VacancyFactory> */
     use HasFactory, HasSlug, HasTags, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::saving(function (Vacancy $vacancy): void {
+            $wasPublished = $vacancy->exists
+                && $vacancy->getRawOriginal('status') === VacancyStatus::Active->value;
+
+            if ($vacancy->status === VacancyStatus::Active
+                && $vacancy->published_at === null
+                && ! $wasPublished) {
+                $vacancy->published_at = now();
+            }
+        });
+    }
 
     protected $fillable = [
         'company_id',
@@ -54,6 +69,7 @@ class Vacancy extends Model
         'is_filled',
         'status',
         'source',
+        'placement_package',
     ];
 
     protected function casts(): array
@@ -75,6 +91,7 @@ class Vacancy extends Model
             'status' => VacancyStatus::class,
             'source' => VacancySource::class,
             'application_mode' => ApplicationMode::class,
+            'placement_package' => AdvertisingPackage::class,
         ];
     }
 
@@ -119,9 +136,11 @@ class Vacancy extends Model
     /**
      * Limit vacancies to those that are currently available on public surfaces.
      *
-     * A null publication timestamp preserves the existing immediate-publication
-     * behaviour for already-published records. Null deadlines and expiry dates
-     * mean that no restriction of that type has been set.
+     * Published records created before publication normalization may still have
+     * a null publication timestamp and remain immediately public. A deadline is
+     * the final application moment; expiry is the listing's active-until moment.
+     * Under the current MVP rule either elapsed boundary removes the Vacancy from
+     * public surfaces. Null values mean that boundary has not been configured.
      *
      * @param  Builder<Vacancy>  $query
      * @return Builder<Vacancy>
