@@ -583,7 +583,12 @@ The importer may therefore need:
 - field combination
 - ordering rules for combined sections
 
-Do not blindly store/render arbitrary unsafe source HTML.
+`vacancy.description` is normalized through the same `VacancyDescription` service as
+manual and Filament Vacancy writes. The canonical output permits only `p`, `br`,
+`strong`, `em`, `ul`, `ol`, `li`, `h2`, `h3` and links with approved schemes. Plain-text
+feeds are wrapped into paragraphs while unsafe elements, executable content, inline
+styles/classes, images, embeds and tables are removed. Import preview/persistence must
+not introduce a separate provider-specific HTML path.
 
 ## Structured taxonomy mapping
 

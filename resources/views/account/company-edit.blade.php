@@ -24,7 +24,7 @@
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2"><x-ui.input name="name" label="Bedrijfsnaam" :value="$company->name" required /></div>
                 <div class="sm:col-span-2"><x-ui.input name="tagline" label="Korte introductie" :value="$company->tagline" /></div>
-                <div class="sm:col-span-2"><x-ui.textarea name="description" label="Bedrijfsomschrijving" :value="$company->description" rows="8" /></div>
+                <div class="sm:col-span-2"><x-ui.rich-textarea name="description" label="Bedrijfsomschrijving" :value="$company->description" rows="12" /></div>
                 <x-ui.input name="location" label="Locatie" :value="$company->location" />
                 <x-ui.input name="website" label="Website" type="url" placeholder="https://" :value="$company->website" />
                 <x-ui.input name="email" label="Publiek contact-e-mailadres" type="email" :value="$company->email" />

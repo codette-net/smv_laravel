@@ -59,6 +59,15 @@ class VacancyForm
                         RichEditor::make('description')
                             ->label('Beschrijving')
                             ->required()
+                            ->minLength(50)
+                            ->maxLength(20000)
+                            ->toolbarButtons([
+                                ['bold', 'italic', 'link'],
+                                ['h2', 'h3'],
+                                ['bulletList', 'orderedList'],
+                                ['undo', 'redo'],
+                            ])
+                            ->helperText('Toegestaan: alinea’s, tussenkoppen, vet, cursief, lijsten en veilige links.')
                             ->columnSpanFull(),
                     ]),
                 Section::make('Locatie en voorwaarden')

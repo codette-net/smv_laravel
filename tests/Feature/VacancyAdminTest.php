@@ -52,7 +52,7 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
         ->fillForm([
             'company_id' => $company->id,
             'title' => 'Accountmanager',
-            'description' => '<p>Een commerciële functie.</p>',
+            'description' => '<h2>De functie</h2><p onclick="bad()">Een commerciële functie met voldoende inhoud voor een duidelijke vacaturetekst.</p><script>secret()</script>',
             'status' => VacancyStatus::Active->value,
             'published_at' => now()->toDateTimeString(),
             'expires_at' => now()->addMonths(3)->toDateTimeString(),
@@ -70,6 +70,8 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
     expect($vacancy->company->is($company))->toBeTrue()
         ->and($vacancy->status)->toBe(VacancyStatus::Active)
         ->and($vacancy->source)->toBe(VacancySource::Manual)
+        ->and($vacancy->description)->toContain('<h2>De functie</h2>')
+        ->and($vacancy->description)->not->toContain('onclick', '<script', 'secret()')
         ->and($vacancy->deadline_at?->equalTo(now()->addMonths(2)))->toBeTrue()
         ->and($vacancy->categories->sole()->is($category))->toBeTrue();
 });

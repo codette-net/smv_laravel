@@ -59,8 +59,7 @@
                                 <x-ui.input name="title" label="Functietitel" :value="$vacancy?->title" required />
                             </div>
                             <div class="sm:col-span-2">
-                                <x-ui.textarea name="description" label="Vacaturebeschrijving" :value="$descriptionValue" rows="14" required />
-                                <p class="mt-2 text-xs leading-5 text-slate-500">Gebruik gewone tekst. Regeleinden blijven behouden in de publieke weergave.</p>
+                                <x-ui.rich-textarea name="description" label="Vacaturebeschrijving" :value="$descriptionValue" rows="14" required />
                             </div>
                             <x-ui.input name="location" label="Locatie" :value="$vacancy?->location" required />
                             <x-ui.input name="deadline_at" label="Sollicitatiedeadline (optioneel)" type="date" :value="$vacancy?->deadline_at?->format('Y-m-d')" />

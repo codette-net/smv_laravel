@@ -4,9 +4,9 @@ namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -44,9 +44,16 @@ class CompanyForm
                             ->label('Korte introductie')
                             ->maxLength(255)
                             ->columnSpanFull(),
-                        Textarea::make('description')
+                        RichEditor::make('description')
                             ->label('Beschrijving')
-                            ->rows(6)
+                            ->maxLength(10000)
+                            ->toolbarButtons([
+                                ['bold', 'italic', 'link'],
+                                ['h2', 'h3'],
+                                ['bulletList', 'orderedList'],
+                                ['undo', 'redo'],
+                            ])
+                            ->helperText('Toegestaan: alinea’s, tussenkoppen, vet, cursief, lijsten en veilige links.')
                             ->columnSpanFull(),
                     ]),
                 Section::make('Media')

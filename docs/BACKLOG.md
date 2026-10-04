@@ -77,7 +77,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
 | SMV-079 Saved Vacancies | **NOT STARTED** | Candidate/user save/unsave persistence and an account list are deliberately deferred. |
 | SMV-080 Candidate application account history | **NOT STARTED** | A future account view may expose only internally observable SMV applications; external/e-mail applications cannot be tracked. |
-| SMV-081 Employer Vacancy rich-text editing | **NOT STARTED** | Safe formatting, sanitization, preview parity and public rendering remain separate from the working plain-text placement editor. |
+| SMV-081 Safe rich-text Vacancy and Company descriptions | **DONE** | Employer and Filament editors share a reusable limited editor UI; domain-aware Vacancy and Company boundaries sanitize persistence and public rendering. |
 
 ## Phase F — Blog / content
 
@@ -152,8 +152,8 @@ recovery are deliberately not represented as completed functionality.
   future scheduling and historical publication dates are preserved. Deadline is the
   application cutoff and expiry the listing cutoff; both currently end public visibility.
 - **Deferred:** SMV-050 still owns definitive package/entitlement rules; SMV-051 owns
-  Order/payment/provider handling. E-mail notifications, saved Vacancies, candidate
-  application history and employer rich-text editing are not represented as complete.
+  Order/payment/provider handling. E-mail notifications, saved Vacancies and candidate
+  application history are not represented as complete.
 
 #### SMV-079 — Saved Vacancies
 
@@ -171,11 +171,20 @@ recovery are deliberately not represented as completed functionality.
 - **Boundary:** SMV cannot promise status tracking for external links or e-mail
   applications that never enter the internal Application domain.
 
-#### SMV-081 — Employer Vacancy rich-text editing
+#### SMV-081 — Safe rich-text Vacancy and Company descriptions
 
-- **Status:** NOT STARTED
-- **Scope:** safe employer-authored formatting, explicit sanitization rules, editor and
-  preview parity, and safe public rendering. Arbitrary HTML remains prohibited.
+- **Status:** DONE
+- **Result:** Vacancy placement and Company profile editing share a progressively
+  enhanced limited rich-text editor with a normal textarea fallback and accessible
+  Lucide toolbar controls. Filament exposes the same semantic choices. Explicit
+  Vacancy and Company domain services use one low-level Symfony HTML Sanitizer policy
+  permitting only paragraphs, line breaks, `h2`/`h3`, strong/emphasis,
+  ordered/unordered lists and safe links. Model writes and public rendering use their
+  corresponding domain boundary; Vacancy imports and preview use the Vacancy policy.
+  Legacy rows are defensively sanitized at render time without a destructive rewrite.
+- **Boundary:** arbitrary HTML, media, tables, embeds, inline styles/classes and custom
+  editor blocks remain prohibited. Metadata and JobPosting descriptions remain plain
+  text.
 
 ### B. Content / public site
 

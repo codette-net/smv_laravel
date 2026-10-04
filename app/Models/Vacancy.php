@@ -7,6 +7,7 @@ use App\Enums\ApplicationMode;
 use App\Enums\CompensationPeriod;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
+use App\Support\Vacancies\VacancyDescription;
 use Database\Factories\VacancyFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,10 @@ class Vacancy extends Model
     protected static function booted(): void
     {
         static::saving(function (Vacancy $vacancy): void {
+            if ($vacancy->isDirty('description')) {
+                $vacancy->description = app(VacancyDescription::class)->sanitize($vacancy->description);
+            }
+
             $wasPublished = $vacancy->exists
                 && $vacancy->getRawOriginal('status') === VacancyStatus::Active->value;
 

@@ -157,8 +157,8 @@ test('an employer creates only a private protected draft for an owned company', 
         ->and($vacancy->is_filled)->toBeFalse()
         ->and($vacancy->published_at)->toBeNull()
         ->and($vacancy->expires_at)->toBeNull()
-        ->and($vacancy->description)->toContain('&lt;script&gt;')
-        ->not->toContain('<script>')
+        ->and($vacancy->description)->toContain('<p>Dit is een veilige vacaturebeschrijving')
+        ->not->toContain('<script>', 'alert')
         ->and($vacancy->categories()->pluck('categories.id')->all())->toBe([$functionArea->id])
         ->and(Vacancy::publiclyVisible()->count())->toBe(0);
 
@@ -221,7 +221,7 @@ test('only the owner may preview and edit a draft and editing returns to preview
     $this->actingAs($owner)
         ->get(route('vacancy-placement.edit', $vacancy))
         ->assertOk()
-        ->assertSee('Eerste regel &amp; veilig.', false)
+        ->assertSee('Eerste regel &amp;amp; veilig.', false)
         ->assertSee('Tweede regel met voldoende inhoud');
 
     $this->actingAs($owner)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Support\Companies\CompanyDescription;
 use App\Support\Seo\StructuredData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -43,10 +44,12 @@ class CompanyController extends Controller
             ->latest()
             ->get();
 
-        $description = StructuredData::plainText($company->description ?? $company->tagline);
+        $companyDescription = app(CompanyDescription::class);
+        $description = $companyDescription->plainText($company->description ?? $company->tagline);
 
         return view('companies.show', [
             'company' => $company,
+            'descriptionHtml' => $companyDescription->sanitize($company->description),
             'coverUrl' => $company->publicCoverUrl(),
             'logoUrl' => $company->publicLogoUrl(),
             'metaDescription' => Str::limit($description, 155),

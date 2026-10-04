@@ -12,6 +12,7 @@ use App\Http\Requests\SaveVacancyPlacementRequest;
 use App\Http\Requests\SelectAdvertisingPackageRequest;
 use App\Models\Category;
 use App\Models\Vacancy;
+use App\Support\Vacancies\VacancyDescription;
 use App\Support\VacancyPlacementSession;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -159,6 +160,7 @@ class EmployerVacancyController extends Controller
         return view('vacancy-placement.preview', [
             'vacancy' => $vacancy,
             'package' => $vacancy->placement_package,
+            'descriptionHtml' => app(VacancyDescription::class)->sanitize($vacancy->description),
         ]);
     }
 
@@ -195,7 +197,7 @@ class EmployerVacancyController extends Controller
         return [
             'company_id' => $data['company_id'],
             'title' => $data['title'],
-            'description' => nl2br(e($data['description'])),
+            'description' => $data['description'],
             'location' => $data['location'],
             'application_mode' => $mode,
             'application_email' => $mode === ApplicationMode::Email ? ($data['application_email'] ?? null) : null,
@@ -258,8 +260,6 @@ class EmployerVacancyController extends Controller
 
     private function editableDescription(string $description): string
     {
-        $withLineBreaks = preg_replace('/<br\s*\/?>/i', "\n", $description) ?? $description;
-
-        return html_entity_decode(strip_tags($withLineBreaks), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return app(VacancyDescription::class)->sanitize($description);
     }
 }

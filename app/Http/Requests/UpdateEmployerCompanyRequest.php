@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Company;
+use App\Support\Companies\CompanyDescription;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,7 +20,7 @@ class UpdateEmployerCompanyRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge(collect($this->only([
+        $data = collect($this->only([
             'name',
             'tagline',
             'description',
@@ -30,7 +31,13 @@ class UpdateEmployerCompanyRequest extends FormRequest
             'linkedin_url',
             'facebook_url',
             'instagram_url',
-        ]))->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)->all());
+        ]))->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)->all();
+
+        if (is_string($data['description'] ?? null) && strlen($data['description']) <= 200_000) {
+            $data['description'] = app(CompanyDescription::class)->sanitize($data['description']);
+        }
+
+        $this->merge($data);
     }
 
     public function rules(): array

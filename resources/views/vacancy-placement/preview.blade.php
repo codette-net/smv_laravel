@@ -28,7 +28,7 @@
                 <hr class="my-7 border-slate-200">
                 <section aria-labelledby="preview-description">
                     <h2 class="text-xl font-bold text-slate-900" id="preview-description">Over deze vacature</h2>
-                    <div class="prose prose-slate mt-5 max-w-none leading-7">{!! $vacancy->description !!}</div>
+                    <x-ui.rich-content class="mt-5" :html="$descriptionHtml" />
                 </section>
             </article>
 

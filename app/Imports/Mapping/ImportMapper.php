@@ -6,6 +6,7 @@ use App\Enums\CompensationPeriod;
 use App\Imports\Data\SourceRecord;
 use App\Models\ImportMapping;
 use App\Models\ImportSource;
+use App\Support\Vacancies\VacancyDescription;
 use Carbon\Carbon;
 use InvalidArgumentException;
 
@@ -36,7 +37,7 @@ class ImportMapper
                 $raw = $this->transform($raw, $field->configuration['transform'] ?? null, $warnings);
             }
             if ($definition->key === 'vacancy.description' && $raw !== null) {
-                $raw = app(VacancyDescriptionSanitizer::class)->sanitize((string) $raw);
+                $raw = app(VacancyDescription::class)->sanitize((string) $raw);
             }
             if ($raw !== null && $raw !== []) {
                 data_set($values, $definition->key, $this->normalize($definition->key, $raw, $warnings));

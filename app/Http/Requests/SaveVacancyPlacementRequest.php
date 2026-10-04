@@ -6,6 +6,8 @@ use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\VacancyStatus;
 use App\Models\Vacancy;
+use App\Rules\MeaningfulVacancyDescription;
+use App\Support\Vacancies\VacancyDescription;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,13 +26,19 @@ class SaveVacancyPlacementRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge(collect($this->only([
+        $data = collect($this->only([
             'title',
             'description',
             'location',
             'application_email',
             'application_url',
-        ]))->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)->all());
+        ]))->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)->all();
+
+        if (is_string($data['description'] ?? null) && strlen($data['description']) <= 200_000) {
+            $data['description'] = app(VacancyDescription::class)->sanitize($data['description']);
+        }
+
+        $this->merge($data);
     }
 
     public function rules(): array
@@ -46,7 +54,7 @@ class SaveVacancyPlacementRequest extends FormRequest
                     ->whereNull('deleted_at')),
             ],
             'title' => ['required', 'string', 'min:3', 'max:255'],
-            'description' => ['required', 'string', 'min:50', 'max:20000'],
+            'description' => ['bail', 'required', 'string', 'max:100000', new MeaningfulVacancyDescription],
             'location' => ['required', 'string', 'max:255'],
             'application_mode' => ['required', Rule::enum(ApplicationMode::class)],
             'application_email' => ['nullable', 'required_if:application_mode,'.ApplicationMode::Email->value, 'email:rfc', 'max:255'],
@@ -67,7 +75,6 @@ class SaveVacancyPlacementRequest extends FormRequest
         return [
             'required' => 'Het veld :attribute is verplicht.',
             'company_id.exists' => 'Kies een bedrijf dat bij uw account hoort.',
-            'description.min' => 'Geef een vacaturebeschrijving van minimaal :min tekens.',
             'application_email.required_if' => 'Vul een sollicitatie-e-mailadres in.',
             'application_url.required_if' => 'Vul een externe sollicitatielink in.',
             'salary_max.gte' => 'Het maximale salaris moet gelijk aan of hoger dan het minimale salaris zijn.',

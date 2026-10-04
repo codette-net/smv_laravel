@@ -1,8 +1,10 @@
 import axios from 'axios';
 import Alpine from 'alpinejs';
 import AOS from 'aos';
+import richTextEditor from './rich-text-editor';
 
 window.Alpine = Alpine;
+Alpine.data('richTextEditor', richTextEditor);
 Alpine.start();
 
 AOS.init({

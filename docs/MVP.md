@@ -32,7 +32,11 @@ The authenticated `/account` foundation lets an employer complete presentation/c
 fields and Media Library branding for owned Companies and review owned Vacancies.
 Submitted Vacancies stay read-only while awaiting moderation. Publishing in Filament
 now supports publish-now by leaving the date empty and scheduling by choosing a future
-date; this does not grant employers publication rights.
+date; this does not grant employers publication rights. Employer and Filament Vacancy
+descriptions and the long-form Company description now support a deliberately limited
+rich-text set through one reusable editor UI. Domain-aware server-side boundaries
+protect Company and Vacancy writes, Vacancy imports, preview/public rendering and
+plain-text SEO output; arbitrary HTML and embedded media remain outside the MVP.
 
 ## Presentation target
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vacancies\Schemas;
 
 use App\Models\Vacancy;
+use App\Support\Vacancies\VacancyDescription;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\SpatieTagsEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -46,6 +47,7 @@ class VacancyInfolist
                     ->schema([
                         TextEntry::make('description')
                             ->label('Beschrijving')
+                            ->formatStateUsing(fn (?string $state): string => app(VacancyDescription::class)->sanitize($state))
                             ->html()
                             ->columnSpanFull(),
                     ]),

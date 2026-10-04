@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CompanyStatus;
+use App\Support\Companies\CompanyDescription;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,15 @@ class Company extends Model implements HasMedia
 {
     /** @use HasFactory<CompanyFactory> */
     use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::saving(function (Company $company): void {
+            if ($company->isDirty('description') && $company->description !== null) {
+                $company->description = app(CompanyDescription::class)->sanitize($company->description);
+            }
+        });
+    }
 
     protected $fillable = [
         'user_id',

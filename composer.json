@@ -17,7 +17,8 @@
         "spatie/laravel-permission": "*",
         "spatie/laravel-sitemap": "*",
         "spatie/laravel-sluggable": "*",
-        "spatie/laravel-tags": "*"
+        "spatie/laravel-tags": "*",
+        "symfony/html-sanitizer": "^7.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "*",

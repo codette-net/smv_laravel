@@ -6,6 +6,7 @@ use App\Enums\CategoryType;
 use App\Models\Category;
 use App\Models\Vacancy;
 use App\Support\Seo\StructuredData;
+use App\Support\Vacancies\VacancyDescription;
 use App\Support\Vacancies\VacancyFilterOptions;
 use App\Support\Vacancies\VacancySearch;
 use Illuminate\Contracts\View\View;
@@ -61,6 +62,7 @@ class VacancyController extends Controller
             'logoUrl' => $vacancy->company->publicLogoUrl(),
             'relatedVacancies' => $relatedVacancies,
             'structuredData' => StructuredData::jobPosting($vacancy),
+            'descriptionHtml' => app(VacancyDescription::class)->sanitize($vacancy->description),
         ]);
     }
 

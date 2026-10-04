@@ -162,7 +162,7 @@
                 <main class="min-w-0 grow">
 
                     {{-- About --}}
-                    @if ($company->description)
+                    @if ($descriptionHtml)
 
                         <section class="mb-10">
 
@@ -170,9 +170,7 @@
                                 Over {{ $company->name }}
                             </h2>
 
-                            <div class="whitespace-pre-line leading-7 text-gray-600">
-                                {{ $company->description }}
-                            </div>
+                            <x-ui.rich-content class="text-gray-600" :html="$descriptionHtml" />
 
                         </section>
 

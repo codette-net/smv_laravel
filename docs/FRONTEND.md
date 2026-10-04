@@ -398,6 +398,13 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - `/vacature-plaatsen` is the noindex four-step employer conversion flow: package,
   Vacancy details, private preview and pending hand-off. Guests see the commercial
   choice before public login/registration; mobile keeps a compact current-step label;
+- the Vacancy description step and owned Company profile description progressively
+  enhance a normal textarea into the same compact Alpine editor for paragraphs,
+  `h2`/`h3`, emphasis, lists and links. The accessible toolbar uses inline Lucide SVG
+  shapes following the existing public inline-SVG convention. The textarea stays the
+  no-JavaScript fallback; domain-aware server-side sanitization is the security
+  boundary. Public Company/Vacancy content and private Vacancy preview share the scoped
+  `rich-content` Typography presentation;
 - `/inloggen` and `/registreren` use the public layout and the existing `web` guard.
   They return users to the selected placement flow through Laravel's intended URL;
 - `/account` is the normal public destination for authenticated users and is distinct

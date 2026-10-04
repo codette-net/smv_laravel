@@ -7,7 +7,6 @@ use App\Enums\ImportTransport;
 use App\Enums\VacancyStatus;
 use App\Imports\Data\SourceRecord;
 use App\Imports\Mapping\CompensationTextParser;
-use App\Imports\Mapping\VacancyDescriptionSanitizer;
 use App\Imports\Preview\ImportPreview;
 use App\Imports\RecordSelector;
 use App\Imports\VacancyImportRunner;
@@ -18,6 +17,7 @@ use App\Models\ImportMappingField;
 use App\Models\ImportSource;
 use App\Models\ImportTaxonomyMapping;
 use App\Models\Vacancy;
+use App\Support\Vacancies\VacancyDescription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -140,7 +140,7 @@ test('generic compensation text parsing supports bounded ranges and warns instea
 });
 
 test('imported rich vacancy descriptions retain safe formatting without executable markup', function () {
-    $sanitized = app(VacancyDescriptionSanitizer::class)->sanitize(
+    $sanitized = app(VacancyDescription::class)->sanitize(
         '<p onclick="alert(1)">Intro <strong>belangrijk</strong>.</p><script>alert(2)</script><a href="javascript:alert(3)">link</a>',
     );
 

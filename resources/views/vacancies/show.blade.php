@@ -10,7 +10,7 @@
 @section(
     'meta_description',
     Str::limit(
-        \App\Support\Seo\StructuredData::plainText($vacancy->description),
+        app(\App\Support\Vacancies\VacancyDescription::class)->plainText($vacancy->description),
         155
     )
 )
@@ -291,9 +291,7 @@
                         Over deze vacature
                     </h2>
 
-                    <div class="prose prose-slate max-w-none leading-7">
-                        {!! $vacancy->description !!}
-                    </div>
+                    <x-ui.rich-content :html="$descriptionHtml" />
 
                 </section>
 

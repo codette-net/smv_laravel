@@ -144,6 +144,16 @@ active-until boundary. Under the current MVP lifecycle both elapsed boundaries r
 Vacancy from public surfaces; their business meanings and administration labels remain
 separate.
 
+Vacancy and Company descriptions use explicit domain semantic-HTML boundaries.
+`VacancyDescription` and `CompanyDescription` share the narrowly scoped
+`LimitedRichText` sanitizer policy, while keeping persistence and rendering decisions
+in their own domains. The policy permits only paragraphs, line breaks, `h2`/`h3`,
+strong/emphasis, ordered/unordered lists and links with approved schemes. Both models
+normalize changed descriptions before persistence; Vacancy imports use the Vacancy
+boundary. Public detail pages sanitize again defensively for pre-existing database
+rows without rewriting them. Metadata and structured-data descriptions derive plain
+text from the corresponding domain service.
+
 ## Public frontend
 
 Blade + Tailwind remains the preferred frontend stack.
