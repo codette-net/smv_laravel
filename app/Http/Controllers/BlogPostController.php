@@ -40,6 +40,7 @@ class BlogPostController extends Controller
             'structuredData' => StructuredData::blogPosting($blogPost),
             'relatedVacancies' => $blogPost->vacancies()
                 ->publiclyVisible()
+                ->withSavedStateFor(auth()->user())
                 ->with(['company.media', 'categories'])
                 ->orderByDesc('published_at')
                 ->orderByDesc('id')
@@ -47,6 +48,7 @@ class BlogPostController extends Controller
                 ->get(),
             'relatedCompanies' => $blogPost->companies()
                 ->publiclyVisible()
+                ->withSavedStateFor(auth()->user())
                 ->with('media')
                 ->orderBy('name')
                 ->limit(3)

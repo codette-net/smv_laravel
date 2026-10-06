@@ -11,6 +11,8 @@ use App\Http\Controllers\EmployerVacancyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicAuthController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\SavedCompanyController;
+use App\Http\Controllers\SavedVacancyController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\VacancyController;
 use App\Models\Category;
@@ -35,6 +37,8 @@ Route::post('/uitloggen', [PublicAuthController::class, 'logout'])->middleware('
 Route::middleware('auth')->prefix('account')->name('account.')->group(function (): void {
     Route::get('/', [AccountController::class, 'index'])->name('index');
     Route::get('/vacatures', [AccountController::class, 'vacancies'])->name('vacancies');
+    Route::get('/bewaarde-vacatures', [AccountController::class, 'savedVacancies'])->name('saved-vacancies');
+    Route::get('/bewaarde-bedrijven', [AccountController::class, 'savedCompanies'])->name('saved-companies');
     Route::get('/bedrijven/{company}/bewerken', [AccountController::class, 'editCompany'])->name('companies.edit');
     Route::patch('/bedrijven/{company}', [AccountController::class, 'updateCompany'])->name('companies.update');
 });
@@ -58,6 +62,8 @@ Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 
 Route::get('/bedrijven', [CompanyController::class, 'index'])->name('companies.index');
+Route::post('/bedrijven/{company}/bewaren', [SavedCompanyController::class, 'store'])->name('companies.save');
+Route::delete('/bedrijven/{company}/bewaren', [SavedCompanyController::class, 'destroy'])->middleware('auth')->name('companies.unsave');
 Route::get('/bedrijven/{company}', [CompanyController::class, 'show'])->name('bedrijven.show');
 
 Route::bind('blogCategory', fn (string $slug) => Category::query()
@@ -76,6 +82,8 @@ Route::get('/blog/tag/{blogTag}', [BlogPostController::class, 'tag'])->name('blo
 Route::get('/blog/{blogPost}', [BlogPostController::class, 'show'])->name('blog.show');
 
 Route::get('/vacatures', [VacancyController::class, 'index'])->name('vacancies.index');
+Route::post('/vacatures/{vacancy}/bewaren', [SavedVacancyController::class, 'store'])->name('vacancies.save');
+Route::delete('/vacatures/{vacancy}/bewaren', [SavedVacancyController::class, 'destroy'])->middleware('auth')->name('vacancies.unsave');
 Route::get('/vacatures/{vacancy}', [VacancyController::class, 'show'])->name('vacancies.show');
 Route::get('/vacatures/{vacancy}/solliciteren', [ApplicationController::class, 'create'])->name('applications.create');
 Route::post('/vacatures/{vacancy}/solliciteren', [ApplicationController::class, 'store'])->name('applications.store');

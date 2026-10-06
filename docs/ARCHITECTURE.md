@@ -134,6 +134,17 @@ whose `user_id` they own and can list Vacancies belonging to those Companies. St
 owner, slug, featured state, import provenance and publication remain protected. Logo
 and cover replacement reuse the existing single-file Media Library collections.
 
+SMV-079 extends that same `web`-guard account with User-owned saved Vacancies and Company
+profiles through separate unique `saved_vacancies` and `saved_companies` pivots. New
+saves require the applicable canonical public-visibility rules. A guest continuation
+stores only the content identifier in the session, revalidates it after authentication
+and attaches idempotently. Registration is
+context-aware: only an active Vacancy-placement session creates an employer plus pending
+Company; ordinary registration creates a candidate without employer domain records.
+Unavailable saved records retain their editorial relationship but render only a private
+minimal unavailable state under `/account/bewaarde-vacatures` or
+`/account/bewaarde-bedrijven`.
+
 Vacancy publication is normalized server-side when a record transitions from a
 non-published status to `published`: a missing `published_at` becomes `now()`. An
 explicit future timestamp remains scheduled and an existing published record retains

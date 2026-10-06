@@ -191,3 +191,15 @@ blog content is deliberately not migrated or imported.
 - slug
 
 Exact field naming follows current repository conventions.
+
+### Saved Vacancies
+
+`users` and `vacancies` have a many-to-many relationship through `saved_vacancies`.
+The composite unique constraint allows one save per User/Vacancy pair; both foreign
+keys cascade only the pivot row when a parent is physically deleted. Vacancy soft
+deletion therefore retains the save relationship. Saving is role-independent, while
+new attachments are allowed only for Vacancies and Companies that are publicly visible.
+
+`users` and `companies` use the equivalent `saved_companies` pivot with a unique
+User/Company pair and the same parent-deletion behavior. This remains distinct from
+Company ownership (`companies.user_id`) and from editorial Blog relations.

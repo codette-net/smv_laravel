@@ -138,6 +138,23 @@ class Vacancy extends Model
         return $this->belongsToMany(BlogPost::class, 'blog_post_vacancy');
     }
 
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_vacancies')->withTimestamps();
+    }
+
+    /** @param Builder<Vacancy> $query */
+    public function scopeWithSavedStateFor(Builder $query, ?User $user): Builder
+    {
+        if ($user === null) {
+            return $query;
+        }
+
+        return $query->withExists([
+            'savedByUsers as is_saved' => fn (Builder $query) => $query->whereKey($user->getKey()),
+        ]);
+    }
+
     /**
      * Limit vacancies to those that are currently available on public surfaces.
      *

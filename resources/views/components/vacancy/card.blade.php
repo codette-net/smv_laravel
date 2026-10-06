@@ -56,6 +56,9 @@
             => $isPremium,
     ])
 >
+    <div class="absolute right-4 top-4 z-30">
+        <x-vacancy.save-button :vacancy="$vacancy" icon-only />
+    </div>
 
     {{-- Badge --}}
     @if ($isFeatured || $isPremium)
@@ -249,22 +252,22 @@
             </div>
 
 
-            @if ($detailUrl)
-                <a
-                    href="{{ $detailUrl }}"
-                    @class([
-                        'inline-flex items-center justify-center rounded-lg bg-indigo-500 font-semibold text-white shadow-sm transition hover:bg-indigo-600',
-                        'w-full px-4 py-2.5 text-sm' => !$isPremium,
-                        'px-5 py-2.5 text-sm' => $isPremium,
-                    ])
-                >
-                    Bekijk vacature
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                @if ($detailUrl)
+                    <a
+                        href="{{ $detailUrl }}"
+                        @class([
+                            'inline-flex items-center justify-center rounded-lg bg-indigo-500 font-semibold text-white shadow-sm transition hover:bg-indigo-600',
+                            'w-full px-4 py-2.5 text-sm' => !$isPremium,
+                            'px-5 py-2.5 text-sm' => $isPremium,
+                        ])
+                    >
+                        Bekijk vacature
 
-                    <span class="ml-2 transition-transform duration-150 group-hover:translate-x-1">
-                        →
-                    </span>
-                </a>
-            @endif
+                        <span class="ml-2 transition-transform duration-150 group-hover:translate-x-1">→</span>
+                    </a>
+                @endif
+            </div>
 
         </div>
 

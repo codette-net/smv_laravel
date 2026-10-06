@@ -30,6 +30,7 @@ class VacancySearch
         $vacancies = Vacancy::query()
             ->publiclyVisible()
             ->whereHas('company', fn (Builder $query): Builder => $query->publiclyVisible())
+            ->withSavedStateFor(auth()->user())
             ->with(['company.media', 'categories'])
             ->when($filters['zoek'] !== '', function (Builder $query) use ($filters): Builder {
                 $search = '%'.$filters['zoek'].'%';

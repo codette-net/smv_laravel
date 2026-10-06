@@ -28,7 +28,13 @@ class AccountController extends Controller
             ->get();
         $publicVacancyIds = $this->publicVacancyIds($vacancies->pluck('id')->all());
 
-        return view('account.index', compact('companies', 'vacancies', 'publicVacancyIds'));
+        return view('account.index', [
+            'companies' => $companies,
+            'vacancies' => $vacancies,
+            'publicVacancyIds' => $publicVacancyIds,
+            'savedVacanciesCount' => $request->user()->savedVacancies()->count(),
+            'savedCompaniesCount' => $request->user()->savedCompanies()->count(),
+        ]);
     }
 
     public function vacancies(Request $request): View
@@ -41,6 +47,35 @@ class AccountController extends Controller
         $publicVacancyIds = $this->publicVacancyIds($vacancies->getCollection()->pluck('id')->all());
 
         return view('account.vacancies', compact('vacancies', 'publicVacancyIds'));
+    }
+
+    public function savedVacancies(Request $request): View
+    {
+        $vacancies = $request->user()->savedVacancies()
+            ->with(['company.media', 'categories'])
+            ->orderByPivot('created_at', 'desc')
+            ->paginate(12);
+        $publicVacancyIds = $this->publicVacancyIds($vacancies->getCollection()->pluck('id')->all());
+
+        return view('account.saved-vacancies', compact('vacancies', 'publicVacancyIds'));
+    }
+
+    public function savedCompanies(Request $request): View
+    {
+        $companies = $request->user()->savedCompanies()
+            ->with(['media', 'categories'])
+            ->withCount([
+                'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
+            ])
+            ->orderByPivot('created_at', 'desc')
+            ->paginate(12);
+        $publicCompanyIds = Company::query()
+            ->publiclyVisible()
+            ->whereKey($companies->getCollection()->pluck('id'))
+            ->pluck('id')
+            ->all();
+
+        return view('account.saved-companies', compact('companies', 'publicCompanyIds'));
     }
 
     public function editCompany(Company $company): View

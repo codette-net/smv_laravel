@@ -99,20 +99,20 @@ test('quick registration creates one employer and pending company then resumes t
         ->assertSee('Duurzame Sales BV');
 });
 
-test('normal account registration remains usable without placement state', function () {
+test('normal account registration creates a general candidate without a company', function () {
     $this->post(route('register.store'), [
-        'name' => 'Nieuwe Werkgever',
-        'company_name' => 'Nieuw Bedrijf BV',
+        'name' => 'Nieuwe Kandidaat',
         'email' => 'nieuw@example.com',
         'password' => 'Veilig123',
         'password_confirmation' => 'Veilig123',
     ])->assertRedirect(route('account.index'));
 
     $this->assertAuthenticated();
-    $this->assertDatabaseHas('companies', [
-        'name' => 'Nieuw Bedrijf BV',
-        'status' => CompanyStatus::Pending->value,
-    ]);
+    $user = User::where('email', 'nieuw@example.com')->firstOrFail();
+
+    expect($user->role)->toBe('candidate')
+        ->and($user->hasRole('candidate'))->toBeTrue()
+        ->and($user->companies()->count())->toBe(0);
 });
 
 test('an existing user logs in and returns to the selected package flow', function () {

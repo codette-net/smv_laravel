@@ -307,7 +307,7 @@
                     <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
                         {{-- Apply button --}}
-                        <div>
+                        <div class="flex flex-wrap items-center gap-3">
 
                             @if (
                                 $vacancy->application_mode === \App\Enums\ApplicationMode::External
@@ -347,6 +347,8 @@
                                 </a>
 
                             @endif
+
+                            <x-vacancy.save-button :vacancy="$vacancy" />
 
                         </div>
 
