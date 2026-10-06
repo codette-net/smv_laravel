@@ -203,3 +203,32 @@ new attachments are allowed only for Vacancies and Companies that are publicly v
 `users` and `companies` use the equivalent `saved_companies` pivot with a unique
 User/Company pair and the same parent-deletion behavior. This remains distinct from
 Company ownership (`companies.user_id`) and from editorial Blog relations.
+
+### User identity and registration intent
+
+Public work seekers and employers share the same `users` table and Laravel `web` guard.
+`RegistrationContext` is validated, transient onboarding intent (`job_seeker` or
+`employer`), not a second stored identity model and not an authorization grant. The
+existing `users.role`/Spatie roles retain initial classification where the current
+architecture needs it, but product capabilities are not needlessly exclusive: saved
+content and owned Applications work for any authenticated User. Employer management
+continues to require actual Company ownership or permissions. A User may therefore gain
+an employer role through later Company onboarding without creating a second User.
+
+### Candidate Applications
+
+`applications.candidate_id` is the nullable, indexed relationship to `users`. New
+internal submissions made during an authenticated session set this value server-side.
+Guest submissions retain a null value. Historical rows are not assigned by matching
+`candidate_email`, because an e-mail string alone is not treated as ownership proof.
+
+`Application::candidate()` and `User::applications()` provide the ownership boundary.
+The Vacancy relationship includes soft-deleted rows for historical continuity, but the
+candidate account independently checks current Vacancy and Company public visibility
+before rendering their title, Company or public URL. Application status continues to
+use `ApplicationStatus`; candidate labels are a presentation mapping on that enum and
+do not create a second stored lifecycle.
+
+Save statistics remain derived data. Current totals and rankings aggregate the unique
+`saved_vacancies` and `saved_companies` rows in SQL and exclude soft-deleted content.
+There is no analytics-events table and no save/unsave Activitylog stream in SMV-080.

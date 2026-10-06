@@ -18,6 +18,11 @@ class SavedVacancyIntent
         $this->session->put('url.intended', route('vacancies.show', $vacancy));
     }
 
+    public function pending(): bool
+    {
+        return is_int($this->session->get(self::VACANCY_KEY));
+    }
+
     public function complete(User $user): ?bool
     {
         $vacancyId = $this->session->pull(self::VACANCY_KEY);

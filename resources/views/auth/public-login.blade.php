@@ -16,7 +16,7 @@
                 <label class="flex items-center gap-2 text-sm text-slate-700"><input class="form-checkbox" name="remember" type="checkbox" value="1"> Ingelogd blijven</label>
             </div>
             <div class="mt-7"><x-ui.button class="w-full justify-center" type="submit" variant="brand">Inloggen</x-ui.button></div>
-            <p class="mt-6 text-sm text-slate-600">Nog geen account? <a class="font-semibold text-blue-700 hover:text-blue-800" href="{{ route('register') }}">Account aanmaken</a></p>
+            <p class="mt-6 text-sm text-slate-600">Nog geen account? <a class="font-semibold text-blue-700 hover:text-blue-800" href="{{ $registrationUrl }}">Account aanmaken</a></p>
         </form>
     </section>
 @endsection

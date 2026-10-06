@@ -408,17 +408,28 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   no-JavaScript fallback; domain-aware server-side sanitization is the security
   boundary. Public Company/Vacancy content and private Vacancy preview share the scoped
   `rich-content` Typography presentation;
-- `/inloggen` and `/registreren` use the public layout and the existing `web` guard.
-  They return users to the selected placement or saved-Vacancy intent through Laravel's
-  intended URL. General registration creates no Company; employer registration remains
-  tied to the placement context;
+- `/inloggen` remains the single shared public login on the existing `web` guard.
+  `/registreren` is an explicit choice between `Werkzoekende` and `Werkgever`; the
+  corresponding forms receive a validated registration context. Work-seeker registration
+  asks no Company fields and creates no Company. Employer registration clearly includes
+  the existing pending-Company onboarding. Saved Vacancy/Company intents point new users
+  to the work-seeker form, while placement points to the employer form; all resume through
+  Laravel's intended URL. Invalid context input falls back safely to the choice page;
 - `/account` is the normal public destination for authenticated users and is distinct
   from the staff-only Filament `/dashboard`. Employers can complete owned Company
   profiles and browse owned Vacancies through `/account/vacatures`. Every authenticated
-  User can manage saved Vacancies through `/account/bewaarde-vacatures` and saved
+  User can review securely linked internal Applications through
+  `/account/sollicitaties`, manage saved Vacancies through `/account/bewaarde-vacatures` and saved
   Company profiles through `/account/bewaarde-bedrijven`; unavailable items render
   without protected content. Account routes are private and
   `noindex, nofollow`;
+- Mijn sollicitaties uses existing badge components and intentionally shows only a
+  candidate-facing status, submission date and still-public Vacancy context. External
+  links, e-mail actions, private applicant fields and unavailable Vacancy/Company copy
+  are not shown;
+- the Filament dashboard includes a compact staff-only current-save widget. It shows
+  aggregate Vacancy/Company totals and rankings, never saver identities, and is not a
+  public analytics surface;
 - pricing presents Standaard, Superior and Maatwerk without implying checkout or an
   automated ranking implementation;
 - Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062

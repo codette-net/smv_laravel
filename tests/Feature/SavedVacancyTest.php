@@ -122,12 +122,17 @@ test('a guest can register generally and resume a save without creating a compan
     $vacancy = saveableVacancy();
     $this->post(route('vacancies.save', $vacancy));
 
-    $this->get(route('register'))
+    $this->get(route('login'))
         ->assertOk()
-        ->assertSee('Account aanmaken')
+        ->assertSee('href="'.route('register.job-seeker').'"', false);
+
+    $this->get(route('register.job-seeker'))
+        ->assertOk()
+        ->assertSee('Account aanmaken als werkzoekende')
         ->assertDontSee('Bedrijfsnaam');
 
     $this->post(route('register.store'), [
+        'context' => 'job_seeker',
         'name' => 'Sollicitant',
         'email' => 'sollicitant@example.com',
         'password' => 'Veilig123',

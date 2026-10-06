@@ -18,6 +18,11 @@ class SavedCompanyIntent
         $this->session->put('url.intended', route('bedrijven.show', $company));
     }
 
+    public function pending(): bool
+    {
+        return is_int($this->session->get(self::COMPANY_KEY));
+    }
+
     public function complete(User $user): ?bool
     {
         $companyId = $this->session->pull(self::COMPANY_KEY);

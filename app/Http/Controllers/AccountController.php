@@ -34,7 +34,22 @@ class AccountController extends Controller
             'publicVacancyIds' => $publicVacancyIds,
             'savedVacanciesCount' => $request->user()->savedVacancies()->count(),
             'savedCompaniesCount' => $request->user()->savedCompanies()->count(),
+            'applicationsCount' => $request->user()->applications()->count(),
         ]);
+    }
+
+    public function applications(Request $request): View
+    {
+        $applications = $request->user()->applications()
+            ->with('vacancy.company')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(12);
+        $publicVacancyIds = $this->publicVacancyIds(
+            $applications->getCollection()->pluck('vacancy_id')->all(),
+        );
+
+        return view('account.applications', compact('applications', 'publicVacancyIds'));
     }
 
     public function vacancies(Request $request): View

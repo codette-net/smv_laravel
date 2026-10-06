@@ -30,6 +30,8 @@ Route::middleware('guest')->group(function (): void {
     Route::get('/inloggen', [PublicAuthController::class, 'createLogin'])->name('login');
     Route::post('/inloggen', [PublicAuthController::class, 'login'])->middleware('throttle:public-login')->name('login.store');
     Route::get('/registreren', [PublicAuthController::class, 'createRegistration'])->name('register');
+    Route::get('/registreren/werkzoekende', [PublicAuthController::class, 'createJobSeekerRegistration'])->name('register.job-seeker');
+    Route::get('/registreren/werkgever', [PublicAuthController::class, 'createEmployerRegistration'])->name('register.employer');
     Route::post('/registreren', [PublicAuthController::class, 'register'])->middleware('throttle:public-registration')->name('register.store');
 });
 Route::post('/uitloggen', [PublicAuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -37,6 +39,7 @@ Route::post('/uitloggen', [PublicAuthController::class, 'logout'])->middleware('
 Route::middleware('auth')->prefix('account')->name('account.')->group(function (): void {
     Route::get('/', [AccountController::class, 'index'])->name('index');
     Route::get('/vacatures', [AccountController::class, 'vacancies'])->name('vacancies');
+    Route::get('/sollicitaties', [AccountController::class, 'applications'])->name('applications');
     Route::get('/bewaarde-vacatures', [AccountController::class, 'savedVacancies'])->name('saved-vacancies');
     Route::get('/bewaarde-bedrijven', [AccountController::class, 'savedCompanies'])->name('saved-companies');
     Route::get('/bedrijven/{company}/bewerken', [AccountController::class, 'editCompany'])->name('companies.edit');

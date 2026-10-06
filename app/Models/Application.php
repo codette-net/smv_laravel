@@ -36,7 +36,7 @@ class Application extends Model
 
     public function vacancy(): BelongsTo
     {
-        return $this->belongsTo(Vacancy::class);
+        return $this->belongsTo(Vacancy::class)->withTrashed();
     }
 
     public function candidate(): BelongsTo
