@@ -145,6 +145,23 @@ class Company extends Model implements HasMedia
         return $this->belongsToMany(BlogPost::class, 'blog_post_company');
     }
 
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_companies')->withTimestamps();
+    }
+
+    /** @param Builder<Company> $query */
+    public function scopeWithSavedStateFor(Builder $query, ?User $user): Builder
+    {
+        if ($user === null) {
+            return $query;
+        }
+
+        return $query->withExists([
+            'savedByUsers as is_saved' => fn (Builder $query) => $query->whereKey($user->getKey()),
+        ]);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

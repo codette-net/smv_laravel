@@ -46,11 +46,16 @@ class VacancyController extends Controller
         abort_unless($vacancy->company()->publiclyVisible()->exists(), 404);
 
         $vacancy->load(['company.media', 'categories.parent', 'tags']);
+        $vacancy->setAttribute(
+            'is_saved',
+            auth()->user()?->savedVacancies()->whereKey($vacancy)->exists() ?? false,
+        );
 
         $relatedVacancies = Vacancy::query()
             ->publiclyVisible()
             ->where('company_id', $vacancy->company_id)
             ->whereKeyNot($vacancy->getKey())
+            ->withSavedStateFor(auth()->user())
             ->with(['company.media', 'categories'])
             ->latest('published_at')
             ->limit(3)

@@ -10,9 +10,9 @@
         <img class="-mx-5 -mt-5 mb-5 h-44 w-[calc(100%+2.5rem)] object-cover" src="{{ $coverUrl }}" alt="" loading="lazy">
     @endif
 
-    <svg class="absolute top-5 right-5 transition-transform group-hover:rotate-45" xmlns="http://www.w3.org/2000/svg" width="9" height="9" aria-hidden="true">
-        <path class="fill-slate-400" d="M1.065 9 0 7.93l6.456-6.46H1.508L1.519 0H9v7.477H7.516l.011-4.942L1.065 9Z" />
-    </svg>
+    <div class="absolute right-4 top-4 z-30">
+        <x-company.save-button :company="$company" />
+    </div>
 
     <div class="mb-3 inline-flex">
         <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-lg font-bold text-blue-700 shadow-lg shadow-black/[0.03]">

@@ -15,6 +15,7 @@ class CompanyController extends Controller
     {
         $companies = Company::query()
             ->publiclyVisible()
+            ->withSavedStateFor($request->user())
             ->with(['media', 'categories'])
             ->withCount([
                 'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
@@ -39,8 +40,9 @@ class CompanyController extends Controller
         $company->load(['categories', 'media']);
 
         $vacancies = $company->vacancies()
-            ->with('company')
+            ->with(['company', 'categories'])
             ->publiclyVisible()
+            ->withSavedStateFor(auth()->user())
             ->latest()
             ->get();
 

@@ -61,6 +61,8 @@
                                 <p class="truncate text-xs text-gray-500">{{ auth()->user()->email }}</p>
                             </div>
                             <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('account.index') }}" x-on:click="open = false" x-on:focus="open = true">Mijn account</a>
+                            <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('account.saved-vacancies') }}" x-on:click="open = false">Bewaarde vacatures</a>
+                            <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('account.saved-companies') }}" x-on:click="open = false">Bewaarde bedrijven</a>
                             @if ($canAccessDashboard)
                                 <a class="font-medium text-sm text-gray-600 hover:text-gray-800 block py-1.5 px-3 hover:bg-gray-50" href="{{ route('filament.dashboard.pages.dashboard') }}" x-on:click="open = false" x-on:focus="open = true">Dashboard</a>
                             @endif
@@ -128,6 +130,8 @@
                             @auth
                                 <p class="px-2 py-1.5 text-xs font-medium text-gray-500">{{ auth()->user()->name }}</p>
                                 <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('account.index') }}">Mijn account</a>
+                                <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('account.saved-vacancies') }}">Bewaarde vacatures</a>
+                                <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('account.saved-companies') }}">Bewaarde bedrijven</a>
                                 @if ($canAccessDashboard)
                                     <a class="flex rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100" href="{{ route('filament.dashboard.pages.dashboard') }}">Dashboard</a>
                                 @endif

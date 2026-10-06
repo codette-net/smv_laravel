@@ -10,7 +10,7 @@
             <div>
                 <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Mijn account</p>
                 <h1 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Welkom, {{ auth()->user()->name }}</h1>
-                <p class="mt-3 max-w-2xl leading-7 text-slate-600">Beheer uw bedrijfsprofiel en bekijk de vacatures van uw bedrijven.</p>
+                <p class="mt-3 max-w-2xl leading-7 text-slate-600">Beheer uw account, bewaarde vacatures en eventuele werkgeversactiviteiten.</p>
             </div>
             <a class="btn justify-center bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancy-placement.index') }}">Vacature plaatsen</a>
         </div>
@@ -21,12 +21,33 @@
 
         <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <div class="space-y-8">
+                <section aria-labelledby="saved-vacancies-heading">
+                    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900" id="saved-vacancies-heading">Bewaarde vacatures</h2>
+                            <p class="mt-2 text-slate-600">{{ $savedVacanciesCount }} {{ Str::plural('vacature', $savedVacanciesCount) }} bewaard om later terug te bekijken.</p>
+                        </div>
+                        <a class="mt-4 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-800 sm:mt-0" href="{{ route('account.saved-vacancies') }}">Bekijk bewaarde vacatures →</a>
+                    </div>
+                </section>
+
+                <section aria-labelledby="saved-companies-heading">
+                    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900" id="saved-companies-heading">Bewaarde bedrijven</h2>
+                            <p class="mt-2 text-slate-600">{{ $savedCompaniesCount }} {{ $savedCompaniesCount === 1 ? 'bedrijf' : 'bedrijven' }} bewaard om later terug te bekijken.</p>
+                        </div>
+                        <a class="mt-4 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-800 sm:mt-0" href="{{ route('account.saved-companies') }}">Bekijk bewaarde bedrijven →</a>
+                    </div>
+                </section>
+
+                @if ($companies->isNotEmpty())
                 <section aria-labelledby="companies-heading">
                     <div class="flex items-center justify-between gap-4">
                         <h2 class="text-xl font-bold text-slate-900" id="companies-heading">Mijn bedrijven</h2>
                     </div>
                     <div class="mt-4 space-y-4">
-                        @forelse ($companies as $company)
+                        @foreach ($companies as $company)
                             <article class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-5">
                                 <div class="flex min-w-0 items-center gap-4">
                                     <div class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
@@ -46,9 +67,7 @@
                                 </div>
                                 <a class="mt-4 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-800 sm:mt-0" href="{{ route('account.companies.edit', $company) }}">Bedrijfsprofiel aanvullen →</a>
                             </article>
-                        @empty
-                            <div class="rounded-xl border border-slate-200 bg-white p-6 text-slate-600">Er is nog geen bedrijf aan uw account gekoppeld. Start met het plaatsen van een vacature om een bedrijf toe te voegen.</div>
-                        @endforelse
+                        @endforeach
                     </div>
                 </section>
 
@@ -77,14 +96,19 @@
                         @endforelse
                     </div>
                 </section>
+                @endif
             </div>
 
             <aside class="h-fit rounded-xl border border-slate-200 bg-slate-100 p-5">
-                <h2 class="font-semibold text-slate-900">Wat kunt u nu doen?</h2>
+                <h2 class="font-semibold text-slate-900">{{ $companies->isNotEmpty() ? 'Wat kunt u nu doen?' : 'Vacature plaatsen?' }}</h2>
                 <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-                    <li>Vul uw bedrijfsprofiel aan voor een sterke publieke presentatie.</li>
-                    <li>Plaats een nieuwe vacature of werk een concept verder uit.</li>
-                    <li>Ingediende vacatures blijven in beoordeling totdat een beheerder ze publiceert.</li>
+                    @if ($companies->isNotEmpty())
+                        <li>Vul uw bedrijfsprofiel aan voor een sterke publieke presentatie.</li>
+                        <li>Plaats een nieuwe vacature of werk een concept verder uit.</li>
+                        <li>Ingediende vacatures blijven in beoordeling totdat een beheerder ze publiceert.</li>
+                    @else
+                        <li>Wilt u namens een bedrijf een vacature plaatsen? Start de plaatsingsflow en maak daar een werkgeversprofiel aan.</li>
+                    @endif
                 </ul>
             </aside>
         </div>

@@ -41,6 +41,9 @@
             => $isPremium,
     ])
 >
+    <div class="absolute right-3 top-3 z-20">
+        <x-vacancy.save-button :vacancy="$vacancy" icon-only />
+    </div>
 
     {{-- Premium accent --}}
     @if ($isPremium)
@@ -196,28 +199,6 @@
                 </a>
             @endif
 
-
-            {{-- Bookmark --}}
-            <button
-                type="button"
-                class="text-gray-300 transition hover:text-gray-400"
-            >
-                <span class="sr-only">
-                    Vacature opslaan
-                </span>
-
-                <svg
-                    class="h-4 w-3 fill-current"
-                    width="12"
-                    height="16"
-                    viewBox="0 0 12 16"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                >
-                    <path d="M2 0C.9 0 0 .9 0 2v14l6-3 6 3V2c0-1.1-.9-2-2-2H2Z"/>
-                </svg>
-
-            </button>
 
         </div>
 

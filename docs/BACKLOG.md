@@ -75,7 +75,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-051 Orders/payments audit/completion | **NEEDS REVIEW** | Historical models/schema exist; no confirmed checkout/provider/reconciliation MVP flow exists. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
-| SMV-079 Saved Vacancies | **NOT STARTED** | Candidate/user save/unsave persistence and an account list are deliberately deferred. |
+| SMV-079 Saved Vacancies | **DONE** | User-owned Vacancy and Company-profile saves, guest auth continuation, public card state and private paginated account lists exist. |
 | SMV-080 Candidate application account history | **NOT STARTED** | A future account view may expose only internally observable SMV applications; external/e-mail applications cannot be tracked. |
 | SMV-081 Safe rich-text Vacancy and Company descriptions | **DONE** | Employer and Filament editors share a reusable limited editor UI; domain-aware Vacancy and Company boundaries sanitize persistence and public rendering. |
 
@@ -157,11 +157,19 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-079 — Saved Vacancies
 
-- **Status:** NOT STARTED
-- **Scope:** authenticated User-owned save/unsave persistence, one unique save per User
-  and Vacancy, a saved list under `/account`, and real saved state on public cards/detail.
-- **Lifecycle:** define what remains visible when a Vacancy expires, is archived or is
-  removed; do not restore a decorative bookmark until the action works end to end.
+- **Status:** DONE
+- **Result:** authenticated Users of every role can save each public Vacancy once and
+  remove it again. Guests continue through the existing login/registration routes and
+  the bounded save intent is revalidated before it is completed. General registration
+  creates a candidate account without a Company; the Vacancy-placement context retains
+  the employer plus pending-Company behavior.
+- **Account/lifecycle:** `/account/bewaarde-vacatures` is private, paginated and
+  `noindex, nofollow`. Public saves render with the shared cards. A saved record that is
+  no longer publicly eligible remains related but exposes only `Niet meer beschikbaar`;
+  it can still be removed and does not leak private Vacancy or Company content.
+- **Company profiles:** the same role-independent behavior is available on Company
+  cards through a separate unique `saved_companies` relationship and the private
+  `/account/bewaarde-bedrijven` list. Company and Vacancy saves remain separate domains.
 
 #### SMV-080 — Candidate application account history
 

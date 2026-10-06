@@ -379,9 +379,12 @@ The recent public-site pass has completed much of the intended SMV-070 consisten
 work: the production pages share the light SMV/Tidy-derived surface, cards, controls,
 responsive filters, header and footer. SMV-071 remains partial until keyboard/screen
 reader behavior and responsive pages have received a deliberate accessibility pass.
-The Vacancy card currently renders a bookmark button without persistence/interaction,
-and its premium variant is dormant presentation code because no persisted listing tier
-exists. Treat neither as completed commercial functionality.
+Vacancy cards use a top-right bookmark icon with the shared white tooltip pattern; the
+public detail page retains the explicit text control. Company cards use the equivalent
+icon for separately persisted Company-profile saves. State is loaded in bulk with the
+public query and never queried from Blade. The
+premium variant remains dormant presentation code because no persisted listing tier
+exists; do not treat that variant as completed commercial functionality.
 
 The retained component catalogue and job references are not reachable from
 `routes/web.php`, but remain independently compileable through `<x-app-layout>` after
@@ -406,11 +409,16 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   boundary. Public Company/Vacancy content and private Vacancy preview share the scoped
   `rich-content` Typography presentation;
 - `/inloggen` and `/registreren` use the public layout and the existing `web` guard.
-  They return users to the selected placement flow through Laravel's intended URL;
+  They return users to the selected placement or saved-Vacancy intent through Laravel's
+  intended URL. General registration creates no Company; employer registration remains
+  tied to the placement context;
 - `/account` is the normal public destination for authenticated users and is distinct
   from the staff-only Filament `/dashboard`. Employers can complete owned Company
-  profiles and browse owned Vacancies through `/account/vacatures`; account routes are
-  private and `noindex, nofollow`;
+  profiles and browse owned Vacancies through `/account/vacatures`. Every authenticated
+  User can manage saved Vacancies through `/account/bewaarde-vacatures` and saved
+  Company profiles through `/account/bewaarde-bedrijven`; unavailable items render
+  without protected content. Account routes are private and
+  `noindex, nofollow`;
 - pricing presents Standaard, Superior and Maatwerk without implying checkout or an
   automated ranking implementation;
 - Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062

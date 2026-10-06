@@ -30,6 +30,9 @@ Vacancy draft for an owned Company, preview it and hand it off in `pending` stat
 selected package is intent only: payment, entitlement and publication are not implied.
 The authenticated `/account` foundation lets an employer complete presentation/contact
 fields and Media Library branding for owned Companies and review owned Vacancies.
+All authenticated Users can also save public Vacancies and Company profiles and revisit
+them through the private account. Guests can begin either action before authentication;
+ordinary account registration does not create employer or Company ownership records.
 Submitted Vacancies stay read-only while awaiting moderation. Publishing in Filament
 now supports publish-now by leaving the date empty and scheduling by choosing a future
 date; this does not grant employers publication rights. Employer and Filament Vacancy

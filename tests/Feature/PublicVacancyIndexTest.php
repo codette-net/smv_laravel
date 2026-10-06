@@ -55,7 +55,7 @@ test('the vacancy index only renders publicly visible vacancies', function () {
     $this->get(route('vacancies.index'))
         ->assertOk()
         ->assertSee('Zichtbare vacature')
-        ->assertDontSee('Vacature opslaan')
+        ->assertSee('Bewaar vacature')
         ->assertDontSee('Concept vacature')
         ->assertDontSee('Vervulde vacature')
         ->assertDontSee('Verlopen vacature')

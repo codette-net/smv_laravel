@@ -37,6 +37,7 @@ class HomeController extends Controller
             'vacancies' => $vacancySearch->query($filters, $sort)->paginate(6)->withQueryString(),
             'featuredCompanies' => Company::query()
                 ->publiclyVisible()
+                ->withSavedStateFor($request->user())
                 ->with(['media', 'categories'])
                 ->withCount([
                     'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),

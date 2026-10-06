@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\VacancyPlacementSession;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -14,9 +15,11 @@ class RegisterEmployerRequest extends FormRequest
 
     public function rules(): array
     {
+        $employerRegistration = app(VacancyPlacementSession::class)->package() !== null;
+
         return [
             'name' => ['required', 'string', 'max:120'],
-            'company_name' => ['required', 'string', 'max:255'],
+            'company_name' => [$employerRegistration ? 'required' : 'nullable', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ];
