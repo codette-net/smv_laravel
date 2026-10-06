@@ -91,6 +91,31 @@ test('a guest company save resumes after login', function () {
     expect($user->savedCompanies()->whereKey($company)->exists())->toBeTrue();
 });
 
+test('a guest can register as a job seeker and resume a company save without owning it', function () {
+    $company = saveableCompany();
+
+    $this->post(route('companies.save', $company));
+
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertSee('href="'.route('register.job-seeker').'"', false);
+
+    $this->post(route('register.store'), [
+        'context' => 'job_seeker',
+        'name' => 'Bedrijfsvolger',
+        'email' => 'volger@example.com',
+        'password' => 'Veilig123',
+        'password_confirmation' => 'Veilig123',
+    ])->assertRedirect(route('bedrijven.show', $company));
+
+    $user = User::where('email', 'volger@example.com')->firstOrFail();
+
+    expect($user->hasRole('candidate'))->toBeTrue()
+        ->and($user->companies()->count())->toBe(0)
+        ->and($user->savedCompanies()->whereKey($company)->exists())->toBeTrue()
+        ->and($company->user_id)->not->toBe($user->id);
+});
+
 test('a stale guest company intent is revalidated after authentication', function () {
     $company = saveableCompany();
     $user = User::factory()->create(['email' => 'later-bedrijf@example.com', 'password' => 'Veilig123']);

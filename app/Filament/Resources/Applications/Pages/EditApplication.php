@@ -3,15 +3,15 @@
 namespace App\Filament\Resources\Applications\Pages;
 
 use App\Filament\Resources\Applications\ApplicationResource;
-use Filament\Actions\EditAction;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Actions\ViewAction;
+use Filament\Resources\Pages\EditRecord;
 
-class ViewApplication extends ViewRecord
+class EditApplication extends EditRecord
 {
     protected static string $resource = ApplicationResource::class;
 
     protected function getHeaderActions(): array
     {
-        return [EditAction::make()->label('Status wijzigen')];
+        return [ViewAction::make()];
     }
 }

@@ -2,11 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Support\VacancyPlacementSession;
+use App\Enums\RegistrationContext;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 
-class RegisterEmployerRequest extends FormRequest
+class RegisterPublicUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,14 +16,29 @@ class RegisterEmployerRequest extends FormRequest
 
     public function rules(): array
     {
-        $employerRegistration = app(VacancyPlacementSession::class)->package() !== null;
+        $employerRegistration = $this->registrationContext() === RegistrationContext::Employer;
 
         return [
+            'context' => ['nullable', new Enum(RegistrationContext::class)],
             'name' => ['required', 'string', 'max:120'],
             'company_name' => [$employerRegistration ? 'required' : 'nullable', 'string', 'max:255'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ];
+    }
+
+    public function registrationContext(): ?RegistrationContext
+    {
+        $context = $this->input('context');
+
+        return is_string($context) ? RegistrationContext::tryFrom($context) : null;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('context') !== null && $this->registrationContext() === null) {
+            $this->merge(['context' => null]);
+        }
     }
 
     public function messages(): array

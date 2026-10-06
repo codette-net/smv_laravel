@@ -1,6 +1,6 @@
 @php
     $groups = [
-        'Voor kandidaten' => [
+        'Voor werkzoekenden' => [
             ['label' => 'Vacatures', 'route' => 'vacancies.index'],
             ['label' => 'Bedrijven', 'route' => 'companies.index'],
             ['label' => 'Blog', 'route' => 'blog.index'],

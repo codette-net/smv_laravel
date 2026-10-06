@@ -1,18 +1,21 @@
 @extends('layouts.public')
 
-@section('title', ($isEmployerRegistration ? 'Werkgeversaccount' : 'Account') . ' aanmaken | Sales en Marketing Vacatures')
-@section('canonical', route('register'))
+@php($isEmployerRegistration = $registrationContext === \App\Enums\RegistrationContext::Employer)
+
+@section('title', 'Account aanmaken als ' . ($isEmployerRegistration ? 'werkgever' : 'werkzoekende') . ' | Sales en Marketing Vacatures')
+@section('canonical', $isEmployerRegistration ? route('register.employer') : route('register.job-seeker'))
 @section('robots', 'noindex, nofollow')
 
 @section('content')
     <section class="mx-auto max-w-xl px-4 pb-16 pt-28 sm:px-6 md:pt-36">
         <form class="rounded-xl border border-slate-200 bg-white p-7 shadow-sm sm:p-9" action="{{ route('register.store') }}" method="POST">
             @csrf
-            <h1 class="font-playfair-display text-3xl font-bold text-slate-900">{{ $isEmployerRegistration ? 'Werkgeversaccount aanmaken' : 'Account aanmaken' }}</h1>
+            <input name="context" type="hidden" value="{{ $registrationContext->value }}">
+            <h1 class="font-playfair-display text-3xl font-bold text-slate-900">Account aanmaken als {{ $isEmployerRegistration ? 'werkgever' : 'werkzoekende' }}</h1>
             <p class="mt-3 leading-7 text-slate-600">
                 {{ $isEmployerRegistration
-                    ? 'Maak een account en minimaal bedrijfsprofiel aan. Het profiel blijft in afwachting totdat SMV het heeft gecontroleerd.'
-                    : 'Maak een account aan om vacatures en bedrijven te bewaren en later eenvoudig terug te vinden.' }}
+                    ? 'Maak je bedrijfsprofiel aan en plaats en beheer vacatures via SMV. Het profiel blijft in afwachting totdat SMV het heeft gecontroleerd.'
+                    : 'Bewaar interessante vacatures en bedrijven en bekijk de status van sollicitaties die je via SMV verstuurt.' }}
             </p>
             <div class="mt-7 space-y-5">
                 <x-ui.input name="name" label="Naam" autocomplete="name" required />

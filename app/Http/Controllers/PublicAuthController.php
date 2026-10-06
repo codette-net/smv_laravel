@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CompanyStatus;
+use App\Enums\RegistrationContext;
 use App\Http\Requests\PublicLoginRequest;
-use App\Http\Requests\RegisterEmployerRequest;
+use App\Http\Requests\RegisterPublicUserRequest;
 use App\Models\User;
+use App\Support\RegistrationContextResolver;
 use App\Support\SavedCompanyIntent;
 use App\Support\SavedVacancyIntent;
-use App\Support\VacancyPlacementSession;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,9 +19,11 @@ use Spatie\Permission\Models\Role;
 
 class PublicAuthController extends Controller
 {
-    public function createLogin(): View
+    public function createLogin(RegistrationContextResolver $registrationContext): View
     {
-        return view('auth.public-login');
+        return view('auth.public-login', [
+            'registrationUrl' => $registrationContext->registrationRoute(),
+        ]);
     }
 
     public function login(
@@ -36,21 +39,34 @@ class PublicAuthController extends Controller
         return $this->redirectAfterAuthentication($savedVacancy, $savedCompany);
     }
 
-    public function createRegistration(VacancyPlacementSession $placement): View
+    public function createRegistration(): View
     {
-        return view('auth.public-register', [
-            'isEmployerRegistration' => $placement->package() !== null,
-        ]);
+        return view('auth.public-register-choice');
+    }
+
+    public function createJobSeekerRegistration(): View
+    {
+        return $this->registrationForm(RegistrationContext::JobSeeker);
+    }
+
+    public function createEmployerRegistration(): View
+    {
+        return $this->registrationForm(RegistrationContext::Employer);
     }
 
     public function register(
-        RegisterEmployerRequest $request,
-        VacancyPlacementSession $placement,
+        RegisterPublicUserRequest $request,
         SavedVacancyIntent $savedVacancyIntent,
         SavedCompanyIntent $savedCompanyIntent,
     ): RedirectResponse {
+        $registrationContext = $request->registrationContext();
+
+        if ($registrationContext === null) {
+            return to_route('register');
+        }
+
         $data = $request->validated();
-        $isEmployerRegistration = $placement->package() !== null;
+        $isEmployerRegistration = $registrationContext === RegistrationContext::Employer;
 
         $user = DB::transaction(function () use ($data, $isEmployerRegistration): User {
             $role = $isEmployerRegistration ? 'employer' : 'candidate';
@@ -81,6 +97,11 @@ class PublicAuthController extends Controller
         $savedCompany = $savedCompanyIntent->complete($user);
 
         return $this->redirectAfterAuthentication($savedVacancy, $savedCompany);
+    }
+
+    private function registrationForm(RegistrationContext $registrationContext): View
+    {
+        return view('auth.public-register', compact('registrationContext'));
     }
 
     public function logout(Request $request): RedirectResponse

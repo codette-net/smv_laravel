@@ -21,6 +21,16 @@
 
         <div class="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <div class="space-y-8">
+                <section aria-labelledby="applications-heading">
+                    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900" id="applications-heading">Mijn sollicitaties</h2>
+                            <p class="mt-2 text-slate-600">{{ $applicationsCount }} {{ $applicationsCount === 1 ? 'sollicitatie' : 'sollicitaties' }} rechtstreeks via SMV.</p>
+                        </div>
+                        <a class="mt-4 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-800 sm:mt-0" href="{{ route('account.applications') }}">Bekijk mijn sollicitaties →</a>
+                    </div>
+                </section>
+
                 <section aria-labelledby="saved-vacancies-heading">
                     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">
                         <div>

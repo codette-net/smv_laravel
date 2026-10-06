@@ -76,7 +76,8 @@ recovery are deliberately not represented as completed functionality.
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
 | SMV-079 Saved Vacancies | **DONE** | User-owned Vacancy and Company-profile saves, guest auth continuation, public card state and private paginated account lists exist. |
-| SMV-080 Candidate application account history | **NOT STARTED** | A future account view may expose only internally observable SMV applications; external/e-mail applications cannot be tracked. |
+| SMV-080 Candidate application account history | **DONE** | Authenticated Users see only session-linked internal Applications and a deliberate candidate status; current save rankings are aggregate and staff-only. |
+| SMV-080B Registration intent journeys | **DONE** | One User/login now presents explicit Werkzoekende and Werkgever registration journeys, resumes saved-content or placement intent safely and keeps authorization ownership-based. |
 | SMV-081 Safe rich-text Vacancy and Company descriptions | **DONE** | Employer and Filament editors share a reusable limited editor UI; domain-aware Vacancy and Company boundaries sanitize persistence and public rendering. |
 
 ## Phase F — Blog / content
@@ -152,8 +153,8 @@ recovery are deliberately not represented as completed functionality.
   future scheduling and historical publication dates are preserved. Deadline is the
   application cutoff and expiry the listing cutoff; both currently end public visibility.
 - **Deferred:** SMV-050 still owns definitive package/entitlement rules; SMV-051 owns
-  Order/payment/provider handling. E-mail notifications, saved Vacancies and candidate
-  application history are not represented as complete.
+  Order/payment/provider handling. Candidate notifications and external/e-mail
+  application tracking remain deliberately unavailable.
 
 #### SMV-079 — Saved Vacancies
 
@@ -173,11 +174,38 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-080 — Candidate application account history
 
-- **Status:** NOT STARTED
-- **Scope:** relate authenticated Users to internal `Application` records where safely
-  available and show a private `Mijn sollicitaties` account view.
-- **Boundary:** SMV cannot promise status tracking for external links or e-mail
-  applications that never enter the internal Application domain.
+- **Status:** DONE
+- **Result:** authenticated internal submissions store the session User in the existing
+  nullable `applications.candidate_id`. `/account/sollicitaties` lists only that User's
+  internal Applications, newest first and paginated. Existing e-mail-only/guest rows
+  are not claimed automatically. Workflow states map to deliberately limited candidate
+  labels; motivation, contact data, CV paths and internal terminology remain private.
+- **Lifecycle:** unavailable, filled, expired, hidden or soft-deleted Vacancy context is
+  replaced by a generic unavailable label while the known Application status remains.
+  Admins can update only the existing status through Filament; no ATS pipeline was added.
+
+#### SMV-080B — Separate work-seeker and employer registration journeys
+
+- **Status:** DONE
+- **Result:** generic `/registreren` first offers `Werkzoekende` and `Werkgever`; both
+  use the same `users` table, `web` guard and shared `/inloggen` page. Explicit validated
+  context determines form fields, initial classification and continuation. Work-seeker
+  registration never creates a Company; employer registration retains pending owned
+  Company onboarding and Vacancy-placement continuation.
+- **Intent/security:** the bounded registration resolver maps saved Vacancy/Company
+  sessions to work-seeker registration and placement sessions to employer registration.
+  Context cannot grant Filament access, ownership of an existing Company or arbitrary
+  Vacancy management. Roles are not exclusive product identities: employers may save
+  and apply, while an existing work seeker may later complete employer onboarding with
+  the same User.
+- **Engagement:** a staff-only Filament widget aggregates current saves directly from
+  the unique Vacancy and Company pivots, including deterministic top-five rankings of
+  existing records. No saver identities or counts are exposed publicly. Historical
+  save/unsave events and Activitylog integration are deferred until trend reporting is
+  an actual requirement.
+- **Boundary:** external URLs and e-mail destinations never create fake Applications;
+  messaging, timelines, notifications, application claiming and behavioural profiling
+  remain outside this ticket.
 
 #### SMV-081 — Safe rich-text Vacancy and Company descriptions
 

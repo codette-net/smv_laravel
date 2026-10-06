@@ -114,7 +114,8 @@ separate from the Filament `/dashboard` panel.
 The first SMV-078 slice uses the existing Laravel `web` guard rather than a second auth
 system. Public `/inloggen` and `/registreren` routes serve the shared public layout;
 Filament keeps its own panel login and remains restricted by `User::canAccessPanel()`.
-Registration assigns the Spatie `employer` role and creates one pending Company.
+Employer-intent registration assigns the Spatie `employer` role and creates one pending
+Company.
 
 Company ownership is the nullable `companies.user_id` foreign key. `User::companies()`
 is a one-to-many relation, so a User can manage zero, one or multiple Companies. There
@@ -138,12 +139,39 @@ SMV-079 extends that same `web`-guard account with User-owned saved Vacancies an
 profiles through separate unique `saved_vacancies` and `saved_companies` pivots. New
 saves require the applicable canonical public-visibility rules. A guest continuation
 stores only the content identifier in the session, revalidates it after authentication
-and attaches idempotently. Registration is
-context-aware: only an active Vacancy-placement session creates an employer plus pending
-Company; ordinary registration creates a candidate without employer domain records.
+and attaches idempotently. SMV-080B makes registration intent explicit: `/registreren`
+offers `Werkzoekende` and `Werkgever`, while one shared `/inloggen` route and one `users`
+table remain authoritative. A validated work-seeker intent creates a candidate-classified
+User without Company records; an employer intent creates the pending owned Company used
+by onboarding. The intent controls fields and continuation, not permanent product access.
+Saved-content intents lead to work-seeker registration and Vacancy placement leads to
+employer registration through one bounded resolver over the existing session intents.
+Authorization remains permission- and ownership-based: an employer can save/apply, and
+an existing work seeker can later create an owned Company in the placement flow without
+a second User or auth guard.
 Unavailable saved records retain their editorial relationship but render only a private
 minimal unavailable state under `/account/bewaarde-vacatures` or
 `/account/bewaarde-bedrijven`.
+
+SMV-080 uses the existing nullable `applications.candidate_id` as the sole candidate
+ownership boundary. An authenticated internal submission sets it from Laravel's session;
+clients cannot submit another User id. Guest Applications remain supported with a null
+candidate, and historical rows are never claimed by matching e-mail addresses. The
+private `/account/sollicitaties` query always starts from `User::applications()` and has
+no candidate detail route. It shows a mapped candidate status and only public Vacancy
+context. If the Vacancy or Company is no longer public, the relationship remains but
+protected content is replaced by a generic unavailable state.
+
+Application status remains one internal enum. Filament presents the existing workflow
+values to administrators, while the enum maps those values to intentionally coarser
+candidate labels. External and e-mail application modes do not enter the Application
+domain and are not represented as completed submissions.
+
+Internal engagement reporting uses database-side counts over the existing unique save
+pivots. A staff-only Filament widget shows current totals and deterministic rankings for
+existing, non-soft-deleted Vacancies and Companies. It never loads saver lists or exposes
+counts publicly. Spatie Activitylog is not used for save/unsave history in this phase;
+historical trend reporting is explicitly deferred.
 
 Vacancy publication is normalized server-side when a record transitions from a
 non-published status to `published`: a missing `published_at` becomes `now()`. An

@@ -77,6 +77,7 @@ test('quick registration creates one employer and pending company then resumes t
     $this->post(route('vacancy-placement.package'), ['package' => AdvertisingPackage::Superior->value]);
 
     $this->post(route('register.store'), [
+        'context' => 'employer',
         'name' => 'Sanne Werkgever',
         'company_name' => 'Duurzame Sales BV',
         'email' => 'sanne@example.com',
@@ -101,6 +102,7 @@ test('quick registration creates one employer and pending company then resumes t
 
 test('normal account registration creates a general candidate without a company', function () {
     $this->post(route('register.store'), [
+        'context' => 'job_seeker',
         'name' => 'Nieuwe Kandidaat',
         'email' => 'nieuw@example.com',
         'password' => 'Veilig123',

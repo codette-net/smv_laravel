@@ -31,8 +31,13 @@ selected package is intent only: payment, entitlement and publication are not im
 The authenticated `/account` foundation lets an employer complete presentation/contact
 fields and Media Library branding for owned Companies and review owned Vacancies.
 All authenticated Users can also save public Vacancies and Company profiles and revisit
-them through the private account. Guests can begin either action before authentication;
-ordinary account registration does not create employer or Company ownership records.
+them through the private account. Guests can begin either action before authentication.
+The generic registration entry explicitly offers `Werkzoekende` and `Werkgever`, backed
+by one User identity and one shared login. Work-seeker registration does not create
+Company ownership; employer registration performs the pending-Company onboarding. These
+are current intents rather than mutually exclusive product identities: employers retain
+save/application features and an existing work seeker can later complete Company
+onboarding and placement with the same account.
 Submitted Vacancies stay read-only while awaiting moderation. Publishing in Filament
 now supports publish-now by leaving the date empty and scheduling by choosing a future
 date; this does not grant employers publication rights. Employer and Filament Vacancy
@@ -114,7 +119,17 @@ The MVP supports three canonical application destination modes:
 - application by email
 - external application URL
 
-Candidate accounts and a full ATS workflow remain outside the current MVP.
+Authenticated Users can view their own securely linked internal Applications at
+`/account/sollicitaties`. The page exposes only the submission date, public Vacancy
+context where still available, and a deliberately mapped candidate-facing status.
+Guest or historical e-mail-only Applications are not claimed by e-mail matching.
+External and e-mail destinations remain untrackable and never create fake Applications.
+A full ATS workflow, candidate notifications, messaging and timelines remain outside
+the current MVP.
+
+Current Vacancy and Company save totals and rankings are available only to Filament
+staff through aggregate pivot queries. Public save counts, individual saver identities,
+historical save events and behavioural profiles are outside scope.
 
 ### Vacancy imports
 
