@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CategoryType;
+use App\Models\Category;
 use App\Models\Company;
 use App\Support\Companies\CompanyDescription;
 use App\Support\Seo\StructuredData;
@@ -13,20 +15,45 @@ class CompanyController extends Controller
 {
     public function index(Request $request): View
     {
+        $searchInput = $request->query('q');
+        $categoryInput = $request->query('category');
+        $search = is_string($searchInput) ? Str::limit(Str::squish($searchInput), 100, '') : '';
+        $category = is_string($categoryInput) ? Str::limit(Str::slug($categoryInput), 100, '') : '';
+
         $companies = Company::query()
             ->publiclyVisible()
+            ->matchingSearch($search)
+            ->inCompanyCategory($category)
             ->withSavedStateFor($request->user())
-            ->with(['media', 'categories'])
+            ->with([
+                'media',
+                'categories' => fn ($query) => $query->where('type', CategoryType::company_category->value),
+                'publicVacanciesPreview',
+            ])
             ->withCount([
                 'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
             ])
             ->orderByDesc('is_featured')
             ->orderBy('name')
+            ->orderBy('id')
             ->paginate(12)
             ->withQueryString();
 
+        $companyCategories = Category::query()
+            ->where('type', CategoryType::company_category->value)
+            ->whereHas('companies', fn ($query) => $query->publiclyVisible())
+            ->withCount([
+                'companies as public_companies_count' => fn ($query) => $query->publiclyVisible(),
+            ])
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get();
+
         return view('companies.index', [
+            'category' => $category,
+            'companyCategories' => $companyCategories,
             'companies' => $companies,
+            'search' => $search,
             'seoCanonical' => $request->integer('page', 1) > 1
                 ? route('companies.index', ['page' => $request->integer('page')])
                 : route('companies.index'),

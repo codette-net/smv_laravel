@@ -79,6 +79,31 @@ test('the homepage presents public companies and the three latest public article
         ->assertDontSee('Publiek artikel 4');
 });
 
+test('the homepage renders a public company banner directly after the hero with safe fallbacks', function () {
+    $public = Company::factory()->create([
+        'name' => 'Banner Werkgever',
+        'status' => CompanyStatus::Active,
+        'is_featured' => true,
+        'logo' => null,
+    ]);
+    Company::factory()->create([
+        'name' => 'Verborgen Banner Werkgever',
+        'status' => CompanyStatus::Draft,
+    ]);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('data-company-logo-banner', false)
+        ->assertSee('company-logo-marquee-window', false)
+        ->assertSee('company-logo-marquee', false)
+        ->assertSeeInOrder(['</section>', 'data-company-logo-banner', 'id="vacature-zoeker"'], false)
+        ->assertSee('Bekijk Banner Werkgever')
+        ->assertSee('href="'.route('bedrijven.show', $public).'"', false)
+        ->assertDontSee('Verborgen Banner Werkgever')
+        ->assertDontSee('Trusted by')
+        ->assertDontSee('client-01.svg');
+});
+
 test('the homepage applies submitted vacancy filters and keeps its debounced search on the homepage', function () {
     homepageSearchVacancy('Accountmanager Utrecht', ['location' => 'Utrecht']);
     homepageSearchVacancy('Marketing specialist Amsterdam', ['location' => 'Amsterdam']);

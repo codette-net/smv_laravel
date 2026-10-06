@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
 use App\Support\Companies\CompanyDescription;
 use Database\Factories\CompanyFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -89,6 +91,38 @@ class Company extends Model implements HasMedia
         return $query->where('status', CompanyStatus::Active->value);
     }
 
+    /** @param Builder<Company> $query */
+    public function scopeMatchingSearch(Builder $query, ?string $search): Builder
+    {
+        if (blank($search)) {
+            return $query;
+        }
+
+        $term = '%'.addcslashes($search, '%_\\').'%';
+
+        return $query->where(function (Builder $query) use ($term): void {
+            $query
+                ->where('name', 'like', $term)
+                ->orWhere('tagline', 'like', $term)
+                ->orWhere('description', 'like', $term)
+                ->orWhere('location', 'like', $term);
+        });
+    }
+
+    /** @param Builder<Company> $query */
+    public function scopeInCompanyCategory(Builder $query, ?string $categorySlug): Builder
+    {
+        if (blank($categorySlug)) {
+            return $query;
+        }
+
+        return $query->whereHas('categories', function (Builder $query) use ($categorySlug): void {
+            $query
+                ->where('type', CategoryType::company_category->value)
+                ->where('slug', $categorySlug);
+        });
+    }
+
     public function publicLogoUrl(): ?string
     {
         return $this->getFirstMediaUrl('logo') ?: $this->logo;
@@ -97,6 +131,14 @@ class Company extends Model implements HasMedia
     public function publicCoverUrl(): ?string
     {
         return $this->getFirstMediaUrl('cover') ?: $this->cover_image;
+    }
+
+    public function publicIntroduction(int $limit = 150): ?string
+    {
+        $source = filled($this->tagline) ? $this->tagline : $this->description;
+        $introduction = app(CompanyDescription::class)->plainText($source);
+
+        return filled($introduction) ? Str::limit($introduction, $limit) : null;
     }
 
     /** @return array<int, string> */
@@ -128,6 +170,16 @@ class Company extends Model implements HasMedia
     public function vacancies(): HasMany
     {
         return $this->hasMany(Vacancy::class);
+    }
+
+    public function publicVacanciesPreview(): HasMany
+    {
+        return $this->hasMany(Vacancy::class)
+            ->publiclyVisible()
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(2);
     }
 
     public function importSources(): HasMany

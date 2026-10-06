@@ -26,6 +26,7 @@ Users
 
 Companies
 ├── public company page
+├── public search and one-category discovery
 ├── vacancies
 ├── content relations where useful
 └── package/commercial relations where current model requires them
@@ -215,6 +216,13 @@ public controllers and Blade components under `components/ui`, `components/vacan
 are not routed. The retained catalogue is compileable through `<x-app-layout>` and
 obsolete duplicates were removed in SMV-075, so `artisan view:cache` remains a release
 validation command rather than a known blocker.
+
+Company discovery always starts from `Company::publiclyVisible()`. The index applies a
+bounded text query and at most one `company_category` slug, eager-loads card media and
+typed categories, and aggregates `Vacancy::publiclyVisible()` counts. Category-browser
+counts use one constrained aggregate query rather than per-category queries. Saved state
+continues to use the authenticated bulk `withExists` query. The homepage employer banner
+uses a separate deterministic, bounded public Company query with eager-loaded media.
 
 Do not add Vue/React/another design system without explicit approval.
 

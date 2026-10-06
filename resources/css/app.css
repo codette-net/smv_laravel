@@ -95,3 +95,56 @@
 [x-cloak=""] {
     display: none;
 }
+
+@keyframes company-logo-marquee {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.company-logo-marquee {
+    animation: company-logo-marquee 38s linear infinite;
+    will-change: transform;
+}
+
+.company-logo-marquee:hover,
+.company-logo-marquee:focus-within {
+    animation-play-state: paused;
+}
+
+.company-logo-marquee-window::before,
+.company-logo-marquee-window::after {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    width: clamp(2.5rem, 8vw, 6rem);
+    pointer-events: none;
+    content: '';
+    backdrop-filter: blur(2px);
+}
+
+.company-logo-marquee-window::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-slate-900), rgb(16 29 45 / 0));
+}
+
+.company-logo-marquee-window::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-slate-900), rgb(16 29 45 / 0));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .company-logo-marquee-window {
+        overflow-x: auto;
+    }
+
+    .company-logo-marquee {
+        animation: none;
+        will-change: auto;
+    }
+
+    .company-logo-marquee-group[aria-hidden='true'] {
+        display: none;
+    }
+}

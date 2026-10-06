@@ -108,6 +108,13 @@ Company
 └── Commercial/package relations as needed
 ```
 
+Public Company discovery does not add persistence. It reuses `Category` through
+`categoryables`, restricted to `CategoryType::company_category`, and applies one category
+slug at a time. Public Company counts use `Company::publiclyVisible()` and card Vacancy
+counts use `Vacancy::publiclyVisible()`. The categoryable unique constraint prevents one
+Company/category relation from inflating aggregate counts. Company descriptions remain
+sanitized rich text in storage and are converted to plain text before card truncation.
+
 ## Structured taxonomies and tags
 
 `Category` remains the controlled polymorphic taxonomy model. Vacancy-facing category

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CategoryType;
 use App\Http\Requests\UpdateEmployerCompanyRequest;
 use App\Models\Company;
 use App\Models\Vacancy;
@@ -78,7 +79,10 @@ class AccountController extends Controller
     public function savedCompanies(Request $request): View
     {
         $companies = $request->user()->savedCompanies()
-            ->with(['media', 'categories'])
+            ->with([
+                'media',
+                'categories' => fn ($query) => $query->where('type', CategoryType::company_category->value),
+            ])
             ->withCount([
                 'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
             ])

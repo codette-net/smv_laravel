@@ -6,11 +6,12 @@ Build a stable, commercially credible first version of the new Sales en Marketin
 
 The MVP is the foundation of a recruitment platform. It must already support the core job-board business flow, company presence, reliable vacancy ingestion, strong search-engine migration fundamentals and enough content capability to support sales/demo use.
 
-Current repository reality (audited 1 October 2026): the recruitment core, Company and
+Current repository reality (audited 6 October 2026): the recruitment core, Company and
 Vacancy administration, the internal/external/e-mail application flow, the generic
 JSON/XML/CSV/XLSX import pipeline, the technical SEO foundation and the native Blog are
 implemented and covered by feature tests. The current public frontend also includes the
-canonical homepage, vacancy and company discovery/detail pages, Blog archives and the
+canonical homepage, vacancy discovery, searchable single-category Company discovery,
+Company detail pages, Blog archives and the
 static Dutch pages `/adverteren`, `/over-ons`, `/tarieven` and `/contact`. The Contact
 page includes a validated, spam-protected, e-mail-only general enquiry form.
 
@@ -94,6 +95,12 @@ Company pages are part of the MVP and should support the current data model wher
 - active vacancies
 
 Company is a first-class domain entity and should not be treated as just a text field on a vacancy.
+
+The public Company index now combines free-text profile search with exactly one typed
+Company category in shareable GET state. Cards expose only public Vacancy counts, use
+Media Library-first contained logos with a letter fallback and retain the private saved
+Company interaction. The homepage introduces real public employers in a bounded logo
+strip; dedicated Company category archives remain a later decision.
 
 ### Public vacancies
 

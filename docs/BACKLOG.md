@@ -100,7 +100,8 @@ recovery are deliberately not represented as completed functionality.
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
 | SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
 | SMV-076 Public SEO regression hardening | **DONE** | Blog and archive pagination use clean self-canonicals, public metadata is escaped once at the output boundary, indexable static pages are present in the sitemap, and the environment-aware robots path matches the Filament dashboard. |
-| SMV-077 Company discovery and filtering | **NOT STARTED** | Company search/filtering is deliberately separate from SMV-063. |
+| SMV-077 Company discovery and filtering | **DONE** | Public-only Company search, one-category filtering, richer reusable cards and the homepage employer banner exist. |
+| SMV-077A Dedicated Company category archives | **NOT STARTED** | A future category directory/archive may extend the current in-page single-category discovery without introducing dead routes now. |
 
 ## Next work queue
 
@@ -236,16 +237,25 @@ recovery are deliberately not represented as completed functionality.
 
 #### SMV-077 — Company discovery and filtering
 
-- **Status:** NOT STARTED
-- **Why later:** SMV-063 improves Company discovery copy and homepage presentation but
-  does not expand the existing Company index query experience.
-- **Scope:** Company-name search, category/sector filtering, optional location only when
-  current data is reliable, browse-by-category, GET query-string state, pagination,
-  result count, featured-Company integration and a responsive desktop sidebar/filter UI
-  within the current SMV/Tidy design language.
+- **Status:** DONE
+- **Result:** `/bedrijven` supports public-only search across useful Company profile
+  fields and exactly one typed Company category through shareable GET state. A compact
+  category browser uses one grouped public-Company count query, pagination preserves
+  filters and featured priority remains deterministic.
+- **Presentation:** reusable Company cards now use a left-aligned contained logo or
+  deterministic letter fallback, safe plain-text introduction, public Vacancy aggregate,
+  typed category context and the existing asynchronous circular save control. A reusable
+  Tidy-derived employer logo strip immediately follows the homepage hero and contains
+  only real public Company records.
 - **Out of scope:** speculative taxonomies, geocoding and a separate frontend stack.
-- **Acceptance:** public-only Company results remain deterministic and shareable; filters
-  combine correctly and work on desktop/mobile with focused regression coverage.
+
+#### SMV-077A — Dedicated Company category archives
+
+- **Status:** NOT STARTED
+- **Scope:** decide whether `/bedrijven/categorieen` and
+  `/bedrijven/categorie/{slug}` add sufficient visitor and SEO value beyond the existing
+  `/bedrijven?category={slug}` discovery flow. No placeholder or dead public route ships
+  before that decision.
 
 #### Later content/discovery ideas (not committed MVP scope)
 

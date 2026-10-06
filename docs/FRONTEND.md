@@ -191,8 +191,9 @@ The production public surface currently includes:
 - `/vacatures` and `/vacatures/{slug}`: canonical discovery and detail flow with
   public lifecycle filtering, taxonomy filters, deterministic sorting, related
   Vacancies and one application destination;
-- `/bedrijven` and `/bedrijven/{slug}`: public Company listing/detail pages with
-  Media Library-first imagery and public Vacancy counts/relations;
+- `/bedrijven` and `/bedrijven/{slug}`: public Company discovery/detail pages with
+  GET-based text search, one typed category filter, Media Library-first imagery and
+  public Vacancy counts/relations;
 - `/blog`, Blog detail, typed category archives and typed tag archives;
 - `/adverteren`, `/over-ons`, `/tarieven` and `/contact`, including the operational
   general Contact form;
@@ -437,6 +438,14 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   primitives plus a Tidy-derived accessible status modal. Validation/failure feedback
   remains inline and the form does not require an account;
 - homepage Company and Blog sections use live public data rather than hardcoded cards;
+- a compact Tidy-derived employer logo strip sits directly below the homepage hero and
+  uses only deterministic public Company data, contained logos or neutral letter
+  fallbacks, links to Company detail and no unsupported partnership claim;
+- reusable Company cards use a richer horizontal identity layout, a contained
+  left-aligned logo or accessible letter fallback, safe plain-text profile introduction,
+  public Vacancy count, limited typed categories and the unchanged circular async save
+  control. The `/bedrijven` category browser scrolls horizontally on narrow screens and
+  links to the current GET filter; dedicated category archives are deferred to SMV-077A;
 - About/contact stock photography is limited to existing Tidy assets and remains subject
   to final stakeholder approval.
 

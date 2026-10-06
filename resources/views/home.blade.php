@@ -8,7 +8,7 @@
 @section('content')
     <section class="relative">
         <div
-            class="pointer-events-none absolute inset-0 -z-10 bg-slate-900 [clip-path:polygon(0_0,_5760px_0,_5760px_calc(100%_-_160px),_0_100%)]"
+            class="pointer-events-none absolute inset-0 -z-10 bg-slate-900"
             aria-hidden="true"></div>
         <div class="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div class="pt-32 pb-28 md:pt-40 md:pb-44">
@@ -26,6 +26,8 @@
             </div>
         </div>
     </section>
+
+    <x-company.logo-banner :companies="$bannerCompanies" />
 
     <section class="mx-auto max-w-7xl px-8 2xl:px-16 py-10 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
         <div class="lg:flex lg:items-start lg:gap-10">

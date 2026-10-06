@@ -32,19 +32,33 @@ class HomeController extends Controller
             ->latest('id')
             ->limit(3)
             ->get();
+        $companyCategoryConstraint = fn ($query) => $query->where('type', CategoryType::company_category->value);
 
         return view('home', [
             'vacancies' => $vacancySearch->query($filters, $sort)->paginate(6)->withQueryString(),
             'featuredCompanies' => Company::query()
                 ->publiclyVisible()
                 ->withSavedStateFor($request->user())
-                ->with(['media', 'categories'])
+                ->with(['media', 'categories' => $companyCategoryConstraint])
                 ->withCount([
                     'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
                 ])
                 ->orderByDesc('is_featured')
                 ->orderBy('name')
                 ->limit(3)
+                ->get(),
+            'bannerCompanies' => Company::query()
+                ->publiclyVisible()
+                ->with('media')
+                ->withExists([
+                    'media as has_media_logo' => fn ($query) => $query->where('collection_name', 'logo'),
+                ])
+                ->orderByDesc('has_media_logo')
+                ->orderByRaw("case when logo is null or logo = '' then 0 else 1 end desc")
+                ->orderByDesc('is_featured')
+                ->orderBy('name')
+                ->orderBy('id')
+                ->limit(8)
                 ->get(),
             'latestBlogPosts' => $latestBlogPosts,
             'latestBlogPost' => $latestBlogPosts->first(),

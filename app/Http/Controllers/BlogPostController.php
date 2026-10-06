@@ -49,7 +49,13 @@ class BlogPostController extends Controller
             'relatedCompanies' => $blogPost->companies()
                 ->publiclyVisible()
                 ->withSavedStateFor(auth()->user())
-                ->with('media')
+                ->with([
+                    'media',
+                    'categories' => fn ($query) => $query->where('type', CategoryType::company_category->value),
+                ])
+                ->withCount([
+                    'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
+                ])
                 ->orderBy('name')
                 ->limit(3)
                 ->get(),
