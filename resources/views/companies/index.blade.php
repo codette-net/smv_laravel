@@ -12,14 +12,14 @@
                     <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-blue-600">Werkgevers</p>
                     <h1 class="border-y py-5 text-4xl font-bold text-slate-900 [border-image:linear-gradient(to_right,transparent,var(--color-slate-300),transparent)_1] sm:text-5xl md:text-6xl">Ontdek bedrijven</h1>
                     <p class="mx-auto mt-6 max-w-2xl text-lg text-slate-600">Maak kennis met werkgevers, lees waar zij voor staan en bekijk hun actuele sales- en marketingvacatures.</p>
-                    <a class="mt-5 inline-flex text-sm font-semibold text-blue-700 transition hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600" href="#bedrijfscategorieen">Zoeken op categorie <span class="ml-1" aria-hidden="true">↓</span></a>
+                    <a class="mt-5 mb-5 inline-flex text-sm font-semibold text-blue-700 transition hover:text-blue-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600" href="#bedrijfscategorieen">Zoeken op categorie <span class="ml-1" aria-hidden="true">↓</span></a>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="mx-auto max-w-6xl px-4 pb-14 sm:px-6 md:pb-20" aria-labelledby="bedrijven-overzicht">
-        <div class="rounded-xl border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur-sm sm:p-5">
+        <div class="rounded-xl border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur-sm sm:p-5 -mt-12">
             <form class="flex flex-col gap-3 sm:flex-row sm:items-end" action="{{ route('companies.index') }}" method="GET" x-data>
                 <div class="grow">
                     <label class="mb-1 block text-sm font-medium text-slate-700" for="company-search">Zoek een bedrijf</label>
