@@ -48,7 +48,7 @@
 
                     <div class="inline-flex">
 
-                        <div class="flex size-[104px] items-center justify-center overflow-hidden rounded-full border-4 border-white bg-white shadow-sm">
+                        <div class="flex size-[104px] -mt-12 items-center justify-center overflow-hidden rounded-full border-4 border-blue-400/50 bg-white shadow-sm">
 
                             @if ($logoUrl)
                                 <img
