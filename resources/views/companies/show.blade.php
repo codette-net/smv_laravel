@@ -31,13 +31,13 @@
                 height="440"
             >
         @else
-            <div class="h-full w-full bg-gradient-to-br from-gray-100 via-indigo-50 to-gray-200"></div>
+            <div class="smv-hero-light h-full w-full"></div>
         @endif
     </div>
 
 
     {{-- Header --}}
-    <header class="border-b border-gray-200 bg-white/30 pb-6 text-center">
+    <header class="border-b border-gray-200 bg-white/70 pb-6 text-center backdrop-blur-sm">
 
         <div class="w-full px-4 sm:px-6 lg:px-8">
 
@@ -59,7 +59,7 @@
                                     alt="Logo van {{ $company->name }}"
                                 >
                             @else
-                                <span class="text-3xl font-bold text-indigo-500">
+                                <span class="text-3xl font-bold text-blue-700">
                                     {{ Str::upper(Str::substr($company->name, 0, 1)) }}
                                 </span>
                             @endif
@@ -131,7 +131,7 @@
                             </svg>
 
                             <a
-                                class="ml-2 whitespace-nowrap text-sm font-medium text-indigo-500 hover:text-indigo-600"
+                                class="ml-2 whitespace-nowrap text-sm font-medium text-blue-700 hover:text-blue-800"
                                 href="{{ $company->website }}"
                                 target="_blank"
                                 rel="noopener noreferrer"

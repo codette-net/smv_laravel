@@ -20,7 +20,7 @@
                         <div class="mb-5 flex items-center justify-between">
                             <h2 class="text-lg font-bold text-gray-800">Verfijn je zoekopdracht</h2>
                             @if (count($activeFilters))
-                                <a class="text-sm font-medium text-indigo-500 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" href="{{ route('vacancies.index') }}">Wis</a>
+                                <a class="text-sm font-medium text-blue-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" href="{{ route('vacancies.index') }}">Wis</a>
                             @endif
                         </div>
                         <x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :taxonomy-options="$taxonomyOptions" :companies="$companies" />
@@ -50,7 +50,7 @@
                         <div class="relative rounded-xl border border-gray-200 bg-gray-50 px-6 py-10 text-center">
                             <h2 class="text-xl font-bold text-gray-800 text-pretty">Geen vacatures gevonden</h2>
                             <p class="mt-2 text-gray-500">Probeer je zoekopdracht aan te passen of verwijder je filters.</p>
-                            <a class="btn mt-5 bg-indigo-500 text-white hover:bg-indigo-600" href="{{ route('vacancies.index') }}">Wis filters</a>
+                            <a class="btn mt-5 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancies.index') }}">Wis filters</a>
                         </div>
                     @endif
                 </section>

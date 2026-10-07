@@ -58,7 +58,7 @@
             </svg>
         </button>
         <div
-            class="z-20 absolute top-full left-0 w-full bg-white border border-gray-200 py-1.5 rounded-lg inset-shadow-md overflow-y-auto max-h-64 mt-1"
+            class="z-20 absolute top-full left-0 w-full bg-white border border-gray-200 py-1.5 rounded-lg shadow-[-1px_2px_24px_-9px_rgba(0,0,0,0.15)] overflow-y-auto max-h-64 mt-1"
             id="{{ $menuId }}"
             role="listbox"
             aria-labelledby="{{ $id }}-label"
@@ -79,7 +79,7 @@
                     class="flex items-center justify-between w-full hover:bg-gray-50 py-2 px-3 cursor-pointer"
                     type="button"
                     role="option"
-                    :class="value === '' && 'text-violet-500'"
+                    :class="value === '' && 'text-blue-700'"
                     :aria-selected="value === ''"
                     x-on:click="value = ''; $refs.input.value = ''; label = @js($placeholder); open = false; $refs.input.dispatchEvent(new Event('change', { bubbles: true })); $nextTick(() => $refs.trigger.focus())"
                     x-on:keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
@@ -87,14 +87,14 @@
                     x-on:keydown.end.prevent="$el.parentElement.lastElementChild.focus()"
                 >
                     <span>{{ $placeholder }}</span>
-                    <svg class="shrink-0 ml-2 fill-current text-violet-400" :class="value !== '' && 'invisible'" width="12" height="9" viewBox="0 0 12 9" aria-hidden="true"><path d="m10.28.28-6.291 6.295L1.695 4.28A1 1 0 0 0 .28 5.695l3 3a1 1 0 0 0 1.414 0l7-7A1 1 0 0 0 10.28.28Z" /></svg>
+                    <svg class="shrink-0 ml-2 fill-current text-blue-500" :class="value !== '' && 'invisible'" width="12" height="9" viewBox="0 0 12 9" aria-hidden="true"><path d="m10.28.28-6.291 6.295L1.695 4.28A1 1 0 0 0 .28 5.695l3 3a1 1 0 0 0 1.414 0l7-7A1 1 0 0 0 10.28.28Z" /></svg>
                 </button>
                 @foreach ($options as $optionValue => $optionLabel)
                     <button
                         class="flex items-center justify-between w-full hover:bg-gray-50 py-2 px-3 cursor-pointer"
                         type="button"
                         role="option"
-                        :class="value === @js($optionValue) && 'text-violet-500'"
+                        :class="value === @js($optionValue) && 'text-blue-700'"
                         :aria-selected="value === @js($optionValue)"
                         x-on:click="value = @js($optionValue); $refs.input.value = @js($optionValue); label = @js($optionLabel); open = false; $refs.input.dispatchEvent(new Event('change', { bubbles: true })); $nextTick(() => $refs.trigger.focus())"
                         x-on:keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
@@ -103,7 +103,7 @@
                         x-on:keydown.end.prevent="$el.parentElement.lastElementChild.focus()"
                     >
                         <span class="text-left">{{ $optionLabel }}</span>
-                        <svg class="shrink-0 ml-2 fill-current text-violet-400" :class="value !== @js($optionValue) && 'invisible'" width="12" height="9" viewBox="0 0 12 9" aria-hidden="true"><path d="m10.28.28-6.291 6.295L1.695 4.28A1 1 0 0 0 .28 5.695l3 3a1 1 0 0 0 1.414 0l7-7A1 1 0 0 0 10.28.28Z" /></svg>
+                        <svg class="shrink-0 ml-2 fill-current text-blue-500" :class="value !== @js($optionValue) && 'invisible'" width="12" height="9" viewBox="0 0 12 9" aria-hidden="true"><path d="m10.28.28-6.291 6.295L1.695 4.28A1 1 0 0 0 .28 5.695l3 3a1 1 0 0 0 1.414 0l7-7A1 1 0 0 0 10.28.28Z" /></svg>
                     </button>
                 @endforeach
             </div>

@@ -33,7 +33,7 @@
 
                     @else
 
-                        <span class="text-2xl font-bold text-indigo-500">
+                        <span class="text-2xl font-bold text-blue-700">
                             {{ Str::upper(Str::substr($company->name, 0, 1)) }}
                         </span>
 
@@ -94,7 +94,7 @@
                             </svg>
 
                             <a
-                                class="min-w-0 break-all text-sm text-gray-600 hover:text-indigo-500"
+                                class="min-w-0 break-all text-sm text-gray-600 hover:text-blue-700"
                                 href="mailto:{{ $company->email }}"
                             >
                                 {{ $company->email }}
@@ -121,7 +121,7 @@
                             </svg>
 
                             <a
-                                class="text-sm text-gray-600 hover:text-indigo-500"
+                                class="text-sm text-gray-600 hover:text-blue-700"
                                 href="tel:{{ $company->phone }}"
                             >
                                 {{ $company->phone }}
@@ -167,14 +167,14 @@
                 <div class="mx-auto mb-5 max-w-xs">
 
                     <a
-                        class="btn group w-full bg-indigo-500 text-white shadow-xs hover:bg-indigo-600"
+                        class="btn group w-full bg-blue-600 text-white shadow-xs hover:bg-blue-700"
                         href="{{ $company->website }}"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         Bezoek website
 
-                        <span class="ml-1 tracking-normal text-indigo-200 transition-transform duration-150 ease-in-out group-hover:translate-x-0.5">
+                        <span class="ml-1 tracking-normal text-blue-200 transition-transform duration-150 ease-in-out group-hover:translate-x-0.5">
                             →
                         </span>
                     </a>
@@ -193,7 +193,7 @@
 
                         @if ($company->linkedin_url)
                             <a
-                                class="text-sm font-medium text-indigo-500 hover:underline"
+                                class="text-sm font-medium text-blue-700 hover:underline"
                                 href="{{ $company->linkedin_url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -204,7 +204,7 @@
 
                         @if ($company->facebook_url)
                             <a
-                                class="text-sm font-medium text-indigo-500 hover:underline"
+                                class="text-sm font-medium text-blue-700 hover:underline"
                                 href="{{ $company->facebook_url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -215,7 +215,7 @@
 
                         @if ($company->instagram_url)
                             <a
-                                class="text-sm font-medium text-indigo-500 hover:underline"
+                                class="text-sm font-medium text-blue-700 hover:underline"
                                 href="{{ $company->instagram_url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -226,7 +226,7 @@
 
                         @if ($company->video_url)
                             <a
-                                class="text-sm font-medium text-indigo-500 hover:underline"
+                                class="text-sm font-medium text-blue-700 hover:underline"
                                 href="{{ $company->video_url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"

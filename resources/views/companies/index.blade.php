@@ -5,17 +5,7 @@
 @section('canonical', $seoCanonical)
 
 @section('content')
-    <section class="relative overflow-hidden">
-        <div class="pointer-events-none absolute left-1/2 top-0 -z-10 -translate-x-1/2" aria-hidden="true">
-            <div class="h-80 w-[48rem] bg-[repeating-linear-gradient(135deg,transparent_0,transparent_13px,rgba(86,150,255,.08)_14px,rgba(86,150,255,.08)_15px)]"></div>
-        </div>
-        <div class="pointer-events-none absolute left-1/2 top-12 -z-10 ml-[23rem] -translate-x-1/2" aria-hidden="true">
-            <div class="h-72 w-72 rounded-full bg-linear-to-tr from-blue-500/35 to-slate-900/25 blur-[130px]"></div>
-        </div>
-        <div class="pointer-events-none absolute left-1/2 top-44 -z-10 -ml-[26rem] -translate-x-1/2" aria-hidden="true">
-            <div class="h-72 w-72 rounded-full bg-linear-to-tr from-blue-500/25 to-slate-900/20 blur-[130px]"></div>
-        </div>
-
+    <section class="smv-hero-light relative overflow-hidden">
         <div class="mx-auto max-w-6xl px-4 sm:px-6">
             <div class="mx-auto max-w-3xl pt-28 pb-10 md:pt-36 md:pb-14">
                 <div class="text-center">
@@ -29,7 +19,7 @@
     </section>
 
     <section class="mx-auto max-w-6xl px-4 pb-14 sm:px-6 md:pb-20" aria-labelledby="bedrijven-overzicht">
-        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5">
+        <div class="rounded-xl border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur-sm sm:p-5">
             <form class="flex flex-col gap-3 sm:flex-row sm:items-end" action="{{ route('companies.index') }}" method="GET" x-data>
                 <div class="grow">
                     <label class="mb-1 block text-sm font-medium text-slate-700" for="company-search">Zoek een bedrijf</label>

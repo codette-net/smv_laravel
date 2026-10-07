@@ -18,7 +18,7 @@
     $loginRoute = 'login';
 @endphp
 
-<footer class="mt-12 border-t border-slate-200 bg-white text-slate-600">
+<footer class="mt-12 border-t border-slate-200 bg-white/90 text-slate-600 backdrop-blur-sm">
     <div class="mx-auto max-w-6xl px-4 sm:px-6">
         <div class="grid gap-10 py-10 sm:grid-cols-2 md:py-14 lg:grid-cols-12">
             <div class="sm:col-span-2 lg:col-span-5 lg:max-w-sm">

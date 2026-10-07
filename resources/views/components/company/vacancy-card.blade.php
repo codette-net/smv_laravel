@@ -33,11 +33,11 @@
             => $tier === 'standard',
 
         // Featured
-        'border-indigo-200 bg-indigo-50/60 shadow-md hover:shadow-lg'
+        'border-blue-200 bg-blue-50/60 shadow-md hover:shadow-lg'
             => $isFeatured,
 
         // Premium
-        'border-indigo-300 bg-gradient-to-r from-indigo-50 via-white to-violet-50 shadow-lg ring-1 ring-indigo-100 hover:shadow-xl'
+        'border-blue-300 bg-gradient-to-r from-blue-50 via-white to-blue-100 shadow-lg ring-1 ring-blue-100 hover:shadow-xl'
             => $isPremium,
     ])
 >
@@ -47,7 +47,7 @@
 
     {{-- Premium accent --}}
     @if ($isPremium)
-        <div class="absolute inset-y-3 left-0 w-1 rounded-r-full bg-indigo-500"></div>
+        <div class="absolute inset-y-3 left-0 w-1 rounded-r-full bg-blue-500"></div>
     @endif
 
 
@@ -106,7 +106,7 @@
 
                 {{-- Title --}}
                 <a
-                    class="inline-flex font-semibold text-gray-800 transition hover:text-indigo-600"
+                    class="inline-flex font-semibold text-gray-800 transition hover:text-blue-700"
                     href="{{ $detailUrl }}"
                 >
                     {{ $vacancy->title }}
@@ -146,7 +146,7 @@
                     <div class="mt-2 flex flex-wrap gap-2">
 
                         @if ($salary)
-                            <span class="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                            <span class="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
                                 {{ $salary }}
                             </span>
                         @endif
@@ -193,7 +193,7 @@
             @if ($isPremium)
                 <a
                     href="{{ $detailUrl }}"
-                    class="hidden whitespace-nowrap rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-600 sm:inline-flex"
+                    class="hidden whitespace-nowrap rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 sm:inline-flex"
                 >
                     Bekijk →
                 </a>
@@ -208,7 +208,7 @@
     {{-- Premium excerpt --}}
     @if ($isPremium && $vacancy->excerpt)
 
-        <p class="mt-3 border-t border-indigo-100 pt-3 pl-14 text-sm leading-5 text-gray-600">
+        <p class="mt-3 border-t border-blue-100 pt-3 pl-14 text-sm leading-5 text-gray-600">
             {{ Str::limit($vacancy->excerpt, 140) }}
         </p>
 

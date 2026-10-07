@@ -29,10 +29,10 @@
     @stack('structured_data')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 font-inter text-slate-700 antialiased">
+<body class="public-site-surface font-inter text-slate-700 antialiased">
 <div class="flex min-h-screen flex-col overflow-hidden">
     <div class="h-px" id="public-nav-sentinel" aria-hidden="true"></div>
-    <x-app.header-new :dark-at-top="$darkHeaderAtTop" />
+    <x-app.header :dark-at-top="$darkHeaderAtTop" />
 
     <main class="grow">
         @yield('content')

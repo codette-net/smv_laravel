@@ -8,7 +8,7 @@
 @section('content')
     <section class="relative">
         <div
-            class="pointer-events-none absolute inset-0 -z-10 bg-slate-900"
+            class="smv-hero-dark pointer-events-none absolute inset-0 -z-10"
             aria-hidden="true"></div>
         <div class="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div class="pt-32 pb-28 md:pt-40 md:pb-44">
@@ -17,22 +17,26 @@
                         Vacatures</p>
                     <h1 class="mt-4 font-playfair-display text-4xl font-bold tracking-tight text-slate-100 sm:text-5xl">
                         Sales- en marketingvacatures zonder de ruis</h1>
-                    <p class="mt-6 text-xl text-slate-400">Ontdek relevante vacatures, werkgevers en vakinhoud voor elke volgende stap in je commerciële loopbaan.</p>
+                    <p class="mt-6 text-xl text-primary-200">Ontdek relevante vacatures, werkgevers en vakinhoud voor elke volgende stap in je commerciële loopbaan.</p>
                     <div class="mt-8 flex flex-wrap justify-center gap-3 md:justify-start">
-                        <a class="btn bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancies.index') }}">Bekijk vacatures <span class="ml-1 text-blue-300">→</span></a>
-                        <a class="btn border border-slate-600 bg-slate-800 text-white hover:bg-slate-700" href="{{ route('advertising') }}">Voor werkgevers</a>
+                        <a class="btn bg-accent-600 text-white hover:bg-accent-700" href="{{ route('vacancies.index') }}">Bekijk vacatures <span class="ml-1 text-accent-200">→</span></a>
+                        <a class="btn border border-white/25 bg-primary-900/45 text-white hover:bg-primary-900/70" href="{{ route('advertising') }}">Voor werkgevers</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <x-company.logo-banner :companies="$bannerCompanies" />
-
-    <section class="mx-auto max-w-7xl px-8 2xl:px-16 py-10 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
+    <div class="max-w-3xl mx-auto -mt-16 flex justify-center px-4 py-2 bg-blue-50/95 border border-blue-500 rounded-lg ">
+        <!-- Logo -->
+        <a class="inline-flex" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
+            <img class="object-cover z-40" src="{{ Vite::asset('resources/images/smv-logo.svg') }}"
+                 alt="Sales en Marketing Vacatures">
+        </a>
+    </div>
+    <section class="mx-auto max-w-7xl px-8 2xl:px-16 py-8 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
         <div class="lg:flex lg:items-start lg:gap-10">
             <aside
-                class="mb-8 lg:sticky lg:top-24 lg:mb-0 lg:w-72 lg:shrink-0 shadow-lg shadow-blue-200/50 rounded-xl ">
+                class="mb-8  lg:sticky lg:top-24 lg:mb-0 lg:w-72 lg:shrink-0 shadow-lg shadow-blue-700/50 rounded-xl ">
                 <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
                     <div class="max-w-2xl">
                         <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Zoek vacatures</p>
@@ -60,7 +64,7 @@
                 </div>
 
                 @if ($vacancies->isNotEmpty())
-                    <div class="mt-8 grid gap-4 grid-cols-[repeat(auto-fill,minmax(16rem,1fr))]">
+                    <div class="mt-8 grid gap-4 grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))]">
                         @foreach ($vacancies as $vacancy)
                             <x-vacancy.card :vacancy="$vacancy" :detail-url="route('vacancies.show', $vacancy)"/>
                         @endforeach
@@ -77,6 +81,7 @@
             </section>
         </div>
     </section>
+    <x-company.logo-banner :companies="$bannerCompanies" />
 
     <section class="border-y border-slate-200 bg-white" aria-labelledby="kandidaat-voordelen">
         <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -118,8 +123,8 @@
         </section>
     @endif
 
-    <section class="relative overflow-hidden bg-slate-900 text-white" aria-labelledby="voor-werkgevers">
-        <div class="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0,transparent_13px,rgba(96,165,250,.06)_14px,rgba(96,165,250,.06)_15px)]" aria-hidden="true"></div>
+    <section class="relative overflow-hidden bg-primary-800 text-white" aria-labelledby="voor-werkgevers">
+        <div class="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent_0,transparent_13px,rgba(134,197,244,.08)_14px,rgba(134,197,244,.08)_15px)]" aria-hidden="true"></div>
         <div class="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-center lg:px-8 lg:py-20">
             <div>
                 <p class="text-sm font-semibold uppercase tracking-widest text-blue-300">Voor werkgevers</p>
