@@ -27,6 +27,7 @@
 @endphp
 
 <article
+    data-demo="vacancy-card"
     @class([
         'group relative flex h-full overflow-hidden rounded-2xl border transition-all duration-200
         bg-white/20 p-2 shadow-lg shadow-blue-700/50 transition hover:bg-white/90

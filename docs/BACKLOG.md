@@ -103,6 +103,22 @@ recovery are deliberately not represented as completed functionality.
 | SMV-077 Company discovery and filtering | **DONE** | Public-only Company search, one-category filtering, richer reusable cards and the homepage employer banner exist. |
 | SMV-077A Dedicated Company category archives | **NOT STARTED** | A future category directory/archive may extend the current in-page single-category discovery without introducing dead routes now. |
 
+## Phase H — Vacancy discovery extension
+
+The evidence and proposed policy for this phase are documented in
+`MVP_DISCOVERY_EXTENSION_AUDIT.md`. These tickets are planned, not implemented.
+
+| Ticket | Status | Exact remainder |
+| --- | --- | --- |
+| SMV-082 Compensation data and normalization contract | **NOT STARTED** | Confirm comparable monthly salary/hourly rate metadata and close admin/import validation gaps without guessing legacy values. |
+| SMV-083 Salary/rate range filtering | **NOT STARTED** | Add shared inclusive overlap filtering to homepage and Vacancy listing after SMV-082. |
+| SMV-084 Sector/function-area ownership and administration | **NOT STARTED** | Complete explicit Vacancy/Company assignment and import/admin boundaries using the existing Category architecture. |
+| SMV-085 Public sector/function-area archives | **NOT STARTED** | Add type-safe overview/detail routes, counts, filters, pagination and public Company context. |
+| SMV-086 Linked public taxonomy labels | **NOT STARTED** | Link deliberate Vacancy/Company taxonomy labels to canonical archives without nested links. |
+| SMV-087 Relevant Vacancies for Company and Vacancy detail | **NOT STARTED** | Apply visibility-safe, deduplicated relevance and featured ordering to existing blocks. |
+| SMV-088 Blog editorial taxonomy fallback | **NOT STARTED** | Preserve manual Blog relations and add explicit function-area/sector fallback selection. |
+| SMV-089 Discovery SEO and regression gate | **NOT STARTED** | Verify archive SEO/sitemap policy, visibility, performance and cross-feature regressions. |
+
 ## Next work queue
 
 ### A. Functional / MVP
@@ -322,6 +338,174 @@ recovery are deliberately not represented as completed functionality.
 - **Scope:** environment, queues if adopted, mail, storage, HTTPS, robots/sitemap, redirects, analytics/Search Console, monitoring and post-launch checks.
 - **Dependencies:** SMV-046, SMV-062/063 and SMV-071–073.
 - **Acceptance:** signed checklist, production smoke pass, indexability verified and rollback/monitoring responsibilities assigned.
+
+### D. Vacancy discovery extension
+
+#### SMV-082 — Compensation data and normalization contract
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** make existing `salary_*` and `rate_*` ranges reliably comparable. All
+  eight amount/currency/period fields and `CompensationPeriod` exist, but Filament omits
+  metadata and no field distinguishes fulltime-equivalent from offered-hours salary.
+- **In scope:** audit live/seed/import values; agree nullable salary-basis metadata; align
+  Filament/employer validation; document EUR-month salary and EUR-hour rate comparability;
+  correct stale compensation statements in import documentation.
+- **Out of scope:** currency conversion, assumed hours, bonus/commission percentages,
+  package entitlement and bulk guessing/backfill.
+- **Dependencies:** product confirmation of the public salary basis; package confirmation is
+  not required.
+- **Acceptance:** ambiguous rows remain unknown; minimum/maximum ordering and enum values are
+  validated at every write boundary; salary and rate can still coexist; imports preserve
+  warnings instead of guessing.
+- **Tests/verification:** create/update/import salary-only, rate-only, both, null metadata,
+  annual-to-monthly once, reversed/negative bounds and unknown period/basis.
+- **Documentation:** `DATA_MODEL.md`, `IMPORTS.md`, `IMPORT_DESIGN.md`, `MVP.md` and this audit.
+- **Open decision:** FTE versus offered-hours canonical monthly basis; recommended default is
+  explicitly marked gross monthly FTE, EUR only. Zero should mean invalid/unknown.
+- **Effort:** medium — schema may be small, but write-boundary and data-quality verification
+  spans admin, employer and imports.
+
+#### SMV-083 — Salary and hourly-rate range filtering
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** extend shared `VacancySearch` so homepage and `/vacatures` support two
+  amount inputs plus an explicit monthly/hourly mode. Existing shared GET filters, debounce,
+  collapsible homepage panel, reset and pagination are reusable.
+- **In scope:** `vergoeding`, `bedrag_van`, `bedrag_tot`; inclusive overlap for one/two/fixed
+  bounds; Dutch validation; active chips; combined filters; page reset/query preservation.
+- **Out of scope:** slider, currency conversion, salary sorting and ambiguous compensation.
+- **Dependencies:** SMV-082 comparability contract.
+- **Acceptance:** monthly salary never matches hourly rate; unknown values are excluded only
+  with an active amount; equal boundaries match; homepage results stay on `/`; search and
+  “Wis filters” remain visible.
+- **Tests/verification:** minimum-only, maximum-only, equal endpoints, fixed/one-bound rows,
+  negative/non-numeric/reversed input, period/currency/basis mismatch, combined taxonomy and
+  Company filters, pagination state and homepage parity.
+- **Documentation:** `MVP.md`, `FRONTEND.md`, `DATA_MODEL.md`, `SEO.md`.
+- **Open decision:** final public copy for monthly salary basis; no technical package blocker.
+- **Effort:** medium — one shared query path, two responsive forms and boundary-heavy tests.
+
+#### SMV-084 — Sector/function-area ownership and administration
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** complete explicit ownership through existing `Category`/`categoryables`.
+  Vacancy admin/import already supports sector/function area; Company relation supports them
+  technically but Company admin currently exposes only `company_category`.
+- **In scope:** type-scoped Company sector selection; review Vacancy hierarchy selection;
+  preserve source-scoped aliases; safe handling of existing assignments and duplicate slugs.
+- **Out of scope:** new taxonomy tables, name-based auto-classification, automatic Company →
+  Vacancy inheritance and Blog taxonomy changes.
+- **Dependencies:** none; precedes public Company-sector presentation.
+- **Acceptance:** Vacancy and Company sectors are explicit; function area remains Vacancy-led;
+  same slug across types is safe; Blog/vacancy/company categories stay isolated; imports do
+  not create or guess unresolved Categories.
+- **Tests/verification:** Filament sync/detach, inverse morph relations, same-slug types,
+  parent-type validation, import aliases and no implicit propagation.
+- **Documentation:** `DATA_MODEL.md`, `ARCHITECTURE.md`, `IMPORTS.md`.
+- **Open decision:** whether Company needs function-area ownership; recommended MVP is sector
+  only, with Vacancy function areas remaining explicit.
+- **Effort:** medium — architecture is reusable, but every query/form must constrain type.
+
+#### SMV-085 — Public sector and function-area overview/archives
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** turn existing filter-only taxonomies into crawlable discovery pages.
+  Blog archives provide proven typed binding/canonical patterns; no Vacancy taxonomy routes
+  currently exist.
+- **In scope:** `/vacatures/categorieen`, typed sector/function-area detail routes before the
+  Vacancy catch-all, descriptions, public distinct counts/results, hierarchy semantics,
+  existing filters, pagination, breadcrumbs and relevant explicitly-sector-linked Companies.
+- **Out of scope:** automatic classification, location archives and a second card/filter UI.
+- **Dependencies:** SMV-084; archive copy/description decision.
+- **Acceptance:** parent includes same-type descendants; Category scope survives all filters;
+  each Vacancy occurs once; wrong-type/unknown slug is 404; valid empty archive is a 200
+  noindex empty state; counts equal public results.
+- **Tests/verification:** typed slug collisions, parent/child counts, public lifecycle,
+  duplicate relationships, additional filters, pagination, empty/invalid archives and query
+  count/eager loading.
+- **Documentation:** `MVP.md`, `FRONTEND.md`, `SEO.md`, `DATA_MODEL.md` and route docs.
+- **Open decision:** source for archive descriptions; recommended nullable Category copy only
+  if curated copy cannot live in configuration/content.
+- **Effort:** large — routes, reusable query constraints, hierarchy/counts, UI and SEO meet.
+
+#### SMV-086 — Clickable Vacancy and Company taxonomy labels
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** link current unlinked Vacancy badges and new explicit Company sector
+  labels to SMV-085 archives. Blog chips are already correctly linked and type-scoped.
+- **In scope:** deliberate sector/function-area labels on Vacancy cards/detail; sector labels
+  on Company profiles; canonical archive URLs; accessible non-nested card interactions.
+- **Out of scope:** linking free-form tags, employment/workplace archives or card redesign.
+- **Dependencies:** SMV-084 and SMV-085.
+- **Acceptance:** labels use matching taxonomy type; card primary links and label links do not
+  nest or conflict; long labels wrap; non-public/legacy types are not linked.
+- **Tests/verification:** URLs/type collisions, escaped labels, keyboard focus, card click
+  targets and eager-loaded Category relations.
+- **Documentation:** `FRONTEND.md`, `SEO.md`.
+- **Open decision:** maximum card labels; recommended one function area plus one sector.
+- **Effort:** small — mostly component wiring after canonical archives exist.
+
+#### SMV-087 — Relevant Vacancies on Company and Vacancy detail
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** improve existing Company and Vacancy blocks without duplicating them.
+  Company detail already loads own public Vacancies; Vacancy detail currently returns at most
+  three same-Company public Vacancies.
+- **In scope:** Company label “Vacatures bij dit bedrijf”, maximum six and featured-first;
+  Vacancy ranking same Company → shared function area → shared sector, featured within group,
+  deterministic ordering, deduplication and eager loading.
+- **Out of scope:** package entitlement, recommendations from tags/text/AI and unrelated filler.
+- **Dependencies:** existing taxonomy is enough; SMV-084 improves data coverage but is not a
+  code blocker.
+- **Acceptance:** visibility always wins; current Vacancy excluded; relevance outranks
+  featured; candidates appear once; insufficient matches produce a smaller/absent block.
+- **Tests/verification:** ranking precedence, featured ties, duplicate category matches,
+  expired/filled/future/deleted records, hidden Company, deterministic limit and query count.
+- **Documentation:** `ARCHITECTURE.md`, `MVP.md`, `FRONTEND.md`.
+- **Open decision:** Company limit/CTA; recommended six and Company-filtered `/vacatures`.
+- **Effort:** medium — bounded ranking query and existing component consolidation.
+
+#### SMV-088 — Blog editorial taxonomy fallback
+
+- **Classification/status:** MVP — NOT STARTED.
+- **Goal/evidence:** retain implemented manual `BlogPost::vacancies()`/`companies()` and add
+  explicit sector/function-area fallback only when manual public Vacancies do not fill three.
+- **In scope:** separate Filament selectors for explicit function areas/sectors; manual-first,
+  then function-area, then sector ranking; public filtering, deduplication and existing cards.
+- **Out of scope:** matching Blog category/tag slugs, AI recommendations, related-post logic
+  and automatic Company inference.
+- **Dependencies:** SMV-084 taxonomy ownership; can follow SMV-087 query/ranking conventions.
+- **Acceptance:** manual relations remain intact and first; hidden manual records do not leak;
+  explicit taxonomy fills only remaining slots; featured is secondary to relevance; maximum
+  three and no unrelated filler.
+- **Tests/verification:** manual + fallback mix, typed slug collisions, expired records,
+  deduplication, inverse existing relations and Filament sync/detach.
+- **Documentation:** `BLOG.md`, `DATA_MODEL.md`, `ARCHITECTURE.md`, `SEO.md`.
+- **Open decision:** whether editors need manual order; recommended defer pivot `sort_order`
+  until editorial evidence requires it.
+- **Effort:** medium — existing relations are strong; explicit taxonomy and ranking are new.
+
+#### SMV-089 — Discovery SEO, sitemap and regression gate
+
+- **Classification/status:** MVP release gate — NOT STARTED.
+- **Goal/evidence:** extend, not replace, the completed SMV-040–043/076 SEO foundation for
+  new taxonomy discovery and verify all discovery slices together.
+- **In scope:** unique archive metadata, canonical/robots pagination policy, breadcrumbs,
+  public non-empty sitemap eligibility, internal links, performance review and focused/full
+  regression matrix.
+- **Out of scope:** legacy redirect inventory, schema types without evidence and SEO changes to
+  arbitrary filtered listing URLs.
+- **Dependencies:** SMV-083 and SMV-085–088.
+- **Acceptance:** clean archives index/follow; page 1 canonical is clean; clean page 2+ is
+  self-canonical; additional filters noindex/follow to clean archive; sitemap excludes empty,
+  wrong-type and non-public archives; no visibility leaks or N+1 regressions.
+- **Tests/verification:** salary boundaries/periods, combined filters/homepage, typed slug
+  collisions, archive/public visibility, related ranking/deduplication, expired records,
+  Blog manual relations, sitemap and query counts.
+- **Documentation:** `SEO.md`, `MVP.md`, `BACKLOG.md`, launch/checklist documentation.
+- **Open decision:** confirm valid-empty archive 200/noindex policy; recommended as audited.
+- **Effort:** medium — primarily integration tests and SEO wiring across several completed
+  feature tickets.
 
 SMV-045 and SMV-046 remain mandatory after the SMV-044 inventory and a staging host are
 available, but are not independently actionable before those dependencies exist.

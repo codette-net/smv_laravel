@@ -9,7 +9,7 @@
     $fallbackLetter = Str::upper(Str::substr(trim($company->name), 0, 1));
 @endphp
 
-<article class="group relative flex h-full flex-col rounded-xl border border-slate-200 bg-white/95 shadow-sm backdrop-blur-sm transition duration-200 hover:border-blue-300 hover:shadow-md">
+<article class="group relative flex h-full flex-col rounded-xl border border-slate-200 bg-white/95 shadow-sm backdrop-blur-sm transition duration-200 hover:border-blue-300 hover:shadow-md" data-demo="company-card">
     @if ($coverUrl)
         <img class="h-24 w-full rounded-t-xl object-cover" src="{{ $coverUrl }}" alt="" loading="lazy">
     @endif
