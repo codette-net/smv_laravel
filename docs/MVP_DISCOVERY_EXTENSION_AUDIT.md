@@ -16,13 +16,13 @@ plan; no package entitlement is inferred.
 
 | Capability | Status | Verified implementation | Gap |
 | --- | --- | --- | --- |
-| Salary/rate storage | **Partial** | `Vacancy` casts and fills salary/rate min, max, currency and `CompensationPeriod`; migrations `2026_06_29_145304_create_vacancies_table.php` and `2026_08_21_100100_add_compensation_metadata_to_vacancies.php`. | No salary basis, working-hours metadata or comparable-range scope. |
-| Salary administration | **Partial** | `VacancyForm` and `SaveVacancyPlacementRequest` accept non-negative salary bounds; employer flow enforces maximum ≥ minimum. | Filament does not edit currency/period and does not enforce bound ordering; rate metadata and basis are not administered. |
-| Salary import | **Partial** | `DestinationRegistry`, `NormalizedVacancyData`, `VacancyImportRunner` and `annual_salary_to_monthly` support all eight canonical fields. | Source ambiguity remains possible; `IMPORT_DESIGN.md` still incorrectly says the four metadata columns are missing. No working-hours/basis target exists. |
-| Public salary filter | **Missing** | Homepage and `/vacatures` share `VacancySearch` and `VacancyFilterOptions`. | No amount or compensation-mode parameters, controls, validation or overlap query. |
+| Salary/rate storage | **Implemented (SMV-082)** | Existing salary/rate fields plus nullable `salary_basis`; enum casts and reusable comparable monthly-salary/hourly-rate scopes. | Existing ambiguous rows intentionally remain unknown and non-comparable. |
+| Salary administration | **Implemented (SMV-082)** | Filament edits amount/currency/period/basis; employer monthly-EUR input records an explicit optional basis; new zero/negative/reversed ranges are rejected. | None for the agreed MVP contract. |
+| Salary import | **Implemented (SMV-082 contract)** | Generic mapping accepts explicit basis, normalizes known metadata, turns imported zero into null with a warning and rejects malformed ranges without guessing. | No source currently supplies an approved FTE default. |
+| Public salary filter | **Implemented (SMV-083)** | Homepage and `/vacatures` share validated monthly-FTE/hourly mode and inclusive overlap through `VacancySearch`. | No currency conversion, slider or salary sorting by design. |
 | Vacancy sector/function assignment | **Implemented** | `CategoryType::sector` and `function_area`, `categoryables`, `Vacancy::categories()`, Filament taxonomy fields and source-scoped import aliases. Unique `(type, slug)` prevents same-type collisions. | Public discovery is filter-only; hierarchy matching currently uses exact category slug. |
 | Company sector assignment | **Partial** | `Company::categories()` can attach any typed Category and `VacancyTaxonomyTest` proves a sector attachment. | Company admin/public queries intentionally use only `company_category`; no sector-specific editorial UI or public presentation. |
-| Vacancy taxonomy filters | **Implemented** | `VacancySearch::whereHasCategory()`, `VacancyFilterOptions::taxonomyOptions()`, homepage and listing filter components; combined filter and pagination tests exist. | Parent selection does not include descendants; no archive context. |
+| Vacancy taxonomy filters | **Implemented** | `VacancySearch::whereHasCategory()`, `VacancyFilterOptions::taxonomyOptions()`, homepage and listing filter components; combined filter and pagination tests exist. Sector/function parent filters include same-type descendants. | No archive context. |
 | Public taxonomy directory/archives | **Missing** | Blog archives demonstrate type-scoped binding, pagination canonicals and sitemap rules. | No sector/function-area routes, overview, descriptions, breadcrumbs or sitemap entries. `categories` has no description field. |
 | Clickable taxonomy labels | **Partial** | Vacancy cards/detail render Category labels; Blog category/tag chips are linked. | Vacancy labels are badges/spans. Company pages expose no sector links. Card links require a non-nested-link pattern. |
 | Company Vacancy block | **Partial** | `CompanyController::show()` uses the Company relation plus `Vacancy::publiclyVisible()`; `companies/show.blade.php` renders the records. | Heading differs from the requested label, there is no featured-first order or bounded result policy, and a shared component already exists but is not consistently used. |
@@ -54,16 +54,13 @@ plan; no package entitlement is inferred.
 
 ## 4. Gaps and documentation inconsistencies
 
-1. `IMPORT_DESIGN.md` lines describing compensation metadata as a later schema change are
-   stale: the columns and enum casts now exist.
-2. Salary display prefers salary over rate in `Vacancy::compensationLabel()`, but the label
-   does not currently communicate currency, period or basis. Filtering it without stricter
-   comparability would be misleading.
-3. Filament exposes four numeric compensation bounds but not currency/period. Employer
-   placement currently only accepts salary bounds. Imported data can carry richer metadata
-   than editors can verify.
-4. No model field records whether monthly salary is fulltime-equivalent or represents the
-   offered hours. No working-hours range exists. This is a material matching ambiguity.
+1. SMV-082 corrected the stale compensation-schema statements in `IMPORT_DESIGN.md`.
+2. `Vacancy::compensationLabel()` now communicates period and distinguishes explicit FTE from
+   offered-hours monthly salary; unknown basis is never labelled FTE.
+3. Filament now exposes currency, period and salary basis, while employer salary entry remains
+   explicitly monthly EUR and asks for (but does not assume) basis.
+4. The nullable basis closes the matching ambiguity without adding speculative working-hours
+   fields or reclassifying existing data.
 5. Hierarchy is validated as same-type, but filters are exact-category only. Parent/child
    archive behavior is not implemented.
 6. Company categories in current public/admin behavior mean `company_category`, not sector.
@@ -77,10 +74,9 @@ plan; no package entitlement is inferred.
 
 ### Compensation
 
-Keep the existing eight compensation fields. Add only metadata proven necessary by the
-salary-data audit. The recommended minimum is a nullable salary-basis enum such as
-`full_time_equivalent`, `offered_hours`, `unknown`; imported and existing rows default to
-unknown. Do not infer basis from employment type, Category names or a missing hours value.
+SMV-082 keeps the existing eight compensation fields and adds only nullable salary basis:
+`gross_fte`, `gross_offered_hours`, `unknown`. Existing null values remain unknown. Do not
+infer basis from employment type, Category names, amount, monthly period or description.
 Add working-hours fields only if source/product evidence requires them for display; they are
 not required merely to build the initial comparable-range filter.
 
@@ -193,8 +189,8 @@ It must remain only an ordering hint and must never bypass relevance or visibili
 
 ## 8. Dependencies and implementation order
 
-1. **SMV-082** compensation data/basis audit and normalization contract.
-2. **SMV-083** salary/rate filtering in shared search and both UIs.
+1. **SMV-082 — DONE:** compensation data/basis and normalization contract.
+2. **SMV-083 — DONE:** shared primary/secondary filters and salary/rate overlap in both UIs.
 3. **SMV-084** explicit sector/function-area ownership in admin/import flows.
 4. **SMV-085** public taxonomy overview and archives.
 5. **SMV-086** linked taxonomy labels on Vacancy/Company presentation.
@@ -202,9 +198,9 @@ It must remain only an ordering hint and must never bypass relevance or visibili
 7. **SMV-088** Blog explicit taxonomy fallback while retaining manual relations.
 8. **SMV-089** cross-feature SEO, sitemap, query-performance and regression verification.
 
-SMV-082 can proceed immediately as a data-contract task while the basis decision is
-confirmed; it must not backfill ambiguous values. SMV-087 is independent of package work
-and can also proceed after its limits/copy are accepted.
+SMV-082 remains complete without backfilling ambiguous values. SMV-083 composes its
+comparability scopes with public visibility without conversion. SMV-087 remains independent
+of package work.
 
 ## 9. Focused validation plan
 
@@ -225,4 +221,3 @@ and can also proceed after its limits/copy are accepted.
   filtered archive policy, sitemap public/non-empty eligibility and breadcrumbs.
 - Performance: query-count assertions or profiling for archive cards, counts, related blocks
   and sitemap; all rendered relations are eager-loaded.
-

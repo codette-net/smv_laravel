@@ -20,8 +20,9 @@ class VacancyController extends Controller
         $filters = $vacancySearch->filters($request, $filterOptions);
         $sort = $vacancySearch->sort($request);
         $vacancies = $vacancySearch->query($filters, $sort);
+        $secondaryFilterCount = $vacancySearch->secondaryFilterCount($filters);
 
-        $hasFilters = collect($request->query())->except('page')->filter(fn ($value): bool => filled($value))->isNotEmpty();
+        $hasFilters = collect($filters)->contains(fn (string $value): bool => filled($value)) || $sort !== 'nieuwste';
         $page = max(1, $request->integer('page', 1));
 
         return view('vacancies.index', [
@@ -33,6 +34,10 @@ class VacancyController extends Controller
             'taxonomyOptions' => $filterOptions->taxonomyOptions(),
             'companies' => $filterOptions->companies(),
             'activeFilters' => $this->activeFilters($filters, $sort),
+            'hasFilters' => $hasFilters,
+            'hasAdditionalFilters' => $secondaryFilterCount > 0 || $sort !== 'nieuwste' || $request->boolean('meer_filters'),
+            'secondaryFilterCount' => $secondaryFilterCount,
+            'filterErrors' => $vacancySearch->validationErrors($filters),
             'seoCanonical' => $hasFilters || $page === 1
                 ? route('vacancies.index')
                 : route('vacancies.index', ['page' => $page]),
@@ -84,8 +89,10 @@ class VacancyController extends Controller
             'sector' => 'Sector',
             'functiegebied' => 'Functiegebied',
             'ervaring' => 'Ervaring',
+            'opleiding' => 'Opleidingsniveau',
         ];
 
+        $compensationKeys = ['vergoeding', 'bedrag_van', 'bedrag_tot'];
         $parameters = array_filter($filters, fn (string $value): bool => $value !== '');
 
         if ($sort !== 'nieuwste') {
@@ -93,12 +100,20 @@ class VacancyController extends Controller
         }
 
         return collect($filters)
+            ->except($compensationKeys)
             ->filter(fn (string $value): bool => $value !== '')
             ->map(fn (string $value, string $key): array => [
                 'label' => $labels[$key].': '.$this->activeFilterValue($key, $value),
                 'url' => route('vacancies.index', array_diff_key($parameters, [$key => true])),
             ])
             ->values()
+            ->when(
+                collect($filters)->only($compensationKeys)->contains(fn (string $value): bool => $value !== ''),
+                fn (Collection $active): Collection => $active->push([
+                    'label' => $this->compensationFilterLabel($filters),
+                    'url' => route('vacancies.index', array_diff_key($parameters, array_fill_keys($compensationKeys, true))),
+                ]),
+            )
             ->all();
     }
 
@@ -121,6 +136,25 @@ class VacancyController extends Controller
         }
 
         return $value;
+    }
+
+    /** @param array<string, string> $filters */
+    private function compensationFilterLabel(array $filters): string
+    {
+        $range = match (true) {
+            $filters['bedrag_van'] !== '' && $filters['bedrag_tot'] !== '' => '€ '.$filters['bedrag_van'].' – € '.$filters['bedrag_tot'],
+            $filters['bedrag_van'] !== '' => 'vanaf € '.$filters['bedrag_van'],
+            $filters['bedrag_tot'] !== '' => 'tot € '.$filters['bedrag_tot'],
+            default => 'alle bedragen',
+        };
+
+        $mode = match ($filters['vergoeding']) {
+            'uur' => ' per uur',
+            'maand' => ' bruto per maand (FTE)',
+            default => ' (kies een geldig type)',
+        };
+
+        return 'Vergoeding: '.$range.$mode;
     }
 
     /** @return array<string, Collection<int, Category>> */

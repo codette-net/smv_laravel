@@ -308,6 +308,14 @@ Prioritize a coherent production-quality experience for:
 
 ## Vacancy frontend rule
 
+Homepage and Vacancy listing share one server-side GET search. Keyword and place are always
+visible. Secondary filters use an accessible native disclosure and cover employment type,
+workplace, sector/function-area hierarchy, experience, qualification, Company and
+compensation. The disclosure opens for active secondary state, retains that state during
+automatic submissions and remains usable without JavaScript. Compensation uses
+`vergoeding=maand|uur`, `bedrag_van` and `bedrag_tot`; invalid input is shown in Dutch and is
+not partially applied. Province remains deferred until an explicit structured value exists.
+
 Manually created and imported vacancies must use exactly the same application models
 and public rendering components.
 

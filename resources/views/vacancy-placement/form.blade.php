@@ -76,6 +76,7 @@
                                 'sector_category_id' => 'Sector',
                                 'function_area_category_id' => 'Functiegebied',
                                 'experience_category_id' => 'Ervaringsniveau',
+                                'qualification_category_id' => 'Opleidingsniveau',
                             ] as $field => $label)
                                 <x-ui.select-dropdown
                                     :name="$field"
@@ -90,10 +91,19 @@
 
                     <fieldset>
                         <legend class="text-lg font-semibold text-slate-900">Salarisindicatie</legend>
-                        <p class="mt-2 text-sm leading-6 text-slate-600">Optioneel bruto maandsalaris in euro's.</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-600">Optioneel bruto maandsalaris in euro's. Geef aan of dit een fulltime-equivalent of het salaris voor de aangeboden uren is.</p>
                         <div class="mt-5 grid gap-5 sm:grid-cols-2">
-                            <x-ui.input name="salary_min" label="Vanaf" type="number" min="0" step="1" :value="$vacancy?->salary_min" />
-                            <x-ui.input name="salary_max" label="Tot" type="number" min="0" step="1" :value="$vacancy?->salary_max" />
+                            <x-ui.input name="salary_min" label="Vanaf" type="number" min="1" step="1" :value="$vacancy?->salary_min" />
+                            <x-ui.input name="salary_max" label="Tot" type="number" min="1" step="1" :value="$vacancy?->salary_max" />
+                            <div class="sm:col-span-2">
+                                <x-ui.select-dropdown
+                                    name="salary_basis"
+                                    label="Salarisbasis"
+                                    :options="collect(\App\Enums\SalaryBasis::cases())->mapWithKeys(fn ($basis) => [$basis->value => $basis->getLabel()])"
+                                    :value="$fieldValue('salary_basis', $vacancy?->salary_basis?->value)"
+                                    placeholder="Onbekend of niet opgegeven"
+                                />
+                            </div>
                         </div>
                     </fieldset>
 

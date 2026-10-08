@@ -15,15 +15,12 @@
             </div>
 
             <div class="lg:flex lg:items-start lg:gap-10">
-                <aside class="mb-8 lg:sticky lg:top-24 lg:mb-0 lg:w-72 lg:shrink-0">
+                <aside class="mb-8 lg:sticky lg:top-24 lg:mb-0 lg:w-96 lg:shrink-0">
                     <div class="sticky top-8 rounded-xl border border-gray-200 bg-gray-50 p-5">
                         <div class="mb-5 flex items-center justify-between">
                             <h2 class="text-lg font-bold text-gray-800">Verfijn je zoekopdracht</h2>
-                            @if (count($activeFilters))
-                                <a class="text-sm font-medium text-blue-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600" href="{{ route('vacancies.index') }}">Wis</a>
-                            @endif
                         </div>
-                        <x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :taxonomy-options="$taxonomyOptions" :companies="$companies" />
+                        <x-vacancy.filter-form :filters="$filters" :sort="$sort" :sort-options="$sortOptions" :locations="$locations" :taxonomy-options="$taxonomyOptions" :companies="$companies" :has-filters="$hasFilters" :has-additional-filters="$hasAdditionalFilters" :secondary-filter-count="$secondaryFilterCount" :filter-errors="$filterErrors" />
                     </div>
                 </aside>
 

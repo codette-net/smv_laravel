@@ -16,11 +16,12 @@ class HomeController extends Controller
     {
         $filters = $vacancySearch->filters($request, $filterOptions);
         $sort = $vacancySearch->sort($request);
-        $hasFilters = collect($request->query())->except('page')->filter(fn ($value): bool => filled($value))->isNotEmpty();
-        $hasAdditionalFilters = collect($filters)
-            ->except('zoek')
-            ->contains(fn (string $value): bool => filled($value))
-            || filled($request->query('sort'));
+        $hasFilters = collect($filters)->contains(fn (string $value): bool => filled($value))
+            || $sort !== 'nieuwste';
+        $secondaryFilterCount = $vacancySearch->secondaryFilterCount($filters);
+        $hasAdditionalFilters = $secondaryFilterCount > 0
+            || $sort !== 'nieuwste'
+            || $request->boolean('meer_filters');
         $latestBlogPosts = BlogPost::query()
             ->publiclyVisible()
             ->with([
@@ -70,6 +71,8 @@ class HomeController extends Controller
             'companies' => $filterOptions->companies(),
             'hasFilters' => $hasFilters,
             'hasAdditionalFilters' => $hasAdditionalFilters,
+            'secondaryFilterCount' => $secondaryFilterCount,
+            'filterErrors' => $vacancySearch->validationErrors($filters),
         ]);
     }
 }

@@ -43,6 +43,9 @@ the clean route and page 2+ uses only `?page=N`; unrelated query parameters are 
 copied into canonicals.
 Vacancy search, filter and sort combinations remain usable but output `noindex, follow`
 and canonicalize to `/vacatures`; no programmatic taxonomy landing pages are implied.
+Shared Dutch GET state includes keyword, place, typed taxonomy filters and the explicit
+`vergoeding=maand|uur`, `bedrag_van` and `bedrag_tot` compensation parameters. Homepage
+search submissions remain on `/`.
 Application form and confirmation pages are `noindex, nofollow` and canonicalize to the
 vacancy detail page.
 

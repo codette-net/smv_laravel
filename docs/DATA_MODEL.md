@@ -119,12 +119,16 @@ sanitized rich text in storage and are converted to plain text before card trunc
 
 `Category` remains the controlled polymorphic taxonomy model. Vacancy-facing category
 types are `employment_type` (Dienstverband), `workplace` (Werklocatie), `sector`,
-`function_area` (Functiegebied), and `experience` (Ervaring). Categories have stable,
+`function_area` (Functiegebied), `experience` (Ervaring) and `qualification`
+(Opleidingsniveau). Categories have stable,
 type-scoped slugs and may have a same-type parent; Sector uses this for its practical
-one-level hierarchy. Legacy `vacancy_category`, `job_type`, `career_level` and
-`qualification` values, plus existing Company and Blog category types, remain readable
-compatibility taxonomies; new Vacancy administration and public filters use only the
-five canonical types.
+one-level hierarchy. Legacy `vacancy_category`, `job_type` and `career_level` values,
+plus existing Company and Blog category types, remain readable compatibility taxonomies.
+Qualification uses the existing polymorphic Category storage: no assignment means unknown,
+while “Geen specifieke opleiding vereist” is an explicit value.
+Employment type adds the canonical Loondienst/Freelance/Stage choices without rewriting or
+detaching existing Fulltime/Parttime assignments; those remain available as compatibility
+values until a deliberate hours/employment taxonomy migration is approved.
 
 Flexible descriptive Vacancy tags use Spatie Laravel Tags, not `Category`. Tags such
 as AI, CRM, SaaS and B2B are free-form; filterable employment, workplace, sector,
@@ -146,6 +150,26 @@ only for legacy compatibility and must not become provider identity in new impor
 
 Vacancy slugs are stable after creation and do not regenerate merely because a title is
 changed.
+
+## Vacancy compensation contract
+
+Salary and freelance rate remain independent and may coexist on a Vacancy. The canonical
+fields are `salary_min`, `salary_max`, `salary_currency`, `salary_period`, `salary_basis`,
+`rate_min`, `rate_max`, `rate_currency` and `rate_period`. Amounts use the established whole-
+currency-unit integer precision; a missing endpoint is null and is never treated as zero.
+
+`salary_basis` is nullable for backward compatibility and accepts `gross_fte`,
+`gross_offered_hours` or `unknown`. Null and `unknown` are both non-comparable. Existing rows
+were not inferred or backfilled. They can later be reviewed explicitly in Filament or through
+a documented source mapping.
+
+Comparable monthly salary means explicit EUR + `month` + `gross_fte` and a valid positive
+one- or two-sided range. Comparable hourly rate means explicit EUR + `hour` and the same range
+rules. Zero, negative, reversed, missing or unsupported metadata is non-comparable. These
+rules are available through Vacancy helpers/scopes and remain separate from
+`publiclyVisible()`. SMV-083 composes those scopes with inclusive interval overlap in the
+shared homepage/listing query. There is no currency,
+assumed-hours or FTE conversion in this contract.
 
 SMV-001 established soft deletion on important operational models where the schema
 already supported it. Financial and historical records are protected from accidental

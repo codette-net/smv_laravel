@@ -63,7 +63,10 @@ test('taxonomy seeding is deterministic and provides hierarchy and free tags', f
 
     $it = Category::query()->where('type', CategoryType::sector->value)->where('slug', 'it')->sole();
 
-    expect(Category::query()->where('type', CategoryType::employment_type->value)->count())->toBe(4)
+    expect(Category::query()->where('type', CategoryType::employment_type->value)->count())->toBe(5)
+        ->and(Category::query()->where('type', CategoryType::employment_type->value)->where('slug', 'loondienst')->exists())->toBeTrue()
+        ->and(Category::query()->where('type', CategoryType::qualification->value)->count())->toBe(4)
+        ->and(Category::query()->where('type', CategoryType::qualification->value)->where('slug', 'geen-specifieke-opleiding-vereist')->exists())->toBeTrue()
         ->and($it->children()->where('slug', 'saas')->exists())->toBeTrue()
         ->and(Tag::query()->get()->contains(fn (Tag $tag): bool => $tag->name === 'AI'))->toBeTrue();
 });

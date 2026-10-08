@@ -3,6 +3,7 @@
 namespace App\Imports\Mapping;
 
 use App\Enums\CompensationPeriod;
+use App\Enums\SalaryBasis;
 use App\Imports\Data\SourceRecord;
 use App\Models\ImportMapping;
 use App\Models\ImportSource;
@@ -99,7 +100,15 @@ class ImportMapper
             return (string) $value;
         }
         if (str_ends_with($key, '_period')) {
-            $period = CompensationPeriod::tryFrom(strtolower((string) $value));
+            $normalized = match (mb_strtolower(trim((string) $value))) {
+                'hourly', 'uur' => CompensationPeriod::Hour->value,
+                'daily', 'dag' => CompensationPeriod::Day->value,
+                'weekly' => CompensationPeriod::Week->value,
+                'monthly', 'maand' => CompensationPeriod::Month->value,
+                'yearly', 'annual', 'annually', 'jaar' => CompensationPeriod::Year->value,
+                default => mb_strtolower(trim((string) $value)),
+            };
+            $period = CompensationPeriod::tryFrom($normalized);
             if (! $period) {
                 $warnings[] = "Unknown compensation period [{$value}].";
 
@@ -107,6 +116,31 @@ class ImportMapper
             }
 
             return $period->value;
+        }
+        if (str_ends_with($key, '_currency')) {
+            $currency = match (mb_strtolower(trim((string) $value))) {
+                '€', 'eur', 'euro' => 'EUR',
+                '$', 'usd' => 'USD',
+                '£', 'gbp' => 'GBP',
+                default => strtoupper(trim((string) $value)),
+            };
+            if (preg_match('/^[A-Z]{3}$/', $currency) !== 1) {
+                $warnings[] = "Unknown compensation currency [{$value}].";
+
+                return null;
+            }
+
+            return $currency;
+        }
+        if ($key === 'vacancy.salary_basis') {
+            $basis = SalaryBasis::tryFrom(mb_strtolower(trim((string) $value)));
+            if (! $basis) {
+                $warnings[] = "Unknown salary basis [{$value}].";
+
+                return null;
+            }
+
+            return $basis->value;
         }
 
         return $value;

@@ -274,9 +274,10 @@ allowed operations, optional validator and resolver type.
 | `vacancy.application_url` / `application_email` | URL/email; map/default | destination selected by application mode |
 | `vacancy.application_mode` | enum; default/map | `external`, `email`, `internal` |
 | `vacancy.salary_min` / `salary_max` | integer money; map/transform | current salary fields |
-| `vacancy.salary_currency` / `salary_period` | string/enum; map/transform | later Vacancy schema fields |
+| `vacancy.salary_currency` / `salary_period` | string/enum; map/transform | current Vacancy fields |
+| `vacancy.salary_basis` | enum; map/default only from a documented source contract | current nullable Vacancy field |
 | `vacancy.rate_min` / `rate_max` | integer money; map/transform | current rate fields |
-| `vacancy.rate_currency` / `rate_period` | string/enum; map/transform | later Vacancy schema fields |
+| `vacancy.rate_currency` / `rate_period` | string/enum; map/transform | current Vacancy fields |
 | `company.external_id` | string; map | reserved for a future explicit employer model, not an MVP resolver |
 | `company.name` | string; map | Company resolution/creation input |
 | `company.website`, `email`, `phone`, `logo_url` | URL/email/string; map | optional Company enrichment inputs |
@@ -299,7 +300,7 @@ NormalizedVacancyData
   vacancy:
     title, description, location, published_at, deadline_at, expires_at,
     application_mode, application_url, application_email,
-    salary_min, salary_max, salary_currency, salary_period,
+    salary_min, salary_max, salary_currency, salary_period, salary_basis,
     rate_min, rate_max, rate_currency, rate_period
   compensation_meta:
     salary_source_text, salary_interpretation_status,
@@ -314,16 +315,15 @@ NormalizedVacancyData
   warnings: NormalizationWarning[]
 ```
 
-It intentionally carries source compensation metadata even though the current Vacancy
-schema does not. That allows preview/reporting to say a value was ignored or ambiguous
-without silently losing the reason. Persistence only maps fields supported by the
-current schema and approved resolution outcome.
+It carries normalized compensation metadata and warnings before persistence. The current
+Vacancy schema supports the canonical amount/currency/period fields and nullable salary basis;
+preview/reporting can therefore explain ignored or ambiguous input without guessing it.
 
 ### Feed comparison
 
 | Feed | Direct / transformed support | Taxonomy / resolution | MVP gap or defer |
 | --- | --- | --- | --- |
-| VNOM XML | title, city, description, apply URL, date, `identifier`, salary text after parsing | `function` → function area; explicit aliases for experience; `Loondienst` is not inferred as Fulltime | education and owner are not targets; salary period/currency metadata not persisted |
+| VNOM XML | title, city, description, apply URL, date, `identifier`, salary text after parsing | `function` → function area; explicit aliases for experience; `Loondienst` is not inferred as Fulltime | education and owner are not targets; salary basis remains unknown without a source contract |
 | Michael Page XML | title, published, URL, structured salary, location text, combined description | `sector.term` → function area; `industry.term` → sector; Company normally resolves to source/provider because employer is empty | salary period `3` must remain unknown until provider documentation verifies it; consultant is not Company |
 | 8vance JSON (provisional) | title, city, company contact, website, logo URL, apply URL, structured salary | numeric experience needs explicit transform/alias policy | working-hours range is a candidate field; address/coordinates/contact person deferred |
 | CSV/XLSX | header paths map to the same registry | same taxonomy/company resolver | sheet/header/delimiter/encoding configuration only |
@@ -333,11 +333,9 @@ current schema and approved resolution outcome.
 - **Working hours minimum/maximum:** commercially useful but no current Vacancy fields
   or public UX. Do not add in SMV-030; validate whether feeds and presentation need it
   before a separate migration.
-- **Currency and compensation period:** SMV supports salary and rate independently.
-  The current schema has `salary_min`, `salary_max`, `rate_min` and `rate_max`, but is
-  missing `salary_currency`, `salary_period`, `rate_currency` and `rate_period`.
-  Add those four fields in the later persistence/domain migration; do not discard this
-  information in preview or normalized data in the meantime.
+- **Currency, period and basis:** SMV persists salary and rate currency/period independently.
+  Salary additionally has nullable `salary_basis`: `gross_fte`, `gross_offered_hours` or
+  `unknown`. Null remains valid legacy/unspecified state; no import infers FTE.
 - **Detailed address and coordinates:** not required for the public location filter;
   defer address, latitude and longitude.
 - **Numeric experience range:** map only through an explicit source alias/range rule to
@@ -360,13 +358,14 @@ Canonical compensation fields are:
 ```text
 salary_min, salary_max, salary_currency, salary_period
 rate_min,   rate_max,   rate_currency,   rate_period
+salary_basis: gross_fte | gross_offered_hours | unknown | null
 ```
 
-Canonical periods include `hour`, `day`, `week`, `month` and `year`. Annual salary may
-safely normalize to monthly salary by dividing by 12; monthly salary remains monthly.
-Hourly, daily and weekly compensation must never be converted to monthly amounts using
-assumed working hours. Rate values always retain their own period semantics. An
-ambiguous source period remains a warning/unresolved mapping rather than a guess.
+Canonical periods include `hour`, `day`, `week`, `month` and `year`. Values retain their
+explicit period semantics. No generic comparability rule annualizes salary, converts currency
+or assumes working hours. A pre-existing annual-to-monthly transform may only be selected for
+a documented explicit source contract; it never infers FTE basis. An ambiguous source period
+remains a warning/unresolved mapping rather than a guess.
 
 | Feed | Input | Handling |
 | --- | --- | --- |

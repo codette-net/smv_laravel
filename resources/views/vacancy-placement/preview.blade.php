@@ -19,7 +19,7 @@
 
                 <div class="mt-5 flex flex-wrap gap-2">
                     @if ($vacancy->location)<x-ui.badge variant="dark">{{ $vacancy->location }}</x-ui.badge>@endif
-                    @if ($vacancy->compensationLabel())<x-ui.badge variant="primary">{{ $vacancy->compensationLabel() }} per maand</x-ui.badge>@endif
+                    @if ($vacancy->compensationLabel())<x-ui.badge variant="primary">{{ $vacancy->compensationLabel() }}</x-ui.badge>@endif
                     @foreach ($vacancy->categories as $category)
                         <x-ui.badge size="xs" variant="info">{{ $category->name }}</x-ui.badge>
                     @endforeach

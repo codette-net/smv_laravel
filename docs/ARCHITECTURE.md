@@ -224,6 +224,13 @@ counts use one constrained aggregate query rather than per-category queries. Sav
 continues to use the authenticated bulk `withExists` query. The homepage employer banner
 uses a separate deterministic, bounded public Company query with eager-loaded media.
 
+Homepage and `/vacatures` compose the same `VacancySearch` and `VacancyFilterOptions`
+services. Public visibility is applied before keyword/place, typed Category, Company and
+compensation constraints. Comparable compensation delegates to the Vacancy scopes from the
+SMV-082 contract; the search layer only applies validated inclusive interval overlap. Blade
+receives prepared options/errors and does not query. GET state keeps both surfaces shareable,
+while Alpine only enhances native form/disclosure behavior.
+
 Do not add Vue/React/another design system without explicit approval.
 
 ## Background processing

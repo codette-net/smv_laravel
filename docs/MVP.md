@@ -118,6 +118,14 @@ Required public flow:
 
 Public Vacancy routes now form part of the implemented recruitment core. SEO/canonical policy for filtered/expired URLs remains part of the later SEO phase.
 
+Compensation storage supports salary and freelance rate simultaneously. Comparable monthly
+salary is explicitly EUR, monthly and gross fulltime-equivalent; comparable freelance rate is
+explicitly EUR and hourly. Positive fixed, minimum-only, maximum-only and ranged values are
+supported. Existing ambiguous values remain visible but are not silently reclassified.
+SMV-083 implements the public amount-filter controls and matching logic through the shared
+homepage/Vacancy search. Monthly EUR gross-FTE salary and EUR hourly rate remain explicit
+separate modes and use inclusive interval overlap without conversion.
+
 ### Applications
 
 The MVP supports three canonical application destination modes:

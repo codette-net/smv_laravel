@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\CategoryType;
+use App\Enums\CompensationPeriod;
+use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Filament\Resources\Vacancies\Pages\CreateVacancy;
@@ -45,6 +47,11 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
         'slug' => 'sales',
         'type' => CategoryType::function_area,
     ]);
+    $qualification = Category::create([
+        'name' => 'HBO',
+        'slug' => 'hbo',
+        'type' => CategoryType::qualification,
+    ]);
 
     $this->actingAs($administrator);
 
@@ -61,6 +68,7 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
             'is_featured' => true,
             'is_filled' => false,
             'function_area_categories' => [$category->id],
+            'qualification_categories' => [$qualification->id],
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -73,7 +81,8 @@ test('an administrator can create a manual vacancy with lifecycle fields and cat
         ->and($vacancy->description)->toContain('<h2>De functie</h2>')
         ->and($vacancy->description)->not->toContain('onclick', '<script', 'secret()')
         ->and($vacancy->deadline_at?->equalTo(now()->addMonths(2)))->toBeTrue()
-        ->and($vacancy->categories->sole()->is($category))->toBeTrue();
+        ->and($vacancy->categories->contains($category))->toBeTrue()
+        ->and($vacancy->categories->contains($qualification))->toBeTrue();
 });
 
 test('editing a vacancy does not overwrite its existing deadline', function () {
@@ -92,6 +101,51 @@ test('editing a vacancy does not overwrite its existing deadline', function () {
         ->assertHasNoFormErrors();
 
     expect($vacancy->fresh()->deadline_at?->equalTo($deadline))->toBeTrue();
+});
+
+test('Filament persists explicit compensation metadata and rejects zero amounts', function () {
+    $administrator = vacancyAdminUser('admin');
+    $vacancy = Vacancy::factory()->create([
+        'company_id' => Company::factory(),
+        'salary_min' => null,
+        'salary_max' => null,
+        'salary_currency' => null,
+        'salary_period' => null,
+        'salary_basis' => null,
+        'rate_min' => null,
+        'rate_max' => null,
+        'rate_currency' => null,
+        'rate_period' => null,
+    ]);
+
+    $this->actingAs($administrator);
+
+    Livewire::test(EditVacancy::class, ['record' => $vacancy->getRouteKey()])
+        ->fillForm([
+            'salary_min' => 3500,
+            'salary_max' => 4500,
+            'salary_currency' => 'eur',
+            'salary_period' => CompensationPeriod::Month->value,
+            'salary_basis' => SalaryBasis::GrossFullTimeEquivalent->value,
+            'rate_min' => 95,
+            'rate_max' => 125,
+            'rate_currency' => 'eur',
+            'rate_period' => CompensationPeriod::Hour->value,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $vacancy->refresh();
+    expect($vacancy->salary_currency)->toBe('EUR')
+        ->and($vacancy->salary_period)->toBe(CompensationPeriod::Month)
+        ->and($vacancy->salary_basis)->toBe(SalaryBasis::GrossFullTimeEquivalent)
+        ->and($vacancy->rate_currency)->toBe('EUR')
+        ->and($vacancy->rate_period)->toBe(CompensationPeriod::Hour);
+
+    Livewire::test(EditVacancy::class, ['record' => $vacancy->getRouteKey()])
+        ->fillForm(['salary_min' => 0])
+        ->call('save')
+        ->assertHasFormErrors(['salary_min']);
 });
 
 test('admin publication without a date publishes now while later edits preserve the date', function () {

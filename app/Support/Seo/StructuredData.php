@@ -141,7 +141,10 @@ class StructuredData
     {
         if (($vacancy->salary_min === null && $vacancy->salary_max === null)
             || ! preg_match('/^[A-Z]{3}$/', strtoupper((string) $vacancy->salary_currency))
-            || ! $vacancy->salary_period instanceof CompensationPeriod) {
+            || ! $vacancy->salary_period instanceof CompensationPeriod
+            || ($vacancy->salary_min !== null && $vacancy->salary_min <= 0)
+            || ($vacancy->salary_max !== null && $vacancy->salary_max <= 0)
+            || ($vacancy->salary_min !== null && $vacancy->salary_max !== null && $vacancy->salary_min > $vacancy->salary_max)) {
             return null;
         }
 

@@ -4,6 +4,7 @@ use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\ImportFormat;
 use App\Enums\ImportTransport;
+use App\Enums\SalaryBasis;
 use App\Filament\Resources\ImportMappings\Pages\PreviewImportMapping;
 use App\Imports\Mapping\NormalizedVacancyData;
 use App\Imports\Preview\ImportPreview;
@@ -55,7 +56,7 @@ test('required fields application modes and optional dates have the expected dom
 
 test('compensation warnings tags and validation remain non-persistent', function () {
     $source = ImportSource::factory()->create();
-    $before = collect(['vacancies', 'companies', 'categories', 'tags', 'taggables', 'media', 'applications', 'imports', 'import_logs'])->mapWithKeys(fn($table) => [$table => DB::table($table)->count()]);
+    $before = collect(['vacancies', 'companies', 'categories', 'tags', 'taggables', 'media', 'applications', 'imports', 'import_logs'])->mapWithKeys(fn ($table) => [$table => DB::table($table)->count()]);
     $outcome = validated(['source_reference' => 'x', 'vacancy' => ['title' => 'Titel', 'salary_min' => 1000, 'salary_max' => 2000, 'salary_period' => 'month', 'rate_min' => 75, 'rate_max' => 100, 'rate_period' => 'hour'], 'tags' => ['', 'SaaS', 'saas', 'B2B']], $source);
     expect($outcome->status())->toBe('ready')->and($outcome->data->get('tags'))->toBe(['SaaS', 'B2B']);
     foreach ($before as $table => $count) {
@@ -63,12 +64,54 @@ test('compensation warnings tags and validation remain non-persistent', function
     }
 });
 
+test('import compensation normalizes explicit metadata and treats zero as unknown with a warning', function () {
+    $outcome = validated([
+        'source_reference' => 'compensation-1',
+        'vacancy' => [
+            'title' => 'Accountmanager',
+            'salary_min' => '0',
+            'salary_max' => '4500',
+            'salary_currency' => 'euro',
+            'salary_period' => 'maand',
+            'salary_basis' => SalaryBasis::GrossFullTimeEquivalent->value,
+            'rate_min' => '',
+            'rate_max' => '125',
+            'rate_currency' => 'eur',
+            'rate_period' => 'hourly',
+        ],
+    ]);
+
+    expect($outcome->canImport())->toBeTrue()
+        ->and($outcome->data->get('vacancy.salary_min'))->toBeNull()
+        ->and($outcome->data->get('vacancy.salary_max'))->toBe(4500)
+        ->and($outcome->data->get('vacancy.salary_currency'))->toBe('EUR')
+        ->and($outcome->data->get('vacancy.salary_period'))->toBe('month')
+        ->and($outcome->data->get('vacancy.salary_basis'))->toBe(SalaryBasis::GrossFullTimeEquivalent->value)
+        ->and($outcome->data->get('vacancy.rate_min'))->toBeNull()
+        ->and($outcome->data->get('vacancy.rate_max'))->toBe(125)
+        ->and($outcome->data->get('vacancy.rate_currency'))->toBe('EUR')
+        ->and($outcome->data->get('vacancy.rate_period'))->toBe('hour')
+        ->and(collect($outcome->warnings)->pluck('code')->all())->toContain('salary_zero_ignored');
+});
+
+test('import compensation rejects negative decimal and reversed ranges without inventing endpoints', function () {
+    $negative = validated(['source_reference' => 'negative', 'vacancy' => ['title' => 'A', 'salary_min' => -1]]);
+    $decimal = validated(['source_reference' => 'decimal', 'vacancy' => ['title' => 'B', 'rate_min' => '85.50']]);
+    $reversed = validated(['source_reference' => 'reversed', 'vacancy' => ['title' => 'C', 'salary_min' => 5000, 'salary_max' => 4000]]);
+
+    expect($negative->canImport())->toBeFalse()
+        ->and($decimal->canImport())->toBeFalse()
+        ->and($reversed->canImport())->toBeFalse()
+        ->and($reversed->data->get('vacancy.salary_min'))->toBe(5000)
+        ->and($reversed->data->get('vacancy.salary_max'))->toBe(4000);
+});
+
 test('cross type and fuzzy taxonomy mappings are rejected or unresolved', function () {
     $source = ImportSource::factory()->create();
     $fulltime = Category::factory()->create(['name' => 'Fulltime', 'type' => CategoryType::employment_type]);
     expect(validated(['source_reference' => 'x', 'vacancy' => ['title' => 'Titel'], 'taxonomy' => ['employment_type' => ['Loondienst']]], $source)->status())->toBe('needs_resolution')
         ->and(validated(['source_reference' => 'x', 'vacancy' => ['title' => 'Titel'], 'taxonomy' => ['function_area' => ['Sales Support']]], $source)->status())->toBe('needs_resolution');
-    expect(fn() => ImportTaxonomyMapping::create(['import_source_id' => $source->id, 'category_type' => CategoryType::function_area, 'source_value' => 'Loondienst', 'source_key' => 'loondienst', 'category_id' => $fulltime->id]))->toThrow(InvalidArgumentException::class);
+    expect(fn () => ImportTaxonomyMapping::create(['import_source_id' => $source->id, 'category_type' => CategoryType::function_area, 'source_value' => 'Loondienst', 'source_key' => 'loondienst', 'category_id' => $fulltime->id]))->toThrow(InvalidArgumentException::class);
 });
 
 function taxonomyPreviewSetup(): array
