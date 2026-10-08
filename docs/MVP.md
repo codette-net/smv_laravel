@@ -6,22 +6,46 @@ Build a stable, commercially credible first version of the new Sales en Marketin
 
 The MVP is the foundation of a recruitment platform. It must already support the core job-board business flow, company presence, reliable vacancy ingestion, strong search-engine migration fundamentals and enough content capability to support sales/demo use.
 
-Current repository reality (audited 1 October 2026): the recruitment core, Company and
+Current repository reality (audited 6 October 2026): the recruitment core, Company and
 Vacancy administration, the internal/external/e-mail application flow, the generic
 JSON/XML/CSV/XLSX import pipeline, the technical SEO foundation and the native Blog are
 implemented and covered by feature tests. The current public frontend also includes the
-canonical homepage, vacancy and company discovery/detail pages, Blog archives and the
-static Dutch pages `/over-ons`, `/tarieven` and `/contact`.
+canonical homepage, vacancy discovery, searchable single-category Company discovery,
+Company detail pages, Blog archives and the
+static Dutch pages `/adverteren`, `/over-ons`, `/tarieven` and `/contact`. The Contact
+page includes a validated, spam-protected, e-mail-only general enquiry form.
 
 The main remaining MVP/release work is no longer foundational implementation. It is:
 
-- make the currently disabled Contact form operational;
-- confirm the required commercial package/payment/employer-posting scope;
-- replace or approve provisional public copy and template imagery;
+- confirm the definitive commercial package/payment entitlement scope after the safe
+  public employer-posting slice;
+- complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
-- remove or quarantine obsolete prototype/showcase views that currently break
-  `artisan view:cache`;
 - complete accessibility, end-to-end, migration and launch validation.
+
+General Contact submissions use Laravel Mail with a configurable recipient, retain no
+database record and require no account. Direct employer Vacancy advertising is a
+separate staged flow (SMV-078), rather than an expansion of the Contact form. Guests may
+select Standaard or Superior, authenticate through the normal `web` guard, create a
+Vacancy draft for an owned Company, preview it and hand it off in `pending` state. The
+selected package is intent only: payment, entitlement and publication are not implied.
+The authenticated `/account` foundation lets an employer complete presentation/contact
+fields and Media Library branding for owned Companies and review owned Vacancies.
+All authenticated Users can also save public Vacancies and Company profiles and revisit
+them through the private account. Guests can begin either action before authentication.
+The generic registration entry explicitly offers `Werkzoekende` and `Werkgever`, backed
+by one User identity and one shared login. Work-seeker registration does not create
+Company ownership; employer registration performs the pending-Company onboarding. These
+are current intents rather than mutually exclusive product identities: employers retain
+save/application features and an existing work seeker can later complete Company
+onboarding and placement with the same account.
+Submitted Vacancies stay read-only while awaiting moderation. Publishing in Filament
+now supports publish-now by leaving the date empty and scheduling by choosing a future
+date; this does not grant employers publication rights. Employer and Filament Vacancy
+descriptions and the long-form Company description now support a deliberately limited
+rich-text set through one reusable editor UI. Domain-aware server-side boundaries
+protect Company and Vacancy writes, Vacancy imports, preview/public rendering and
+plain-text SEO output; arbitrary HTML and embedded media remain outside the MVP.
 
 ## Presentation target
 
@@ -72,6 +96,12 @@ Company pages are part of the MVP and should support the current data model wher
 
 Company is a first-class domain entity and should not be treated as just a text field on a vacancy.
 
+The public Company index now combines free-text profile search with exactly one typed
+Company category in shareable GET state. Cards expose only public Vacancy counts, use
+Media Library-first contained logos with a letter fallback and retain the private saved
+Company interaction. The homepage introduces real public employers in a bounded logo
+strip; dedicated Company category archives remain a later decision.
+
 ### Public vacancies
 
 Required public flow:
@@ -88,6 +118,14 @@ Required public flow:
 
 Public Vacancy routes now form part of the implemented recruitment core. SEO/canonical policy for filtered/expired URLs remains part of the later SEO phase.
 
+Compensation storage supports salary and freelance rate simultaneously. Comparable monthly
+salary is explicitly EUR, monthly and gross fulltime-equivalent; comparable freelance rate is
+explicitly EUR and hourly. Positive fixed, minimum-only, maximum-only and ranged values are
+supported. Existing ambiguous values remain visible but are not silently reclassified.
+SMV-083 implements the public amount-filter controls and matching logic through the shared
+homepage/Vacancy search. Monthly EUR gross-FTE salary and EUR hourly rate remain explicit
+separate modes and use inclusive interval overlap without conversion.
+
 ### Applications
 
 The MVP supports three canonical application destination modes:
@@ -96,7 +134,17 @@ The MVP supports three canonical application destination modes:
 - application by email
 - external application URL
 
-Candidate accounts and a full ATS workflow remain outside the current MVP.
+Authenticated Users can view their own securely linked internal Applications at
+`/account/sollicitaties`. The page exposes only the submission date, public Vacancy
+context where still available, and a deliberately mapped candidate-facing status.
+Guest or historical e-mail-only Applications are not claimed by e-mail matching.
+External and e-mail destinations remain untrackable and never create fake Applications.
+A full ATS workflow, candidate notifications, messaging and timelines remain outside
+the current MVP.
+
+Current Vacancy and Company save totals and rankings are available only to Filament
+staff through aggregate pivot queries. Public save counts, individual saver identities,
+historical save events and behavioural profiles are outside scope.
 
 ### Vacancy imports
 
@@ -138,8 +186,9 @@ Reason:
 - useful for ongoing SEO/content strategy
 - can help create internal links to companies/vacancies
 
-WordPress Blog content has deliberately not been imported. Comments, newsletters,
-author pages and automatic related-content matching remain outside the MVP.
+Eight supplied stakeholder articles are available as idempotent native Blog seed
+content. This is not a general WordPress migration. Comments, newsletters, author pages
+and automatic related-content matching remain outside the MVP.
 
 ### CMS/pages
 

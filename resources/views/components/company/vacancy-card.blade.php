@@ -13,12 +13,7 @@
 
     $detailUrl ??= route('vacancies.show', $vacancy);
 
-    $salary = null;
-
-    if ($vacancy->salary_min && $vacancy->salary_max) {
-        $salary = '€' . number_format($vacancy->salary_min, 0, ',', '.')
-            . ' – €' . number_format($vacancy->salary_max, 0, ',', '.');
-    }
+    $salary = $vacancy->compensationLabel();
 
     $isNew = $vacancy->published_at
         && $vacancy->published_at->gte(now()->subDays(7));
@@ -33,18 +28,21 @@
             => $tier === 'standard',
 
         // Featured
-        'border-indigo-200 bg-indigo-50/60 shadow-md hover:shadow-lg'
+        'border-blue-200 bg-blue-50/60 shadow-md hover:shadow-lg'
             => $isFeatured,
 
         // Premium
-        'border-indigo-300 bg-gradient-to-r from-indigo-50 via-white to-violet-50 shadow-lg ring-1 ring-indigo-100 hover:shadow-xl'
+        'border-blue-300 bg-gradient-to-r from-blue-50 via-white to-blue-100 shadow-lg ring-1 ring-blue-100 hover:shadow-xl'
             => $isPremium,
     ])
 >
+    <div class="absolute right-3 top-3 z-20">
+        <x-vacancy.save-button :vacancy="$vacancy" icon-only />
+    </div>
 
     {{-- Premium accent --}}
     @if ($isPremium)
-        <div class="absolute inset-y-3 left-0 w-1 rounded-r-full bg-indigo-500"></div>
+        <div class="absolute inset-y-3 left-0 w-1 rounded-r-full bg-blue-500"></div>
     @endif
 
 
@@ -103,7 +101,7 @@
 
                 {{-- Title --}}
                 <a
-                    class="inline-flex font-semibold text-gray-800 transition hover:text-indigo-600"
+                    class="inline-flex font-semibold text-gray-800 transition hover:text-blue-700"
                     href="{{ $detailUrl }}"
                 >
                     {{ $vacancy->title }}
@@ -143,7 +141,7 @@
                     <div class="mt-2 flex flex-wrap gap-2">
 
                         @if ($salary)
-                            <span class="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                            <span class="rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
                                 {{ $salary }}
                             </span>
                         @endif
@@ -190,34 +188,12 @@
             @if ($isPremium)
                 <a
                     href="{{ $detailUrl }}"
-                    class="hidden whitespace-nowrap rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-600 sm:inline-flex"
+                    class="hidden whitespace-nowrap rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 sm:inline-flex"
                 >
                     Bekijk →
                 </a>
             @endif
 
-
-            {{-- Bookmark --}}
-            <button
-                type="button"
-                class="text-gray-300 transition hover:text-gray-400"
-            >
-                <span class="sr-only">
-                    Vacature opslaan
-                </span>
-
-                <svg
-                    class="h-4 w-3 fill-current"
-                    width="12"
-                    height="16"
-                    viewBox="0 0 12 16"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                >
-                    <path d="M2 0C.9 0 0 .9 0 2v14l6-3 6 3V2c0-1.1-.9-2-2-2H2Z"/>
-                </svg>
-
-            </button>
 
         </div>
 
@@ -227,7 +203,7 @@
     {{-- Premium excerpt --}}
     @if ($isPremium && $vacancy->excerpt)
 
-        <p class="mt-3 border-t border-indigo-100 pt-3 pl-14 text-sm leading-5 text-gray-600">
+        <p class="mt-3 border-t border-blue-100 pt-3 pl-14 text-sm leading-5 text-gray-600">
             {{ Str::limit($vacancy->excerpt, 140) }}
         </p>
 

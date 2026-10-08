@@ -9,6 +9,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -44,6 +45,20 @@ class User extends Authenticatable implements FilamentUser
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function savedVacancies(): BelongsToMany
+    {
+        return $this->belongsToMany(Vacancy::class, 'saved_vacancies')
+            ->withTrashed()
+            ->withTimestamps();
+    }
+
+    public function savedCompanies(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'saved_companies')
+            ->withTrashed()
+            ->withTimestamps();
     }
 
     /**

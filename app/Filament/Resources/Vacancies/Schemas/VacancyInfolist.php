@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vacancies\Schemas;
 
 use App\Models\Vacancy;
+use App\Support\Vacancies\VacancyDescription;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\SpatieTagsEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -46,6 +47,7 @@ class VacancyInfolist
                     ->schema([
                         TextEntry::make('description')
                             ->label('Beschrijving')
+                            ->formatStateUsing(fn (?string $state): string => app(VacancyDescription::class)->sanitize($state))
                             ->html()
                             ->columnSpanFull(),
                     ]),
@@ -66,6 +68,17 @@ class VacancyInfolist
                             ->label('Salaris tot')
                             ->numeric()
                             ->placeholder('-'),
+                        TextEntry::make('salary_currency')
+                            ->label('Salarisvaluta')
+                            ->placeholder('-'),
+                        TextEntry::make('salary_period')
+                            ->label('Salarisperiode')
+                            ->badge()
+                            ->placeholder('-'),
+                        TextEntry::make('salary_basis')
+                            ->label('Salarisbasis')
+                            ->badge()
+                            ->placeholder('Onbekend'),
                         TextEntry::make('rate_min')
                             ->label('Tarief vanaf')
                             ->numeric()
@@ -73,6 +86,13 @@ class VacancyInfolist
                         TextEntry::make('rate_max')
                             ->label('Tarief tot')
                             ->numeric()
+                            ->placeholder('-'),
+                        TextEntry::make('rate_currency')
+                            ->label('Tariefvaluta')
+                            ->placeholder('-'),
+                        TextEntry::make('rate_period')
+                            ->label('Tariefperiode')
+                            ->badge()
                             ->placeholder('-'),
                     ]),
                 Section::make('Publicatie')

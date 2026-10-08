@@ -23,10 +23,50 @@
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
-    --color-slate-900: #101d2d;
 
-    --color-blue-500: #5696ff;
-    --color-blue-600: #2174ea;
+    /* SMV palette: Larimar Blue, Bloodthirsty Warlock and neutral surfaces. */
+    --color-primary-100: #f2f8ff;
+    --color-primary-200: #bedefe;
+    --color-primary-300: #86c5f4;
+    --color-primary-400: #4ca5da;
+    --color-primary-500: #197ba8;
+    --color-primary-600: #096788;
+    --color-primary-700: #025367;
+    --color-primary-800: #003d47;
+    --color-primary-900: #002326;
+
+    --color-accent-100: #fff2f2;
+    --color-accent-200: #ffbbbc;
+    --color-accent-300: #fc838b;
+    --color-accent-400: #f44a60;
+    --color-accent-500: #e6153b;
+    --color-accent-600: #b60731;
+    --color-accent-700: #860229;
+    --color-accent-800: #56001f;
+    --color-accent-900: #260010;
+
+    --color-neutral-100: #fafbfc;
+    --color-neutral-200: #e6e8eb;
+    --color-neutral-300: #d2d6da;
+    --color-neutral-400: #bfc5c9;
+    --color-neutral-500: #adb4b8;
+    --color-neutral-600: #899093;
+    --color-neutral-700: #666d6f;
+    --color-neutral-800: #44494b;
+    --color-neutral-900: #222626;
+
+    /* Existing public blue utilities retain their role through the SMV primary scale. */
+    --color-blue-50: var(--color-primary-100);
+    --color-blue-100: var(--color-primary-200);
+    --color-blue-200: var(--color-primary-200);
+    --color-blue-300: var(--color-primary-300);
+    --color-blue-400: var(--color-primary-400);
+    --color-blue-500: var(--color-primary-500);
+    --color-blue-600: var(--color-primary-600);
+    --color-blue-700: var(--color-primary-700);
+    --color-blue-800: var(--color-primary-800);
+    --color-blue-900: var(--color-primary-900);
+    --color-slate-900: var(--color-neutral-900);
 
     --font-inter: Inter, sans-serif;
     --font-playfair-display: Playfair Display, serif;
@@ -94,4 +134,87 @@
 /* See Alpine.js: https://github.com/alpinejs/alpine#x-cloak */
 [x-cloak=""] {
     display: none;
+}
+
+.public-site-surface {
+    background-color: var(--color-neutral-100);
+    background-image:
+        radial-gradient(80% 65% at 16% 82%, var(--color-neutral-100) 0%, var(--color-neutral-100) 22%, transparent 72%),
+        radial-gradient(76% 98% at 78% 26%, var(--color-primary-100) 0%, var(--color-primary-100) 22%, transparent 72%),
+        radial-gradient(43% 34% at 88% 84%, var(--color-primary-300) 0%, var(--color-primary-300) 22%, transparent 72%),
+        radial-gradient(40% 35% at 24% 16%, var(--color-primary-200) 0%, var(--color-primary-200) 22%, transparent 72%),
+        radial-gradient(130% 120% at 30% 20%, var(--color-neutral-100), var(--color-neutral-100));
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.smv-hero-dark {
+    background-color: var(--color-primary-800);
+    background-image:
+        linear-gradient(rgb(0 35 38 / 0.12), rgb(0 35 38 / 0.12)),
+        url('../images/backgrounds/smv-hero-dark.png');
+    background-position: center;
+    background-size: cover;
+}
+
+.smv-hero-light {
+    background-color: var(--color-primary-100);
+    background-image:
+        linear-gradient(rgb(250 251 252 / 0.38), rgb(250 251 252 / 0.38)),
+        url('../images/backgrounds/smv-hero-light.png');
+    background-position: center;
+    background-size: cover;
+}
+
+@keyframes company-logo-marquee {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.company-logo-marquee {
+    animation: company-logo-marquee 38s linear infinite;
+    will-change: transform;
+}
+
+.company-logo-marquee:hover,
+.company-logo-marquee:focus-within {
+    animation-play-state: paused;
+}
+
+.company-logo-marquee-window::before,
+.company-logo-marquee-window::after {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    width: clamp(2.5rem, 8vw, 6rem);
+    pointer-events: none;
+    content: '';
+    backdrop-filter: blur(2px);
+}
+
+.company-logo-marquee-window::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-primary-800), #003d4700);
+}
+
+.company-logo-marquee-window::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-primary-800), #003d4700);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .company-logo-marquee-window {
+        overflow-x: auto;
+    }
+
+    .company-logo-marquee {
+        animation: none;
+        will-change: auto;
+    }
+
+    .company-logo-marquee-group[aria-hidden='true'] {
+        display: none;
+    }
 }

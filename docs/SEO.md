@@ -21,6 +21,10 @@ redirect implementation and launch verification remain release work.
 - blog detail: `/blog/{blog-post-slug}`
 - blog category archive: `/blog/categorie/{category-slug}`
 - blog tag archive: `/blog/tag/{tag-slug}`
+- about: `/over-ons`
+- pricing: `/tarieven`
+- contact: `/contact`
+- employer advertising: `/adverteren`
 
 Vacancy and Company route binding uses stable slugs. Updating a title/name does not
 regenerate an existing slug. Application destinations, import source references and
@@ -29,19 +33,31 @@ provider URLs are never canonical public URLs.
 ## Metadata and indexability policy
 
 The public Blade layout provides title, description, canonical, robots and baseline
-Open Graph fields. Non-production environments always output `noindex, nofollow`.
+Open Graph fields. Metadata values are HTML-escaped once at the final layout output
+boundary; structured JSON-LD keeps its separate JSON encoding. Non-production
+environments always output `noindex, nofollow`.
 
 Clean listing pages and unfiltered pagination pages are indexable and self-canonical.
+For the Vacancy, Company and Blog listings and Blog category/tag archives, page 1 uses
+the clean route and page 2+ uses only `?page=N`; unrelated query parameters are not
+copied into canonicals.
 Vacancy search, filter and sort combinations remain usable but output `noindex, follow`
 and canonicalize to `/vacatures`; no programmatic taxonomy landing pages are implied.
+Shared Dutch GET state includes keyword, place, typed taxonomy filters and the explicit
+`vergoeding=maand|uur`, `bedrag_van` and `bedrag_tot` compensation parameters. Homepage
+search submissions remain on `/`.
 Application form and confirmation pages are `noindex, nofollow` and canonicalize to the
 vacancy detail page.
 
 The dynamic `/sitemap.xml` contains only the homepage, clean listing pages, publicly
 visible Companies and publicly visible Vacancies belonging to public Companies. It also
 contains published Blog posts plus Blog category and typed Blog tag archives only when
-they have at least one publicly visible Blog post. The query is chunked. `/robots.txt`
-advertises the sitemap in production and blocks crawling in non-production environments.
+they have at least one publicly visible Blog post. `/over-ons`, `/tarieven`, `/contact`
+and `/adverteren` are included because they are public, indexable content pages; the
+absence of an operational Contact submission flow does not make the Contact information
+page itself non-indexable. The entity queries are chunked.
+`/robots.txt` advertises the sitemap and excludes the Filament `/dashboard` path in
+production, while non-production environments block crawling entirely.
 
 ## Structured data
 

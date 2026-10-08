@@ -108,16 +108,27 @@ Company
 └── Commercial/package relations as needed
 ```
 
+Public Company discovery does not add persistence. It reuses `Category` through
+`categoryables`, restricted to `CategoryType::company_category`, and applies one category
+slug at a time. Public Company counts use `Company::publiclyVisible()` and card Vacancy
+counts use `Vacancy::publiclyVisible()`. The categoryable unique constraint prevents one
+Company/category relation from inflating aggregate counts. Company descriptions remain
+sanitized rich text in storage and are converted to plain text before card truncation.
+
 ## Structured taxonomies and tags
 
 `Category` remains the controlled polymorphic taxonomy model. Vacancy-facing category
 types are `employment_type` (Dienstverband), `workplace` (Werklocatie), `sector`,
-`function_area` (Functiegebied), and `experience` (Ervaring). Categories have stable,
+`function_area` (Functiegebied), `experience` (Ervaring) and `qualification`
+(Opleidingsniveau). Categories have stable,
 type-scoped slugs and may have a same-type parent; Sector uses this for its practical
-one-level hierarchy. Legacy `vacancy_category`, `job_type`, `career_level` and
-`qualification` values, plus existing Company and Blog category types, remain readable
-compatibility taxonomies; new Vacancy administration and public filters use only the
-five canonical types.
+one-level hierarchy. Legacy `vacancy_category`, `job_type` and `career_level` values,
+plus existing Company and Blog category types, remain readable compatibility taxonomies.
+Qualification uses the existing polymorphic Category storage: no assignment means unknown,
+while “Geen specifieke opleiding vereist” is an explicit value.
+Employment type adds the canonical Loondienst/Freelance/Stage choices without rewriting or
+detaching existing Fulltime/Parttime assignments; those remain available as compatibility
+values until a deliberate hours/employment taxonomy migration is approved.
 
 Flexible descriptive Vacancy tags use Spatie Laravel Tags, not `Category`. Tags such
 as AI, CRM, SaaS and B2B are free-form; filterable employment, workplace, sector,
@@ -139,6 +150,26 @@ only for legacy compatibility and must not become provider identity in new impor
 
 Vacancy slugs are stable after creation and do not regenerate merely because a title is
 changed.
+
+## Vacancy compensation contract
+
+Salary and freelance rate remain independent and may coexist on a Vacancy. The canonical
+fields are `salary_min`, `salary_max`, `salary_currency`, `salary_period`, `salary_basis`,
+`rate_min`, `rate_max`, `rate_currency` and `rate_period`. Amounts use the established whole-
+currency-unit integer precision; a missing endpoint is null and is never treated as zero.
+
+`salary_basis` is nullable for backward compatibility and accepts `gross_fte`,
+`gross_offered_hours` or `unknown`. Null and `unknown` are both non-comparable. Existing rows
+were not inferred or backfilled. They can later be reviewed explicitly in Filament or through
+a documented source mapping.
+
+Comparable monthly salary means explicit EUR + `month` + `gross_fte` and a valid positive
+one- or two-sided range. Comparable hourly rate means explicit EUR + `hour` and the same range
+rules. Zero, negative, reversed, missing or unsupported metadata is non-comparable. These
+rules are available through Vacancy helpers/scopes and remain separate from
+`publiclyVisible()`. SMV-083 composes those scopes with inclusive interval overlap in the
+shared homepage/listing query. There is no currency,
+assumed-hours or FTE conversion in this contract.
 
 SMV-001 established soft deletion on important operational models where the schema
 already supported it. Financial and historical records are protected from accidental
@@ -191,3 +222,44 @@ blog content is deliberately not migrated or imported.
 - slug
 
 Exact field naming follows current repository conventions.
+
+### Saved Vacancies
+
+`users` and `vacancies` have a many-to-many relationship through `saved_vacancies`.
+The composite unique constraint allows one save per User/Vacancy pair; both foreign
+keys cascade only the pivot row when a parent is physically deleted. Vacancy soft
+deletion therefore retains the save relationship. Saving is role-independent, while
+new attachments are allowed only for Vacancies and Companies that are publicly visible.
+
+`users` and `companies` use the equivalent `saved_companies` pivot with a unique
+User/Company pair and the same parent-deletion behavior. This remains distinct from
+Company ownership (`companies.user_id`) and from editorial Blog relations.
+
+### User identity and registration intent
+
+Public work seekers and employers share the same `users` table and Laravel `web` guard.
+`RegistrationContext` is validated, transient onboarding intent (`job_seeker` or
+`employer`), not a second stored identity model and not an authorization grant. The
+existing `users.role`/Spatie roles retain initial classification where the current
+architecture needs it, but product capabilities are not needlessly exclusive: saved
+content and owned Applications work for any authenticated User. Employer management
+continues to require actual Company ownership or permissions. A User may therefore gain
+an employer role through later Company onboarding without creating a second User.
+
+### Candidate Applications
+
+`applications.candidate_id` is the nullable, indexed relationship to `users`. New
+internal submissions made during an authenticated session set this value server-side.
+Guest submissions retain a null value. Historical rows are not assigned by matching
+`candidate_email`, because an e-mail string alone is not treated as ownership proof.
+
+`Application::candidate()` and `User::applications()` provide the ownership boundary.
+The Vacancy relationship includes soft-deleted rows for historical continuity, but the
+candidate account independently checks current Vacancy and Company public visibility
+before rendering their title, Company or public URL. Application status continues to
+use `ApplicationStatus`; candidate labels are a presentation mapping on that enum and
+do not create a second stored lifecycle.
+
+Save statistics remain derived data. Current totals and rankings aggregate the unique
+`saved_vacancies` and `saved_companies` rows in SQL and exclude soft-deleted content.
+There is no analytics-events table and no save/unsave Activitylog stream in SMV-080.

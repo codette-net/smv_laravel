@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Models\Company;
+use App\Support\Companies\CompanyDescription;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -49,6 +50,8 @@ class CompanyInfolist
                             ->columnSpanFull(),
                         TextEntry::make('description')
                             ->label('Beschrijving')
+                            ->formatStateUsing(fn (?string $state): string => app(CompanyDescription::class)->sanitize($state))
+                            ->html()
                             ->placeholder('-')
                             ->columnSpanFull(),
                     ]),

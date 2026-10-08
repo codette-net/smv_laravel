@@ -3,14 +3,17 @@
 namespace App\Filament\Resources\Applications;
 
 use App\Enums\ApplicationStatus;
+use App\Filament\Resources\Applications\Pages\EditApplication;
 use App\Filament\Resources\Applications\Pages\ListApplications;
 use App\Filament\Resources\Applications\Pages\ViewApplication;
 use App\Models\Application;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Infolists\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -31,7 +34,14 @@ class ApplicationResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema;
+        return $schema->components([
+            Section::make('Status')->schema([
+                Select::make('status')
+                    ->label('Interne sollicitatiestatus')
+                    ->options(ApplicationStatus::class)
+                    ->required(),
+            ]),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -70,11 +80,15 @@ class ApplicationResource extends Resource
                 SelectFilter::make('vacancy')->relationship('vacancy', 'title')->label('Vacature')->searchable(),
                 SelectFilter::make('status')->options(ApplicationStatus::class)->label('Status'),
             ])
-            ->recordActions([ViewAction::make()]);
+            ->recordActions([ViewAction::make(), EditAction::make()]);
     }
 
     public static function getPages(): array
     {
-        return ['index' => ListApplications::route('/'), 'view' => ViewApplication::route('/{record}')];
+        return [
+            'index' => ListApplications::route('/'),
+            'view' => ViewApplication::route('/{record}'),
+            'edit' => EditApplication::route('/{record}/edit'),
+        ];
     }
 }

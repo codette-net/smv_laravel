@@ -10,7 +10,7 @@
 @section(
     'meta_description',
     Str::limit(
-        \App\Support\Seo\StructuredData::plainText($vacancy->description),
+        app(\App\Support\Vacancies\VacancyDescription::class)->plainText($vacancy->description),
         155
     )
 )
@@ -35,7 +35,7 @@
 
 @section('content')
 
-    <div class="w-full px-4 py-8 sm:px-6 lg:px-8">
+    <div class="w-full px-4 pt-24 pb-8 sm:px-6 sm:pt-28 lg:px-8">
 
         <div class="mx-auto flex max-w-5xl flex-col lg:flex-row lg:space-x-8 xl:space-x-16">
 
@@ -113,7 +113,7 @@
 
                                 @else
 
-                                    <span class="text-xl font-bold text-indigo-500">
+                                    <span class="text-xl font-bold text-blue-700">
                                         {{ Str::upper(Str::substr($vacancy->company->name, 0, 1)) }}
                                     </span>
 
@@ -264,7 +264,7 @@
                             @foreach ($vacancy->tags as $tag)
 
                                 <div class="m-1">
-                                    <span class="btn-xs rounded-full border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 shadow-none">
+                                    <span class="btn-xs rounded-full border-blue-200 bg-blue-50 px-2.5 py-1 text-xs text-blue-700 shadow-none">
                                         {{ $tag->name }}
                                     </span>
                                 </div>
@@ -291,9 +291,7 @@
                         Over deze vacature
                     </h2>
 
-                    <div class="prose prose-slate max-w-none leading-7">
-                        {!! $vacancy->description !!}
-                    </div>
+                    <x-ui.rich-content :html="$descriptionHtml" />
 
                 </section>
 
@@ -309,7 +307,7 @@
                     <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
                         {{-- Apply button --}}
-                        <div>
+                        <div class="flex flex-wrap items-center gap-3">
 
                             @if (
                                 $vacancy->application_mode === \App\Enums\ApplicationMode::External
@@ -350,6 +348,8 @@
 
                             @endif
 
+                            <x-vacancy.save-button :vacancy="$vacancy" />
+
                         </div>
 
 
@@ -375,7 +375,7 @@
 
                                 {{-- LinkedIn --}}
                                 <a
-                                    class="text-gray-400 hover:text-indigo-500"
+                                    class="text-gray-400 hover:text-blue-700"
                                     href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(route('vacancies.show', $vacancy)) }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -397,7 +397,7 @@
                                 {{-- Copy link --}}
                                 <button
                                     type="button"
-                                    class="relative text-gray-400 hover:text-indigo-500"
+                                    class="relative text-gray-400 hover:text-blue-700"
                                     @click="copy()"
                                 >
                                     <span class="sr-only">
@@ -499,7 +499,7 @@
 
                                     @else
 
-                                        <span class="text-xl font-bold text-indigo-500">
+                                        <span class="text-xl font-bold text-blue-700">
                                             {{ Str::upper(Str::substr($vacancy->company->name, 0, 1)) }}
                                         </span>
 

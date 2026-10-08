@@ -2,6 +2,8 @@
 
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
+use App\Enums\CompensationPeriod;
+use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Models\Category;
@@ -55,7 +57,7 @@ test('the vacancy index only renders publicly visible vacancies', function () {
     $this->get(route('vacancies.index'))
         ->assertOk()
         ->assertSee('Zichtbare vacature')
-        ->assertDontSee('Vacature opslaan')
+        ->assertSee('Bewaar vacature')
         ->assertDontSee('Concept vacature')
         ->assertDontSee('Vervulde vacature')
         ->assertDontSee('Verlopen vacature')
@@ -77,6 +79,25 @@ test('the vacancy index searches titles and company names', function () {
         ->assertOk()
         ->assertSee('Accountmanager buitendienst')
         ->assertDontSee('Marketing specialist');
+});
+
+test('city filtering works independently and together with search', function () {
+    $company = publicListingCompany();
+    publicListingVacancy($company, ['title' => 'Accountmanager Utrecht', 'location' => 'Utrecht']);
+    publicListingVacancy($company, ['title' => 'Marketeer Utrecht', 'location' => 'Utrecht']);
+    publicListingVacancy($company, ['title' => 'Accountmanager Amsterdam', 'location' => 'Amsterdam']);
+
+    $this->get(route('vacancies.index', ['locatie' => 'Utrecht']))
+        ->assertOk()
+        ->assertSee('Accountmanager Utrecht')
+        ->assertSee('Marketeer Utrecht')
+        ->assertDontSee('Accountmanager Amsterdam');
+
+    $this->get(route('vacancies.index', ['zoek' => 'Accountmanager', 'locatie' => 'Utrecht']))
+        ->assertOk()
+        ->assertSee('Accountmanager Utrecht')
+        ->assertDontSee('Marketeer Utrecht')
+        ->assertDontSee('Accountmanager Amsterdam');
 });
 
 test('location category and company filters combine through the query string', function () {
@@ -296,4 +317,139 @@ test('the index renders a Dutch empty state and handles company logos', function
     $this->get(route('vacancies.index', ['zoek' => 'onvindbaar']))
         ->assertOk()
         ->assertSee('Geen vacatures gevonden');
+});
+
+test('monthly salary filtering uses inclusive overlap and only comparable FTE ranges', function () {
+    $company = publicListingCompany();
+    publicListingVacancy($company, [
+        'title' => 'Passend maandsalaris',
+        'salary_min' => 3500,
+        'salary_max' => 4500,
+        'salary_currency' => 'EUR',
+        'salary_period' => CompensationPeriod::Month,
+        'salary_basis' => SalaryBasis::GrossFullTimeEquivalent,
+    ]);
+    publicListingVacancy($company, [
+        'title' => 'Vaste grenswaarde',
+        'salary_min' => 5000,
+        'salary_max' => null,
+        'salary_currency' => 'EUR',
+        'salary_period' => CompensationPeriod::Month,
+        'salary_basis' => SalaryBasis::GrossFullTimeEquivalent,
+    ]);
+    publicListingVacancy($company, [
+        'title' => 'Onbekende salarisbasis',
+        'salary_min' => 4000,
+        'salary_max' => 5000,
+        'salary_currency' => 'EUR',
+        'salary_period' => CompensationPeriod::Month,
+        'salary_basis' => null,
+    ]);
+    publicListingVacancy($company, [
+        'title' => 'Alleen uurtarief',
+        'rate_min' => 80,
+        'rate_max' => 100,
+        'rate_currency' => 'EUR',
+        'rate_period' => CompensationPeriod::Hour,
+    ]);
+
+    $this->get(route('vacancies.index'))
+        ->assertOk()
+        ->assertSee('Onbekende salarisbasis')
+        ->assertSee('Alleen uurtarief');
+
+    $this->get(route('vacancies.index', ['vergoeding' => 'maand', 'bedrag_van' => 4500, 'bedrag_tot' => 5000]))
+        ->assertOk()
+        ->assertSee('Passend maandsalaris')
+        ->assertSee('Vaste grenswaarde')
+        ->assertDontSee('Onbekende salarisbasis')
+        ->assertDontSee('Alleen uurtarief')
+        ->assertSee('Vergoeding: € 4500 – € 5000 bruto per maand (FTE)');
+});
+
+test('hourly rate filtering supports one-sided ranges without salary conversion', function () {
+    $company = publicListingCompany();
+    publicListingVacancy($company, [
+        'title' => 'Passend uurtarief',
+        'rate_min' => null,
+        'rate_max' => 95,
+        'rate_currency' => 'EUR',
+        'rate_period' => CompensationPeriod::Hour,
+    ]);
+    publicListingVacancy($company, [
+        'title' => 'Te laag uurtarief',
+        'rate_min' => 60,
+        'rate_max' => 70,
+        'rate_currency' => 'EUR',
+        'rate_period' => CompensationPeriod::Hour,
+    ]);
+    publicListingVacancy($company, [
+        'title' => 'Maandsalaris is geen tarief',
+        'salary_min' => 5000,
+        'salary_currency' => 'EUR',
+        'salary_period' => CompensationPeriod::Month,
+        'salary_basis' => SalaryBasis::GrossFullTimeEquivalent,
+    ]);
+
+    $this->get(route('vacancies.index', ['vergoeding' => 'uur', 'bedrag_van' => 80]))
+        ->assertOk()
+        ->assertSee('Passend uurtarief')
+        ->assertDontSee('Te laag uurtarief')
+        ->assertDontSee('Maandsalaris is geen tarief');
+});
+
+test('invalid compensation filters show Dutch feedback and are not partially applied', function (array $parameters, string $message) {
+    $company = publicListingCompany();
+    publicListingVacancy($company, ['title' => 'Blijft zichtbaar bij ongeldige invoer']);
+
+    $this->get(route('vacancies.index', $parameters))
+        ->assertOk()
+        ->assertSee($message)
+        ->assertSee('Blijft zichtbaar bij ongeldige invoer');
+})->with([
+    'missing mode' => [['bedrag_van' => '3000'], 'Kies of je op bruto maandsalaris (FTE) of uurtarief wilt filteren.'],
+    'negative amount' => [['vergoeding' => 'maand', 'bedrag_van' => '-1'], 'Het minimumbedrag moet een positief heel bedrag zijn.'],
+    'non numeric amount' => [['vergoeding' => 'maand', 'bedrag_tot' => 'veel'], 'Het maximumbedrag moet een positief heel bedrag zijn.'],
+    'array amount' => [['vergoeding' => 'maand', 'bedrag_van' => ['3000']], 'Het minimumbedrag moet een positief heel bedrag zijn.'],
+    'reversed range' => [['vergoeding' => 'maand', 'bedrag_van' => '5000', 'bedrag_tot' => '4000'], 'Het maximumbedrag moet gelijk zijn aan of hoger zijn dan het minimumbedrag.'],
+]);
+
+test('education and parent taxonomy filters combine without duplicate vacancies', function () {
+    $company = publicListingCompany();
+    $parent = Category::factory()->create(['name' => 'Technologie', 'type' => CategoryType::sector]);
+    $child = Category::factory()->create(['name' => 'SaaS', 'type' => CategoryType::sector, 'parent_id' => $parent->id]);
+    $hbo = Category::factory()->create(['name' => 'HBO', 'type' => CategoryType::qualification]);
+    $match = publicListingVacancy($company, ['title' => 'SaaS accountmanager']);
+    $match->categories()->attach([$parent->id, $child->id, $hbo->id]);
+    publicListingVacancy($company, ['title' => 'Andere opleiding'])->categories()->attach($child);
+
+    $response = $this->get(route('vacancies.index', ['sector' => $parent->slug, 'opleiding' => $hbo->slug]))
+        ->assertOk()
+        ->assertSee('SaaS accountmanager')
+        ->assertDontSee('Andere opleiding')
+        ->assertSee('Opleidingsniveau: HBO');
+
+    expect(substr_count($response->getContent(), 'SaaS accountmanager'))->toBe(1);
+});
+
+test('canonical employment experience education and workplace values stay type scoped', function () {
+    $company = publicListingCompany();
+    $stage = Category::factory()->create(['name' => 'Stage', 'type' => CategoryType::employment_type]);
+    $starter = Category::factory()->create(['name' => 'Starter', 'type' => CategoryType::experience]);
+    $noRequirement = Category::factory()->create(['name' => 'Geen specifieke opleiding vereist', 'type' => CategoryType::qualification]);
+    $remote = Category::factory()->create(['name' => 'Remote', 'type' => CategoryType::workplace]);
+    $match = publicListingVacancy($company, ['title' => 'Remote salesstage']);
+    $match->categories()->attach([$stage->id, $starter->id, $noRequirement->id, $remote->id]);
+    publicListingVacancy($company, ['title' => 'Vacature met onbekende opleiding']);
+
+    $this->get(route('vacancies.index', [
+        'dienstverband' => $stage->slug,
+        'ervaring' => $starter->slug,
+        'opleiding' => $noRequirement->slug,
+        'werklocatie' => $remote->slug,
+    ]))
+        ->assertOk()
+        ->assertSee('Remote salesstage')
+        ->assertDontSee('Vacature met onbekende opleiding')
+        ->assertSee('Opleidingsniveau: Geen specifieke opleiding vereist');
 });

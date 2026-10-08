@@ -7,6 +7,8 @@ use App\Enums\CompensationPeriod;
 use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\Vacancy;
+use App\Support\Companies\CompanyDescription;
+use App\Support\Vacancies\VacancyDescription;
 use Illuminate\Support\Str;
 
 class StructuredData
@@ -58,7 +60,7 @@ class StructuredData
             '@context' => 'https://schema.org',
             '@type' => 'JobPosting',
             'title' => $vacancy->title,
-            'description' => self::plainText($vacancy->description),
+            'description' => app(VacancyDescription::class)->plainText($vacancy->description),
             'hiringOrganization' => self::organization($vacancy->company),
             'url' => route('vacancies.show', $vacancy),
         ];
@@ -110,7 +112,7 @@ class StructuredData
             $data = ['@context' => 'https://schema.org', ...$data];
         }
 
-        $description = self::plainText($company->description ?? $company->tagline ?? '');
+        $description = app(CompanyDescription::class)->plainText($company->description ?? $company->tagline ?? '');
         if ($description !== '') {
             $data['description'] = $description;
         }
@@ -139,7 +141,10 @@ class StructuredData
     {
         if (($vacancy->salary_min === null && $vacancy->salary_max === null)
             || ! preg_match('/^[A-Z]{3}$/', strtoupper((string) $vacancy->salary_currency))
-            || ! $vacancy->salary_period instanceof CompensationPeriod) {
+            || ! $vacancy->salary_period instanceof CompensationPeriod
+            || ($vacancy->salary_min !== null && $vacancy->salary_min <= 0)
+            || ($vacancy->salary_max !== null && $vacancy->salary_max <= 0)
+            || ($vacancy->salary_min !== null && $vacancy->salary_max !== null && $vacancy->salary_min > $vacancy->salary_max)) {
             return null;
         }
 

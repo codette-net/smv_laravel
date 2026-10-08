@@ -26,6 +26,7 @@ Users
 
 Companies
 ├── public company page
+├── public search and one-category discovery
 ├── vacancies
 ├── content relations where useful
 └── package/commercial relations where current model requires them
@@ -36,9 +37,16 @@ Vacancies
 ├── taxonomies
 ├── company
 ├── application destination
+├── owner-scoped public draft/preview/pending hand-off
 └── import provenance
 
 Applications
+
+Contact
+├── public GET form plus rate-limited POST endpoint
+├── ContactRequest validation and honeypot normalization
+├── configurable internal Laravel Mail delivery
+└── no ContactMessage database persistence
 
 Packages / Orders / Payments
 
@@ -82,6 +90,15 @@ Route
 
 Do not create Actions/Services purely to satisfy this diagram.
 
+The general Contact flow follows `Route → ContactController → ContactRequest →
+ContactRequestMail`. `CONTACT_MAIL_TO` selects the environment-specific internal
+recipient; Laravel's normal mail configuration controls sender and transport. Local
+development defaults to the `log` mailer. Production must configure its actual mailer,
+sender and recipient. The named `contact` limiter and a honeypot provide lightweight
+abuse protection without external services. Mail errors are reported through Laravel's
+exception handler but never shown verbatim to visitors, and no submitted Contact record
+is written to the database.
+
 ## Admin architecture
 
 Filament should manage the operational data needed by the business, including at minimum the domains that exist in the final MVP.
@@ -90,8 +107,92 @@ Import mapping is explicitly an admin UX problem as well as a backend problem.
 
 Current Filament panel access is limited to `super-admin`, `admin` and `editor`.
 Employer and candidate roles do not have unrestricted panel access. Editor permissions
-are conservative pending later editorial refinement; an employer dashboard is not yet
-implemented.
+are conservative pending later editorial refinement. The public `/account` area is
+separate from the Filament `/dashboard` panel.
+
+## Public employer placement
+
+The first SMV-078 slice uses the existing Laravel `web` guard rather than a second auth
+system. Public `/inloggen` and `/registreren` routes serve the shared public layout;
+Filament keeps its own panel login and remains restricted by `User::canAccessPanel()`.
+Employer-intent registration assigns the Spatie `employer` role and creates one pending
+Company.
+
+Company ownership is the nullable `companies.user_id` foreign key. `User::companies()`
+is a one-to-many relation, so a User can manage zero, one or multiple Companies. There
+is no Company membership/team pivot. Vacancy draft authorization therefore follows the
+owning Company and never trusts a submitted Company outside that User's relation.
+
+The placement flow stores only bounded session state before persistence: an
+`AdvertisingPackage` selection and Laravel's normal intended URL. Once submitted, the
+Vacancy records `placement_package` as commercial intent, not as a paid entitlement.
+New public employer Vacancies remain `draft` through data entry/preview and become
+`pending` on hand-off. They are never published or featured by this flow. SMV-050 owns
+the definitive package/entitlement domain and SMV-051 owns Orders and Payments.
+
+SMV-078B adds a deliberately small public account foundation. Authenticated users enter
+through `/account`; employers can update only presentation/contact fields on Companies
+whose `user_id` they own and can list Vacancies belonging to those Companies. Status,
+owner, slug, featured state, import provenance and publication remain protected. Logo
+and cover replacement reuse the existing single-file Media Library collections.
+
+SMV-079 extends that same `web`-guard account with User-owned saved Vacancies and Company
+profiles through separate unique `saved_vacancies` and `saved_companies` pivots. New
+saves require the applicable canonical public-visibility rules. A guest continuation
+stores only the content identifier in the session, revalidates it after authentication
+and attaches idempotently. SMV-080B makes registration intent explicit: `/registreren`
+offers `Werkzoekende` and `Werkgever`, while one shared `/inloggen` route and one `users`
+table remain authoritative. A validated work-seeker intent creates a candidate-classified
+User without Company records; an employer intent creates the pending owned Company used
+by onboarding. The intent controls fields and continuation, not permanent product access.
+Saved-content intents lead to work-seeker registration and Vacancy placement leads to
+employer registration through one bounded resolver over the existing session intents.
+Authorization remains permission- and ownership-based: an employer can save/apply, and
+an existing work seeker can later create an owned Company in the placement flow without
+a second User or auth guard.
+Unavailable saved records retain their editorial relationship but render only a private
+minimal unavailable state under `/account/bewaarde-vacatures` or
+`/account/bewaarde-bedrijven`.
+
+SMV-080 uses the existing nullable `applications.candidate_id` as the sole candidate
+ownership boundary. An authenticated internal submission sets it from Laravel's session;
+clients cannot submit another User id. Guest Applications remain supported with a null
+candidate, and historical rows are never claimed by matching e-mail addresses. The
+private `/account/sollicitaties` query always starts from `User::applications()` and has
+no candidate detail route. It shows a mapped candidate status and only public Vacancy
+context. If the Vacancy or Company is no longer public, the relationship remains but
+protected content is replaced by a generic unavailable state.
+
+Application status remains one internal enum. Filament presents the existing workflow
+values to administrators, while the enum maps those values to intentionally coarser
+candidate labels. External and e-mail application modes do not enter the Application
+domain and are not represented as completed submissions.
+
+Internal engagement reporting uses database-side counts over the existing unique save
+pivots. A staff-only Filament widget shows current totals and deterministic rankings for
+existing, non-soft-deleted Vacancies and Companies. It never loads saver lists or exposes
+counts publicly. Spatie Activitylog is not used for save/unsave history in this phase;
+historical trend reporting is explicitly deferred.
+
+Vacancy publication is normalized server-side when a record transitions from a
+non-published status to `published`: a missing `published_at` becomes `now()`. An
+explicit future timestamp remains scheduled and an existing published record retains
+its original timestamp on unrelated edits. Public eligibility remains query-driven, so
+scheduled records become visible without a scheduler after the timestamp passes.
+`deadline_at` is the candidate application cutoff and `expires_at` is the listing's
+active-until boundary. Under the current MVP lifecycle both elapsed boundaries remove a
+Vacancy from public surfaces; their business meanings and administration labels remain
+separate.
+
+Vacancy and Company descriptions use explicit domain semantic-HTML boundaries.
+`VacancyDescription` and `CompanyDescription` share the narrowly scoped
+`LimitedRichText` sanitizer policy, while keeping persistence and rendering decisions
+in their own domains. The policy permits only paragraphs, line breaks, `h2`/`h3`,
+strong/emphasis, ordered/unordered lists and links with approved schemes. Both models
+normalize changed descriptions before persistence; Vacancy imports use the Vacancy
+boundary. Public detail pages sanitize again defensively for pre-existing database
+rows without rewriting them. Metadata and structured-data descriptions derive plain
+text from the corresponding domain service.
 
 ## Public frontend
 
@@ -112,8 +213,23 @@ The production public surface uses `layouts.public`, `HomeController`, the dedic
 public controllers and Blade components under `components/ui`, `components/vacancy`,
 `components/company`, `components/blog` and `components/home`. The older
 `pages/component`, `pages/job`, `vacatures` prototype views and dashboard-style layout
-are not routed. They still need an explicit keep-as-catalogue or removal decision;
-their unresolved `<x-app-layout>` dependency currently prevents `artisan view:cache`.
+are not routed. The retained catalogue is compileable through `<x-app-layout>` and
+obsolete duplicates were removed in SMV-075, so `artisan view:cache` remains a release
+validation command rather than a known blocker.
+
+Company discovery always starts from `Company::publiclyVisible()`. The index applies a
+bounded text query and at most one `company_category` slug, eager-loads card media and
+typed categories, and aggregates `Vacancy::publiclyVisible()` counts. Category-browser
+counts use one constrained aggregate query rather than per-category queries. Saved state
+continues to use the authenticated bulk `withExists` query. The homepage employer banner
+uses a separate deterministic, bounded public Company query with eager-loaded media.
+
+Homepage and `/vacatures` compose the same `VacancySearch` and `VacancyFilterOptions`
+services. Public visibility is applied before keyword/place, typed Category, Company and
+compensation constraints. Comparable compensation delegates to the Vacancy scopes from the
+SMV-082 contract; the search layer only applies validated inclusive interval overlap. Blade
+receives prepared options/errors and does not query. GET state keeps both surfaces shareable,
+while Alpine only enhances native form/disclosure behavior.
 
 Do not add Vue/React/another design system without explicit approval.
 

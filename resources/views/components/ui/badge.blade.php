@@ -6,7 +6,7 @@
 
 @php
     $variantClass = match ($variant) {
-        'primary' => 'bg-violet-500/20 text-violet-700',
+        'primary' => 'bg-blue-500/20 text-blue-700',
         'success' => 'bg-green-500/20 text-green-700',
         'warning' => 'bg-yellow-500/20 text-yellow-700',
         'danger' => 'bg-red-500/20 text-red-700',

@@ -151,6 +151,7 @@
                     <option value="sector">Sector</option>
                     <option value="function_area">Functiegebied</option>
                     <option value="experience">Ervaring</option>
+                    <option value="qualification">Opleidingsniveau</option>
                 </select>
             </label>
             <label class="block text-sm font-medium">

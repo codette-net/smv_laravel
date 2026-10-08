@@ -14,8 +14,11 @@ class BlogPostController extends Controller
 {
     public function index(): View
     {
+        $posts = $this->publicPosts()->paginate(12);
+
         return view('blog.index', [
-            'posts' => $this->publicPosts()->paginate(12),
+            'posts' => $posts,
+            'canonical' => $this->paginationCanonical('blog.index', [], $posts->currentPage()),
         ]);
     }
 
@@ -37,6 +40,7 @@ class BlogPostController extends Controller
             'structuredData' => StructuredData::blogPosting($blogPost),
             'relatedVacancies' => $blogPost->vacancies()
                 ->publiclyVisible()
+                ->withSavedStateFor(auth()->user())
                 ->with(['company.media', 'categories'])
                 ->orderByDesc('published_at')
                 ->orderByDesc('id')
@@ -44,7 +48,14 @@ class BlogPostController extends Controller
                 ->get(),
             'relatedCompanies' => $blogPost->companies()
                 ->publiclyVisible()
-                ->with('media')
+                ->withSavedStateFor(auth()->user())
+                ->with([
+                    'media',
+                    'categories' => fn ($query) => $query->where('type', CategoryType::company_category->value),
+                ])
+                ->withCount([
+                    'vacancies as public_vacancies_count' => fn ($query) => $query->publiclyVisible(),
+                ])
                 ->orderBy('name')
                 ->limit(3)
                 ->get(),
@@ -64,10 +75,9 @@ class BlogPostController extends Controller
             'eyebrow' => 'Categorie',
             'heading' => $blogCategory->name,
             'metaDescription' => 'Artikelen in de categorie '.$blogCategory->name.'.',
-            'canonical' => $this->archiveCanonical(
+            'canonical' => $this->paginationCanonical(
                 'blog.categories.show',
-                'blogCategory',
-                $blogCategory->slug,
+                ['blogCategory' => $blogCategory->slug],
                 $posts->currentPage(),
             ),
         ]);
@@ -86,10 +96,9 @@ class BlogPostController extends Controller
             'eyebrow' => 'Tag',
             'heading' => $blogTag->name,
             'metaDescription' => 'Artikelen met de tag '.$blogTag->name.'.',
-            'canonical' => $this->archiveCanonical(
+            'canonical' => $this->paginationCanonical(
                 'blog.tags.show',
-                'blogTag',
-                $blogTag->slug,
+                ['blogTag' => $blogTag->slug],
                 $posts->currentPage(),
             ),
         ]);
@@ -108,10 +117,11 @@ class BlogPostController extends Controller
             ->orderByDesc('id');
     }
 
-    private function archiveCanonical(string $routeName, string $parameter, string $slug, int $page): string
+    /** @param array<string, string> $parameters */
+    private function paginationCanonical(string $routeName, array $parameters, int $page): string
     {
         return route($routeName, [
-            $parameter => $slug,
+            ...$parameters,
             ...($page > 1 ? ['page' => $page] : []),
         ]);
     }

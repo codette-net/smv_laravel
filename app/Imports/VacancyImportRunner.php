@@ -79,7 +79,7 @@ class VacancyImportRunner
         $vacancy = Vacancy::where('import_source_id', $source->id)->where('source_reference', $reference)->first();
         $created = $vacancy === null;
         $wasMissing = $vacancy?->missing_since !== null;
-        $allowed = ['title', 'description', 'location', 'published_at', 'deadline_at', 'expires_at', 'application_mode', 'application_url', 'application_email', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'rate_min', 'rate_max', 'rate_currency', 'rate_period'];
+        $allowed = ['title', 'description', 'location', 'published_at', 'deadline_at', 'expires_at', 'application_mode', 'application_url', 'application_email', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'salary_basis', 'rate_min', 'rate_max', 'rate_currency', 'rate_period'];
         $fields = $mapping->fields->pluck('destination_key')->all();
         $attributes = [];
         foreach ($allowed as $field) {
@@ -93,7 +93,7 @@ class VacancyImportRunner
         $attributes += ['company_id' => $source->company_id, 'import_source_id' => $source->id, 'source_reference' => $reference, 'source' => VacancySource::Import, 'status' => $created ? VacancyStatus::Pending : $vacancy->status];
         $vacancy ??= new Vacancy;
         $vacancy->fill($attributes)->save();
-        foreach (['employment_type', 'workplace', 'sector', 'function_area', 'experience'] as $type) {
+        foreach (['employment_type', 'workplace', 'sector', 'function_area', 'experience', 'qualification'] as $type) {
             if (! in_array("taxonomy.{$type}", $fields, true)) {
                 continue;
             }

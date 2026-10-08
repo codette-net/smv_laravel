@@ -9,7 +9,7 @@
     <div class="flex items-end justify-between gap-4">
 
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-indigo-600">
+            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-blue-700">
                 Werken bij
             </p>
 
@@ -61,7 +61,7 @@
 
             <a
                 href="{{ route('vacancies.index') }}"
-                class="mt-4 inline-flex items-center font-semibold text-indigo-600 hover:text-indigo-700"
+                class="mt-4 inline-flex items-center font-semibold text-blue-700 hover:text-blue-800"
             >
                 Bekijk alle vacatures
                 <span class="ml-1">→</span>

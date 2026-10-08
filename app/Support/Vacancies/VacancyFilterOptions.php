@@ -30,6 +30,10 @@ class VacancyFilterOptions
             'sector',
             'functiegebied',
             'ervaring',
+            'opleiding',
+            'vergoeding',
+            'bedrag_van',
+            'bedrag_tot',
         ], '');
     }
 
@@ -82,6 +86,7 @@ class VacancyFilterOptions
             'sector' => CategoryType::sector,
             'functiegebied' => CategoryType::function_area,
             'ervaring' => CategoryType::experience,
+            'opleiding' => CategoryType::qualification,
         ];
     }
 }

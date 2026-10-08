@@ -563,9 +563,22 @@ salary_type = maand
 salary_currency = EUR
 ```
 
-The mapping/normalization layer must normalize source salary data into the SMV compensation model.
+The mapping/normalization layer normalizes source salary data into the SMV compensation model.
+Salary and rate may coexist. Their canonical metadata includes currency and period, while
+salary additionally accepts explicit basis values `gross_fte`, `gross_offered_hours` and
+`unknown`. Missing basis stays null/unknown; it is never inferred from a monthly period,
+employment type, amount or description.
 
-Do not assume one source period/code has the same semantics as another.
+Recognized currency codes are uppercased and recognized period labels become `hour`, `day`,
+`week`, `month` or `year`. Whole-unit positive endpoints are retained independently. Imported
+zero endpoints become null with a warning; negative, fractional under the current integer
+precision, and reversed ranges fail validation. Do not assume one source period/code has the
+same semantics as another, and do not convert currency, assumed hours or FTE. Any existing
+annual-to-monthly transform is only valid when explicitly configured from a documented source
+contract; it does not establish salary basis and cannot make a row comparable by itself.
+
+Future SMV-083 filtering will use only explicit EUR/month/`gross_fte` salaries and EUR/hour
+rates. Import mapping exposes `vacancy.salary_basis`, but no source default is assumed.
 
 ## Description/content normalization
 
@@ -583,7 +596,12 @@ The importer may therefore need:
 - field combination
 - ordering rules for combined sections
 
-Do not blindly store/render arbitrary unsafe source HTML.
+`vacancy.description` is normalized through the same `VacancyDescription` service as
+manual and Filament Vacancy writes. The canonical output permits only `p`, `br`,
+`strong`, `em`, `ul`, `ol`, `li`, `h2`, `h3` and links with approved schemes. Plain-text
+feeds are wrapped into paragraphs while unsafe elements, executable content, inline
+styles/classes, images, embeds and tables are removed. Import preview/persistence must
+not introduce a separate provider-specific HTML path.
 
 ## Structured taxonomy mapping
 

@@ -12,10 +12,11 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $this->seedCategories(CategoryType::employment_type, ['Fulltime', 'Parttime', 'Freelance', 'Stage']);
+        $this->seedCategories(CategoryType::employment_type, ['Loondienst', 'Freelance', 'Stage', 'Fulltime', 'Parttime']);
         $this->seedCategories(CategoryType::workplace, ['Op locatie', 'Hybride', 'Remote']);
         $this->seedCategories(CategoryType::function_area, ['Sales', 'Marketing', 'Business Development', 'Accountmanagement', 'Communicatie']);
         $this->seedCategories(CategoryType::experience, ['Starter', 'Junior', 'Medior', 'Senior']);
+        $this->seedCategories(CategoryType::qualification, ['MBO', 'HBO', 'WO', 'Geen specifieke opleiding vereist']);
 
         $sectors = $this->seedCategories(CategoryType::sector, ['IT', 'Horeca', 'Financiële dienstverlening', 'Retail', 'Zakelijke dienstverlening']);
         $this->seedCategories(CategoryType::sector, ['SaaS', 'E-commerce'], $sectors['IT']->id);

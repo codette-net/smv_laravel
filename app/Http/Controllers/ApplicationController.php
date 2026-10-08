@@ -26,6 +26,7 @@ class ApplicationController extends Controller
 
         $data = $request->validated();
         unset($data['cv']);
+        $data['candidate_id'] = $request->user()?->getKey();
         $data['cv_path'] = $request->hasFile('cv')
             ? $request->file('cv')->store('applications/'.$vacancy->id, 'local')
             : null;

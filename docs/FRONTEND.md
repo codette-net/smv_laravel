@@ -187,14 +187,16 @@ the current layout wiring as a contract when it is incomplete or broken.
 The production public surface currently includes:
 
 - `/`: controller-backed homepage with server-side Vacancy search/filter/sort,
-  six-result pagination and latest public Blog post;
+  six-result pagination, public Company presentation and three latest public Blog posts;
 - `/vacatures` and `/vacatures/{slug}`: canonical discovery and detail flow with
   public lifecycle filtering, taxonomy filters, deterministic sorting, related
   Vacancies and one application destination;
-- `/bedrijven` and `/bedrijven/{slug}`: public Company listing/detail pages with
-  Media Library-first imagery and public Vacancy counts/relations;
+- `/bedrijven` and `/bedrijven/{slug}`: public Company discovery/detail pages with
+  GET-based text search, one typed category filter, Media Library-first imagery and
+  public Vacancy counts/relations;
 - `/blog`, Blog detail, typed category archives and typed tag archives;
-- `/over-ons`, `/tarieven` and `/contact`;
+- `/adverteren`, `/over-ons`, `/tarieven` and `/contact`, including the operational
+  general Contact form;
 - shared responsive header/account menu and footer.
 
 Reusable production components include `components/ui` form controls, buttons and
@@ -306,6 +308,14 @@ Prioritize a coherent production-quality experience for:
 
 ## Vacancy frontend rule
 
+Homepage and Vacancy listing share one server-side GET search. Keyword and place are always
+visible. Secondary filters use an accessible native disclosure and cover employment type,
+workplace, sector/function-area hierarchy, experience, qualification, Company and
+compensation. The disclosure opens for active secondary state, retains that state during
+automatic submissions and remains usable without JavaScript. Compensation uses
+`vergoeding=maand|uur`, `bedrag_van` and `bedrag_tot`; invalid input is shown in Dutch and is
+not partially applied. Province remains deferred until an explicit structured value exists.
+
 Manually created and imported vacancies must use exactly the same application models
 and public rendering components.
 
@@ -378,26 +388,75 @@ The recent public-site pass has completed much of the intended SMV-070 consisten
 work: the production pages share the light SMV/Tidy-derived surface, cards, controls,
 responsive filters, header and footer. SMV-071 remains partial until keyboard/screen
 reader behavior and responsive pages have received a deliberate accessibility pass.
-The Vacancy card currently renders a bookmark button without persistence/interaction,
-and its premium variant is dormant presentation code because no persisted listing tier
-exists. Treat neither as completed commercial functionality.
+Vacancy cards use a top-right bookmark icon with the shared white tooltip pattern; the
+public detail page retains the explicit text control. Company cards use the equivalent
+icon for separately persisted Company-profile saves. State is loaded in bulk with the
+public query and never queried from Blade. The
+premium variant remains dormant presentation code because no persisted listing tier
+exists; do not treat that variant as completed commercial functionality.
 
-The old component catalogue and job prototypes are not reachable from `routes/web.php`,
-but Laravel still compiles every Blade view during `artisan view:cache`. Because those
-views reference an unregistered `<x-app-layout>`, the release cache command currently
-fails. Resolve this by deliberately removing/quarantining obsolete prototypes or by
-making the retained catalogue independently compilable; do not wire it into public
-routes merely to keep it.
+The retained component catalogue and job references are not reachable from
+`routes/web.php`, but remain independently compileable through `<x-app-layout>` after
+SMV-075. Obsolete prototype duplicates were removed; do not wire catalogue pages into
+public routes merely to preserve them.
 
-Repository content/brand readiness is mixed:
+SMV-063 provides the first coherent Dutch content and brand layer:
 
 - `resources/images/smv-logo.svg` and `smv_profile.png`, plus the blue/slate palette and
-  current typography, are the concrete SMV brand inputs used by production pages;
-- Dutch homepage, About, pricing, contact and footer copy exists and can be reviewed in
-  context, but no separate approved client-copy/brand decision document is present;
-- the Contact form is intentionally disabled and says that submission is not configured;
-- pricing uses “Op aanvraag” and needs commercial approval rather than invented prices;
-- About/contact hero photography came from the original template asset import and
-  should be treated as replaceable until the client explicitly approves it;
-- the repository still contains a large unused Mosaic asset library. Do not delete it
-  blindly, but audit usages before release and retain only licensed/needed assets.
+  current typography, remain the concrete SMV brand inputs used by production pages;
+- the primary navigation is Home, Vacatures, Bedrijven, Blog and Adverteren on desktop
+  and mobile;
+- `/adverteren` explains the employer proposition and the confirmed seven-step process;
+- `/vacature-plaatsen` is the noindex four-step employer conversion flow: package,
+  Vacancy details, private preview and pending hand-off. Guests see the commercial
+  choice before public login/registration; mobile keeps a compact current-step label;
+- the Vacancy description step and owned Company profile description progressively
+  enhance a normal textarea into the same compact Alpine editor for paragraphs,
+  `h2`/`h3`, emphasis, lists and links. The accessible toolbar uses inline Lucide SVG
+  shapes following the existing public inline-SVG convention. The textarea stays the
+  no-JavaScript fallback; domain-aware server-side sanitization is the security
+  boundary. Public Company/Vacancy content and private Vacancy preview share the scoped
+  `rich-content` Typography presentation;
+- `/inloggen` remains the single shared public login on the existing `web` guard.
+  `/registreren` is an explicit choice between `Werkzoekende` and `Werkgever`; the
+  corresponding forms receive a validated registration context. Work-seeker registration
+  asks no Company fields and creates no Company. Employer registration clearly includes
+  the existing pending-Company onboarding. Saved Vacancy/Company intents point new users
+  to the work-seeker form, while placement points to the employer form; all resume through
+  Laravel's intended URL. Invalid context input falls back safely to the choice page;
+- `/account` is the normal public destination for authenticated users and is distinct
+  from the staff-only Filament `/dashboard`. Employers can complete owned Company
+  profiles and browse owned Vacancies through `/account/vacatures`. Every authenticated
+  User can review securely linked internal Applications through
+  `/account/sollicitaties`, manage saved Vacancies through `/account/bewaarde-vacatures` and saved
+  Company profiles through `/account/bewaarde-bedrijven`; unavailable items render
+  without protected content. Account routes are private and
+  `noindex, nofollow`;
+- Mijn sollicitaties uses existing badge components and intentionally shows only a
+  candidate-facing status, submission date and still-public Vacancy context. External
+  links, e-mail actions, private applicant fields and unavailable Vacancy/Company copy
+  are not shown;
+- the Filament dashboard includes a compact staff-only current-save widget. It shows
+  aggregate Vacancy/Company totals and rankings, never saver identities, and is not a
+  public analytics surface;
+- pricing presents Standaard, Superior and Maatwerk without implying checkout or an
+  automated ranking implementation;
+- Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062
+  general-purpose form. It reuses the shared input, textarea, select and button
+  primitives plus a Tidy-derived accessible status modal. Validation/failure feedback
+  remains inline and the form does not require an account;
+- homepage Company and Blog sections use live public data rather than hardcoded cards;
+- a compact Tidy-derived employer logo strip sits directly below the homepage hero and
+  uses only deterministic public Company data, contained logos or neutral letter
+  fallbacks, links to Company detail and no unsupported partnership claim;
+- reusable Company cards use a richer horizontal identity layout, a contained
+  left-aligned logo or accessible letter fallback, safe plain-text profile introduction,
+  public Vacancy count, limited typed categories and the unchanged circular async save
+  control. The `/bedrijven` category browser scrolls horizontally on narrow screens and
+  links to the current GET filter; dedicated category archives are deferred to SMV-077A;
+- About/contact stock photography is limited to existing Tidy assets and remains subject
+  to final stakeholder approval.
+
+Open copy, commercial and asset approvals are maintained in `CONTENT_STATUS.md`. The
+repository still contains a large unused Mosaic asset library; audit usage before release
+instead of deleting it blindly.

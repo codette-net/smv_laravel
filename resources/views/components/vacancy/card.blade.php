@@ -18,18 +18,14 @@
 
     $imageUrl = $vacancy->company->publicCoverUrl() ?? $vacancy->company->publicLogoUrl();
 
-    $salary = null;
-
-    if ($vacancy->salary_min && $vacancy->salary_max) {
-        $salary = '€' . number_format($vacancy->salary_min, 0, ',', '.')
-            . ' – €' . number_format($vacancy->salary_max, 0, ',', '.');
-    }
+    $salary = $vacancy->compensationLabel();
 @endphp
 
 <article
+    data-demo="vacancy-card"
     @class([
         'group relative flex h-full overflow-hidden rounded-2xl border transition-all duration-200
-        bg-white/20 p-2 shadow-lg shadow-black/3 transition hover:bg-white/90
+        bg-white/20 p-2 shadow-lg shadow-blue-700/50 transition hover:bg-white/90
         before:pointer-events-none before:absolute before:inset-0 before:-z-10
         before:rounded-[inherit] before:border before:border-transparent
         before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box]
@@ -44,18 +40,21 @@
             => $isPremium,
 
         // Standard
-        'border-gray-200 bg-white shadow-sm hover:-translate-y-1 hover:shadow-md'
+        'border-gray-200 bg-white shadow-sm hover:shadow-md'
             => $tier === 'standard',
 
         // Featured
-        'border-indigo-200 bg-gradient-to-b from-indigo-50/70 via-white to-white shadow-md hover:-translate-y-1 hover:shadow-xl'
+        'border-blue-200 bg-gradient-to-b from-blue-50/70 via-white to-white shadow-md hover:shadow-xl'
             => $isFeatured,
 
         // Premium
-        'border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-violet-50/70 shadow-lg hover:shadow-xl'
+        'border-blue-200 bg-gradient-to-br from-blue-50/80 via-white to-blue-100/60 shadow-lg hover:shadow-xl'
             => $isPremium,
     ])
 >
+    <div class="absolute right-4 top-4 z-30">
+        <x-vacancy.save-button :vacancy="$vacancy" icon-only />
+    </div>
 
     {{-- Badge --}}
     @if ($isFeatured || $isPremium)
@@ -120,7 +119,7 @@
             {{-- Company --}}
             <a
                 href="{{ route('bedrijven.show', $vacancy->company) }}"
-                class="text-sm font-medium text-gray-600 transition hover:text-indigo-600 text-balance mb-2"
+                class="text-sm font-medium text-gray-600 transition hover:text-blue-700 text-balance mb-2"
             >
                 {{ $vacancy->company->name }}
             </a>
@@ -136,7 +135,7 @@
             >
                 <a
                     href="{{ $detailUrl ?? '#' }}"
-                    class="transition hover:text-indigo-600"
+                    class="transition hover:text-blue-700"
                 >
                     {{ $vacancy->title }}
                 </a>
@@ -249,22 +248,22 @@
             </div>
 
 
-            @if ($detailUrl)
-                <a
-                    href="{{ $detailUrl }}"
-                    @class([
-                        'inline-flex items-center justify-center rounded-lg bg-indigo-500 font-semibold text-white shadow-sm transition hover:bg-indigo-600',
-                        'w-full px-4 py-2.5 text-sm' => !$isPremium,
-                        'px-5 py-2.5 text-sm' => $isPremium,
-                    ])
-                >
-                    Bekijk vacature
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                @if ($detailUrl)
+                    <a
+                        href="{{ $detailUrl }}"
+                        @class([
+                            'inline-flex items-center justify-center rounded-lg bg-blue-600 font-semibold text-white shadow-sm transition hover:bg-blue-700',
+                            'w-full px-4 py-2.5 text-sm' => !$isPremium,
+                            'px-5 py-2.5 text-sm' => $isPremium,
+                        ])
+                    >
+                        Bekijk vacature
 
-                    <span class="ml-2 transition-transform duration-150 group-hover:translate-x-1">
-                        →
-                    </span>
-                </a>
-            @endif
+                        <span class="ml-2 transition-transform duration-150 group-hover:translate-x-1">→</span>
+                    </a>
+                @endif
+            </div>
 
         </div>
 
