@@ -4,6 +4,7 @@ use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
+use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Models\Category;
@@ -197,6 +198,25 @@ test('vacancy placement validates ownership enums destinations and taxonomy type
         ->assertSessionHasErrors('application_mode');
 
     expect(Vacancy::count())->toBe(0);
+});
+
+test('employer salary input rejects zero and preserves an explicitly selected basis', function () {
+    $user = placementEmployer();
+    $company = placementCompany($user);
+
+    $this->actingAs($user)
+        ->withSession(['vacancy_placement.package' => AdvertisingPackage::Standard->value])
+        ->post(route('vacancy-placement.store'), validPlacementData($company, ['salary_min' => 0]))
+        ->assertSessionHasErrors('salary_min');
+
+    $this->actingAs($user)
+        ->withSession(['vacancy_placement.package' => AdvertisingPackage::Standard->value])
+        ->post(route('vacancy-placement.store'), validPlacementData($company, [
+            'salary_basis' => SalaryBasis::GrossOfferedHours->value,
+        ]))
+        ->assertRedirect();
+
+    expect(Vacancy::sole()->salary_basis)->toBe(SalaryBasis::GrossOfferedHours);
 });
 
 test('only the owner may preview and edit a draft and editing returns to preview', function () {

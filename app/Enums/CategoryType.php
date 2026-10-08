@@ -11,12 +11,12 @@ enum CategoryType: string implements HasLabel
     case sector = 'sector';
     case function_area = 'function_area';
     case experience = 'experience';
+    case qualification = 'qualification';
 
     // Retained for existing records that are not part of the public vacancy taxonomy.
     case vacancy_category = 'vacancy_category';
     case job_type = 'job_type';
     case career_level = 'career_level';
-    case qualification = 'qualification';
     case company_category = 'company_category';
     case blog_category = 'blog_category';
 

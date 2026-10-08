@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Vacancies\Schemas;
 
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
+use App\Enums\CompensationPeriod;
+use App\Enums\SalaryBasis;
 use App\Enums\VacancyStatus;
 use App\Models\Category;
 use App\Models\Vacancy;
@@ -80,19 +82,51 @@ class VacancyForm
                         TextInput::make('salary_min')
                             ->label('Salaris vanaf')
                             ->numeric()
-                            ->minValue(0),
+                            ->integer()
+                            ->minValue(1),
                         TextInput::make('salary_max')
                             ->label('Salaris tot')
                             ->numeric()
-                            ->minValue(0),
+                            ->integer()
+                            ->minValue(1)
+                            ->gte('salary_min'),
+                        TextInput::make('salary_currency')
+                            ->label('Salarisvaluta')
+                            ->maxLength(3)
+                            ->rules(['nullable', 'alpha:ascii', 'size:3'])
+                            ->placeholder('EUR')
+                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtoupper(trim($state)) : null),
+                        Select::make('salary_period')
+                            ->label('Salarisperiode')
+                            ->options(CompensationPeriod::class)
+                            ->placeholder('Niet opgegeven'),
+                        Select::make('salary_basis')
+                            ->label('Salarisbasis')
+                            ->options(SalaryBasis::class)
+                            ->placeholder('Niet opgegeven')
+                            ->helperText('Kies alleen FTE wanneer het bedrag aantoonbaar een bruto fulltime-equivalent is. Fulltime betekent niet automatisch 40 uur.')
+                            ->columnSpanFull(),
                         TextInput::make('rate_min')
                             ->label('Tarief vanaf')
                             ->numeric()
-                            ->minValue(0),
+                            ->integer()
+                            ->minValue(1),
                         TextInput::make('rate_max')
                             ->label('Tarief tot')
                             ->numeric()
-                            ->minValue(0),
+                            ->integer()
+                            ->minValue(1)
+                            ->gte('rate_min'),
+                        TextInput::make('rate_currency')
+                            ->label('Tariefvaluta')
+                            ->maxLength(3)
+                            ->rules(['nullable', 'alpha:ascii', 'size:3'])
+                            ->placeholder('EUR')
+                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtoupper(trim($state)) : null),
+                        Select::make('rate_period')
+                            ->label('Tariefperiode')
+                            ->options(CompensationPeriod::class)
+                            ->placeholder('Niet opgegeven'),
                     ]),
                 Section::make('Publicatie')
                     ->description('Beheer wanneer de vacature zichtbaar wordt en wanneer reageren of publicatie eindigt.')
@@ -166,6 +200,7 @@ class VacancyForm
             self::taxonomyField('sector_categories', 'Sector', CategoryType::sector),
             self::taxonomyField('function_area_categories', 'Functiegebied', CategoryType::function_area),
             self::taxonomyField('experience_categories', 'Ervaring', CategoryType::experience),
+            self::taxonomyField('qualification_categories', 'Opleidingsniveau', CategoryType::qualification),
         ];
     }
 

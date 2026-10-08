@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SalaryBasis;
 use App\Imports\Data\SourceRecord;
 use App\Imports\Mapping\ImportMapper;
 use App\Models\ImportMapping;
@@ -47,6 +48,20 @@ test('compensation keeps salary and rate independent and warns about unknown per
     ]);
     $result = app(ImportMapper::class)->map(new SourceRecord(1, ['id' => 'x', 'title' => 'Titel', 'annual' => 60000, 'rate' => 120, 'rate_period' => 'hour']), $mapping, $source);
     expect($result->data->get('vacancy.salary_min'))->toBe(5000)->and($result->data->get('vacancy.rate_min'))->toBe(120)->and($result->data->get('vacancy.rate_period'))->toBe('hour');
+});
+
+test('salary basis is an explicit generic mapping destination and is never inferred', function () {
+    [$source, $mapping] = mappingWith([
+        ['destination_key' => 'source_reference', 'operation' => 'direct', 'source_paths' => ['id']],
+        ['destination_key' => 'vacancy.title', 'operation' => 'direct', 'source_paths' => ['title']],
+        ['destination_key' => 'vacancy.salary_basis', 'operation' => 'direct', 'source_paths' => ['salary_basis']],
+    ]);
+
+    $explicit = app(ImportMapper::class)->map(new SourceRecord(1, ['id' => 'x', 'title' => 'Titel', 'salary_basis' => SalaryBasis::GrossOfferedHours->value]), $mapping, $source);
+    $missing = app(ImportMapper::class)->map(new SourceRecord(2, ['id' => 'y', 'title' => 'Titel']), $mapping, $source);
+
+    expect($explicit->data->get('vacancy.salary_basis'))->toBe(SalaryBasis::GrossOfferedHours->value)
+        ->and($missing->data->get('vacancy.salary_basis'))->toBeNull();
 });
 
 test('missing identity and unknown destinations or transforms are rejected', function () {

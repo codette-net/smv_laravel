@@ -13,12 +13,7 @@
 
     $detailUrl ??= route('vacancies.show', $vacancy);
 
-    $salary = null;
-
-    if ($vacancy->salary_min && $vacancy->salary_max) {
-        $salary = '€' . number_format($vacancy->salary_min, 0, ',', '.')
-            . ' – €' . number_format($vacancy->salary_max, 0, ',', '.');
-    }
+    $salary = $vacancy->compensationLabel();
 
     $isNew = $vacancy->published_at
         && $vacancy->published_at->gte(now()->subDays(7));

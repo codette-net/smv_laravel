@@ -18,12 +18,7 @@
 
     $imageUrl = $vacancy->company->publicCoverUrl() ?? $vacancy->company->publicLogoUrl();
 
-    $salary = null;
-
-    if ($vacancy->salary_min && $vacancy->salary_max) {
-        $salary = '€' . number_format($vacancy->salary_min, 0, ',', '.')
-            . ' – €' . number_format($vacancy->salary_max, 0, ',', '.');
-    }
+    $salary = $vacancy->compensationLabel();
 @endphp
 
 <article

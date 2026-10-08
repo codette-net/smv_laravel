@@ -36,7 +36,7 @@
     <section class="mx-auto max-w-7xl px-8 2xl:px-16 py-8 sm:px-6 lg:py-14" aria-labelledby="vacature-zoeker">
         <div class="lg:flex lg:items-start lg:gap-10">
             <aside
-                class="mb-8  lg:sticky lg:top-24 lg:mb-0 lg:w-72 lg:shrink-0 shadow-lg shadow-blue-700/50 rounded-xl ">
+                class="mb-8 lg:sticky lg:top-24 lg:mb-0 lg:w-96 lg:shrink-0 shadow-lg shadow-blue-700/50 rounded-xl ">
                 <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
                     <div class="max-w-2xl">
                         <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Zoek vacatures</p>
@@ -47,7 +47,9 @@
                         <x-home.vacancy-search :filters="$filters" :sort="$sort" :sort-options="$sortOptions"
                                                :locations="$locations" :taxonomy-options="$taxonomyOptions"
                                                :companies="$companies" :has-filters="$hasFilters"
-                                               :has-additional-filters="$hasAdditionalFilters"/>
+                                               :has-additional-filters="$hasAdditionalFilters"
+                                               :secondary-filter-count="$secondaryFilterCount"
+                                               :filter-errors="$filterErrors"/>
                     </div>
                 </div>
             </aside>

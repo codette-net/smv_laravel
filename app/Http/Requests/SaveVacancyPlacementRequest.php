@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
+use App\Enums\SalaryBasis;
 use App\Enums\VacancyStatus;
 use App\Models\Vacancy;
 use App\Rules\MeaningfulVacancyDescription;
@@ -59,14 +60,16 @@ class SaveVacancyPlacementRequest extends FormRequest
             'application_mode' => ['required', Rule::enum(ApplicationMode::class)],
             'application_email' => ['nullable', 'required_if:application_mode,'.ApplicationMode::Email->value, 'email:rfc', 'max:255'],
             'application_url' => ['nullable', 'required_if:application_mode,'.ApplicationMode::External->value, 'url:http,https', 'max:2048'],
-            'salary_min' => ['nullable', 'integer', 'min:0', 'max:1000000'],
-            'salary_max' => ['nullable', 'integer', 'min:0', 'max:1000000', 'gte:salary_min'],
+            'salary_min' => ['nullable', 'integer', 'min:1', 'max:1000000'],
+            'salary_max' => ['nullable', 'integer', 'min:1', 'max:1000000', 'gte:salary_min'],
+            'salary_basis' => ['nullable', Rule::enum(SalaryBasis::class)],
             'deadline_at' => ['nullable', 'date', 'after_or_equal:today'],
             'employment_type_category_id' => $this->categoryRules(CategoryType::employment_type),
             'workplace_category_id' => $this->categoryRules(CategoryType::workplace),
             'sector_category_id' => $this->categoryRules(CategoryType::sector),
             'function_area_category_id' => $this->categoryRules(CategoryType::function_area),
             'experience_category_id' => $this->categoryRules(CategoryType::experience),
+            'qualification_category_id' => $this->categoryRules(CategoryType::qualification),
         ];
     }
 
@@ -91,6 +94,7 @@ class SaveVacancyPlacementRequest extends FormRequest
             'application_mode' => 'sollicitatiemethode',
             'salary_min' => 'minimumsalaris',
             'salary_max' => 'maximumsalaris',
+            'salary_basis' => 'salarisbasis',
             'deadline_at' => 'sollicitatiedeadline',
         ];
     }

@@ -28,6 +28,7 @@ class EmployerVacancyController extends Controller
         'sector_category_id' => CategoryType::sector,
         'function_area_category_id' => CategoryType::function_area,
         'experience_category_id' => CategoryType::experience,
+        'qualification_category_id' => CategoryType::qualification,
     ];
 
     public function index(): View
@@ -206,6 +207,7 @@ class EmployerVacancyController extends Controller
             'salary_max' => $data['salary_max'] ?? null,
             'salary_currency' => $hasSalary ? 'EUR' : null,
             'salary_period' => $hasSalary ? CompensationPeriod::Month : null,
+            'salary_basis' => $hasSalary ? ($data['salary_basis'] ?? null) : null,
             'deadline_at' => $data['deadline_at'] ?? null,
             ...$protected,
         ];

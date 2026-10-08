@@ -110,8 +110,9 @@ The evidence and proposed policy for this phase are documented in
 
 | Ticket | Status | Exact remainder |
 | --- | --- | --- |
-| SMV-082 Compensation data and normalization contract | **NOT STARTED** | Confirm comparable monthly salary/hourly rate metadata and close admin/import validation gaps without guessing legacy values. |
-| SMV-083 Salary/rate range filtering | **NOT STARTED** | Add shared inclusive overlap filtering to homepage and Vacancy listing after SMV-082. |
+| SMV-082 Compensation data and normalization contract | **DONE** | Nullable explicit salary basis, normalized admin/import writes and reusable EUR-month-FTE / EUR-hour comparability scopes are implemented without reclassifying legacy rows. |
+| SMV-083 Search/filter completion and salary/rate ranges | **DONE** | Homepage and Vacancy listing share primary/secondary GET filters, structured taxonomies and inclusive comparable compensation overlap. |
+| SMV-083A Structured province data/filter | **DEFERRED** | Add only after Vacancy has an explicit validated province value; free-text place names must not be guessed into provinces. |
 | SMV-084 Sector/function-area ownership and administration | **NOT STARTED** | Complete explicit Vacancy/Company assignment and import/admin boundaries using the existing Category architecture. |
 | SMV-085 Public sector/function-area archives | **NOT STARTED** | Add type-safe overview/detail routes, counts, filters, pagination and public Company context. |
 | SMV-086 Linked public taxonomy labels | **NOT STARTED** | Link deliberate Vacancy/Company taxonomy labels to canonical archives without nested links. |
@@ -343,31 +344,32 @@ The evidence and proposed policy for this phase are documented in
 
 #### SMV-082 — Compensation data and normalization contract
 
-- **Classification/status:** MVP — NOT STARTED.
-- **Goal/evidence:** make existing `salary_*` and `rate_*` ranges reliably comparable. All
-  eight amount/currency/period fields and `CompensationPeriod` exist, but Filament omits
-  metadata and no field distinguishes fulltime-equivalent from offered-hours salary.
-- **In scope:** audit live/seed/import values; agree nullable salary-basis metadata; align
-  Filament/employer validation; document EUR-month salary and EUR-hour rate comparability;
-  correct stale compensation statements in import documentation.
+- **Classification/status:** MVP — DONE.
+- **Result:** the eight existing amount/currency/period fields remain canonical and nullable
+  `salary_basis` adds `gross_fte`, `gross_offered_hours` and `unknown`. Filament and the
+  employer flow reject new zero/negative/reversed manual ranges; imports normalize known
+  currency/period/basis values and turn zero endpoints into null with a warning.
+- **Comparability:** `Vacancy::withComparableMonthlySalary()` requires EUR + month +
+  `gross_fte` and a valid positive one- or two-sided interval. The hourly-rate equivalent
+  requires EUR + hour. These scopes deliberately do not imply public visibility.
 - **Out of scope:** currency conversion, assumed hours, bonus/commission percentages,
   package entitlement and bulk guessing/backfill.
-- **Dependencies:** product confirmation of the public salary basis; package confirmation is
-  not required.
+- **Existing data:** no basis is inferred or backfilled. Existing null/unknown, zero,
+  unsupported-currency and unsupported-period rows remain stored and non-comparable until an
+  editor or trusted source contract explicitly reviews them.
 - **Acceptance:** ambiguous rows remain unknown; minimum/maximum ordering and enum values are
   validated at every write boundary; salary and rate can still coexist; imports preserve
   warnings instead of guessing.
-- **Tests/verification:** create/update/import salary-only, rate-only, both, null metadata,
-  annual-to-monthly once, reversed/negative bounds and unknown period/basis.
+- **Tests/verification:** fixed, one-sided, equal, reversed, negative and zero bounds;
+  currency/period/basis mismatches; import warnings; manual and Filament persistence; public
+  labels and JobPosting output.
 - **Documentation:** `DATA_MODEL.md`, `IMPORTS.md`, `IMPORT_DESIGN.md`, `MVP.md` and this audit.
-- **Open decision:** FTE versus offered-hours canonical monthly basis; recommended default is
-  explicitly marked gross monthly FTE, EUR only. Zero should mean invalid/unknown.
-- **Effort:** medium — schema may be small, but write-boundary and data-quality verification
-  spans admin, employer and imports.
+- **Next:** SMV-083 may add filtering by composing public visibility with these comparability
+  scopes. No filter parameters or range matching were added here.
 
-#### SMV-083 — Salary and hourly-rate range filtering
+#### SMV-083 — Search/filter completion and salary and hourly-rate range filtering
 
-- **Classification/status:** MVP — NOT STARTED.
+- **Classification/status:** MVP — DONE.
 - **Goal/evidence:** extend shared `VacancySearch` so homepage and `/vacatures` support two
   amount inputs plus an explicit monthly/hourly mode. Existing shared GET filters, debounce,
   collapsible homepage panel, reset and pagination are reusable.
@@ -382,8 +384,23 @@ The evidence and proposed policy for this phase are documented in
   negative/non-numeric/reversed input, period/currency/basis mismatch, combined taxonomy and
   Company filters, pagination state and homepage parity.
 - **Documentation:** `MVP.md`, `FRONTEND.md`, `DATA_MODEL.md`, `SEO.md`.
-- **Open decision:** final public copy for monthly salary basis; no technical package blocker.
+- **Result:** keyword and place remain visible on both surfaces; secondary filters are grouped
+  behind an accessible, state-preserving disclosure with a count and same-page reset. The
+  shared query supports canonical employment, workplace, sector/function hierarchy,
+  experience, qualification, Company and explicit EUR monthly-FTE/hourly-rate overlap.
+  Invalid amount input receives Dutch feedback and is never partially interpreted.
+- **Open decision resolved:** public copy explicitly says “Bruto maandsalaris (EUR, FTE)” and
+  “Uurtarief (EUR)”; no conversion or inference is performed.
 - **Effort:** medium — one shared query path, two responsive forms and boundary-heavy tests.
+
+#### SMV-083A — Structured province data and filter
+
+- **Classification/status:** post-MVP follow-up — DEFERRED.
+- **Reason:** Vacancy currently stores a free-text place only. Deriving province from that
+  string would be unreliable and would make shared URLs/data semantics unstable.
+- **Scope when justified:** explicit nullable province value, controlled Dutch options,
+  admin/import normalization, combined place/province filtering and migration coverage.
+- **Out of scope:** geocoding, radius search and guessing province from arbitrary text.
 
 #### SMV-084 — Sector/function-area ownership and administration
 

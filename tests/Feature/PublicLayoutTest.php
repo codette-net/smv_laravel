@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\CompanyStatus;
+use App\Enums\CompensationPeriod;
+use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Models\BlogPost;
@@ -40,7 +42,7 @@ test('the homepage renders the shared public navigation footer and vacancy searc
         ->assertSee('name="locatie"', false)
         ->assertSee('name="dienstverband"', false)
         ->assertSee('name="functiegebied"', false)
-        ->assertSee('role="listbox"', false)
+        ->assertSee('<select class="form-select w-full" id="locatie"', false)
         ->assertSee('href="'.route('home').'"', false)
         ->assertSee('href="'.route('vacancies.index').'"', false)
         ->assertSee('href="'.route('companies.index').'"', false)
@@ -128,21 +130,33 @@ test('the homepage keeps additional filters collapsible and opens them only for 
 
     $this->get(route('home'))
         ->assertOk()
-        ->assertSee('id="homepage-aanvullende-filters"', false)
-        ->assertSee('x-show="filtersOpen"', false)
+        ->assertSee('id="aanvullende-filters"', false)
+        ->assertSee('<details class="min-w-0 grow"', false)
         ->assertSee('filtersOpen: false', false)
         ->assertSee('loading: false', false)
-        ->assertSee('type="button" aria-controls="homepage-aanvullende-filters" :aria-expanded="filtersOpen"', false);
+        ->assertSee('aria-controls="aanvullende-filters" x-bind:aria-expanded="filtersOpen.toString()"', false);
 
     $this->get(route('home', ['zoek' => 'Accountmanager']))
         ->assertOk()
         ->assertSee('filtersOpen: false', false);
 
-    $this->get(route('home', ['locatie' => 'Utrecht']))
+    $this->get(route('home', ['zoek' => 'Accountmanager', 'meer_filters' => 1]))
         ->assertOk()
         ->assertSee('filtersOpen: true', false)
+        ->assertSee('<details class="min-w-0 grow" open', false);
+
+    $this->get(route('home', ['locatie' => 'Utrecht']))
+        ->assertOk()
+        ->assertSee('filtersOpen: false', false)
+        ->assertDontSee('<details class="min-w-0 grow" open', false)
+        ->assertSee('href="'.route('home').'">Wis filters</a>', false);
+
+    $this->get(route('home', ['sector' => 'sales']))
+        ->assertOk()
+        ->assertSee('filtersOpen: true', false)
+        ->assertSee('<details class="min-w-0 grow" open', false)
+        ->assertSee('1 actieve aanvullende filtergroepen')
         ->assertSee('href="'.route('home').'">Wis filters</a>', false)
-        ->assertSeeInOrder(['href="'.route('home').'">Wis filters</a>', 'id="homepage-aanvullende-filters"'], false)
         ->assertSee('x-on:change=', false)
         ->assertSee('requestSubmit()', false);
 });
@@ -205,8 +219,39 @@ test('the vacancy index retains its auto-submit filter interaction', function ()
     $this->get(route('vacancies.index'))
         ->assertOk()
         ->assertSee('action="'.route('vacancies.index').'"', false)
-        ->assertSee('role="listbox"', false)
+        ->assertSee('<select class="form-select w-full" id="locatie"', false)
         ->assertSee('requestSubmit()', false)
-        ->assertDontSee('homepage-aanvullende-filters', false)
-        ->assertDontSee('Meer filters');
+        ->assertSee('id="aanvullende-filters"', false)
+        ->assertSee('Meer filters');
+});
+
+test('homepage and vacancy listing share compensation filter semantics while preserving their routes', function () {
+    $match = homepageSearchVacancy('Salaris match', [
+        'salary_min' => 3500,
+        'salary_max' => 4500,
+        'salary_currency' => 'EUR',
+        'salary_period' => CompensationPeriod::Month,
+        'salary_basis' => SalaryBasis::GrossFullTimeEquivalent,
+    ]);
+    homepageSearchVacancy('Salaris onbekend', [
+        'salary_min' => 3500,
+        'salary_max' => 4500,
+        'salary_currency' => 'EUR',
+        'salary_period' => CompensationPeriod::Month,
+        'salary_basis' => null,
+    ]);
+    $parameters = ['vergoeding' => 'maand', 'bedrag_van' => 4000, 'bedrag_tot' => 4000];
+
+    $this->get(route('home', $parameters))
+        ->assertOk()
+        ->assertSee($match->title)
+        ->assertDontSee('Salaris onbekend')
+        ->assertSee('action="'.route('home').'"', false)
+        ->assertSee('<details class="min-w-0 grow" open', false);
+
+    $this->get(route('vacancies.index', $parameters))
+        ->assertOk()
+        ->assertSee($match->title)
+        ->assertDontSee('Salaris onbekend')
+        ->assertSee('action="'.route('vacancies.index').'"', false);
 });

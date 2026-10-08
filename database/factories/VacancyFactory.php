@@ -18,6 +18,8 @@ class VacancyFactory extends Factory
     public function definition(): array
     {
         $title = fake('nl_NL')->jobTitle();
+        $salary_min = fake()->numberBetween(1000, 10000);
+        $salary_max = $salary_min + fake()->numberBetween(500, 5000);
         $rate_min = fake()->numberBetween(20, 80);
         $rate_max = $rate_min + fake()->numberBetween(10, 20);
 
@@ -28,8 +30,8 @@ class VacancyFactory extends Factory
             'description' => fake()->paragraph(10),
             'application_email' => fake()->unique()->safeEmail(),
             'application_url' => fake()->url(),
-            'salary_min' => fake()->numberBetween(1000, 10000),
-            'salary_max' => fake()->numberBetween(2000, 20000),
+            'salary_min' => $salary_min,
+            'salary_max' => $salary_max,
             'rate_min' => $rate_min,
             'rate_max' => $rate_max,
             'reference' => fake()->uuid(),

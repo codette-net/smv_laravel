@@ -14,6 +14,7 @@ trait SynchronizesVacancyTaxonomies
         'sector_categories' => CategoryType::sector,
         'function_area_categories' => CategoryType::function_area,
         'experience_categories' => CategoryType::experience,
+        'qualification_categories' => CategoryType::qualification,
     ];
 
     protected function mutateFormDataBeforeFill(array $data): array
