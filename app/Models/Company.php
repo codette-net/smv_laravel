@@ -2,16 +2,37 @@
 
 namespace App\Models;
 
+use App\Enums\CategoryType;
+use App\Enums\CompanyStatus;
+use App\Support\Companies\CompanyDescription;
+use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
-class Company extends Model
+class Company extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\CompanyFactory> */
-    use HasFactory;
+    /** @use HasFactory<CompanyFactory> */
+    use HasFactory, HasSlug, InteractsWithMedia, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::saving(function (Company $company): void {
+            if ($company->isDirty('description') && $company->description !== null) {
+                $company->description = app(CompanyDescription::class)->sanitize($company->description);
+            }
+        });
+    }
 
     protected $fillable = [
         'user_id',
@@ -30,8 +51,116 @@ class Company extends Model
         'instagram_url',
         'video_url',
         'status',
-        'is_featured'
+        'is_featured',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_featured' => 'boolean',
+            'status' => CompanyStatus::class,
+        ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'])
+            ->singleFile();
+
+        $this->addMediaCollection('cover')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->singleFile();
+    }
+
+    public function isPubliclyVisible(): bool
+    {
+        return $this->status === CompanyStatus::Active;
+    }
+
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->where('status', CompanyStatus::Active->value);
+    }
+
+    /** @param Builder<Company> $query */
+    public function scopeMatchingSearch(Builder $query, ?string $search): Builder
+    {
+        if (blank($search)) {
+            return $query;
+        }
+
+        $term = '%'.addcslashes($search, '%_\\').'%';
+
+        return $query->where(function (Builder $query) use ($term): void {
+            $query
+                ->where('name', 'like', $term)
+                ->orWhere('tagline', 'like', $term)
+                ->orWhere('description', 'like', $term)
+                ->orWhere('location', 'like', $term);
+        });
+    }
+
+    /** @param Builder<Company> $query */
+    public function scopeInCompanyCategory(Builder $query, ?string $categorySlug): Builder
+    {
+        if (blank($categorySlug)) {
+            return $query;
+        }
+
+        return $query->whereHas('categories', function (Builder $query) use ($categorySlug): void {
+            $query
+                ->where('type', CategoryType::company_category->value)
+                ->where('slug', $categorySlug);
+        });
+    }
+
+    public function publicLogoUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('logo') ?: $this->logo;
+    }
+
+    public function publicCoverUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('cover') ?: $this->cover_image;
+    }
+
+    public function publicIntroduction(int $limit = 150): ?string
+    {
+        $source = filled($this->tagline) ? $this->tagline : $this->description;
+        $introduction = app(CompanyDescription::class)->plainText($source);
+
+        return filled($introduction) ? Str::limit($introduction, $limit) : null;
+    }
+
+    /** @return array<int, string> */
+    public function missingPublicProfileFields(): array
+    {
+        return collect([
+            'beschrijving' => $this->description,
+            'logo' => $this->publicLogoUrl(),
+            'website' => $this->website,
+            'locatie' => $this->location,
+        ])->filter(fn (mixed $value): bool => blank($value))->keys()->all();
+    }
+
+    public function hasCompletePublicProfile(): bool
+    {
+        return $this->missingPublicProfileFields() === [];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function user(): BelongsTo
     {
@@ -43,9 +172,46 @@ class Company extends Model
         return $this->hasMany(Vacancy::class);
     }
 
-    public function blog_posts(): HasMany
+    public function publicVacanciesPreview(): HasMany
+    {
+        return $this->hasMany(Vacancy::class)
+            ->publiclyVisible()
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(2);
+    }
+
+    public function importSources(): HasMany
+    {
+        return $this->hasMany(ImportSource::class);
+    }
+
+    public function blogPosts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
+    }
+
+    public function relatedBlogPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(BlogPost::class, 'blog_post_company');
+    }
+
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'saved_companies')->withTimestamps();
+    }
+
+    /** @param Builder<Company> $query */
+    public function scopeWithSavedStateFor(Builder $query, ?User $user): Builder
+    {
+        if ($user === null) {
+            return $query;
+        }
+
+        return $query->withExists([
+            'savedByUsers as is_saved' => fn (Builder $query) => $query->whereKey($user->getKey()),
+        ]);
     }
 
     public function orders(): HasMany
@@ -53,12 +219,8 @@ class Company extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function categories(): morphToMany
+    public function categories(): MorphToMany
     {
         return $this->morphToMany(Category::class, 'categoryable');
     }
-
-
-
-
 }

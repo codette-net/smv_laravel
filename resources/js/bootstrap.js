@@ -1,8 +1,12 @@
 import axios from 'axios';
 import Alpine from 'alpinejs';
 import AOS from 'aos';
+import richTextEditor from './rich-text-editor';
+import savedItemToggle from './saved-item-toggle';
 
 window.Alpine = Alpine;
+Alpine.data('richTextEditor', richTextEditor);
+Alpine.data('savedItemToggle', savedItemToggle);
 Alpine.start();
 
 AOS.init({
@@ -11,8 +15,6 @@ AOS.init({
     duration: 500,
     easing: 'ease-out-cubic',
 });
-
-console.log(AOS)
 
 window.axios = axios;
 

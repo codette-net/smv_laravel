@@ -15,6 +15,9 @@ class CategoryInfolist
                 TextEntry::make('name'),
                 TextEntry::make('slug'),
                 TextEntry::make('type'),
+                TextEntry::make('parent.name')
+                    ->label('Bovenliggende categorie')
+                    ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

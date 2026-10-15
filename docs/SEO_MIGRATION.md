@@ -1,0 +1,138 @@
+# SMV SEO Migration
+
+## Objective
+
+Move from the legacy WordPress/Cariera site to Laravel while preserving as much existing search equity, useful content and URL value as practical.
+
+SEO is a release requirement. Migration is selective rather than a requirement to
+reproduce every historical WordPress page.
+
+## Before changing public routes
+
+Create an inventory of the current live site.
+
+Collect where possible:
+
+- URL
+- HTTP status
+- indexability
+- title
+- meta description
+- canonical
+- H1
+- sitemap presence
+- internal links / incoming internal links
+- structured data
+- organic landing-page value
+- backlinks
+
+Sources can include:
+
+- crawl export
+- Google Search Console
+- GA4
+- Ahrefs
+- WordPress database/site exports
+
+## Suggested repository data files
+
+```text
+docs/data/legacy-urls.csv
+docs/data/redirects.csv
+docs/data/top-organic-pages.csv
+docs/data/top-backlinked-pages.csv
+```
+
+Do not commit exports containing secrets or unnecessary personal data.
+
+## URL decision
+
+Every important legacy URL should receive a deliberate action:
+
+```text
+KEEP     same URL/intent remains
+301      permanent move to a close equivalent
+410      intentionally removed with no replacement when appropriate
+NOINDEX  retained but intentionally not indexed where justified
+MERGE    content consolidated into a stronger relevant destination
+```
+
+Avoid redirecting unrelated removed content to the homepage.
+Avoid redirect chains.
+
+Public Vacancy and Company slugs are stable after creation. The implemented Laravel
+canonical patterns are `/vacatures/{vacancy-slug}` and `/bedrijven/{company-slug}`.
+The clean listing routes are `/vacatures` and `/bedrijven`; the canonical homepage is
+`/`. These patterns must now be compared with the legacy inventory rather than changed
+without evidence.
+
+Filtered vacancy URLs are not migration landing pages: they canonicalize to
+`/vacatures` and are `noindex, follow`. Pagination is self-canonical. External apply
+links, feed URLs and import references never replace an SMV canonical URL.
+
+## Redirect mapping template
+
+Use `docs/data/redirects.csv` with at least:
+
+```text
+legacy_url,new_url,action,reason,priority,verified
+```
+
+## Content parity
+
+For high-value pages, compare old and new versions so migration does not accidentally remove the content/search intent responsible for ranking.
+
+## Legacy migration scope
+
+The current WordPress site contains some older blog and informational pages, but the
+migration is not intended to reproduce every historical URL.
+
+The public website is Dutch.
+
+Migration priority is:
+
+1. pages with meaningful organic traffic
+2. URLs with valuable backlinks
+3. current commercial pages
+4. useful evergreen content
+5. important vacancy/company URL patterns
+
+Older low-value blog posts and outdated informational pages such as obsolete about or
+process content do not need to be recreated automatically.
+
+For retired URLs, choose an SEO-appropriate outcome based on actual value and relevance
+rather than creating irrelevant blanket redirects.
+
+## Launch checks
+
+Before cutover:
+
+- crawl staging/new site
+- verify canonical host/URLs
+- verify robots/indexability rules
+- validate important structured data
+- verify sitemap URLs
+- test redirects
+- check internal links
+- check important 404s
+- test representative vacancy/company pages
+
+After cutover:
+
+- crawl production
+- check redirect failures/chains
+- verify sitemap/robots
+- inspect Search Console indexing/crawl issues
+- monitor important landing pages and rankings
+
+## Outstanding migration inputs
+
+- current live URL export
+- Ahrefs exports
+- Search Console top pages/queries
+- current WordPress permalink/taxonomy structures
+- mapping of actual WordPress permalink/taxonomy patterns to the concrete Laravel routes
+
+Deterministic redirects can be implemented once the legacy permalink patterns and slug
+parity are proven. URLs without a close equivalent require an explicit 410, merge or
+retention decision; they must not be blanket-redirected to `/`.

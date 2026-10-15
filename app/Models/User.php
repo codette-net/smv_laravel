@@ -9,22 +9,22 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password','role'])]
+#[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     public function canAccessPanel(Panel $panel): bool
     {
-//        return $this->hasAnyRole(['admin', 'super_admin','editor']);
-        return true;
+        return $this->hasAnyRole(['super-admin', 'admin', 'editor']);
     }
 
     public function companies(): HasMany
@@ -32,14 +32,33 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Company::class);
     }
 
-    public function blog_posts(): HasMany
+    public function blogPosts(): HasMany
     {
         return $this->hasMany(BlogPost::class);
     }
 
     public function applications(): HasMany
     {
-        return $this->hasMany(Application::class,'candidate_id');
+        return $this->hasMany(Application::class, 'candidate_id');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function savedVacancies(): BelongsToMany
+    {
+        return $this->belongsToMany(Vacancy::class, 'saved_vacancies')
+            ->withTrashed()
+            ->withTimestamps();
+    }
+
+    public function savedCompanies(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'saved_companies')
+            ->withTrashed()
+            ->withTimestamps();
     }
 
     /**
