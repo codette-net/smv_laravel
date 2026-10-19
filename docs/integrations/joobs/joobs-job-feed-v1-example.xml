@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Joobs Job Feed v1 — example with fictitious data.
+  Indeed-compatible: every standard tag keeps its Indeed Job Sync meaning, so a
+  platform that already reads Indeed feeds can read this one unchanged.
+  Tags starting with joobs_ are optional extensions; ignoring them is safe.
+  One <job> = one ad. The same vacancy in two cities = two <job> entries that
+  share <requisitionid>, each with its own <referencenumber>.
+  Full description: joobs-job-feed-v1.md
+-->
+<source feedversion="joobs-1.0">
+  <publisher>Joobs</publisher>
+  <publisherurl>https://joobs.be</publisherurl>
+
+  <job>
+    <title><![CDATA[Account Manager B2B]]></title>
+    <date><![CDATA[2026-10-08T14:00:00Z]]></date>
+    <referencenumber><![CDATA[SM260142-k7Qd2XvP-antwerpen]]></referencenumber>
+    <requisitionid><![CDATA[k7Qd2XvP]]></requisitionid>
+    <url><![CDATA[https://joobs.be/nl/jobs/k7Qd2XvP?utm_source=salesenmarketingvacatures&utm_medium=jobboard&utm_campaign=SM260142&utm_content=antwerpen]]></url>
+    <company><![CDATA[Voorbeeldbedrijf NV]]></company>
+    <city><![CDATA[Antwerpen]]></city>
+    <state><![CDATA[Antwerpen]]></state>
+    <country><![CDATA[BE]]></country>
+    <postalcode><![CDATA[2000]]></postalcode>
+    <description><![CDATA[<p>Voorbeeldbedrijf NV levert technische onderdelen aan meer dan 1.200 Belgische en Nederlandse industriële klanten. Voor ons team in Antwerpen zoeken we een <strong>Account Manager B2B</strong>.</p>
+<h2>Wat ga je doen?</h2>
+<ul>
+<li>Je beheert en laat een portefeuille van ±80 klanten in de regio Antwerpen en de Kempen groeien.</li>
+<li>Je zoekt actief nieuwe klanten en volgt offertes op tot de handtekening.</li>
+</ul>
+<h2>Wie ben jij?</h2>
+<ul>
+<li>Minstens 3 jaar ervaring in B2B-sales, bij voorkeur in een technische omgeving.</li>
+<li>Je spreekt vlot Nederlands; Frans of Engels is een plus.</li>
+</ul>
+<h2>Wat bieden we?</h2>
+<ul>
+<li>Vast contract, bedrijfswagen, maaltijdcheques en hospitalisatieverzekering.</li>
+<li>Twee thuiswerkdagen per week.</li>
+</ul>
+<p><strong>Standplaats:</strong> Antwerpen (2000).</p>]]></description>
+    <salary><![CDATA[€3800 - €4600 per month]]></salary>
+    <education><![CDATA[Bachelors]]></education>
+    <jobtype><![CDATA[fulltime]]></jobtype>
+    <category><![CDATA[Sales]]></category>
+    <experience><![CDATA[3 to 6 years]]></experience>
+    <expirationdate><![CDATA[2026-12-07]]></expirationdate>
+    <remotetype><![CDATA[Hybrid remote]]></remotetype>
+    <joobs_language><![CDATA[nl]]></joobs_language>
+    <joobs_contracttype><![CDATA[permanent]]></joobs_contracttype>
+    <joobs_workplacecity><![CDATA[Antwerpen]]></joobs_workplacecity>
+    <joobs_workplacecountry><![CDATA[BE]]></joobs_workplacecountry>
+    <joobs_product><![CDATA[standard]]></joobs_product>
+    <joobs_logo><![CDATA[https://joobs.be/images/example/logo-voorbeeldbedrijf.png]]></joobs_logo>
+    <joobs_companyurl><![CDATA[https://joobs.be/nl/companies/voorbeeldbedrijf-nv]]></joobs_companyurl>
+  </job>
+
+  <job>
+    <title><![CDATA[Account Manager B2B]]></title>
+    <date><![CDATA[2026-10-08T14:00:00Z]]></date>
+    <referencenumber><![CDATA[SM260142-k7Qd2XvP-breda]]></referencenumber>
+    <requisitionid><![CDATA[k7Qd2XvP]]></requisitionid>
+    <url><![CDATA[https://joobs.be/nl/jobs/k7Qd2XvP?utm_source=salesenmarketingvacatures&utm_medium=jobboard&utm_campaign=SM260142&utm_content=breda]]></url>
+    <company><![CDATA[Voorbeeldbedrijf NV]]></company>
+    <city><![CDATA[Breda]]></city>
+    <state><![CDATA[Noord-Brabant]]></state>
+    <country><![CDATA[NL]]></country>
+    <postalcode><![CDATA[4811]]></postalcode>
+    <description><![CDATA[<p>Voorbeeldbedrijf NV levert technische onderdelen aan meer dan 1.200 Belgische en Nederlandse industriële klanten. Voor ons team in Antwerpen zoeken we een <strong>Account Manager B2B</strong>.</p>
+<h2>Wat ga je doen?</h2>
+<ul>
+<li>Je beheert en laat een portefeuille van ±80 klanten in de regio Antwerpen en de Kempen groeien.</li>
+<li>Je zoekt actief nieuwe klanten en volgt offertes op tot de handtekening.</li>
+</ul>
+<h2>Wie ben jij?</h2>
+<ul>
+<li>Minstens 3 jaar ervaring in B2B-sales, bij voorkeur in een technische omgeving.</li>
+<li>Je spreekt vlot Nederlands; Frans of Engels is een plus.</li>
+</ul>
+<h2>Wat bieden we?</h2>
+<ul>
+<li>Vast contract, bedrijfswagen, maaltijdcheques en hospitalisatieverzekering.</li>
+<li>Twee thuiswerkdagen per week.</li>
+</ul>
+<p><strong>Standplaats:</strong> Antwerpen (2000), op ongeveer 50 minuten van Breda.</p>]]></description>
+    <salary><![CDATA[€3800 - €4600 per month]]></salary>
+    <education><![CDATA[Bachelors]]></education>
+    <jobtype><![CDATA[fulltime]]></jobtype>
+    <category><![CDATA[Sales]]></category>
+    <experience><![CDATA[3 to 6 years]]></experience>
+    <expirationdate><![CDATA[2026-12-07]]></expirationdate>
+    <remotetype><![CDATA[Hybrid remote]]></remotetype>
+    <joobs_language><![CDATA[nl]]></joobs_language>
+    <joobs_contracttype><![CDATA[permanent]]></joobs_contracttype>
+    <joobs_workplacecity><![CDATA[Antwerpen]]></joobs_workplacecity>
+    <joobs_workplacecountry><![CDATA[BE]]></joobs_workplacecountry>
+    <joobs_product><![CDATA[standard]]></joobs_product>
+    <joobs_logo><![CDATA[https://joobs.be/images/example/logo-voorbeeldbedrijf.png]]></joobs_logo>
+    <joobs_companyurl><![CDATA[https://joobs.be/nl/companies/voorbeeldbedrijf-nv]]></joobs_companyurl>
+  </job>
+</source>

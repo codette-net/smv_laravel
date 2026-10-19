@@ -23,7 +23,8 @@ SMV-031 through SMV-039 are implemented. The current generic pipeline provides:
   `import_source_id + source_reference`;
 - mapped Category/Tag persistence, stable slugs and idempotent reruns;
 - safe Import history/logs, created/updated/skipped/failed counters and reversible
-  missing/restored source reporting;
+  missing/restored source reporting (`missing_since` is reporting metadata only; a
+  missing row is not automatically unpublished or deleted);
 - production-quality VNOM configuration validated through the generic pipeline, plus
   end-to-end parity coverage for representative VNOM, Michael Page, Orange Career,
   CSV and XLSX fixtures.
@@ -32,6 +33,14 @@ Production execution is currently synchronous. Queue/chunk scheduling, retry pol
 stale-run recovery and unattended activation are operational follow-up work, not hidden
 completed features. Source identifiers and business mappings still require provider
 approval before enabling an automatic production feed.
+
+The XML reader rejects a document with no matching configured record path, which makes
+an empty Joobs `<source>` fail before reconciliation. This is fail-closed for that
+reader path, but do not generalize to other formats or malformed/truncated XML without
+tests. Missing-record reconciliation currently only sets `missing_since`; it does not
+change Vacancy status. See [IMPORT_ARCHITECTURE_AUDIT.md](IMPORT_ARCHITECTURE_AUDIT.md),
+[JOOBS_FEED_MAPPING.md](JOOBS_FEED_MAPPING.md), and
+[IMPORT_MVP_PLAN.md](IMPORT_MVP_PLAN.md) for verified limits and proposals.
 
 Future import code must use `import_source_id` / `ImportSource` as provider identity. It must not use legacy `imports.source` for that purpose.
 
@@ -657,11 +666,13 @@ A rerun should not create duplicates when the same source vacancy is already kno
 
 ## Missing source records
 
-A recurring feed may stop returning a previously imported Vacancy.
+A recurring feed may stop returning a previously imported Vacancy. The current runner
+detects and reports missing selected records after a reliable completed run, using
+`missing_since` and safe import logs. It does not unpublish or delete those Vacancies.
 
-The import system should eventually detect and report this.
-
-Do not make automatic deletion the default.
+Do not make automatic deletion the default. Depublication after verified complete
+snapshots is a separate proposed capability and requires an approved status/override
+policy.
 
 Potential later behavior:
 
@@ -802,7 +813,10 @@ Modularity is desirable because SMV has multiple feed providers, but real SMV va
 
 ## Next import work
 
-Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. The next import
-work should be operationally scoped: approve a real source and identity/mapping policy,
-then separately design queue/scheduling and recovery based on measured production feed
-size and cadence. Provider-specific code remains a last resort for a proven generic gap.
+Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. Follow
+`IMPORT_MVP_PLAN.md`: resolve and approve the Joobs contract, identity/mapping and
+Company ownership, close the verified-snapshot/depublication boundary, then design
+scheduling/retry based on measured feed size and hosting capability. Provider-specific
+code remains a last resort for a proven generic gap. The Joobs specification and example
+were not present during the SMV-083 audit, so field coverage remains provisional until
+those files are reviewed.
