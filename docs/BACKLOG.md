@@ -529,25 +529,28 @@ available, but are not independently actionable before those dependencies exist.
 
 ### H. External feed operations and Joobs onboarding (proposals)
 
-SMV-083 is already assigned above to Vacancy compensation/search filtering. The SMV-083
-audit request therefore does not change that ticket's status or scope. The identifiers
-below are suggested new backlog IDs, not approved implementation decisions. Joobs is
-not assumed to block the upcoming demo.
+SMV-083 is already assigned above to Vacancy compensation/search filtering and is not
+reused. The initial SMV-090–099 entries below were documentation proposals only; these
+updated proposals retain those IDs where possible and add SMV-100+. No application
+changes are approved. Joobs is not assumed to block the upcoming demo.
 
 | Suggested ticket | Priority/status | Goal and acceptance boundary | Demo blocker |
 | --- | --- | --- | --- |
-| SMV-090 Demo import safety gate | P0 — NEEDS REVIEW | Confirm whether import execution is in demo scope; use only an isolated/reviewed fixture if yes; document safe preview/run and verified-data boundaries. | Only if the demo includes import execution. |
-| SMV-091 Demo regression smoke | P0 — NOT STARTED | Record agreed public/admin critical-path browser smoke, including import preview/run only when included in scope. See `IMPORT_MVP_PLAN.md`. | Yes, as a readiness check. |
-| SMV-092 Joobs contract and mapping approval | P1 — BLOCKED ON REFERENCE FILES | Review actual `joobs-job-feed-v1.md` and `joobs-job-feed-v1-example.xml`; classify every field; approve Company ownership, URL, date, salary, taxonomy and product semantics. | No. |
-| SMV-093 Verified snapshot and safe depublication | P1 — PROPOSED | Add complete-feed boundary, fail-closed empty/malformed/partial behavior, serialized runs, and reversible approved removal policy; preserve manual override intent. | No. |
-| SMV-094 Joobs mapping and automated acceptance | P1 — PROPOSED | Import the real two-city fixture, prove identity/idempotency/updates, sanitize CDATA, preserve URL UTM, validate dates/salary/taxonomy, and cover removed/failed/empty/retry/concurrent cases. | No. |
-| SMV-095 Manual and scheduled operations | P1 — PROPOSED | Add approved-source command, host scheduler/cron runbook, locks, retry path and logs/alerts only after hosting capability is confirmed. Use a queue only if worker support is verified/needed. | No. |
-| SMV-096 Expiration state maintenance | P1 — NEEDS REVIEW | Decide whether query-side public expiry is enough or admins need an idempotent scheduled status transition. | No. |
-| SMV-097 Privacy-conscious engagement events | P2 — DEFERRED | Define and measure impressions, detail views, SMV outbound clicks, CTR denominators, data minimization and retention. | No. |
-| SMV-098 Partner/commercial reporting | P2 — DEFERRED | Add partner-confirmed clicks, completed application reconciliation, and billable metrics only after partner reporting and commercial definitions exist. | No. |
-| SMV-099 Provider expansion/reporting | P2 — DEFERRED | Add Appcast, VNOM/8vance-specific gaps, multi-country handling, dashboards and advanced reporting based on approved contracts and measured need. | No. |
+| SMV-090 Demo scope and safe acceptance preparation | P0 — DONE (documentation/audit) | Demo flow, isolated upload-fixture boundary, manual acceptance, staging prerequisites and blockers are documented in `IMPORT_MVP_PLAN.md`; no live feeds or removal sync. Owner scope/content review remains. | No; SMV-091 is the staging readiness gate. |
+| SMV-091 Staging acceptance and smoke | P0 — NOT STARTED | Deploy and complete public/admin, SEO, responsive and runtime checklist in `IMPORT_MVP_PLAN.md`. | Yes, readiness check. |
+| SMV-092 Joobs mapping contract | P1 — PROPOSED | Actual v1 files have been read/mapped; confirm closed category list, stable employer ID, product codes, timezone, salary and publication policies. | No. |
+| SMV-093 Verified snapshot lifecycle | P1 — PROPOSED | Validate complete feed before writes; reject empty/filtered-empty, duplicate IDs, malformed/version mismatch; lock per source; only verified complete runs can unpublish absent ads. | No. |
+| SMV-094 Joobs mapping and fixture acceptance | P1 — PROPOSED | Use actual two-city XML; prove mapping, identity, reruns, updates, UTM, sanitization, taxonomy, salary/date and failure boundaries. | No. |
+| SMV-095 Scheduler and bounded queue execution | P1 — PROPOSED | Add approved-source command, hourly Joobs/configurable other cadence, overlap control; queue only if hosting/runtime requires and supports it. | No. |
+| SMV-096 Expiration status maintenance | P2 — NEEDS REVIEW | Public expiry is query-driven; add scheduled status mutation only if admin workflow requires it. | No. |
+| SMV-097 Basic outbound click tracking | P1 — PROPOSED | Same-site redirect to validated stored URL; preserve UTM; record provider/ad with data minimization and dedupe. | No; conditional release blocker if contracted. |
+| SMV-098 Engagement analytics | P2 — DEFERRED | Define impressions/detail views/CTR and retention after click tracking. | No. |
+| SMV-099 Partner/commercial reporting | P2 — DEFERRED | Partner-confirmed clicks/conversions and product reconciliation only after terms/data access; never invoice from internal clicks alone. | No. |
+| SMV-100 Multi-employer Company mapping | P1 — PROPOSED | Explicit reviewed source employer-to-Company mapping; ask Joobs for stable ID; never fuzzy match or overwrite manual profiles. | No; release blocker if feed has multiple employers. |
+| SMV-101 Import monitoring/recovery | P1 — PROPOSED | Stale-run, count-anomaly and repeat-failure visibility; bounded auditable retry and recovery checklist. | No. |
+| SMV-102 Targeted search relevance | P2 — DEFERRED | Improve only against measured queries and curated typed taxonomy; no arbitrary boosts. | No. |
+| SMV-103 Cross-provider expansion | P2 — DEFERRED | VONQ/Brockmeyer/Appcast/Adver/8vance from verified specs; extend existing VNOM only for confirmed operational/commercial gaps. | No. |
 
-These proposals and effort estimates are detailed in `IMPORT_MVP_PLAN.md`. Repository
-evidence for the audit is in `IMPORT_ARCHITECTURE_AUDIT.md`; the preliminary known-field
-matrix is in `JOOBS_FEED_MAPPING.md`. Joobs files were not available, so SMV-092 remains
-blocked pending those attachments.
+These proposals and estimates are detailed in `IMPORT_MVP_PLAN.md`. Repository evidence
+is in `IMPORT_ARCHITECTURE_AUDIT.md`; the verified field matrix is in
+`JOOBS_FEED_MAPPING.md`. SMV-092 awaits partner/business decisions, not missing files.

@@ -19,8 +19,8 @@ SMV-031 through SMV-039 are implemented. The current generic pipeline provides:
 - a code-owned destination registry, transforms and side-effect-free normalized preview;
 - validation plus source-scoped explicit taxonomy aliases without fuzzy matching or
   automatic Category creation;
-- provider-owned Company resolution and provider-scoped Vacancy upsert through
-  `import_source_id + source_reference`;
+- source-configured single Company association and provider-scoped Vacancy upsert
+  through `import_source_id + source_reference` (no per-record employer resolver);
 - mapped Category/Tag persistence, stable slugs and idempotent reruns;
 - safe Import history/logs, created/updated/skipped/failed counters and reversible
   missing/restored source reporting (`missing_since` is reporting metadata only; a
@@ -34,13 +34,14 @@ stale-run recovery and unattended activation are operational follow-up work, not
 completed features. Source identifiers and business mappings still require provider
 approval before enabling an automatic production feed.
 
-The XML reader rejects a document with no matching configured record path, which makes
-an empty Joobs `<source>` fail before reconciliation. This is fail-closed for that
-reader path, but do not generalize to other formats or malformed/truncated XML without
-tests. Missing-record reconciliation currently only sets `missing_since`; it does not
-change Vacancy status. See [IMPORT_ARCHITECTURE_AUDIT.md](IMPORT_ARCHITECTURE_AUDIT.md),
+The XML reader rejects a document with no matching configured record path, but a
+selection rule that selects zero records can still cause all source Vacancies to be
+marked missing. Malformed/truncated XML completion is not explicitly verified. Missing
+reporting only sets `missing_since`; it does not change Vacancy status. Do not enable
+absence-based removal until the whole feed and selected record set are verified before
+writes. See [IMPORT_ARCHITECTURE_AUDIT.md](IMPORT_ARCHITECTURE_AUDIT.md),
 [JOOBS_FEED_MAPPING.md](JOOBS_FEED_MAPPING.md), and
-[IMPORT_MVP_PLAN.md](IMPORT_MVP_PLAN.md) for verified limits and proposals.
+[IMPORT_MVP_PLAN.md](IMPORT_MVP_PLAN.md) for field coverage and proposals.
 
 Future import code must use `import_source_id` / `ImportSource` as provider identity. It must not use legacy `imports.source` for that purpose.
 
@@ -54,7 +55,7 @@ Filament is the administration and mapping interface, not the core import engine
 
 Do not build the import architecture around Filament's native `ImportAction`. Native CSV import may later be useful as a convenience feature, but the SMV import pipeline must remain independently usable by uploaded files, remote feeds, APIs, scheduled imports and future CLI/background jobs.
 
-Filament should eventually manage:
+Filament currently manages:
 
 - Import Sources
 - source configuration
@@ -63,10 +64,12 @@ Filament should eventually manage:
 - record selection/filtering
 - normalized preview
 - validation output
-- import execution
+- synchronous import execution
 - run history
-- failures
-- reruns
+- row failures and safe logs
+
+Queue dispatch, automatic retry/recovery and unattended schedule management are not
+implemented.
 
 ## Supported MVP formats
 
@@ -440,6 +443,32 @@ such as `Office` is not proven to mean canonical sector or function area. These 
 remain unmapped until business-approved aliases exist. Full reproducible Filament
 settings, ignored fields, lifecycle behavior and the manual checklist live in
 `tests/Fixtures/Imports/vnom/notes.md`.
+
+### Joobs Indeed-style XML
+
+The authoritative v1 specification and example are stored in
+`docs/integrations/joobs/`. The example is valid XML with two ads, distinct
+`referencenumber` values, and a shared `requisitionid`; map the former to
+`source_reference` and do not deduplicate by the latter. The full verified field-by-field
+matrix, including unsupported destinations and approval needs, is in
+`docs/JOOBS_FEED_MAPPING.md`.
+
+The generic XML reader and Vacancy description sanitizer are reusable. Direct Joobs
+compatibility still needs implementation: root/version validation, comma-splitting and
+aliases for category/jobtype, safe date-only final-day expiry, raw salary preservation,
+per-ad `joobs_product`, distinct ad/workplace locations, and per-record multi-employer
+Company resolution. Current runner associates every Vacancy with the one Company on its
+ImportSource. New imported Vacancies remain pending. Current missing reporting does not
+unpublish records; see the verified snapshot limitations and proposal in
+`IMPORT_ARCHITECTURE_AUDIT.md`.
+
+Joobs requires the entire `<source feedversion="joobs-1.0">` snapshot to represent ads
+still running and says absent ads must go offline. Do not enable this source for automatic
+removal until full-document parse/version/identity checks pass before any writes, empty or
+filtered-empty feeds fail closed, and a per-source lock/manual override policy is tested.
+Its `expirationdate` is the inclusive last paid day, not `deadline_at`; the current app
+timezone is UTC. `Europe/Brussels` end-of-day converted to UTC is proposed pending partner
+approval.
 
 ### Michael Page XML
 

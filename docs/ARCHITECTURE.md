@@ -78,8 +78,8 @@ Import execution currently runs synchronously through `VacancyImportRunner`. The
 no import console command, scheduled task, or queued import job in the repository.
 Completed runs can record missing source references in `missing_since`; this does not
 unpublish or delete a Vacancy. Any future absence-driven depublication must wait for a
-verified complete-feed boundary and an approved manual-override rule. The SMV-083 audit
-and proposed Joobs path are documented in `IMPORT_ARCHITECTURE_AUDIT.md`,
+verified complete-feed boundary and an approved manual-override rule. The Phase 2 feed
+audit and proposed Joobs path are documented in `IMPORT_ARCHITECTURE_AUDIT.md`,
 `JOOBS_FEED_MAPPING.md` and `IMPORT_MVP_PLAN.md`.
 
 ## Request/application layering
