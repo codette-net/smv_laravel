@@ -11,7 +11,7 @@
 <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
     <div class="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <a class="shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
-            <img class="h-10 w-10 rounded-full object-cover" src="{{ Vite::asset('resources/images/smv_profile.png') }}" width="40" height="40" alt="Sales en Marketing Vacatures">
+            <img class="h-10 w-10 rounded-full object-cover" src="{{ asset('resources/images/smv_profile.png') }}" width="40" height="40" alt="Sales en Marketing Vacatures">
         </a>
 
         <nav class="hidden md:block" aria-label="Hoofdnavigatie">

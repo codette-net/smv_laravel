@@ -23,7 +23,7 @@
         <div class="grid gap-10 py-10 sm:grid-cols-2 md:py-14 lg:grid-cols-12">
             <div class="sm:col-span-2 lg:col-span-5 lg:max-w-sm">
                 <a class="inline-block rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
-                    <img class="h-auto w-64 max-w-full" src="{{ Vite::asset('resources/images/smv-logo.svg') }}" width="320" height="64" alt="Sales en Marketing Vacatures">
+                    <img class="h-auto w-64 max-w-full" src="{{ asset('resources/images/smv-logo.svg') }}" width="320" height="64" alt="Sales en Marketing Vacatures">
                 </a>
                 <p class="mt-5 text-sm leading-6 text-slate-500">Dé plek voor sales- en marketingprofessionals: ontdek vacatures, werkgevers en vakinhoud zonder onnodige ruis.</p>
             </div>

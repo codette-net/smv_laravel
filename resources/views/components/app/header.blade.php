@@ -23,7 +23,7 @@
             <div class="flex-1 flex items-center" :class="stuck ? 'bg-transparent ' : 'px-4 py-2 bg-blue-50/95 border border-blue-200 rounded-lg' ">
                 <!-- Logo -->
                 <a class="inline-flex" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
-                    <img class="object-cover z-40" src="{{ Vite::asset('resources/images/smv-logo.svg') }}"
+                    <img class="object-cover z-40" src="{{ asset('resources/images/smv-logo.svg') }}"
                           alt="Sales en Marketing Vacatures">
                 </a>
             </div>
