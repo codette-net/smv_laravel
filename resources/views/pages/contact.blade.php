@@ -11,7 +11,7 @@
                 <div class="px-5 py-24 sm:px-6">
                     <div class="mx-auto w-full max-w-2xl">
                         <a class="mb-8 inline-flex" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
-                            <img src="{{ asset('resources/images/smv_profile.png') }}" width="32" height="32" alt="Sales en Marketing Vacatures">
+                            <img src="{{ asset('images/smv_profile.png') }}" width="32" height="32" alt="Sales en Marketing Vacatures">
                         </a>
                         <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Contact</p>
                         <h1 class="mt-3 font-playfair-display text-4xl text-slate-800">Bespreek uw vacature of samenwerking</h1>

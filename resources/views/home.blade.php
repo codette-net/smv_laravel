@@ -29,7 +29,7 @@
     <div class="max-w-3xl mx-auto -mt-16 flex justify-center px-4 py-2 bg-blue-50/95 border border-blue-500 rounded-lg ">
         <!-- Logo -->
         <a class="inline-flex" href="{{ route('home') }}" aria-label="Sales en Marketing Vacatures, home">
-            <img class="object-cover z-40" src="{{ asset('resources/images/smv-logo.svg') }}"
+            <img class="object-cover z-40" src="{{ asset('images/smv-logo.svg') }}"
                  alt="Sales en Marketing Vacatures">
         </a>
     </div>
