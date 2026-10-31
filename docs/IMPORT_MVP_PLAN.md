@@ -1,9 +1,10 @@
 # Demo Acceptance and Import MVP Plan
 
-**Status:** proposed, based on repository evidence and the actual Joobs v1 spec/example.
-No application implementation is approved by this document. The staging demo is the
-immediate priority; production is targeted for late November 2026. Joobs automation does
-not block the demo unless an owner confirms it is part of the demo.
+**Status:** post-demo release alignment, updated 31 October 2026 from repository evidence
+and the actual Joobs v1 spec/example. No application implementation is approved by this
+document. The staging demo at `vacatures.marketing` has been published and viewed by
+stakeholders; production is targeted for late November 2026. Stakeholder viewing is not
+formal acceptance, and Joobs automation does not automatically block the general launch.
 
 ## Current evidence
 
@@ -41,6 +42,13 @@ not block the demo unless an owner confirms it is part of the demo.
 | Basic SEO | `SeoFoundationTest.php`, Blog and sitemap tests | Crawl staging: title/canonical/robots/schema/sitemap; verify staging noindex and no secrets in rendered pages |
 | Responsive/accessibility | No committed browser suite; `SMV-071` partial | Test desktop and mobile widths, keyboard navigation, focus and screen-reader labels on key flows |
 | Deployment/runtime | Automated feature tests do not establish deployed config | Confirm HTTPS, APP_ENV/DEBUG, DB, private/public storage, mail transport, backup/restore owner, logs and error visibility |
+
+The stakeholder review confirms that the staging site was reachable and suitable for a
+walkthrough. It does not establish which browsers/devices were checked, whether every
+critical route passed, whether staging noindex/runtime/privacy settings were inspected,
+or whether logged defects were accepted. SMV-091 therefore remains partially done until
+the checklist has dated pass/fail evidence and an owner records formal acceptance or
+explicit waivers.
 
 The WordPress acceptance test is legacy-only evidence. It does not pass these Laravel
 criteria. Automated verification currently has one known failure: the final homepage
@@ -192,6 +200,82 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | SMV-100 — Multi-employer Company mapping | Add reviewed source employer identity mapping; depends on SMV-092 ID decision. If no stable ID, use exact company name + reviewed Joobs company URL aliases with collision controls. | Company/ImportSource/Vacancy models, validation, runner, Filament mapping/admin, migration only if approved | Known employers map to reviewed Companies; no fuzzy/name-only automatic creation; ambiguous/missing employer blocks row; no manual Company profile/owner/status/media changes; any new Company remains pending review. | 6–10 h / 4–8 h | No | Yes if Joobs endpoint contains multiple employers; otherwise conditional |
 | SMV-101 — Import monitoring and recovery | Add run anomaly/retry controls after SMV-093/095. | Import/ImportLog models, Filament Imports pages, policies, command/job, tests/runbook | Show state/age/duration/counts; detect stale processing, repeated failures and count drops; bounded retry is a new auditable run and cannot reconcile incomplete data; recovery checklist. | 5–8 h / 4–6 h | No | Yes for dependable automated operations |
 
+### Joobs readiness classification
+
+| Capability | Classification | Reason / acceptance boundary |
+| --- | --- | --- |
+| Mapping contract and Joobs fixture tests (SMV-092/094) | Required before first live Joobs feed | The supplied spec/example must become an approved mapping and automated contract. Preserve the exact UTM-tagged application URL and prove two city ads with one requisition remain distinct. |
+| Multi-employer Company resolution (SMV-100) | Required before first live Joobs feed unless Joobs provides one separately scoped feed per employer | Current persistence assigns one source-level Company. A reseller feed must use explicit stable-ID/approved alias mapping, quarantine ambiguity and never overwrite manual profiles. |
+| Advertised versus actual workplace locations | Required before first live Joobs feed | The example proves these differ. Store both semantics; do not overwrite one with the other or misrepresent workplace location publicly. |
+| Complete-snapshot validation and reversible removal unpublishing (SMV-093) | Required before first live automated complete-snapshot feed | Validate root/version, full parse, non-empty set and unique ad IDs before writes/reconciliation. Only a verified complete run may unpublish missing ads; never delete, and restoration/manual overrides must be explicit. |
+| Inclusive expiration date handling | Required before first live Joobs feed | Joobs defines a date-only final paid day. Use approved business timezone end-of-day and boundary/DST tests so the last day is not lost. |
+| Import concurrency protection | Required before first live feed execution | One lock per source is needed even for manual operation to prevent overlapping writes and unsafe absence reconciliation. |
+| Scheduled execution (SMV-095) | Required before unattended production sync; safe to defer for a controlled manual pilot | Confirm hosting cron/worker constraints, approved cadence and overlap control. Manual email ordering or operator-triggered import can precede it only with an owner/runbook. |
+| Monitoring and recovery (SMV-101) | Required before unattended production sync; minimum manual checks required for a pilot | Operators need run age/status/counts/failures and a bounded recovery path. Automated anomaly alerts may follow after the first safe manual pilot if an owner actively monitors every run. |
+| Basic per-vacancy reporting (SMV-097A-C) | Conditional on the Joobs launch promise; otherwise required before that promise is made | Joobs asked whether SMV can report views/clicks. SMV cannot report historic uncollected metrics. Do not block the general SMV launch unless the reseller agreement makes this a launch deliverable. |
+| Listing impressions and partner/billable reconciliation (SMV-098/099) | Safe to defer | Impressions need visibility rules; partner-confirmed and billable events need contracts/data exchange. They are not substitutes for detail views or raw outbound clicks. |
+| Arbitrary ranking/deprioritization | Safe to defer; version II proposal | VNOM's request is documented in `PARTNER_INVENTORY.md`. Do not manipulate publication dates or search order in the MVP. |
+
+### Post-demo ticket register
+
+| Ticket / current status | Goal | Dependencies | Acceptance criteria | Release relevance | Estimate (Codex / human) | Open decisions |
+| --- | --- | --- | --- | --- | --- | --- |
+| SMV-091 — PARTIALLY DONE | Convert stakeholder viewing into evidenced staging acceptance. | Deployed release, operator access, content decision, defect owner. | Dated public/admin/SEO/noindex/responsive/runtime/privacy checklist; critical defects closed or explicitly waived; named acceptor. | General production gate. | 1-3 h / 3-6 h | Accepting owner, device/browser matrix, outstanding defects and waivers. |
+| SMV-092 — PROPOSED / partner decisions pending | Close the Joobs mapping contract. | Joobs/product answers and existing field matrix. | Every field classified; category/product/employer IDs, timezone, salary, raw-value and publication rules approved. | First live Joobs feed gate; not general launch gate. | 1-2 h / 2-4 h | Stable employer ID, closed values, timezone, moderation and unsupported-value storage. |
+| SMV-093 — PROPOSED | Make complete-snapshot processing, absence unpublishing and overlap safe. | SMV-092; publication/manual-override policy. | Whole feed verified before reconciliation; empty/duplicate/partial/version-invalid feeds fail safely; per-source lock; reversible unpublish/reappearance; no deletion. | Automated Joobs gate. | 10-16 h / 7-11 h | Grace period, manual override precedence, reappearance status, alert thresholds. |
+| SMV-094 — PROPOSED; split A/B | Prove the supplied Joobs contract, then end-to-end mapping/persistence. | A can start now; B needs SMV-092/093/100 and location fields. | Fixture asserts identity/UTM/location/expiry; end-to-end tests cover rerun, update, sanitization, taxonomy, salary/date and failures. | First live Joobs feed gate. | A 2-4 h / 1-2 h; B 6-10 h / 4-7 h | Raw values, taxonomy aliases, publication policy and approved date timezone. |
+| SMV-095 — PROPOSED | Run approved sources unattended at a bounded cadence. | SMV-093/094; hosting cron/worker verification. | Approved active sources only; cadence configurable; no overlap; bounded execution; UTC/operations runbook tested. | Unattended sync gate; deferrable for manual pilot. | 6-10 h / 4-8 h | Hourly cadence, queue versus synchronous bound, worker ownership. |
+| SMV-097 — SPLIT PROPOSED | Provide honest basic per-vacancy views/clicks and export. | Privacy/product rules; SMV-097A-C sequence; partner attribution definition. | Detail views and controlled outbound clicks attributed to vacancy/source/date; UTM preserved; date-range totals/CSV; retention/access/bot/dedupe documented. | Conditional production gate if promised to Joobs; otherwise pre-promise gate. | 10-16 h / 7-11 h | Retention, bots/deduplication, timezone, export users and Joobs reconciliation format. |
+| SMV-100 — PROPOSED | Resolve each reseller record to the correct Company without profile overwrite. | SMV-092 stable employer identity; admin workflow choice. | Explicit reviewed mapping; ambiguity blocks/quarantines; no fuzzy fallback; manual Company fields protected; new Companies pending review only. | Live multi-employer Joobs gate; conditional if endpoints are per employer. | 6-10 h / 4-8 h | Provider employer ID, alias lifecycle, new-Company approval owner. |
+| SMV-101 — PROPOSED | Make scheduled imports observable and recoverable. | SMV-093 and preferably SMV-095. | Run status/age/duration/counts visible; stale/failure/drop detection; retry is new audited run and never reconciles incomplete input; recovery checklist. | Unattended production sync gate; minimal manual checks suffice only for a controlled pilot. | 5-8 h / 4-6 h | Alert channel/owner, count-drop threshold, retry authority and retention. |
+
+### Minimal tracking and reporting split
+
+SMV-097 should be split so the first useful capability stays reviewable:
+
+| Ticket | Goal and acceptance | Estimate (Codex / human) | Dependencies |
+| --- | --- | --- | --- |
+| SMV-097A — Vacancy detail views | Record a minimized event/count for public detail views with vacancy, import source and UTC date; exclude previews/staff/bots under a documented rule; staff-only access and retention approved. | 3-5 h / 2-3 h | Privacy/product owner decision; event storage design. |
+| SMV-097B — Outbound apply clicks | Route external CTAs through a same-site endpoint bound to the Vacancy, record the minimized event, validate the stored destination and redirect while preserving the stored UTM query exactly. Never accept an arbitrary target. | 4-6 h / 3-4 h | SMV-097A storage/policy; application URL tests; partner attribution definition. |
+| SMV-097C — Basic report/export | Staff-only date range, per-vacancy totals and import-source grouping, with simple CSV. Label metrics as SMV detail views/outbound clicks, not applications or billable clicks. | 3-5 h / 2-4 h | SMV-097A/B; timezone and access/export decisions. |
+
+Listing impressions remain SMV-098 because meaningful card visibility and deduplication
+are more complex. Partner-confirmed clicks/applications and billable clicks remain
+SMV-099 and require partner data plus contractual reconciliation. Definitions and the
+privacy-conscious minimum are recorded in `PARTNER_INVENTORY.md`.
+
+### Smallest executable post-demo sequence
+
+1. **SMV-094A - Joobs fixture contract, no persistence (2-4 h / 1-2 h).** Copy the
+   supplied example into the test fixture boundary and assert root/version, two records,
+   ad identity, shared requisition, advertised/workplace locations, expiration input and
+   exact application URL/UTM. This can begin without commercial answers and is the first
+   recommended implementation ticket.
+2. **SMV-092 - close mapping decisions (1-2 h / 2-4 h partner/product).** Obtain stable
+   employer identity, category/product lists, timezone, publication and raw-value rules.
+   Work on decisions can run while the fixture contract is prepared.
+3. **SMV-100 plus location model gap (8-14 h / 5-9 h).** Implement explicit employer
+   mapping and distinct advertised/actual workplace fields after identity semantics are
+   approved.
+4. **SMV-093 - safe snapshot lifecycle and per-source lock (10-16 h / 7-11 h).** Add
+   whole-payload validation, reversible unpublishing, reappearance/manual override policy
+   and concurrency protection.
+5. **SMV-094B - end-to-end transformations/persistence (6-10 h / 4-7 h).** Complete
+   salary/taxonomy/date/HTML/URL mapping tests against the safe lifecycle.
+6. **Controlled manual pilot (2-4 h / 3-6 h).** Only after 1-5 pass and agreement/feed
+   access are approved; use monitored runs and a recovery checklist. Manual email orders
+   can remain a business process until this point.
+7. **SMV-095 and SMV-101 (11-18 h / 8-14 h).** Add unattended schedule, overlap control,
+   monitoring and recovery after hosting/runtime choices are verified.
+8. **SMV-097A-C (10-16 h / 7-11 h).** Schedule before production only if the Joobs
+   agreement requires SMV per-vacancy reporting at launch; otherwise deliver before the
+   reporting promise becomes active.
+
+In parallel, SMV-091 formal acceptance and SMV-104/105 content/commercial decisions are
+general production-release work. They do not depend on Joobs feed code. The production
+launch may proceed without a live Joobs feed if partner communication and ordering are
+kept accurate and no automated feed/reporting capability is promised prematurely.
+
 ## P2 — After onboarding / only on confirmed need
 
 | Ticket | Objective / dependencies | Likely files | Acceptance criteria | Estimate (Codex / human) | Demo blocker | Release blocker |
@@ -333,4 +417,3 @@ Codex-assisted hours** plus **28–51 human review, partner validation and opera
 hours**. A six-week window is possible if scope is limited to Joobs, staging and release
 gates; it is at risk if stable employer identity, commercial requirements or hosting
 changes arrive late.
-

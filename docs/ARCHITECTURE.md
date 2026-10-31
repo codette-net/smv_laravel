@@ -247,6 +247,23 @@ Imports may become long-running. If current import size/hosting supports queues,
 
 Do not require queue infrastructure for simple preview/parsing work when synchronous execution is safe and faster to ship.
 
+## Partner reporting and result ordering boundaries
+
+Partner reporting has separate event meanings. A listing impression, public Vacancy
+detail view, outbound apply click, partner-confirmed click, completed Application and
+contract-defined billable click are not interchangeable. The first SMV reporting slice
+should aggregate minimized detail-view and outbound-click events by Vacancy, import
+source and date. Partner-confirmed/billable events require an explicit reconciliation
+contract and must not be inferred from raw internal clicks. Retention, bot/duplicate
+rules and staff-only access are part of the domain boundary, not presentation details.
+
+Result ordering also separates three concerns: data completeness/search relevance,
+organic SEO visibility, and explicit commercial promotion or deprioritization. Current
+publication timestamps describe lifecycle and must not be edited to simulate commercial
+priority. Any later sponsored/deprioritized mechanism needs explicit effective dates,
+reason/audit data, deterministic ordering and disclosure. It is a version II feature
+unless stakeholders approve it as a release requirement.
+
 ## Deployment
 
 Open decision: the Hostinger/staging deployment workflow still requires confirmation
