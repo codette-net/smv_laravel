@@ -73,6 +73,27 @@ two city advertisements. The current importer can upsert those two records if th
 mapping and Company resolution produce two rows, but its current fixed Company
 association prevents a multi-employer feed.
 
+### SMV-094A parser contract verification
+
+The supplied example is now copied into the test-fixture boundary and exercised through
+the existing `XmlReader`. `JoobsFeedContract` adds only provider-level document checks
+that the generic reader intentionally does not own: root `source`, version `joobs-1.0`,
+required `referencenumber`/`requisitionid`, unique advertisement references and a valid
+HTTP(S) application URL. It returns in-memory `SourceRecord` values and does not invoke
+mapping, persistence validation or the import runner.
+
+The contract verifies both advertisements, their shared requisition, different advertising
+cities, actual Antwerpen workplace, exact UTM-tagged URLs, CDATA HTML description, exact
+free-text salary and available `joobs_product`. Optional salary, education, job type,
+experience, remote type, contract type and logo fields may be absent. HTML and salary are
+preserved only at the parsing boundary: publication sanitization remains the existing
+Vacancy domain boundary, and safe raw-value persistence remains a later ticket.
+
+Negative coverage rejects malformed XML, missing advertisement identifiers, duplicate
+`referencenumber`, unsupported feed versions, and missing/invalid application URLs. This
+does not yet validate every required Joobs business field, prove whole-snapshot safety,
+map products, resolve Companies, normalize dates/salary/taxonomy, or write any records.
+
 ## Company association and reseller feeds
 
 ### Verified repository behavior
@@ -142,4 +163,3 @@ Whether a fully valid paid Joobs ad should be auto-published or remain `pending`
 moderation is a product decision. Current imports create pending records; there is no
 automatic publication. Joobs removal and expiry requirements cannot be fulfilled until
 the approved synchronization lifecycle is implemented.
-
