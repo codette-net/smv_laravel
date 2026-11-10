@@ -1,4 +1,4 @@
-# Joobs Feed v1 Mapping Audit
+# Joobs Feed v1 Mapping and Identity Contract
 
 **Specification status:** fields and meanings below were checked against the actual
 partner files at `docs/integrations/joobs/joobs-job-feed-v1.md` and
@@ -7,8 +7,48 @@ the v1 standard fields and Joobs extensions listed in that specification. It doe
 invent target fields for unsupported data. It records proposals separately from
 verified support.
 
+**SMV-092 status (10 November 2026):** implementation decisions are finalized below.
+Unanswered partner guarantees remain explicit activation dependencies; they do not
+silently become assumptions. This document is the mapping contract for SMV-100,
+SMV-093 and SMV-094B, not approval to change schema or execute a live feed.
+
 Priority: **P0** demo-safe use only; **P1** required before Joobs production onboarding;
 **P2** useful later or only if commercial requirements demand it.
+
+## Final decision summary
+
+The field matrix uses these implementation classes:
+
+- **Supported:** the generic reader/mapper/domain already has the required target and
+  behavior, although SMV-094B still needs end-to-end Joobs mapping tests.
+- **SMV-100:** Company resolution or the minimal source metadata/location schema needed
+  before a multi-employer feed can persist safely.
+- **SMV-093/094B:** feed lifecycle, provider transform, validation or persistence work.
+- **Partner decision:** SMV has a fail-closed default, but Joobs must confirm a guarantee
+  or provide a value list before activation.
+- **Deferred:** safely ignored for the first live feed; no invented target.
+
+Final identity and presentation decisions:
+
+1. `ImportSource` identifies one configured provider endpoint/feed and is the namespace
+   for every external identifier. It is not a Company and does not identify an employer.
+2. A Joobs advertisement is one `<job>` identified by the exact opaque pair
+   `(import_source_id, referencenumber)`. This is also the existing Vacancy upsert key.
+3. `requisitionid` correlates multiple advertisements for one Joobs vacancy. It must be
+   preserved as source metadata but never used as the Vacancy upsert/deduplication key.
+4. `Vacancy` remains the public advertisement record. A separate Advertisement model is
+   not justified: the existing provider-scoped unique key and lifecycle already represent
+   one source advertisement per Vacancy.
+5. `vacancies.location` continues to contain the advertised city/display location and
+   remains the location used by current listing search/filter options. Actual workplace
+   city/country is separate nullable source metadata; detail pages and JobPosting location
+   should prefer actual workplace when present and fall back to `location` for legacy rows.
+6. Exact source values need bounded, provider-neutral storage. The smallest reusable
+   SMV-100 schema is nullable Vacancy columns `source_requisition_id`,
+   `advertised_state`, `advertised_country`, `advertised_postal_code`, `workplace_city`,
+   `workplace_country`, `source_salary_text`, `source_language` and
+   `source_product_code`. Do not store an arbitrary feed payload or Joobs-prefixed
+   columns. SMV-094B owns population and transformations.
 
 ## Envelope and every v1 field
 
@@ -26,35 +66,35 @@ test it. Do not present omitted values as preserved today.
 
 | XML field | Meaning / requirement | Candidate Laravel destination | Existing support | Required transformation and validation | Gap / priority |
 | --- | --- | --- | --- | --- | --- |
-| `/source` root | XML document root | Import payload only | XML reader reads configured record path; no root/schema contract validation | Require exactly one `source` root, well-formed UTF-8 XML and a supported `feedversion` before records can be persisted/reconciled | Validate as Joobs contract; P1 |
-| `/source/@feedversion` | Version; v1 is `joobs-1.0`. Within v1 optional fields may be added; breaking changes use a new version | No persisted target | XML reader does not expose or validate root attributes as contract metadata | Require exact supported version; unknown version fails run closed | Missing contract validation; P1 |
+| `/source` root | XML document root | Import payload only | SMV-094A `JoobsFeedContract` verifies one `source` root and well-formed XML before returning records | Keep provider contract validation before mapping or snapshot eligibility | Supported contract; SMV-093 must integrate it with run state |
+| `/source/@feedversion` | Version; v1 is `joobs-1.0`. Within v1 optional fields may be added; breaking changes use a new version | No persisted target | SMV-094A requires exact `joobs-1.0` | Unknown/missing version fails the feed closed | Supported contract; SMV-093 integration |
 | `/source/publisher` | Feed publisher, sample `Joobs` | `ImportSource.name` is configured independently | Source name exists; parser can read root field but runner does not use it | Optional contract check against configured provider; do not create Companies | P2 |
 | `/source/publisherurl` | Publisher site URL | No target; optionally source metadata | No dedicated destination | Validate HTTPS only if retained; not a vacancy/application URL | Missing; P2 |
-| `/source/job` | One published advertisement; record path | One normalized Vacancy advertisement | XML reader supports `job` records and CDATA; generic pipeline accepts records | Configure record path `job`; require complete document parse before accepting snapshot; reject duplicate ad references | Parse supported, snapshot contract missing; P1 |
+| `/source/job` | One published advertisement; record path | One Vacancy advertisement | XML reader supports `source.job`, CDATA and raw values; Joobs contract rejects duplicate references | Require complete document validation before snapshot eligibility | Parsing supported; snapshot lifecycle is SMV-093 |
 | `job/title` | Required job title only; no location, salary or contract type | `vacancies.title` | Destination + nonempty/max 255 validation | Trim; validate required, UTF-8 and <=255; do not append city/salary/type | Supported; P1 |
 | `job/date` | Required publication timestamp, ISO 8601 | `vacancies.published_at` | Destination and generic date transform exist | Parse explicit timezone/offset; sample `Z` is UTC; reject invalid/non-offset ambiguous timestamps | Supported generally; Joobs contract tests missing; P1 |
 | `job/referencenumber` | Required stable unique ad ID; order + vacancy + city | `vacancies.source_reference`; unique by `import_source_id + source_reference` | Upsert and unique DB index support provider-scoped identity | Trim; preserve as opaque string and case/leading zeros; require nonempty, <=255, unique within the feed | Supported identity; add duplicate-key preflight; P1 |
-| `job/requisitionid` | Required Joobs vacancy ID; shared across city ads | No current column/destination; proposed `source_requisition_id` if needed | Not supported | Preserve separately; never use for Vacancy uniqueness. Two city ads remain two Vacancy rows | Schema/domain gap; confirm reporting requirement; P1 if needed, otherwise P2 |
-| `job/url` | Required Joobs job/application page, includes UTM parameters; candidate applies on Joobs | `vacancies.application_url`; `application_mode=external` | Both destinations and validator exist; generic persistence preserves URL string | Require absolute HTTPS URL; preserve full path/query and every UTM byte/value; never rewrite/append UTM; test redirect-safe validation | Scheme allowlist/Joobs tests absent; no click redirect; P1 |
+| `job/requisitionid` | Required Joobs vacancy ID; shared across city ads | Allowlisted source metadata `source_requisition_id` | Parser/contract preserve and require it; persistence target absent | Preserve exact opaque value; never use for Vacancy uniqueness or collapse city ads | Requires SMV-100 schema and SMV-094B population |
+| `job/url` | Required Joobs job/application page, includes UTM parameters; candidate applies on Joobs | `vacancies.application_url`; `application_mode=external` | Contract and generic validator require a valid URL; fixture proves exact query preservation | SMV-094B must require HTTPS/approved host policy and persist the original URL byte-for-byte; never rewrite/append UTM | Mapping supported; provider policy/test in SMV-094B |
 | `job/company` | Required hiring employer name, not Joobs publisher | Company resolution to `vacancies.company_id` | `ImportSource.company_id` is required and assigned to every Vacancy; `company.name` mapping is preview-only and runner ignores it | Resolve per record to an approved Company; never overwrite its profile from this text | Multi-employer mismatch; see Company section; P1 |
-| `job/city` | Required place where the advertisement is shown | `vacancies.location` (current free-text field) | Location destination exists | Preserve advertisement city; optionally format with `state`, `postalcode`, `country` for display, without confusing it with workplace | No structured location fields; P1 |
-| `job/state` | Required region/state/province for advertising location | No separate target; can be included in display text `location` | Only free-text location exists | Preserve literal source value; do not map Dutch region aliases without approved rules | Structured province absent; combine to display or defer; P1 |
-| `job/country` | Required advertising country ISO 3166 code; allowed examples BE/NL/LU/FR/DE | No country destination | No country field/validation | Validate against ISO 3166-1 alpha-2; retain raw code if invalid for review, block invalid display mapping | Schema/validation gap; P1 |
-| `job/postalcode` | Required advertising postal code | No separate target; possible display text | Only free-text location exists | Preserve as string including leading zeros; no numeric cast; validate length/characters per country only if approved | Structured field absent; P1 |
+| `job/city` | Required place where the advertisement is shown | `vacancies.location` (advertised display/search location) | Location destination and exact-match public filter exist | Trim and preserve city as the current `location`; do not replace it with workplace city | Supported mapping; SMV-094B test |
+| `job/state` | Required region/state/province for advertising location | `vacancies.advertised_state` | No current destination | Preserve the trimmed literal; do not infer or normalize province aliases | SMV-100 column; SMV-094B mapping |
+| `job/country` | Required advertising country ISO 3166 code; allowed examples BE/NL/LU/FR/DE | `vacancies.advertised_country` | No current destination | Require uppercase ISO 3166-1 alpha-2; invalid values block the record/feed and remain visible in failure diagnostics | SMV-100 column; SMV-094B validation/mapping |
+| `job/postalcode` | Required advertising postal code | `vacancies.advertised_postal_code` | No current destination | Preserve the trimmed string, including leading zeros; no numeric cast | SMV-100 column; SMV-094B mapping |
 | `job/streetaddress` | Optional workplace street and number, when known | No target | Not supported | Preserve only if product/public display requires it; validate length; consider privacy and avoid putting it in public city filter | Missing; P2 |
 | `job/description` | Required complete description; permitted simple HTML tags `p, br, h2, h3, ul, ol, li, strong, em, a` | `vacancies.description` | Import mapper + Vacancy save use `VacancyDescription` sanitizer; policy allows these tags and approved link schemes | Decode CDATA as HTML, sanitize at normalization/persistence, reject unsafe URLs/scripts/attributes; preserve semantic tags allowed by policy | Strong fit; test actual fixture and all allowed/forbidden forms; P1 |
-| `job/salary` | Optional free text, sample `€3800 - €4600 per month` | `salary_min`, `salary_max`, `salary_currency`, `salary_period`; raw value has no target | Generic text parser and SMV-082 normalized fields exist | Parse only unambiguous amounts, currency and explicit period. Preserve exact raw value. Never infer salary basis from monthly period | Parser strips punctuation, does not preserve raw text or basis; sample must remain non-comparable under SMV-082 absent explicit `gross_fte`; P1 |
+| `job/salary` | Optional free text, sample `€3800 - €4600 per month` | Allowlisted `source_salary_text`; optionally normalized salary fields | Parser boundary preserves exact text; generic parser can derive amounts/currency/period but no basis | Always preserve exact text. Normalize only an unambiguous integer range/currency/period; leave basis null/unknown and non-comparable. Unsafe locale formats remain raw only | Metadata target in SMV-100; safe transform/tests in SMV-094B |
 | `job/education` | Optional: Professional certificate, Bachelors, Masters, PhD | `taxonomy.qualification` | Type-scoped Category alias/exact resolver exists | Map only via Joobs-approved aliases to existing qualification Categories; unknown values unresolved, no auto-create | Value aliases and example-specific tests needed; P1 |
 | `job/jobtype` | Optional: `fulltime`, `parttime`, or both comma-separated | `taxonomy.employment_type` | Type-scoped resolver exists; values/categories may be represented as arrays but comma splitting is not a registered transform | Split on comma, trim, normalize case, map each token to an existing Category; invalid token blocks or warns per approved policy | Split/normalization missing; confirm both values means two categories; P1 |
 | `job/category` | Required job field in English; closed list supplied on request; comma-separated when several | Candidate `taxonomy.function_area` or `taxonomy.sector` | Both Category types exist; explicit aliases by source/type; no fuzzy match or auto-create | Obtain the actual closed list and owner-approved destination for each code/value; split comma values; do not infer sector/function based on English label | Partner must provide closed list; mapping decision required; P1 |
 | `job/experience` | Optional range vocabulary (six listed bands) | `taxonomy.experience` | Category resolver exists | Map exact source values to approved Categories; do not infer from description text | Aliases/Category data coverage needed; P1 |
 | `job/expirationdate` | Required final paid runtime day, `YYYY-MM-DD`, inclusive | `vacancies.expires_at` | Expiry destination and public query cutoff exist; generic date transform parses to instant | Interpret as end of that calendar day in approved business timezone, then convert to UTC. It is not `deadline_at` | Current UTC date parse would place midnight at start of day and expire too early; explicit timezone/date-only transform needed; P1 |
 | `job/remotetype` | Optional only when not fully on-site: `Hybrid remote` or `Fully remote` | `taxonomy.workplace` | Category resolver exists | Map exact values to approved hybrid/remote Categories. Since spec omits field for fully on-site, absence may mean on-site only if partner confirms omission semantics | No default/transform for taxonomy; explicit onsite semantics confirmation; P1 |
-| `job/joobs_language` | Required ad language: `nl`, `fr`, `en`, `de` | No current vacancy language field | Not supported | Validate allowed code, preserve value. Do not map to Category or confuse with site locale | New metadata only if filtering/rendering/commercial need; otherwise preserve in raw source payload; P2 |
+| `job/joobs_language` | Required ad language: `nl`, `fr`, `en`, `de` | Allowlisted `source_language` metadata | Parser preserves it; no persisted target | Validate exact allowed code and preserve; do not map to Category/site locale | Metadata in SMV-100, validation in SMV-094B; filtering deferred |
 | `job/joobs_contracttype` | Optional: permanent, temporary, freelance, internship, student | `taxonomy.employment_type` candidate, but not necessarily equivalent to jobtype | Existing controlled employment type Categories and resolver; no independent contract-type destination | Keep contract kind semantically separate from work schedule (`jobtype`); map only values with approved taxonomy meaning. Avoid conflating temporary contract and part-time | Distinct concept is a domain gap; decide if MVP needs a separate Category type/field; P1 if needed |
-| `job/joobs_workplacecity` | Required real workplace city; may differ from advertising `city` | No current separate target; proposed `workplace_city` | Not supported | Preserve independently from ad city; do not overwrite `vacancies.location` or convert to a tag | Schema/display gap when locations differ; P1 |
-| `job/joobs_workplacecountry` | Required real workplace country | No current separate target; proposed `workplace_country` | Not supported | Validate ISO code independently from advertising `country` | Schema/validation gap when different; P1 |
-| `job/joobs_product` | Required purchased product formula/code, agreed with partner | No current target; `placement_package` is SMV-owned enum and is not equivalent | No source product destination; runner ignores it | Preserve opaque code exactly; map only to a separately agreed partner product enum/table after commercial confirmation | Commercial mapping/schema gap; P1 for partner reconciliation, not demo |
+| `job/joobs_workplacecity` | Required real workplace city; may differ from advertising `city` | `vacancies.workplace_city` | No current destination | Preserve independently from ad city; do not overwrite `vacancies.location` or convert to a tag | SMV-100 column; SMV-094B mapping |
+| `job/joobs_workplacecountry` | Required real workplace country | `vacancies.workplace_country` | No current destination | Apply the same uppercase ISO 3166-1 alpha-2 validation independently from advertising country | SMV-100 column; SMV-094B validation/mapping |
+| `job/joobs_product` | Required purchased product formula/code, agreed with partner | Allowlisted `source_product_code`; never `placement_package` | Parser preserves it; no persisted target | Preserve opaque code exactly. Validate against partner list only after supplied; unknown code blocks activation/import for review | Metadata in SMV-100; allowed list is a partner decision; commercial mapping deferred |
 | `job/joobs_logo` | Optional HTTPS employer logo URL | No automatic target; Company has Media Library logo and legacy `logo` string | `company.logo_url` is preview destination only; importer does not update Company or fetch media | Validate HTTPS/host/content type/size; do not hotlink or server-fetch arbitrary URL without SSRF-safe downloader, approval and attribution rules | No safe media ingestion; do not import automatically in MVP; P2 |
 | `job/joobs_companyurl` | Required employer page on Joobs | No current source-company profile URL field; not `Company.website` | Company has `website`, but runner does not write company fields | Preserve as provider employer reference only; do not label as employer's own website or overwrite a manually managed Company website | Target semantic mismatch; source-company reference optional future field; P2 |
 
@@ -94,6 +134,23 @@ Negative coverage rejects malformed XML, missing advertisement identifiers, dupl
 does not yet validate every required Joobs business field, prove whole-snapshot safety,
 map products, resolve Companies, normalize dates/salary/taxonomy, or write any records.
 
+### Identifier failure and change rules
+
+- A missing/blank `referencenumber` or `requisitionid` invalidates that record and makes
+  the snapshot ineligible for absence reconciliation. SMV-094A already rejects these at
+  the contract boundary.
+- A duplicate `referencenumber` invalidates the whole feed before writes. Do not pick the
+  first/last record and do not reconcile absence from the remaining set.
+- Identical `referencenumber` values in different ImportSources are independent identities
+  and may coexist. The existing unique database key supports this.
+- If Joobs changes a `referencenumber`, SMV must treat it as a new advertisement. The old
+  key may become missing only after a verified complete snapshot; there is no safe rename
+  inference. Joobs should confirm that references remain stable for the paid run.
+- If `requisitionid` changes while `referencenumber` stays the same, update the correlation
+  metadata and flag the change in the run log for review; do not create a new Vacancy.
+- Case, punctuation and leading zeros are significant in both identifiers. Store the
+  trimmed opaque string; do not lowercase, numeric-cast or otherwise normalize it.
+
 ## Company association and reseller feeds
 
 ### Verified repository behavior
@@ -131,11 +188,67 @@ managed Company fields must not be overwritten by a partner feed.
   needs a constrained downloader, file validation, provenance and approval policy.
   `joobs_companyurl` is a Joobs employer page, not an authoritative company website.
 
+### SMV-100 employer-resolution contract
+
+Use a reusable source-scoped mapping entity rather than adding Joobs conditionals to the
+runner. Its minimum responsibility is:
+
+- namespace every external employer key by `import_source_id`;
+- store the exact external key plus last-seen source name/source URL for review;
+- point to one existing `company_id` and record review/audit state;
+- enforce one mapping for each `(import_source_id, external_employer_key)`;
+- resolve before Vacancy persistence; missing, inactive, soft-deleted or ambiguous mappings
+  quarantine the record and make the snapshot ineligible for absence reconciliation;
+- never update Company name, slug, owner, status, website, descriptions, categories,
+  contacts, logo or media from the feed.
+
+The provider-neutral SMV-100 entity should therefore be an `ImportSourceEmployer` (or
+equivalent) with `import_source_id`, `company_id`, nullable opaque
+`external_employer_id`, exact `source_name`, nullable exact `source_url`, review status
+and audit timestamps/actor. Enforce source plus external ID uniqueness when an ID exists;
+otherwise enforce the reviewed source/name/URL alias as a unique tuple. Resolution uses
+one explicit key path and must not silently fall through from a failed ID lookup to an
+alias lookup.
+
+The Joobs v1 specification supplies no explicit stable employer ID. Preferred activation
+input is a new opaque Joobs employer ID. If Joobs cannot provide one, the safe fallback is
+an administrator-created source-scoped alias based on the exact pair `company` plus
+`joobs_companyurl`. The pair is an external lookup key only after review; it is not a
+partner-guaranteed identity. Name-only, URL-only, fuzzy, normalized-global and automatic
+Company creation are prohibited. The same real employer arriving from another ImportSource
+gets a separate external mapping that may deliberately point to the same Company.
+
+New Company creation is not required for the first Joobs feed. If later approved, it must
+be an explicit staff action that creates a pending Company, then attaches the source mapping.
+The import must not create a public Company implicitly.
+
 The spec identifies each `company` as the hiring employer and a partner feed contains
 multiple customers' ordered ads in one feed, so multi-employer support appears required
 for Joobs production unless the delivered endpoint is separately scoped per employer.
 That scope needs partner confirmation. It does not block the staging demo unless Joobs
 is explicitly part of the demo acceptance scope.
+
+## Advertised location and actual workplace contract
+
+- `city` is the advertised city and maps to the existing `vacancies.location`. Current
+  public location search/filter options remain exact matches against this field, so the
+  Breda advertisement remains discoverable under Breda even though the workplace is
+  Antwerpen.
+- `state`, `country` and `postalcode` are structured advertised-location metadata. Do not
+  concatenate them into `location` for the first integration because that would change
+  existing filter values and behavior.
+- `joobs_workplacecity` and `joobs_workplacecountry` are the actual workplace. SMV-100
+  should add nullable structured storage independent of the advertised fields. Do not
+  create a second Vacancy or a taxonomy tag for workplace data.
+- Vacancy detail and JobPosting location should prefer actual workplace when present.
+  Cards/listing filters continue to use advertised `location`. If the two differ, the
+  detail UI must label the advertised city and actual workplace clearly rather than imply
+  that the employer is located in the advertised city.
+- Existing/manual Vacancies with no separate workplace metadata continue to display and
+  expose `vacancies.location`; no backfill or guessed country/province is allowed.
+- Multiple Joobs advertisements for one requisition remain multiple Vacancies, one per
+  advertised city, linked only by source requisition metadata. This preserves current URLs,
+  search behavior and ad-level lifecycle/reporting.
 
 ## Salary and SMV-082
 
@@ -163,3 +276,56 @@ Whether a fully valid paid Joobs ad should be auto-published or remain `pending`
 moderation is a product decision. Current imports create pending records; there is no
 automatic publication. Joobs removal and expiry requirements cannot be fulfilled until
 the approved synchronization lifecycle is implemented.
+
+## Feed validation and snapshot reconciliation contract
+
+Feed validation and reconciliation are separate stages:
+
+1. **Validate:** fetch succeeded; payload is non-truncated, well-formed `joobs-1.0`; all
+   records parse; required contract fields are present; references are unique; employer,
+   product/category and required mappings resolve; row selection did not unexpectedly
+   remove records; expected-count safeguards pass.
+2. **Apply:** upsert valid advertisements by source/reference inside the approved run
+   boundary. A row error means the run is incomplete and cannot reconcile absence.
+3. **Reconcile:** only a complete verified snapshot may mark previously seen references
+   absent. Absence changes source availability, never deletes the Vacancy or overwrites
+   its editorial status.
+
+Safe lifecycle decisions for SMV-093:
+
+- HTTP/auth/timeout/malformed/version failures, empty payloads, empty `<source>`, duplicate
+  references, unresolved employers and filtered-empty results fail closed with no absence
+  action. An intentional legitimate empty feed needs an explicit operator confirmation or
+  partner-provided count/status signal before it may be treated as complete.
+- A missing advertisement becomes unavailable immediately after one verified complete
+  snapshot because the Joobs contract defines omission as offline. Keep the row/history.
+- An advertisement whose inclusive `expires_at` has passed is already hidden by the public
+  query. A later omission still records source absence; expiry and feed absence remain
+  separate facts.
+- A reappearing reference clears source absence. Preserve `Vacancy.status`; manually
+  archived/expired records remain hidden, while a previously published source-available
+  record may become visible again.
+- Import-owned mapped fields may update on reappearance, but manual editorial overrides
+  require an explicit field-ownership mechanism. Until implemented, mapped fields are
+  source-owned and staff must not be promised durable inline overrides.
+
+## Unresolved partner inputs and fail-closed defaults
+
+1. Stable opaque employer ID, or written stability/uniqueness guarantee for
+   `joobs_companyurl`. Default: reviewed source-scoped `company + joobs_companyurl` alias;
+   no automatic matching.
+2. Complete closed `category` list and intended SMV function-area/sector mapping. Default:
+   unknown values remain unresolved and block the row.
+3. Complete `joobs_product` codes. Default: preserve exact code and block unknown values
+   from live activation; never map to SMV `placement_package`.
+4. Business timezone for inclusive `expirationdate`, especially ads outside Belgium.
+   Default: `Europe/Brussels`, converted to UTC, pending written confirmation.
+5. Whether omitted `remotetype` guarantees fully on-site. Default: no workplace taxonomy
+   is inferred from absence.
+6. Whether optional-field omission means clear the previous source-owned value. Default:
+   treat a complete snapshot as the current source truth, but implement and test clearing
+   per mapped field in SMV-094B; never clear manual Company profile data.
+7. Reference stability for the full paid run and any expected minimum/count signal for a
+   legitimate empty feed. Default: changed reference is a new ad; empty feed fails closed.
+8. Automatic publication versus moderation and the owner of editorial override policy.
+   Default: new imported Vacancies remain `pending`.

@@ -842,10 +842,11 @@ Modularity is desirable because SMV has multiple feed providers, but real SMV va
 
 ## Next import work
 
-Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. Follow
-`IMPORT_MVP_PLAN.md`: resolve and approve the Joobs contract, identity/mapping and
-Company ownership, close the verified-snapshot/depublication boundary, then design
-scheduling/retry based on measured feed size and hosting capability. Provider-specific
-code remains a last resort for a proven generic gap. The Joobs specification and example
-were not present during the SMV-083 audit, so field coverage remains provisional until
-those files are reviewed.
+Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. SMV-092 now defines
+the Joobs mapping and identity contract in `JOOBS_FEED_MAPPING.md`: advertisement identity
+is `(import_source_id, referencenumber)`, requisition identity is correlation metadata,
+and employer identity is an explicit source-scoped mapping to an existing Company. Follow
+`IMPORT_MVP_PLAN.md`: implement Company/source metadata resolution in SMV-100, close the
+verified-snapshot/depublication boundary in SMV-093, then complete Joobs transforms and
+persistence tests in SMV-094B. Provider-specific code remains a last resort for a proven
+generic gap; unresolved partner value lists and identity guarantees fail closed.
