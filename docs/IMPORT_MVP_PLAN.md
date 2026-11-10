@@ -246,11 +246,13 @@ privacy-conscious minimum are recorded in `PARTNER_INVENTORY.md`.
 
 ### Smallest executable post-demo sequence
 
-1. **SMV-094A - Joobs fixture contract, no persistence (2-4 h / 1-2 h).** Copy the
-   supplied example into the test fixture boundary and assert root/version, two records,
-   ad identity, shared requisition, advertised/workplace locations, expiration input and
-   exact application URL/UTM. This can begin without commercial answers and is the first
-   recommended implementation ticket.
+1. **SMV-094A - Joobs fixture contract, no persistence — IMPLEMENTED.** The supplied
+   example is in the test fixture boundary and the existing XML reader now has an isolated
+   Joobs contract inspector for root/version, two-record fixture behavior, identity,
+   shared requisition, advertised/workplace locations, optional fields, exact raw
+   description/salary/product values and application URL/UTM. Negative tests cover
+   malformed XML, identifiers, duplicates, version and URL validity. No mapping,
+   persistence or import execution is involved.
 2. **SMV-092 - close mapping decisions (1-2 h / 2-4 h partner/product).** Obtain stable
    employer identity, category/product lists, timezone, publication and raw-value rules.
    Work on decisions can run while the fixture contract is prepared.

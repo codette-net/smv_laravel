@@ -11,9 +11,11 @@ The rebuild must preserve the useful existing business flows, existing content v
 
 - Primary development machine for this phase: ThinkPad T495, Windows 11.
 - Repository workflow: GitHub.
-- `main` is the stable/release branch.
-- `develop` is the integration branch.
-- Feature branches are created from `develop` and merged back into `develop` through review/PR.
+- `main` is the stable/release branch and the canonical development base.
+- The permanent `develop` workflow was retired on 31 October 2026. Preserve the branch
+  until its one unique commit has been reviewed separately; do not use it for new work.
+- Feature branches are created from the latest stable `main` and merged back into `main`
+  through review/PR.
 - Do not work directly on `main`.
 
 ## Windows development environment
@@ -297,7 +299,7 @@ Do not claim a task is complete when tests are failing unless the failures are c
 ## Git discipline
 
 - Never develop directly on `main`.
-- Feature work starts from `develop` unless explicitly instructed otherwise.
+- Feature work starts from the latest stable `main`.
 - Keep each branch focused on one coherent feature/fix.
 - Keep unrelated formatting/refactors out of a feature branch.
 - Prefer small, reviewable commits.

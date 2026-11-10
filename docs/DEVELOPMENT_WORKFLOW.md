@@ -14,9 +14,6 @@ from an unavailable unqualified `php` command.
 
 ```text
 main
-  ↑ release merge
-
-develop
   ↑ feature PRs
 
 feat/*
@@ -24,7 +21,9 @@ fix/*
 chore/*
 ```
 
-Feature branches are created from the latest `develop`.
+Feature branches are created from the latest stable `main` and merge back into `main`
+after review. The permanent `develop` workflow was retired on 31 October 2026. Do not
+delete or synchronize the old branch until its unique commit has been reviewed separately.
 
 ## Initial Git setup
 
@@ -37,26 +36,15 @@ git branch --show-current
 git fetch origin
 ```
 
-Create `develop` once if it does not exist:
-
 ```powershell
 git switch main
-git pull --ff-only
-git switch -c develop
-git push -u origin develop
-```
-
-If it already exists:
-
-```powershell
-git switch develop
 git pull --ff-only
 ```
 
 ## Start a feature
 
 ```powershell
-git switch develop
+git switch main
 git pull --ff-only
 git switch -c feat/import-mapping
 ```
@@ -74,7 +62,7 @@ git push -u origin feat/import-mapping
 Open PR:
 
 ```text
-feat/import-mapping -> develop
+feat/import-mapping -> main
 ```
 
 ## Codex workflow
@@ -112,7 +100,7 @@ Do not change project naming/casing casually. Production hosting is expected to 
 ## Before every feature branch
 
 ```powershell
-git switch develop
+git switch main
 git pull --ff-only
 git status
 ```
