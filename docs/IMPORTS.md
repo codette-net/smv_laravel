@@ -846,7 +846,21 @@ Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. SMV-092 no
 the Joobs mapping and identity contract in `JOOBS_FEED_MAPPING.md`: advertisement identity
 is `(import_source_id, referencenumber)`, requisition identity is correlation metadata,
 and employer identity is an explicit source-scoped mapping to an existing Company. Follow
-`IMPORT_MVP_PLAN.md`: use the completed SMV-100 Company/source metadata foundation, close
-the verified-snapshot/depublication boundary in SMV-093, then complete Joobs transforms and
+`IMPORT_MVP_PLAN.md`: use the completed SMV-100 and SMV-093 employer/snapshot foundations,
+then complete Joobs transforms and
 persistence tests in SMV-094B. Provider-specific code remains a last resort for a proven
 generic gap; unresolved partner value lists and identity guarantees fail closed.
+
+### Verified source snapshots
+
+Missing reporting is opt-in per ImportSource through verified snapshot reconciliation.
+The runner acquires a shared cache/database lock for the source, reads and preflights every
+selected record, then applies records. Only a snapshot with unique non-empty references,
+successful mapping/validation/employer resolution and successful application can mark
+absent imported Vacancies with `missing_since`. Empty input fails closed unless the source
+has an explicit `allow_empty` capability. Unsafe, partial, malformed, unresolved and failed
+runs are retained in Import history with an outcome code and never reconcile omissions.
+
+This ticket does not change public availability: `missing_since` remains reporting metadata.
+It never deletes a Vacancy or changes its editorial status; a reappearing source reference
+clears only the missing marker.

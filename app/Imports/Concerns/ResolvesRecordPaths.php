@@ -49,7 +49,7 @@ trait ResolvesRecordPaths
             }
         }
 
-        if ($records === []) {
+        if ($records === [] && $nodes === []) {
             throw new RecordPathNotFoundException("The configured record path [{$recordPath}] did not produce any records.");
         }
 

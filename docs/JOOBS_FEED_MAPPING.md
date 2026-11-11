@@ -290,11 +290,11 @@ Feed validation and reconciliation are separate stages:
    records parse; required contract fields are present; references are unique; employer,
    product/category and required mappings resolve; row selection did not unexpectedly
    remove records; expected-count safeguards pass.
-2. **Apply:** upsert valid advertisements by source/reference inside the approved run
-   boundary. A row error means the run is incomplete and cannot reconcile absence.
-3. **Reconcile:** only a complete verified snapshot may mark previously seen references
-   absent. Absence changes source availability, never deletes the Vacancy or overwrites
-   its editorial status.
+2. **Apply:** upsert valid advertisements by source/reference only after preflight
+   succeeds. A persistence error fails the run and cannot reconcile absence.
+3. **Reconcile:** only an explicitly enabled complete verified snapshot may mark previously
+   seen references absent. Absence currently sets `missing_since`; it never deletes the
+   Vacancy or overwrites its editorial status/publication state.
 
 Safe lifecycle decisions for SMV-093:
 
@@ -302,8 +302,9 @@ Safe lifecycle decisions for SMV-093:
   references, unresolved employers and filtered-empty results fail closed with no absence
   action. An intentional legitimate empty feed needs an explicit operator confirmation or
   partner-provided count/status signal before it may be treated as complete.
-- A missing advertisement becomes unavailable immediately after one verified complete
-  snapshot because the Joobs contract defines omission as offline. Keep the row/history.
+- A missing advertisement receives `missing_since` after one verified complete snapshot.
+  Public unpublishing is not implemented or implied by SMV-093; retain the row/history
+  until a separately approved publication/removal policy exists.
 - An advertisement whose inclusive `expires_at` has passed is already hidden by the public
   query. A later omission still records source absence; expiry and feed absence remain
   separate facts.

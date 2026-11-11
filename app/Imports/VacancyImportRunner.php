@@ -13,6 +13,7 @@ use App\Models\Import;
 use App\Models\ImportLog;
 use App\Models\ImportMapping;
 use App\Models\Vacancy;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class VacancyImportRunner
@@ -20,56 +21,160 @@ class VacancyImportRunner
     public function run(ImportMapping $mapping): Import
     {
         $source = $mapping->importSource()->with('company')->firstOrFail();
-        $run = Import::create(['import_source_id' => $source->id, 'status' => ImportStatus::Processing, 'started_at' => now(), 'mapping' => ['mapping_id' => $mapping->id]]);
-        $seenReferences = [];
-        $persistedVacancies = [];
-        $reconciliationIsReliable = true;
+        $lock = Cache::lock($this->lockKey($source->id), 900);
+        if (! $lock->get()) {
+            return $this->skippedRun($source->id, $mapping->id);
+        }
+
         try {
+            $mapping->load('fields');
+            $run = Import::create([
+                'import_source_id' => $source->id,
+                'status' => ImportStatus::Processing,
+                'started_at' => now(),
+                'mapping' => $this->runMapping($mapping->id, $source, 'processing'),
+            ]);
             $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true)
                 ? app(SourceFetcher::class)->fetch($source)
                 : app(LocalSourceLoader::class)->forSource($source);
-            foreach (app(RecordSelector::class)->filter(app(ImportReaderResolver::class)->for($source)->records($source, $payload), $source->selection_rules) as $record) {
-                $run->increment('total_rows');
-                $outcome = null;
-                try {
-                    $result = app(ImportMapper::class)->map($record, $mapping->load('fields'), $source);
-                    $outcome = app(ImportRecordValidator::class)->validate($result->data, $source);
-                    $reference = $outcome->data->get('source_reference');
-                    if (is_scalar($reference) && filled(trim((string) $reference))) {
-                        $seenReferences[] = trim((string) $reference);
-                    } else {
-                        $reconciliationIsReliable = false;
-                    }
-                    if (! $outcome->canImport()) {
-                        $reconciliationIsReliable = false;
-                        $run->increment('skipped_rows');
-                        $this->log($run, ImportLogLevel::Warning, 'Record overgeslagen.', $record->position, $outcome, 'validation_or_resolution');
+            $records = $this->prepareRecords($run, $source, $mapping, $payload);
+            $snapshot = $source->usesVerifiedSnapshotReconciliation();
+            $hasUnsafeRecord = collect($records)->contains(fn (array $record): bool => $record['mapping_errors'] !== [] || ! $record['outcome']->canImport());
+            $safety = $snapshot ? $this->snapshotSafety($source, $records) : null;
+            if ($safety !== null) {
+                $this->log($run, ImportLogLevel::Warning, 'Snapshot is niet volledig verifieerbaar; ontbrekende vacatures zijn niet verwerkt.', null, null, $safety);
 
-                        continue;
-                    }
+                return $this->finish($run, ImportStatus::Incomplete, $safety);
+            }
+
+            $persistedVacancies = [];
+            foreach ($records as $entry) {
+                $outcome = $entry['outcome'];
+                if (! $outcome->canImport()) {
+                    $run->increment('skipped_rows');
+                    $this->log($run, ImportLogLevel::Warning, 'Record overgeslagen.', $entry['position'], $outcome, 'validation_or_resolution');
+
+                    continue;
+                }
+
+                try {
                     $persistence = DB::transaction(fn () => $this->persist($source, $mapping, $outcome));
                     $persistedVacancies[$persistence['vacancy_id']] = $persistence;
                     $run->increment($persistence['created'] ? 'imported_rows' : 'updated_rows');
-                    $this->log($run, ImportLogLevel::Info, $persistence['created'] ? 'Vacature aangemaakt.' : 'Vacature bijgewerkt.', $record->position, $outcome, $persistence['created'] ? 'created' : 'updated');
+                    $this->log($run, ImportLogLevel::Info, $persistence['created'] ? 'Vacature aangemaakt.' : 'Vacature bijgewerkt.', $entry['position'], $outcome, $persistence['created'] ? 'created' : 'updated');
                 } catch (\Throwable $e) {
-                    $reconciliationIsReliable = false;
                     $run->increment('failed_rows');
-                    $this->log($run, ImportLogLevel::Error, 'Record kon niet worden verwerkt.', $record->position, $outcome, 'processing_failed');
+                    $this->log($run, ImportLogLevel::Error, 'Record kon niet worden verwerkt.', $entry['position'], $outcome, 'processing_failed');
+                    if ($snapshot) {
+                        return $this->finish($run, ImportStatus::Failed, 'application_failed');
+                    }
                 }
             }
             $this->finalizeSeenVacancies($run, $persistedVacancies);
-            if ($reconciliationIsReliable) {
-                $this->detectMissingVacancies($run, $source->id, array_values(array_unique($seenReferences)));
-            } else {
+            if ($snapshot) {
+                $this->detectMissingVacancies($run, $source->id, array_column($records, 'reference'));
+            } elseif ($hasUnsafeRecord) {
                 $this->log($run, ImportLogLevel::Warning, 'Controle op ontbrekende vacatures is overgeslagen omdat deze run niet volledig betrouwbaar was.', null, null, 'missing_detection_skipped');
             }
-            $run->forceFill(['status' => ImportStatus::Completed, 'finished_at' => now()])->save();
+
+            return $this->finish($run, ImportStatus::Completed, $snapshot ? 'verified_complete' : 'not_configured');
         } catch (\Throwable $e) {
-            $run->forceFill(['status' => ImportStatus::Failed, 'finished_at' => now()])->save();
+            $run ??= Import::create(['import_source_id' => $source->id, 'status' => ImportStatus::Processing, 'started_at' => now(), 'mapping' => $this->runMapping($mapping->id, $source, 'processing')]);
             $this->log($run, ImportLogLevel::Error, 'Importbron kon niet worden verwerkt.', null, null, 'source_failed');
+
+            return $this->finish($run, ImportStatus::Failed, 'read_or_parse_failed');
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /** @return list<array{position: int|string, outcome: mixed, reference: string, mapping_errors: list<string>}> */
+    private function prepareRecords(Import $run, $source, ImportMapping $mapping, mixed $payload): array
+    {
+        $records = [];
+        foreach (app(RecordSelector::class)->filter(app(ImportReaderResolver::class)->for($source)->records($source, $payload), $source->selection_rules) as $record) {
+            $run->increment('total_rows');
+            $result = app(ImportMapper::class)->map($record, $mapping, $source);
+            $outcome = app(ImportRecordValidator::class)->validate($result->data, $source);
+            $reference = $outcome->data->get('source_reference');
+            $records[] = [
+                'position' => $record->position,
+                'outcome' => $outcome,
+                'reference' => is_scalar($reference) ? trim((string) $reference) : '',
+                'mapping_errors' => $result->errors,
+            ];
         }
 
+        return $records;
+    }
+
+    /** @param list<array{position: int|string, outcome: mixed, reference: string, mapping_errors: list<string>}> $records */
+    private function snapshotSafety($source, array $records): ?string
+    {
+        if ($source->marksSnapshotsAsPartial()) {
+            return 'snapshot_marked_partial';
+        }
+        if ($records === [] && ! $source->allowsEmptyVerifiedSnapshot()) {
+            return 'snapshot_empty_unconfirmed';
+        }
+        $references = array_column($records, 'reference');
+        if (in_array('', $references, true)) {
+            return 'snapshot_identity_missing';
+        }
+        if (count($references) !== count(array_unique($references))) {
+            return 'snapshot_duplicate_reference';
+        }
+        foreach ($records as $record) {
+            if ($record['mapping_errors'] !== []) {
+                return 'snapshot_mapping_invalid';
+            }
+            if (! $record['outcome']->canImport()) {
+                return 'snapshot_record_unresolved';
+            }
+        }
+
+        return null;
+    }
+
+    private function skippedRun(int $sourceId, int $mappingId): Import
+    {
+        $run = Import::create([
+            'import_source_id' => $sourceId,
+            'status' => ImportStatus::Skipped,
+            'started_at' => now(),
+            'finished_at' => now(),
+            'mapping' => ['mapping_id' => $mappingId, 'snapshot' => ['state' => 'concurrency_rejected']],
+        ]);
+        $this->log($run, ImportLogLevel::Warning, 'Import overgeslagen omdat deze bron al wordt verwerkt.', null, null, 'source_locked');
+
         return $run->fresh('importLogs');
+    }
+
+    private function finish(Import $run, ImportStatus $status, string $snapshotState): Import
+    {
+        $mapping = is_array($run->mapping) ? $run->mapping : [];
+        $snapshot = is_array($mapping['snapshot'] ?? null) ? $mapping['snapshot'] : [];
+        $mapping['snapshot'] = [...$snapshot, 'state' => $snapshotState];
+        $run->forceFill(['status' => $status, 'finished_at' => now(), 'mapping' => $mapping])->save();
+
+        return $run->fresh('importLogs');
+    }
+
+    private function runMapping(int $mappingId, $source, string $state): array
+    {
+        return [
+            'mapping_id' => $mappingId,
+            'snapshot' => [
+                'state' => $state,
+                'reconciliation_enabled' => $source->usesVerifiedSnapshotReconciliation(),
+                'allow_empty' => $source->allowsEmptyVerifiedSnapshot(),
+            ],
+        ];
+    }
+
+    private function lockKey(int $sourceId): string
+    {
+        return "imports:source:{$sourceId}";
     }
 
     /** @return array{created: bool, vacancy_id: int, source_reference: string, was_missing: bool} */
