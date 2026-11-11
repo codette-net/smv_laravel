@@ -4,6 +4,13 @@
 **Scope:** read-only audit using the actual Joobs v1 partner files and repository code.
 This document proposes follow-up work; it does not approve application changes.
 
+> **SMV-093 implementation update (11 November 2026):** This is historical audit
+> evidence. The former snapshot-safety gaps below are now addressed by explicit
+> source opt-in, full selected-record preflight, duplicate/empty/partial safety gates,
+> source-scoped cache/database locking and verified `missing_since` reporting. It still
+> does not unpublish or delete a Vacancy; publication/removal policy remains a later
+> decision.
+
 ## Evidence
 
 The authoritative files are `docs/integrations/joobs/joobs-job-feed-v1.md` and
@@ -35,13 +42,13 @@ fixture. Browser and staging behavior remain unverified.
 | Record path, selection, bounded field discovery | Implemented and tested | `app/Imports/{RecordSelector,FieldDiscovery}.php`; `tests/Feature/ImportReadingTest.php`, `ImportMappingTest.php`. XML record path defaults to `job`. |
 | Reusable field mapping, transforms, normalized preview | Implemented and tested | `app/Imports/Mapping/{ImportMapper,DestinationRegistry,NormalizedVacancyData,CompensationTextParser}.php`, `app/Imports/Preview/ImportPreview.php`; `tests/Feature/ImportMapperArrayTest.php`, `ImportPreviewTest.php`, `ImportEndToEndTest.php`. Transform operations are a fixed code registry, not a general expression system. |
 | Single-company source association | Implemented and tested | `ImportSource.company_id` is required by `ImportSourceForm`; runner assigns it to every Vacancy. Company fields are preview destinations only; runner does not create, match or update Companies. `tests/Feature/ImportEndToEndTest.php`, `VnomProductionConfigurationTest.php`. |
-| Joobs multi-employer Company resolution | Missing | Joobs requires `job/company` as hiring employer, and partner feeds can contain ads from multiple customers. No stable employer ID is specified. The fixed source Company cannot represent this safely. |
+| Joobs multi-employer Company resolution | Implemented by SMV-100; partner activation input remains open | Source-scoped reviewed mappings resolve provider IDs or exact reviewed composites without Company profile writes or fallback. |
 | Taxonomy/category mapping | Implemented and tested | `TaxonomyResolver` uses source-scoped explicit aliases then unique exact name/slug matches; unresolved values block the row, and Categories are not created. `tests/Feature/ImportValidationTest.php`, `ImportMappingAdminTest.php`, `VacancyTaxonomyTest.php`. |
 | Provider-scoped identity and update | Implemented and tested | DB uniqueness and runner lookup use `import_source_id + source_reference`; reruns update mapped fields on the same row. `tests/Feature/ImportEndToEndTest.php`, `VacancyImportRunnerTest.php`. |
 | Per-record validation, sanitization, failures and logs | Implemented and tested | `ImportRecordValidator`, `VacancyDescription`, `VacancyImportRunner`; row-level failures increment counters/log a safe code, and unresolved taxonomy skips the row. `tests/Feature/ImportValidationTest.php`, `ImportHistoryTest.php`, `VacancyDescriptionTest.php`. |
 | Missing/restored source reporting | Implemented and tested, not equivalent to Joobs removal behavior | Runner records `missing_since`, `last_seen_import_id`, and restored count; does not unpublish/delete. `tests/Feature/ImportMissingLifecycleTest.php`. |
-| Empty and filtered-empty feed protection | Partially supported; critical gap | XML with no matching `job` throws. But if records exist and selection rules select none, runner can reconcile with an empty reference list and mark all source Vacancies missing. There is no minimum record count/snapshot confirmation. |
-| Safe feed completeness for reconciliation | Partially supported; unsafe for automated removal | Runner writes each record before the whole document is verified. XML parser completion errors are not explicitly checked. Duplicate-reference preflight, verified-snapshot boundary, and per-source concurrency lock are absent. Malformed/truncated-tail behavior is untested. |
+| Empty and filtered-empty feed protection | Implemented by SMV-093 with explicit opt-in | Empty selected input is unsafe by default; only a source explicitly configured to allow a legitimate empty snapshot can reconcile it. |
+| Safe feed completeness for reconciliation | Implemented by SMV-093 for missing reporting | Preflight maps/validates every selected record and rejects duplicate/missing references, unresolved records and partial signals before application. A shared source lock prevents overlap. This remains reporting only, not automated removal/unpublishing. |
 | Expiration/public visibility | Implemented and tested without scheduled status mutation | `Vacancy::publiclyVisible()` excludes elapsed `deadline_at` or `expires_at` at query time. No expiration command/job changes `status` to `expired`. `tests/Feature/VacancyLifecycleTest.php`, `PublicVacancyIndexTest.php`, `PublicVacancyShowTest.php`. |
 | Filament import configuration, preview, history and manual execution | Implemented and tested, synchronous | Filament provides source setup, mapping, preview, taxonomy resolution, a confirmed execute action and run history. No retry/recovery control. `tests/Feature/ImportMappingAdminTest.php`, `ImportHistoryTest.php`. |
 | Scheduler and import command | Missing | `routes/console.php` only defines `inspire`; `bootstrap/app.php` has no schedule. No source-selection command exists. |
@@ -290,4 +297,3 @@ remain `pending` unless a separate automatic-publication policy is approved.
 8. Confirm VONQ, Brockmeyer/Appcast, VNOM, Joobs and Adver commercial products,
    billing models, click reports, attribution keys and retention. No common CPC assumption.
 9. Approve analytics definitions, privacy basis, consent, retention and access controls.
-

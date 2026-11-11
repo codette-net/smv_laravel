@@ -30,6 +30,11 @@ class ImportSourceForm
                 Toggle::make('is_active')->label('Actief')->helperText('De bron is ingeschakeld voor gebruik.')->default(true),
                 Toggle::make('uses_source_employers')->label('Werkgever per bronrecord oplossen')
                     ->helperText('Gebruik uitsluitend vooraf beoordeelde, brongebonden werkgeverkoppelingen. Er is geen terugval naar het standaardbedrijf.'),
+                Toggle::make('uses_verified_snapshot_reconciliation')->label('Volledige snapshot veilig reconciliëren')->live()
+                    ->helperText('Alleen een volledig gevalideerde en toegepaste feed mag ontbrekende vacatures markeren. Standaard uit.'),
+                Toggle::make('allows_empty_verified_snapshot')->label('Lege snapshot uitdrukkelijk toegestaan')
+                    ->visible(fn (Get $get): bool => $get('uses_verified_snapshot_reconciliation') === true)
+                    ->helperText('Alleen inschakelen met een partnergarantie dat een lege feed volledig en legitiem is.'),
             ]),
             Section::make('Bron')->columns(2)->columnSpanFull()->schema([
                 FileUpload::make('uploaded_source_path')
@@ -99,7 +104,9 @@ class ImportSourceForm
         $data['uploaded_source_name'] = $configuration['source_name'] ?? null;
         $data['advanced_configuration'] = Arr::except($configuration, ['source_path', 'source_name', 'sample_path']);
         $data['uses_source_employers'] = ($configuration['employer_resolution'] ?? null) === 'source_scoped';
-        $data['advanced_configuration'] = Arr::except($data['advanced_configuration'], ['employer_resolution']);
+        $data['uses_verified_snapshot_reconciliation'] = data_get($configuration, 'snapshot_reconciliation.enabled') === true;
+        $data['allows_empty_verified_snapshot'] = data_get($configuration, 'snapshot_reconciliation.allow_empty') === true;
+        $data['advanced_configuration'] = Arr::except($data['advanced_configuration'], ['employer_resolution', 'snapshot_reconciliation']);
         unset($data['configuration']);
 
         return $data;
@@ -111,6 +118,9 @@ class ImportSourceForm
         $configuration = is_array($data['advanced_configuration'] ?? null) ? $data['advanced_configuration'] : [];
         if ($data['uses_source_employers'] ?? false) {
             $configuration['employer_resolution'] = 'source_scoped';
+        }
+        if ($data['uses_verified_snapshot_reconciliation'] ?? false) {
+            $configuration['snapshot_reconciliation'] = ['enabled' => true, 'allow_empty' => (bool) ($data['allows_empty_verified_snapshot'] ?? false)];
         }
         $path = $data['uploaded_source_path'] ?? data_get($existing, 'source_path');
         $name = $data['uploaded_source_name'] ?? data_get($existing, 'source_name');
@@ -126,7 +136,7 @@ class ImportSourceForm
         }
 
         $data['configuration'] = $configuration ?: null;
-        unset($data['advanced_configuration'], $data['uploaded_source_path'], $data['uploaded_source_name'], $data['uses_source_employers']);
+        unset($data['advanced_configuration'], $data['uploaded_source_path'], $data['uploaded_source_name'], $data['uses_source_employers'], $data['uses_verified_snapshot_reconciliation'], $data['allows_empty_verified_snapshot']);
 
         return $data;
     }

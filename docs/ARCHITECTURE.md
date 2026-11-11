@@ -219,6 +219,21 @@ raw salary text, language and external product code. Public search continues to 
 `location`; detail pages distinguish a differing workplace, and JobPosting prefers valid
 actual workplace data with legacy advertised-location fallback.
 
+## Verified import snapshots and locking
+
+An ImportSource must explicitly opt into snapshot reconciliation. The runner holds a
+shared cache/database lock scoped to that source; a concurrent run is recorded as skipped
+and different sources are not blocked. It fetches/reads, selects, maps and validates the
+entire snapshot before applying any record. Duplicate or missing references, mapping or
+resolution failures, partial-source signals, parse/read failures and unexpected empty
+selection make the run unsafe and prohibit reconciliation. An empty snapshot is eligible
+only when the source explicitly permits it.
+
+After every record applies successfully, a verified snapshot may set `missing_since` on
+source-owned Vacancies absent from its references. This is reporting metadata, not an
+unpublish/delete operation. A reappearing reference clears that marker while preserving
+the Vacancy's existing editorial status and expiry lifecycle.
+
 ## Public frontend
 
 Blade + Tailwind remains the preferred frontend stack.

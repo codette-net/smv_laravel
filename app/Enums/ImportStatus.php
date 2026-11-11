@@ -9,5 +9,10 @@ enum ImportStatus: string
     case Processing = 'processing';
 
     case Completed = 'completed';
+
+    case Incomplete = 'incomplete';
+
+    case Skipped = 'skipped';
+
     case Failed = 'failed';
 }

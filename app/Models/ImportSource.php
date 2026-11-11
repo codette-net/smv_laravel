@@ -104,6 +104,22 @@ class ImportSource extends Model
         return data_get($this->configuration, 'employer_resolution') === 'source_scoped';
     }
 
+    public function usesVerifiedSnapshotReconciliation(): bool
+    {
+        return data_get($this->configuration, 'snapshot_reconciliation.enabled') === true;
+    }
+
+    public function allowsEmptyVerifiedSnapshot(): bool
+    {
+        return $this->usesVerifiedSnapshotReconciliation()
+            && data_get($this->configuration, 'snapshot_reconciliation.allow_empty') === true;
+    }
+
+    public function marksSnapshotsAsPartial(): bool
+    {
+        return data_get($this->configuration, 'snapshot_reconciliation.partial') === true;
+    }
+
     public function scopeApprovedForAutomaticRun($query)
     {
         return $query->where('is_active', true)->whereNotNull('approved_at')->whereNotNull('approved_by');
