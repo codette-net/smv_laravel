@@ -145,7 +145,16 @@
 
                         <div class="mb-5 space-y-2 border-t border-gray-100 pt-4 text-sm text-gray-600">
 
-                            @if ($vacancy->location)
+                            @if ($vacancy->actualWorkplaceLabel() && $vacancy->workplace_city !== $vacancy->location)
+                                <div>
+                                    Werklocatie: {{ $vacancy->actualWorkplaceLabel() }}
+                                </div>
+                                @if ($vacancy->location)
+                                    <div>
+                                        Advertentielocatie: {{ $vacancy->location }}
+                                    </div>
+                                @endif
+                            @elseif ($vacancy->location)
                                 <div>
                                     {{ $vacancy->location }}
                                 </div>

@@ -143,6 +143,29 @@ test('vacancy detail emits bounded JobPosting data without inventing unsupported
         ->assertDontSee('</script><script>', false);
 });
 
+test('JobPosting prefers actual workplace and falls back to the advertised legacy location', function () {
+    $company = seoCompany();
+    $actual = seoVacancy($company, [
+        'location' => 'Breda',
+        'advertised_country' => 'NL',
+        'workplace_city' => 'Antwerpen',
+        'workplace_country' => 'BE',
+    ]);
+    $legacy = seoVacancy($company, ['location' => 'Utrecht']);
+
+    $this->get(route('vacancies.show', $actual))
+        ->assertOk()
+        ->assertSee('Werklocatie: Antwerpen, BE')
+        ->assertSee('Advertentielocatie: Breda')
+        ->assertSee('"addressLocality":"Antwerpen"', false)
+        ->assertSee('"addressCountry":"BE"', false)
+        ->assertDontSee('"addressLocality":"Breda"', false);
+
+    $this->get(route('vacancies.show', $legacy))
+        ->assertOk()
+        ->assertSee('"addressLocality":"Utrecht"', false);
+});
+
 test('supported salary data is represented without using independent rate data as salary', function () {
     $company = seoCompany();
     $vacancy = seoVacancy($company, [

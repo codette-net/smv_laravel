@@ -6,7 +6,14 @@ use App\Imports\Mapping\NormalizedVacancyData;
 
 final readonly class ImportRecordOutcome
 {
-    public function __construct(public NormalizedVacancyData $data, public array $warnings = [], public array $errors = [], public array $unresolved = [], public array $resolved = []) {}
+    public function __construct(
+        public NormalizedVacancyData $data,
+        public array $warnings = [],
+        public array $errors = [],
+        public array $unresolved = [],
+        public array $resolved = [],
+        public ?int $companyId = null,
+    ) {}
 
     public function status(): string
     {

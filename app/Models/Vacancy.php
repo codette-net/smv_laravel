@@ -67,6 +67,11 @@ class Vacancy extends Model
         'slug',
         'description',
         'location',
+        'advertised_state',
+        'advertised_country',
+        'advertised_postal_code',
+        'workplace_city',
+        'workplace_country',
         'application_email',
         'application_url',
         'application_mode',
@@ -75,12 +80,16 @@ class Vacancy extends Model
         'salary_currency',
         'salary_period',
         'salary_basis',
+        'source_salary_text',
+        'source_language',
+        'source_product_code',
         'rate_min',
         'rate_max',
         'rate_currency',
         'rate_period',
         'reference',
         'source_reference',
+        'source_requisition_id',
         'last_seen_at',
         'last_seen_import_id',
         'missing_since',
@@ -272,6 +281,13 @@ class Vacancy extends Model
         }
 
         return null;
+    }
+
+    public function actualWorkplaceLabel(): ?string
+    {
+        $parts = array_filter([$this->workplace_city, $this->workplace_country]);
+
+        return $parts === [] ? null : implode(', ', $parts);
     }
 
     private function formattedRange(string $label, ?int $minimum, ?int $maximum, ?string $currency): string

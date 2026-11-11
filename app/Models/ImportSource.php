@@ -94,6 +94,16 @@ class ImportSource extends Model
         return $this->hasMany(ImportTaxonomyMapping::class);
     }
 
+    public function employerMappings(): HasMany
+    {
+        return $this->hasMany(ImportSourceEmployer::class);
+    }
+
+    public function usesSourceScopedEmployers(): bool
+    {
+        return data_get($this->configuration, 'employer_resolution') === 'source_scoped';
+    }
+
     public function scopeApprovedForAutomaticRun($query)
     {
         return $query->where('is_active', true)->whereNotNull('approved_at')->whereNotNull('approved_by');

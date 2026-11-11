@@ -19,8 +19,9 @@ SMV-031 through SMV-039 are implemented. The current generic pipeline provides:
 - a code-owned destination registry, transforms and side-effect-free normalized preview;
 - validation plus source-scoped explicit taxonomy aliases without fuzzy matching or
   automatic Category creation;
-- source-configured single Company association and provider-scoped Vacancy upsert
-  through `import_source_id + source_reference` (no per-record employer resolver);
+- legacy source-configured Company association plus optional reviewed, source-scoped
+  per-record employer resolution, and provider-scoped Vacancy upsert through
+  `import_source_id + source_reference`;
 - mapped Category/Tag persistence, stable slugs and idempotent reruns;
 - safe Import history/logs, created/updated/skipped/failed counters and reversible
   missing/restored source reporting (`missing_since` is reporting metadata only; a
@@ -453,14 +454,13 @@ The authoritative v1 specification and example are stored in
 matrix, including unsupported destinations and approval needs, is in
 `docs/JOOBS_FEED_MAPPING.md`.
 
-The generic XML reader and Vacancy description sanitizer are reusable. Direct Joobs
-compatibility still needs implementation: root/version validation, comma-splitting and
-aliases for category/jobtype, safe date-only final-day expiry, raw salary preservation,
-per-ad `joobs_product`, distinct ad/workplace locations, and per-record multi-employer
-Company resolution. Current runner associates every Vacancy with the one Company on its
-ImportSource. New imported Vacancies remain pending. Current missing reporting does not
-unpublish records; see the verified snapshot limitations and proposal in
-`IMPORT_ARCHITECTURE_AUDIT.md`.
+The generic XML reader and Vacancy description sanitizer are reusable. SMV-100 adds the
+generic persistence foundation: reviewed `ImportSourceEmployer` mappings, per-record
+employer resolution, requisition/location/raw-salary/language/product metadata and
+distinct advertised/actual workplace behavior. Direct Joobs activation still needs
+SMV-094B mappings/transforms for comma-separated taxonomy, date-only final-day expiry and
+partner value lists, plus SMV-093 verified snapshot handling. New imported Vacancies
+remain pending. Current missing reporting does not unpublish records.
 
 Joobs requires the entire `<source feedversion="joobs-1.0">` snapshot to represent ads
 still running and says absent ads must go offline. Do not enable this source for automatic
@@ -846,7 +846,7 @@ Do not reopen SMV-030 through SMV-039 as if the pipeline were absent. SMV-092 no
 the Joobs mapping and identity contract in `JOOBS_FEED_MAPPING.md`: advertisement identity
 is `(import_source_id, referencenumber)`, requisition identity is correlation metadata,
 and employer identity is an explicit source-scoped mapping to an existing Company. Follow
-`IMPORT_MVP_PLAN.md`: implement Company/source metadata resolution in SMV-100, close the
-verified-snapshot/depublication boundary in SMV-093, then complete Joobs transforms and
+`IMPORT_MVP_PLAN.md`: use the completed SMV-100 Company/source metadata foundation, close
+the verified-snapshot/depublication boundary in SMV-093, then complete Joobs transforms and
 persistence tests in SMV-094B. Provider-specific code remains a last resort for a proven
 generic gap; unresolved partner value lists and identity guarantees fail closed.
