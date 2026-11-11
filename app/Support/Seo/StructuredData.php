@@ -78,13 +78,19 @@ class StructuredData
             $data['validThrough'] = $validThrough->toAtomString();
         }
 
-        if (filled($vacancy->location)) {
+        $workplaceCity = filled($vacancy->workplace_city) ? $vacancy->workplace_city : $vacancy->location;
+        $workplaceCountry = filled($vacancy->workplace_city) ? $vacancy->workplace_country : $vacancy->advertised_country;
+        if (filled($workplaceCity)) {
+            $address = [
+                '@type' => 'PostalAddress',
+                'addressLocality' => $workplaceCity,
+            ];
+            if (is_string($workplaceCountry) && preg_match('/^[A-Z]{2}$/', $workplaceCountry) === 1) {
+                $address['addressCountry'] = $workplaceCountry;
+            }
             $data['jobLocation'] = [
                 '@type' => 'Place',
-                'address' => [
-                    '@type' => 'PostalAddress',
-                    'addressLocality' => $vacancy->location,
-                ],
+                'address' => $address,
             ];
         }
 

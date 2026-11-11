@@ -11,7 +11,7 @@ use App\Models\ImportSource;
 
 class ImportRecordValidator
 {
-    public function __construct(private readonly TaxonomyResolver $taxonomy) {}
+    public function __construct(private readonly TaxonomyResolver $taxonomy, private readonly EmployerResolver $employers) {}
 
     public function validate(NormalizedVacancyData $data, ImportSource $source): ImportRecordOutcome
     {
@@ -36,8 +36,29 @@ class ImportRecordValidator
         if (! is_string($title) || trim($title) === '' || mb_strlen($title) > 255) {
             $errors[] = ['code' => 'title_invalid', 'field' => 'vacancy.title', 'message' => 'Vacaturetitel ontbreekt of is ongeldig.'];
         }
-        if (! $source->company) {
-            $errors[] = ['code' => 'owner_missing', 'field' => 'company', 'message' => 'De importbron heeft geen eigenaar-bedrijf.'];
+        foreach (['vacancy.advertised_country', 'vacancy.workplace_country'] as $countryField) {
+            $country = data_get($values, $countryField);
+            if (blank($country)) {
+                continue;
+            }
+
+            $country = trim((string) $country);
+            data_set($values, $countryField, $country);
+            if (preg_match('/^[A-Z]{2}$/', $country) !== 1) {
+                $errors[] = ['code' => 'country_invalid', 'field' => $countryField, 'message' => 'Landcode moet een ISO 3166-1 alpha-2 code in hoofdletters zijn.'];
+            }
+        }
+        foreach (['vacancy.source_requisition_id', 'vacancy.advertised_state', 'vacancy.advertised_postal_code', 'vacancy.workplace_city', 'vacancy.source_language', 'vacancy.source_product_code'] as $metadataField) {
+            $value = data_get($values, $metadataField);
+            if ($value !== null && (! is_scalar($value) || mb_strlen(trim((string) $value)) > 255)) {
+                $errors[] = ['code' => 'metadata_invalid', 'field' => $metadataField, 'message' => 'Bronmetadata is ongeldig of te lang.'];
+            } elseif (is_scalar($value)) {
+                data_set($values, $metadataField, trim((string) $value));
+            }
+        }
+        $employer = $this->employers->resolve($source, $data);
+        if ($employer['unresolved'] ?? false) {
+            $unresolved[] = ['code' => $employer['code'], 'field' => 'employer', 'message' => $employer['message']];
         }
         $configuredMode = $data->get('vacancy.application_mode');
         $mode = $configuredMode === null ? null : ApplicationMode::tryFrom((string) $configuredMode);
@@ -141,6 +162,6 @@ class ImportRecordValidator
             }
         }
 
-        return new ImportRecordOutcome($data, $warnings, $errors, $unresolved, $resolved);
+        return new ImportRecordOutcome($data, $warnings, $errors, $unresolved, $resolved, $employer['company_id'] ?? null);
     }
 }

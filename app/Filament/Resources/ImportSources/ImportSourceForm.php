@@ -28,6 +28,8 @@ class ImportSourceForm
                 Select::make('transport')->label('Transport')->options(ImportTransport::class)->required()->live(),
                 Select::make('format')->label('Formaat')->options(ImportFormat::class)->required(),
                 Toggle::make('is_active')->label('Actief')->helperText('De bron is ingeschakeld voor gebruik.')->default(true),
+                Toggle::make('uses_source_employers')->label('Werkgever per bronrecord oplossen')
+                    ->helperText('Gebruik uitsluitend vooraf beoordeelde, brongebonden werkgeverkoppelingen. Er is geen terugval naar het standaardbedrijf.'),
             ]),
             Section::make('Bron')->columns(2)->columnSpanFull()->schema([
                 FileUpload::make('uploaded_source_path')
@@ -96,6 +98,8 @@ class ImportSourceForm
         $data['uploaded_source_path'] = $configuration['source_path'] ?? null;
         $data['uploaded_source_name'] = $configuration['source_name'] ?? null;
         $data['advanced_configuration'] = Arr::except($configuration, ['source_path', 'source_name', 'sample_path']);
+        $data['uses_source_employers'] = ($configuration['employer_resolution'] ?? null) === 'source_scoped';
+        $data['advanced_configuration'] = Arr::except($data['advanced_configuration'], ['employer_resolution']);
         unset($data['configuration']);
 
         return $data;
@@ -105,6 +109,9 @@ class ImportSourceForm
     {
         $existing = is_array($record?->configuration) ? $record->configuration : [];
         $configuration = is_array($data['advanced_configuration'] ?? null) ? $data['advanced_configuration'] : [];
+        if ($data['uses_source_employers'] ?? false) {
+            $configuration['employer_resolution'] = 'source_scoped';
+        }
         $path = $data['uploaded_source_path'] ?? data_get($existing, 'source_path');
         $name = $data['uploaded_source_name'] ?? data_get($existing, 'source_name');
 
@@ -119,7 +126,7 @@ class ImportSourceForm
         }
 
         $data['configuration'] = $configuration ?: null;
-        unset($data['advanced_configuration'], $data['uploaded_source_path'], $data['uploaded_source_name']);
+        unset($data['advanced_configuration'], $data['uploaded_source_path'], $data['uploaded_source_name'], $data['uses_source_employers']);
 
         return $data;
     }

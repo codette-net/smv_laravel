@@ -133,6 +133,24 @@ test('location category and company filters combine through the query string', f
         ->assertSee('Bedrijf: '.$targetCompany->slug);
 });
 
+test('location filtering continues to use advertised location instead of actual workplace', function () {
+    $company = publicListingCompany();
+    $vacancy = publicListingVacancy($company, [
+        'title' => 'Antwerpse werkplek',
+        'location' => 'Breda',
+        'workplace_city' => 'Antwerpen',
+        'workplace_country' => 'BE',
+    ]);
+
+    $this->get(route('vacancies.index', ['locatie' => 'Breda']))
+        ->assertOk()
+        ->assertSee($vacancy->title);
+
+    $this->get(route('vacancies.index', ['locatie' => 'Antwerpen']))
+        ->assertOk()
+        ->assertDontSee($vacancy->title);
+});
+
 test('the index filters structured vacancy taxonomies through stable slugs', function () {
     $fulltime = Category::factory()->create(['name' => 'Fulltime', 'type' => CategoryType::employment_type]);
     $hybrid = Category::factory()->create(['name' => 'Hybride', 'type' => CategoryType::workplace]);

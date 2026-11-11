@@ -202,6 +202,23 @@ boundary. Public detail pages sanitize again defensively for pre-existing databa
 rows without rewriting them. Metadata and structured-data descriptions derive plain
 text from the corresponding domain service.
 
+## Import employer identity and Vacancy source metadata
+
+ImportSource remains the provider/feed namespace. Existing single-employer sources use
+their configured `company_id`. A source explicitly configured for source-scoped employer
+resolution instead maps each record through `ImportSourceEmployer`: either an exact stable
+provider ID or an administrator-reviewed exact source-name/source-URL composite. The
+mapping is unique within source and identity type, may point multiple external identities
+or sources to one Company, and never creates or edits Company profiles. An unresolved
+identity skips the record without falling back to the source Company and makes missing
+detection unsafe for that run.
+
+Vacancy keeps its advertised/search city in `location`. Nullable provider-neutral fields
+store source requisition, advertised state/country/postcode, actual workplace city/country,
+raw salary text, language and external product code. Public search continues to use
+`location`; detail pages distinguish a differing workplace, and JobPosting prefers valid
+actual workplace data with legacy advertised-location fallback.
+
 ## Public frontend
 
 Blade + Tailwind remains the preferred frontend stack.
