@@ -31,6 +31,7 @@ class ImportSourceFactory extends Factory
             'configuration' => ['timeout' => 15],
             'selection_rules' => [['path' => 'function', 'operator' => 'contains_any', 'values' => ['Sales']]],
             'is_active' => true,
+            'automatic_import_enabled' => false,
         ];
     }
 }

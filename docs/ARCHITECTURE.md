@@ -240,6 +240,29 @@ source-owned Vacancies absent from its references. This is reporting metadata, n
 unpublish/delete operation. A reappearing reference clears that marker while preserving
 the Vacancy's existing editorial status and expiry lifecycle.
 
+## Scheduled import execution
+
+Automatic execution is an explicit, disabled-by-default ImportSource capability for
+approved active HTTP/API sources. Each source selects an hourly, six-hourly or daily
+cadence and records its last dispatch time. The minute-level scheduler calls a lightweight
+dispatcher; it never reads or imports a feed inline. Uploaded sources remain manual-only.
+
+Each due source dispatches a unique `RunScheduledImport` database-queue job to the
+`imports` queue. The job reloads eligibility, selects the active default mapping and calls
+`VacancyImportRunner`. Queue uniqueness prevents duplicate queued/in-flight jobs, while
+the runner's cache/database lock protects manual and queued execution together. Different
+sources do not block one another.
+
+Execution is bounded to two attempts and 600 seconds. The existing source lock remains
+900 seconds and database `retry_after` is 960 seconds. This invariant prevents a valid job from losing its
+lock and prevents a timed-out reservation from retrying before a stale lock expires. A
+scheduled worker drains only the import queue and exits when empty or after ten minutes;
+no persistent daemon is assumed.
+
+Runner failures remain Import records before the job requests a retry. Retries do not
+bypass source-scoped upserts, contract validation or snapshot safety. This infrastructure
+does not activate Joobs or resolve partner-specific activation gates.
+
 ## Public frontend
 
 Blade + Tailwind remains the preferred frontend stack.

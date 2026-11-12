@@ -17,6 +17,8 @@ class ImportSourceInfolist
                 TextEntry::make('name')->label('Naam'), TextEntry::make('company.name')->label('Bedrijf'),
                 TextEntry::make('transport')->label('Transport')->badge(), TextEntry::make('format')->label('Formaat')->badge(),
                 IconEntry::make('is_active')->label('Actief')->boolean(), TextEntry::make('record_path')->label('Recordpad')->placeholder('-'),
+                IconEntry::make('automatic_import_enabled')->label('Automatisch')->boolean(),
+                TextEntry::make('schedule_frequency')->label('Frequentie')->placeholder('-'),
                 TextEntry::make('endpoint_url')->label('URL / endpoint')->url(fn (?string $state): ?string => $state)->placeholder('-')->columnSpanFull(),
             ]),
             Section::make('Beveiliging en administratie')->columns(2)->columnSpanFull()->schema([
@@ -26,7 +28,9 @@ class ImportSourceInfolist
                     ->visible(fn ($record): bool => in_array($record->transport, [ImportTransport::Http, ImportTransport::Api], true)),
                 TextEntry::make('approvedBy.name')->label('Goedgekeurd door')->placeholder('-')
                     ->visible(fn ($record): bool => in_array($record->transport, [ImportTransport::Http, ImportTransport::Api], true)),
-                TextEntry::make('last_imported_at')->label('Laatst geïmporteerd')->dateTime()->placeholder('-'),
+                TextEntry::make('last_imported_at')->label('Laatste uitvoerpoging')->dateTime()->placeholder('-'),
+                TextEntry::make('last_scheduled_at')->label('Laatst ingepland')->dateTime()->placeholder('-'),
+                TextEntry::make('latestImport.status')->label('Laatste resultaat')->badge()->placeholder('-'),
                 TextEntry::make('created_at')->label('Aangemaakt')->dateTime(),
                 TextEntry::make('updated_at')->label('Bijgewerkt')->dateTime(),
             ]),

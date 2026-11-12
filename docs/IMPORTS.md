@@ -856,6 +856,39 @@ and use the completed SMV-094B configured transforms and persistence contract.
 Provider-specific code remains a last resort for a proven
 generic gap; unresolved partner value lists and identity guarantees fail closed.
 
+### Automatic execution
+
+Automatic imports are provider-neutral and disabled by default. An eligible source must
+be active, administrator-approved, HTTP/API based, explicitly enabled and have an active
+default mapping. Cadences are hourly, every six hours or daily. Uploaded files remain
+manual-only.
+
+`php artisan imports:dispatch-due` only evaluates eligibility and cadence, then dispatches
+one unique `RunScheduledImport` job per source to the `imports` database queue. The job
+reloads eligibility and invokes `VacancyImportRunner`; it contains no mapping or
+persistence logic. Queue uniqueness prevents duplicate queued/in-flight work, while the
+existing source lock protects queued and manual execution together. Other sources remain
+independent.
+
+Jobs use two attempts, a 600-second timeout and 60-second retry backoff. The existing
+source lock remains 900 seconds and the database reservation becomes retryable after
+960 seconds. Keep
+the invariant `job timeout < source lock < queue retry_after`. Failed runs are recorded
+before the job requests a retry. Retries still use provider-scoped upserts and verified
+snapshot safety, so they do not duplicate Vacancies or reconcile unsafe absence.
+
+Laravel schedules due dispatch and this bounded worker once per minute:
+
+```text
+php artisan queue:work --queue=imports --stop-when-empty --max-time=600 --timeout=600 --tries=2
+```
+
+Production invokes `php artisan schedule:run` once per minute with the deployed PHP
+binary. `QUEUE_CONNECTION=database` and `DB_QUEUE_RETRY_AFTER=960` are required; no daemon
+is assumed. Verify cron interval/output, CLI path, execution/RAM limits, database/cache
+availability and source ownership before enabling automation. Joobs is not enabled by
+this infrastructure and retains all documented activation gates.
+
 ### Verified source snapshots
 
 Missing reporting is opt-in per ImportSource through verified snapshot reconciliation.

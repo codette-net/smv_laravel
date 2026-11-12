@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportTransport;
 use App\Filament\Resources\ImportSources\ImportSourceResource;
 use App\Filament\Resources\ImportSources\Pages\CreateImportSource;
@@ -39,6 +40,7 @@ test('the import source form is transport aware', function () {
     Livewire::actingAs($admin)->test(CreateImportSource::class)
         ->set('data.transport', ImportTransport::Upload->value)
         ->assertSchemaComponentVisible('uploaded_source_path')
+        ->assertSchemaComponentHidden('automatic_import_enabled')
         ->assertSchemaComponentHidden('endpoint_url')
         ->assertSchemaComponentHidden('credentials')
         ->assertSchemaComponentHidden('approved_for_automatic_run')
@@ -47,6 +49,7 @@ test('the import source form is transport aware', function () {
         ->assertSchemaComponentVisible('endpoint_url')
         ->assertSchemaComponentVisible('credentials')
         ->assertSchemaComponentVisible('approved_for_automatic_run')
+        ->assertSchemaComponentVisible('automatic_import_enabled')
         ->set('data.transport', ImportTransport::Api->value)
         ->assertSchemaComponentHidden('uploaded_source_path')
         ->assertSchemaComponentVisible('endpoint_url')
@@ -171,4 +174,23 @@ test('remote approval remains administrator only and is not applicable to upload
     Livewire::actingAs($editor)->test(CreateImportSource::class)
         ->set('data.transport', ImportTransport::Http->value)
         ->assertSchemaComponentHidden('approved_for_automatic_run');
+});
+
+test('administrators can configure disabled by default provider neutral automatic execution', function () {
+    $admin = uploadSourceUser('admin');
+    $source = ImportSource::factory()->create([
+        'automatic_import_enabled' => false,
+        'schedule_frequency' => ImportScheduleFrequency::Hourly,
+    ]);
+
+    Livewire::actingAs($admin)->test(EditImportSource::class, ['record' => $source->getRouteKey()])
+        ->fillForm([
+            'automatic_import_enabled' => true,
+            'schedule_frequency' => ImportScheduleFrequency::EverySixHours->value,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($source->fresh()->automatic_import_enabled)->toBeTrue()
+        ->and($source->fresh()->schedule_frequency)->toBe(ImportScheduleFrequency::EverySixHours);
 });
