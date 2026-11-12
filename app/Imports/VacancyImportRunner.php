@@ -37,6 +37,7 @@ class VacancyImportRunner
             $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true)
                 ? app(SourceFetcher::class)->fetch($source)
                 : app(LocalSourceLoader::class)->forSource($source);
+            app(SourceContractValidator::class)->validate($source, $payload);
             $records = $this->prepareRecords($run, $source, $mapping, $payload);
             $snapshot = $source->usesVerifiedSnapshotReconciliation();
             $hasUnsafeRecord = collect($records)->contains(fn (array $record): bool => $record['mapping_errors'] !== [] || ! $record['outcome']->canImport());

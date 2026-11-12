@@ -9,6 +9,7 @@ use App\Models\ImportMapping;
 use App\Models\ImportSource;
 use App\Support\Vacancies\VacancyDescription;
 use Carbon\Carbon;
+use DateTimeZone;
 use InvalidArgumentException;
 
 class ImportMapper
@@ -35,7 +36,7 @@ class ImportMapper
                 continue;
             }
             if ($field->operation === 'transform') {
-                $raw = $this->transform($raw, $field->configuration['transform'] ?? null, $warnings);
+                $raw = $this->transform($raw, $field->configuration['transform'] ?? null, $field->configuration ?? [], $warnings);
             }
             if ($definition->key === 'vacancy.description' && $raw !== null) {
                 $raw = app(VacancyDescription::class)->sanitize((string) $raw);
@@ -75,7 +76,7 @@ class ImportMapper
         return $values[0] ?? null;
     }
 
-    private function transform(mixed $value, ?string $transform, array &$warnings): mixed
+    private function transform(mixed $value, ?string $transform, array $configuration, array &$warnings): mixed
     {
         if (str_starts_with((string) $transform, 'compensation_text_')) {
             $part = substr((string) $transform, strlen('compensation_text_'));
@@ -89,9 +90,55 @@ class ImportMapper
             return $parsed[$part];
         }
 
+        if ($transform === 'date_end_of_day') {
+            return $this->dateEndOfDay($value, $configuration['timezone'] ?? null);
+        }
+        if ($transform === 'date_with_offset') {
+            return $this->dateWithOffset($value);
+        }
+
         return match ($transform) {
             'trim' => trim((string) $value), 'string' => (string) $value, 'integer' => (int) $value, 'boolean' => filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE), 'date' => $value === null || $value === '' ? null : Carbon::parse($value)->toIso8601String(), 'annual_salary_to_monthly' => is_numeric($value) ? (int) round($value / 12) : throw new InvalidArgumentException('Annual salary must be numeric.'), default => throw new InvalidArgumentException('Unknown import transform.')
         };
+    }
+
+    private function dateEndOfDay(mixed $value, mixed $timezone): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (! is_string($timezone) || $timezone === '') {
+            throw new InvalidArgumentException('An explicit timezone is required for an inclusive end-of-day transform.');
+        }
+
+        try {
+            $zone = new DateTimeZone($timezone);
+            $date = Carbon::createFromFormat('Y-m-d', (string) $value, $zone);
+        } catch (\Throwable) {
+            throw new InvalidArgumentException('The inclusive end-of-day date or timezone is invalid.');
+        }
+
+        if ($date === false || $date->format('Y-m-d') !== (string) $value) {
+            throw new InvalidArgumentException('The inclusive end-of-day transform requires a valid YYYY-MM-DD date.');
+        }
+
+        return $date->endOfDay()->utc()->toIso8601String();
+    }
+
+    private function dateWithOffset(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (! is_scalar($value) || preg_match('/(?:Z|[+-]\d{2}:\d{2})$/', (string) $value) !== 1) {
+            throw new InvalidArgumentException('The date transform requires an explicit timezone offset.');
+        }
+
+        try {
+            return Carbon::parse((string) $value)->utc()->toIso8601String();
+        } catch (\Throwable) {
+            throw new InvalidArgumentException('The offset date is invalid.');
+        }
     }
 
     private function normalize(string $key, mixed $value, array &$warnings): mixed
