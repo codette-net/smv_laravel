@@ -51,16 +51,17 @@ test('import source casts source configuration and encrypts credentials', functi
 
 test('only active approved sources are eligible for automatic runs', function () {
     $approver = importSourceUser('admin');
-    $eligible = ImportSource::factory()->create();
+    $eligible = ImportSource::factory()->create(['automatic_import_enabled' => true]);
     $eligible->approve($approver);
-    $inactive = ImportSource::factory()->create(['is_active' => false]);
+    $inactive = ImportSource::factory()->create(['is_active' => false, 'automatic_import_enabled' => true]);
     $inactive->approve($approver);
     $unapproved = ImportSource::factory()->create();
 
     expect($eligible->fresh()->isApprovedForAutomaticRun())->toBeTrue()
+        ->and($eligible->fresh()->isEligibleForAutomaticExecution())->toBeTrue()
         ->and($inactive->fresh()->isApprovedForAutomaticRun())->toBeFalse()
         ->and($unapproved->isApprovedForAutomaticRun())->toBeFalse()
-        ->and(ImportSource::query()->approvedForAutomaticRun()->pluck('id')->all())->toBe([$eligible->id]);
+        ->and(ImportSource::query()->eligibleForAutomaticExecution()->pluck('id')->all())->toBe([$eligible->id]);
 });
 
 test('remote sources reject unsafe schemes and approval requires HTTPS', function () {

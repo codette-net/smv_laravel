@@ -50,14 +50,16 @@ class ImportSourceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->modifyQueryUsing(fn ($query) => $query->with(['company', 'approvedBy']))
+        return $table->modifyQueryUsing(fn ($query) => $query->with(['company', 'approvedBy', 'latestImport']))
             ->columns([
                 TextColumn::make('name')->label('Naam')->searchable()->sortable(),
                 TextColumn::make('company.name')->label('Bedrijf')->searchable()->sortable(),
                 TextColumn::make('transport')->label('Transport')->badge(),
                 TextColumn::make('format')->label('Formaat')->badge(),
                 IconColumn::make('is_active')->label('Actief')->boolean(),
+                IconColumn::make('automatic_import_enabled')->label('Automatisch')->boolean(),
                 IconColumn::make('approved_at')->label('Goedgekeurd')->boolean(),
+                TextColumn::make('latestImport.status')->label('Laatste resultaat')->badge()->placeholder('-'),
                 TextColumn::make('updated_at')->label('Bijgewerkt')->dateTime()->sortable(),
             ])
             ->filters([

@@ -197,7 +197,7 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | SMV-092 — Joobs mapping contract | Finalize the mapping/identity design and safe defaults; partner guarantees remain activation inputs. | `docs/JOOBS_FEED_MAPPING.md`, `docs/integrations/joobs/*`, `docs/IMPORTS.md` | DONE: every standard/`joobs_` field classified; advertisement/requisition/employer identity, location, salary/date, snapshot and unresolved-value behavior explicit. | Complete / partner follow-up 2–4 h | No | Design gate complete; open partner values still gate live activation |
 | SMV-093 — Verified snapshot lifecycle | DONE: make absence reporting safe after the SMV-092/100 foundations. | `VacancyImportRunner.php`, ImportSource configuration, Import runs/logs, import/lifecycle tests | Explicit source opt-in; read/parse/map/resolve preflight before apply; empty snapshots require explicit capability; duplicate/invalid/partial/failed snapshots do not reconcile; shared per-source lock; verified absence marks `missing_since` only; status/deletion policy remains unchanged. | Complete | No | Partner activation still needs publication/removal policy confirmation |
 | SMV-094 — Joobs transformations and fixture acceptance | DONE: configured contract plus generic fixture-to-Vacancy persistence. | `SourceContractValidator`, generic mapper/validator/runner, Joobs fixture and persistence tests | Two-city/shared requisition/distinct ad IDs, idempotency, employer resolution, metadata, optional salary, HTML safety, exact URL/UTM, raw salary, dates, location/SEO and failure paths are automated. Unapproved taxonomy values remain unmapped. | Complete | No | Partner identity/value/timezone/publication inputs still gate live activation |
-| SMV-095 — Scheduler and bounded queue execution | Add scheduled source command and per-source cadence, after lifecycle is safe and hosting plan is verified. | `bootstrap/app.php`, `routes/console.php`, `config/queue.php`, `ImportSource`, schedule tests/runbook | Hourly Joobs and configurable provider cadence; only active+approved sources; lock/overlap prevention; synchronous only when bounded, else short database-worker invocation; no Redis/daemon assumption; cron UTC tested. | 6–10 h / 4–8 h ops | No | Yes for unattended scheduled feeds |
+| SMV-095A — Generic scheduled and bounded execution | DONE: dispatch due approved sources to unique database-queue jobs and drain them with a bounded scheduled worker. | ImportSource scheduling fields/admin, queued job, due dispatcher/command, scheduler, queue config/tests | Disabled by default; hourly/6-hourly/daily; remote active+approved source and active default mapping required; two attempts; 10-minute timeout; source lock and queue retry invariant tested; no provider activation. | Complete / hosting verification remains | No | Infrastructure ready; live sources still require activation approval and SMV-101 operations |
 | SMV-097 — Basic outbound click tracking | Add same-site redirect for external applications, with minimal provider/ad attribution, after partner/privacy requirements are confirmed. | `routes/web.php`, controller, Vacancy CTA, event storage/migration, tests | Record Vacancy/provider/ad/time with minimized data; redirect only to validated stored URL; preserve UTM exactly; document dedupe/bot rule; reject arbitrary redirect targets. | 5–9 h / 4–7 h | No | Conditional on partner contract requiring SMV clicks |
 | SMV-100 — Multi-employer Company mapping | DONE: source-scoped employer mapping and provider-neutral Vacancy metadata. Stable provider ID is preferred; reviewed exact company-name + source-URL is the fallback. | `ImportSourceEmployer`, generic validator/runner, Filament admin, Vacancy metadata migration, public detail/JobPosting | Deterministic source-scoped resolution; unresolved records skip without default-Company fallback or missing detection; no Company creation/profile writes; metadata and location semantics covered. | Complete | No | Foundation complete; partner identity approval still gates live Joobs |
 | SMV-101 — Import monitoring and recovery | Add run anomaly/retry controls after SMV-093/095. | Import/ImportLog models, Filament Imports pages, policies, command/job, tests/runbook | Show state/age/duration/counts; detect stale processing, repeated failures and count drops; bounded retry is a new auditable run and cannot reconcile incomplete data; recovery checklist. | 5–8 h / 4–6 h | No | Yes for dependable automated operations |
@@ -212,7 +212,7 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | Complete-snapshot validation and reversible absence reporting (SMV-093) | Implemented foundation; final publication/removal policy still required before live automation | Validate root/version, full parse, non-empty set and unique ad IDs before writes/reconciliation. A verified complete run records `missing_since`; it does not yet unpublish or delete. |
 | Inclusive expiration date handling | Required before first live Joobs feed | Joobs defines a date-only final paid day. Use approved business timezone end-of-day and boundary/DST tests so the last day is not lost. |
 | Import concurrency protection | Required before first live feed execution | One lock per source is needed even for manual operation to prevent overlapping writes and unsafe absence reconciliation. |
-| Scheduled execution (SMV-095) | Required before unattended production sync; safe to defer for a controlled manual pilot | Confirm hosting cron/worker constraints, approved cadence and overlap control. Manual email ordering or operator-triggered import can precede it only with an owner/runbook. |
+| Scheduled execution (SMV-095A) | Implemented infrastructure; production cron/runtime verification remains | One cron minute invokes Laravel scheduling; due sources enqueue unique jobs and a bounded database worker drains the import queue. Sources remain disabled until individually approved and enabled. |
 | Monitoring and recovery (SMV-101) | Required before unattended production sync; minimum manual checks required for a pilot | Operators need run age/status/counts/failures and a bounded recovery path. Automated anomaly alerts may follow after the first safe manual pilot if an owner actively monitors every run. |
 | Basic per-vacancy reporting (SMV-097A-C) | Conditional on the Joobs launch promise; otherwise required before that promise is made | Joobs asked whether SMV can report views/clicks. SMV cannot report historic uncollected metrics. Do not block the general SMV launch unless the reseller agreement makes this a launch deliverable. |
 | Listing impressions and partner/billable reconciliation (SMV-098/099) | Safe to defer | Impressions need visibility rules; partner-confirmed and billable events need contracts/data exchange. They are not substitutes for detail views or raw outbound clicks. |
@@ -226,7 +226,7 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | SMV-092 — DONE (design contract) | Close the Joobs mapping and identity contract with fail-closed defaults. | Repository/spec/SMV-094A evidence; partner follow-up remains activation input. | Field matrix and identity/employer/location/salary/date/snapshot rules finalized in `JOOBS_FEED_MAPPING.md`. | Design gate complete; not general launch gate. | Complete / 2-4 h partner follow-up | Stable employer ID, closed category/product values, timezone and auto-publication confirmation. |
 | SMV-093 — DONE | Make complete-snapshot processing and overlap safe without changing publication policy. | SMV-092/100 foundations. | Explicit opt-in, preflight, safe empty policy, source lock, verified missing/reporting and reappearance are implemented; unsafe runs cannot reconcile. | Foundation complete. | Complete | Expected-count signal, manual field-override mechanism, alert thresholds and partner publication/removal policy. |
 | SMV-094 — DONE (fixture persistence contract) | A proves parsing without persistence; B proves configured end-to-end generic persistence. | SMV-100 storage/resolution and SMV-093 lifecycle. | Fixture contract, rerun/update, sanitation, raw salary, configured date-only expiry, employer resolution, metadata, location/SEO and unsafe/persistence failures are tested. Taxonomy is withheld pending approved aliases. | Code gate complete; partner activation gate remains. | Complete | Taxonomy aliases, employer identity guarantee, publication policy, approved timezone and partner value sets. |
-| SMV-095 — PROPOSED | Run approved sources unattended at a bounded cadence. | SMV-093/094; hosting cron/worker verification. | Approved active sources only; cadence configurable; no overlap; bounded execution; UTC/operations runbook tested. | Unattended sync gate; deferrable for manual pilot. | 6-10 h / 4-8 h | Hourly cadence, queue versus synchronous bound, worker ownership. |
+| SMV-095A — DONE (infrastructure) | Run explicitly enabled approved sources at a bounded cadence. | SMV-093/094; database queue and cache. | Hourly/6-hourly/daily dispatch, unique per-source jobs, two attempts, bounded worker, timeout/lock/retry invariant, admin controls and fail-closed retries are tested. | Infrastructure ready; hosting cron and operator checks remain. | Complete | Production PHP path/resource limits and source-by-source activation owner. |
 | SMV-097 — SPLIT PROPOSED | Provide honest basic per-vacancy views/clicks and export. | Privacy/product rules; SMV-097A-C sequence; partner attribution definition. | Detail views and controlled outbound clicks attributed to vacancy/source/date; UTM preserved; date-range totals/CSV; retention/access/bot/dedupe documented. | Conditional production gate if promised to Joobs; otherwise pre-promise gate. | 10-16 h / 7-11 h | Retention, bots/deduplication, timezone, export users and Joobs reconciliation format. |
 | SMV-100 — DONE | Reusable source-scoped employer resolution and allowlisted provider-neutral Vacancy metadata. | SMV-092 contract. | Reviewed mappings, deterministic resolution, no unsafe fallback/creation/profile writes, metadata persistence, public search compatibility and actual-workplace JobPosting behavior are implemented and tested. | Foundation complete. | Complete | Partner employer ID is still preferred; pending-Company creation remains out of scope. |
 | SMV-101 — PROPOSED | Make scheduled imports observable and recoverable. | SMV-093 and preferably SMV-095. | Run status/age/duration/counts visible; stale/failure/drop detection; retry is new audited run and never reconciles incomplete input; recovery checklist. | Unattended production sync gate; minimal manual checks suffice only for a controlled pilot. | 5-8 h / 4-6 h | Alert channel/owner, count-drop threshold, retry authority and retention. |
@@ -273,8 +273,9 @@ privacy-conscious minimum are recorded in `PARTNER_INVENTORY.md`.
 6. **Controlled manual pilot (2-4 h / 3-6 h).** Only after 1-5 pass and agreement/feed
    access are approved; use monitored runs and a recovery checklist. Manual email orders
    can remain a business process until this point.
-7. **SMV-095 and SMV-101 (11-18 h / 8-14 h).** Add unattended schedule, overlap control,
-   monitoring and recovery after hosting/runtime choices are verified.
+7. **SMV-095A — IMPLEMENTED; SMV-101 pending.** Generic bounded scheduling, queue
+   execution and overlap control are in place. Verify production cron/runtime, then add
+   monitoring, anomaly visibility and recovery before unattended partner activation.
 8. **SMV-097A-C (10-16 h / 7-11 h).** Schedule before production only if the Joobs
    agreement requires SMV per-vacancy reporting at launch; otherwise deliver before the
    reporting promise becomes active.
@@ -366,24 +367,37 @@ UTM parameters are preserved attribution metadata, not evidence that any of thes
 occurred. Avoid collecting candidate identity, full IP, full user agent, or raw referrer
 unless an approved purpose requires it; define retention/access before launch.
 
-## Hostinger and scheduling recommendation
+## Hostinger and scheduled import execution
 
-The repository has no schedule, command or import job. `config/queue.php` defaults to
-database queue but imports are synchronous. Hostinger's published hPanel docs describe
+SMV-095A adds `imports:dispatch-due`, unique per-source queued jobs and two Laravel
+schedule entries: due-source dispatch and an `imports` queue worker bounded by
+`--stop-when-empty --max-time=600 --timeout=600 --tries=2`. ImportSource automation is
+disabled by default. Only active, approved HTTP/API sources with automation enabled and
+an active default mapping are eligible; uploads remain manual-only. Frequencies are
+hourly, every six hours or daily and use the last dispatch timestamp.
+
+Hostinger's published hPanel docs describe
 cron on web/cloud plans, UTC schedules, cron output inspection and an Artisan scheduler
 command, but the account's exact plan and resource limits are unknown. Verify hPanel
 access, SSH/CLI and PHP path, cron frequency, allowed execution duration, process/RAM
 limits, file/private storage, cache driver and queue support in the actual account.
 
-Recommended minimum: one cron invokes Laravel `schedule:run` each minute, if supported;
-Laravel schedules hourly Joobs sync and configured provider cadences. Start synchronous
-per-source command only if a full measured run is well under the plan's time/resource
-limit. If not, dispatch database queue jobs and use a bounded cron-started
-`queue:work --stop-when-empty` only if validated; otherwise host the worker on a VPS.
-Use a per-source lock, scheduler overlap guard, bounded timeout/retries, run IDs and
-stale-run alert. Cron UTC and `expirationdate` local-day interpretation are separate
-timezone concerns. Public expiration already works query-side; no expiry cron is needed
-for visibility. A nightly status transition is optional admin maintenance.
+Production needs one cron invocation each minute:
+
+```text
+php artisan schedule:run
+```
+
+Laravel dispatches due work and starts the bounded worker; no persistent Supervisor daemon
+is assumed. `QUEUE_CONNECTION=database` and `DB_QUEUE_RETRY_AFTER=960` are required. The
+job timeout is 600 seconds and the existing source lock remains 900 seconds, so a valid job retains its
+lock and a timed-out reservation cannot retry until that stale lock expires. Scheduler and
+worker events also use overlap guards. Cron UTC and `expirationdate` local-day handling
+remain separate. Public expiration is query-side; no expiry cron is needed.
+
+This is infrastructure readiness, not Joobs activation. Joobs remains disabled until its
+employer identity, value lists, timezone, publication/removal, field ownership and
+expected-count/empty-feed decisions are approved.
 
 Operational failures and recovery:
 

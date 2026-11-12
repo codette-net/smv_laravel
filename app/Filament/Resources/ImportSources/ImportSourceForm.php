@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ImportSources;
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportTransport;
 use App\Models\ImportSource;
 use Filament\Forms\Components\FileUpload;
@@ -28,6 +29,13 @@ class ImportSourceForm
                 Select::make('transport')->label('Transport')->options(ImportTransport::class)->required()->live(),
                 Select::make('format')->label('Formaat')->options(ImportFormat::class)->required(),
                 Toggle::make('is_active')->label('Actief')->helperText('De bron is ingeschakeld voor gebruik.')->default(true),
+                Toggle::make('automatic_import_enabled')->label('Automatisch uitvoeren')->live()
+                    ->visible(fn (Get $get): bool => self::isRemote($get('transport')))
+                    ->helperText('Standaard uit. Alleen actieve, goedgekeurde externe bronnen met een standaardmapping worden ingepland.'),
+                Select::make('schedule_frequency')->label('Frequentie')->options(ImportScheduleFrequency::class)
+                    ->default(ImportScheduleFrequency::Hourly->value)
+                    ->required(fn (Get $get): bool => $get('automatic_import_enabled') === true)
+                    ->visible(fn (Get $get): bool => self::isRemote($get('transport')) && $get('automatic_import_enabled') === true),
                 Toggle::make('uses_source_employers')->label('Werkgever per bronrecord oplossen')
                     ->helperText('Gebruik uitsluitend vooraf beoordeelde, brongebonden werkgeverkoppelingen. Er is geen terugval naar het standaardbedrijf.'),
                 Toggle::make('uses_verified_snapshot_reconciliation')->label('Volledige snapshot veilig reconciliëren')->live()
@@ -133,6 +141,9 @@ class ImportSourceForm
         }
         if (isset($existing['sample_path']) && ! isset($configuration['source_path'])) {
             $configuration['sample_path'] = $existing['sample_path'];
+        }
+        if (self::isUpload($data['transport'] ?? $record?->transport)) {
+            $data['automatic_import_enabled'] = false;
         }
 
         $data['configuration'] = $configuration ?: null;

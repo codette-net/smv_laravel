@@ -18,10 +18,12 @@ use Illuminate\Support\Facades\DB;
 
 class VacancyImportRunner
 {
+    public const SOURCE_LOCK_SECONDS = 900;
+
     public function run(ImportMapping $mapping): Import
     {
         $source = $mapping->importSource()->with('company')->firstOrFail();
-        $lock = Cache::lock($this->lockKey($source->id), 900);
+        $lock = Cache::lock(self::sourceLockKey($source->id), self::SOURCE_LOCK_SECONDS);
         if (! $lock->get()) {
             return $this->skippedRun($source->id, $mapping->id);
         }
@@ -157,6 +159,7 @@ class VacancyImportRunner
         $snapshot = is_array($mapping['snapshot'] ?? null) ? $mapping['snapshot'] : [];
         $mapping['snapshot'] = [...$snapshot, 'state' => $snapshotState];
         $run->forceFill(['status' => $status, 'finished_at' => now(), 'mapping' => $mapping])->save();
+        $run->importSource()->update(['last_imported_at' => now()]);
 
         return $run->fresh('importLogs');
     }
@@ -173,7 +176,7 @@ class VacancyImportRunner
         ];
     }
 
-    private function lockKey(int $sourceId): string
+    public static function sourceLockKey(int $sourceId): string
     {
         return "imports:source:{$sourceId}";
     }

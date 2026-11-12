@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportTransport;
 use App\Enums\ImportType;
 use Database\Factories\ImportSourceFactory;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -35,9 +38,12 @@ class ImportSource extends Model
         'selection_rules',
         'default_mapping',
         'is_active',
+        'automatic_import_enabled',
+        'schedule_frequency',
         'approved_at',
         'approved_by',
         'last_imported_at',
+        'last_scheduled_at',
     ];
 
     protected function casts(): array
@@ -51,8 +57,11 @@ class ImportSource extends Model
             'selection_rules' => 'array',
             'default_mapping' => 'array',
             'is_active' => 'boolean',
+            'automatic_import_enabled' => 'boolean',
+            'schedule_frequency' => ImportScheduleFrequency::class,
             'approved_at' => 'datetime',
             'last_imported_at' => 'datetime',
+            'last_scheduled_at' => 'datetime',
         ];
     }
 
@@ -77,6 +86,11 @@ class ImportSource extends Model
     public function imports(): HasMany
     {
         return $this->hasMany(Import::class);
+    }
+
+    public function latestImport(): HasOne
+    {
+        return $this->hasOne(Import::class)->latestOfMany();
     }
 
     public function vacancies(): HasMany
@@ -125,9 +139,33 @@ class ImportSource extends Model
         return $query->where('is_active', true)->whereNotNull('approved_at')->whereNotNull('approved_by');
     }
 
+    public function scopeEligibleForAutomaticExecution($query)
+    {
+        return $query
+            ->approvedForAutomaticRun()
+            ->where('automatic_import_enabled', true)
+            ->whereIn('transport', [ImportTransport::Http->value, ImportTransport::Api->value]);
+    }
+
     public function isApprovedForAutomaticRun(): bool
     {
         return $this->is_active && $this->approved_at !== null && $this->approved_by !== null;
+    }
+
+    public function isEligibleForAutomaticExecution(): bool
+    {
+        return $this->isApprovedForAutomaticRun()
+            && $this->automatic_import_enabled
+            && in_array($this->transport, [ImportTransport::Http, ImportTransport::Api], true);
+    }
+
+    public function isAutomaticImportDue(?Carbon $now = null): bool
+    {
+        if (! $this->isEligibleForAutomaticExecution() || ! $this->schedule_frequency instanceof ImportScheduleFrequency) {
+            return false;
+        }
+
+        return $this->schedule_frequency->isDue($this->last_scheduled_at, $now ?? now());
     }
 
     public function approve(User $user): void
