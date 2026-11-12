@@ -219,6 +219,12 @@ raw salary text, language and external product code. Public search continues to 
 `location`; detail pages distinguish a differing workplace, and JobPosting prefers valid
 actual workplace data with legacy advertised-location fallback.
 
+An ImportSource may opt into a named whole-payload contract. Preview and execution apply
+it before record mapping; `joobs-1.0` delegates to `JoobsFeedContract` and then continues
+through the generic XML/mapping/validation/persistence pipeline. Inclusive date-only
+expiry uses the generic `date_end_of_day` transform, requires an explicit IANA timezone,
+and stores the resulting end-of-day instant in UTC.
+
 ## Verified import snapshots and locking
 
 An ImportSource must explicitly opt into snapshot reconciliation. The runner holds a

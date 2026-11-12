@@ -454,13 +454,18 @@ The authoritative v1 specification and example are stored in
 matrix, including unsupported destinations and approval needs, is in
 `docs/JOOBS_FEED_MAPPING.md`.
 
-The generic XML reader and Vacancy description sanitizer are reusable. SMV-100 adds the
-generic persistence foundation: reviewed `ImportSourceEmployer` mappings, per-record
-employer resolution, requisition/location/raw-salary/language/product metadata and
-distinct advertised/actual workplace behavior. Direct Joobs activation still needs
-SMV-094B mappings/transforms for comma-separated taxonomy, date-only final-day expiry and
-partner value lists, plus SMV-093 verified snapshot handling. New imported Vacancies
-remain pending. Current missing reporting does not unpublish records.
+The generic XML reader and Vacancy description sanitizer are reused. Configured
+`source_contract=joobs-1.0` validates the whole document before preview/execution, while
+the normal mapper, validator, employer resolver, Vacancy upsert and verified snapshot
+lifecycle handle persistence. SMV-094B tests the supplied fixture, idempotency, metadata,
+exact application URLs, sanitation, configured inclusive expiry, disappearance,
+reappearance and unsafe snapshots. New imported Vacancies remain pending and current
+missing reporting does not unpublish records.
+
+Live activation still requires the employer identity guarantee, closed category/product
+sets and taxonomy aliases, written business-timezone confirmation, and final publication/
+removal policy. Tests use the reviewed exact `company + joobs_companyurl` fallback and
+`Europe/Brussels`; neither is silently inferred.
 
 Joobs requires the entire `<source feedversion="joobs-1.0">` snapshot to represent ads
 still running and says absent ads must go offline. Do not enable this source for automatic
@@ -847,8 +852,8 @@ the Joobs mapping and identity contract in `JOOBS_FEED_MAPPING.md`: advertisemen
 is `(import_source_id, referencenumber)`, requisition identity is correlation metadata,
 and employer identity is an explicit source-scoped mapping to an existing Company. Follow
 `IMPORT_MVP_PLAN.md`: use the completed SMV-100 and SMV-093 employer/snapshot foundations,
-then complete Joobs transforms and
-persistence tests in SMV-094B. Provider-specific code remains a last resort for a proven
+and use the completed SMV-094B configured transforms and persistence contract.
+Provider-specific code remains a last resort for a proven
 generic gap; unresolved partner value lists and identity guarantees fail closed.
 
 ### Verified source snapshots

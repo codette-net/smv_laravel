@@ -19,11 +19,12 @@ Priority: **P0** demo-safe use only; **P1** required before Joobs production onb
 
 The field matrix uses these implementation classes:
 
-- **Supported:** the generic reader/mapper/domain already has the required target and
-  behavior, although SMV-094B still needs end-to-end Joobs mapping tests.
+- **Supported:** the generic reader/mapper/domain has the required target and behavior;
+  SMV-094B adds end-to-end Joobs fixture persistence coverage.
 - **SMV-100 (implemented):** reviewed source-scoped Company resolution and the minimal
   provider-neutral source metadata/location schema.
-- **SMV-093/094B:** feed lifecycle, provider transform, validation or persistence work.
+- **SMV-093/094B (implemented fixture boundary):** verified lifecycle, configured
+  provider contract, transforms, validation and persistence tests.
 - **Partner decision:** SMV has a fail-closed default, but Joobs must confirm a guarantee
   or provide a value list before activation.
 - **Deferred:** safely ignored for the first live feed; no invented target.
@@ -66,15 +67,15 @@ test it. Do not present omitted values as preserved today.
 
 | XML field | Meaning / requirement | Candidate Laravel destination | Existing support | Required transformation and validation | Gap / priority |
 | --- | --- | --- | --- | --- | --- |
-| `/source` root | XML document root | Import payload only | SMV-094A `JoobsFeedContract` verifies one `source` root and well-formed XML before returning records | Keep provider contract validation before mapping or snapshot eligibility | Supported contract; SMV-093 must integrate it with run state |
-| `/source/@feedversion` | Version; v1 is `joobs-1.0`. Within v1 optional fields may be added; breaking changes use a new version | No persisted target | SMV-094A requires exact `joobs-1.0` | Unknown/missing version fails the feed closed | Supported contract; SMV-093 integration |
+| `/source` root | XML document root | Import payload only | `JoobsFeedContract` verifies one `source` root and well-formed XML; SMV-094B invokes it from configured preview/execution | Keep provider contract validation before mapping or snapshot eligibility | Implemented and persistence-tested |
+| `/source/@feedversion` | Version; v1 is `joobs-1.0`. Within v1 optional fields may be added; breaking changes use a new version | No persisted target | Requires exact `joobs-1.0`; configured contract failures fail before mapping or writes | Unknown/missing version fails the feed closed | Implemented and persistence-tested |
 | `/source/publisher` | Feed publisher, sample `Joobs` | `ImportSource.name` is configured independently | Source name exists; parser can read root field but runner does not use it | Optional contract check against configured provider; do not create Companies | P2 |
 | `/source/publisherurl` | Publisher site URL | No target; optionally source metadata | No dedicated destination | Validate HTTPS only if retained; not a vacancy/application URL | Missing; P2 |
 | `/source/job` | One published advertisement; record path | One Vacancy advertisement | XML reader supports `source.job`, CDATA and raw values; Joobs contract rejects duplicate references | Require complete document validation before snapshot eligibility | Parsing supported; snapshot lifecycle is SMV-093 |
 | `job/title` | Required job title only; no location, salary or contract type | `vacancies.title` | Destination + nonempty/max 255 validation | Trim; validate required, UTF-8 and <=255; do not append city/salary/type | Supported; P1 |
-| `job/date` | Required publication timestamp, ISO 8601 | `vacancies.published_at` | Destination and generic date transform exist | Parse explicit timezone/offset; sample `Z` is UTC; reject invalid/non-offset ambiguous timestamps | Supported generally; Joobs contract tests missing; P1 |
+| `job/date` | Required publication timestamp, ISO 8601 | `vacancies.published_at` | Generic offset-aware date transform persists the fixture `Z` timestamp | Parse explicit timezone/offset; sample `Z` is UTC; reject invalid/non-offset ambiguous timestamps | Fixture path implemented; stricter Joobs allowed-format validation remains an activation gate |
 | `job/referencenumber` | Required stable unique ad ID; order + vacancy + city | `vacancies.source_reference`; unique by `import_source_id + source_reference` | Upsert and unique DB index support provider-scoped identity | Trim; preserve as opaque string and case/leading zeros; require nonempty, <=255, unique within the feed | Supported identity; add duplicate-key preflight; P1 |
-| `job/requisitionid` | Required Joobs vacancy ID; shared across city ads | Allowlisted source metadata `source_requisition_id` | Parser/contract and nullable persistence target exist | Preserve exact opaque value; never use for Vacancy uniqueness or collapse city ads | SMV-094B population |
+| `job/requisitionid` | Required Joobs vacancy ID; shared across city ads | Allowlisted source metadata `source_requisition_id` | Contract, mapping and persistence tests preserve it on both advertisements | Preserve exact opaque value; never use for Vacancy uniqueness or collapse city ads | Implemented and persistence-tested |
 | `job/url` | Required Joobs job/application page, includes UTM parameters; candidate applies on Joobs | `vacancies.application_url`; `application_mode=external` | Contract and generic validator require a valid URL; fixture proves exact query preservation | SMV-094B must require HTTPS/approved host policy and persist the original URL byte-for-byte; never rewrite/append UTM | Mapping supported; provider policy/test in SMV-094B |
 | `job/company` | Required hiring employer name, not Joobs publisher | Company resolution to `vacancies.company_id` | `ImportSource.company_id` is required and assigned to every Vacancy; `company.name` mapping is preview-only and runner ignores it | Resolve per record to an approved Company; never overwrite its profile from this text | Multi-employer mismatch; see Company section; P1 |
 | `job/city` | Required place where the advertisement is shown | `vacancies.location` (advertised display/search location) | Location destination and exact-match public filter exist | Trim and preserve city as the current `location`; do not replace it with workplace city | Supported mapping; SMV-094B test |
@@ -88,7 +89,7 @@ test it. Do not present omitted values as preserved today.
 | `job/jobtype` | Optional: `fulltime`, `parttime`, or both comma-separated | `taxonomy.employment_type` | Type-scoped resolver exists; values/categories may be represented as arrays but comma splitting is not a registered transform | Split on comma, trim, normalize case, map each token to an existing Category; invalid token blocks or warns per approved policy | Split/normalization missing; confirm both values means two categories; P1 |
 | `job/category` | Required job field in English; closed list supplied on request; comma-separated when several | Candidate `taxonomy.function_area` or `taxonomy.sector` | Both Category types exist; explicit aliases by source/type; no fuzzy match or auto-create | Obtain the actual closed list and owner-approved destination for each code/value; split comma values; do not infer sector/function based on English label | Partner must provide closed list; mapping decision required; P1 |
 | `job/experience` | Optional range vocabulary (six listed bands) | `taxonomy.experience` | Category resolver exists | Map exact source values to approved Categories; do not infer from description text | Aliases/Category data coverage needed; P1 |
-| `job/expirationdate` | Required final paid runtime day, `YYYY-MM-DD`, inclusive | `vacancies.expires_at` | Expiry destination and public query cutoff exist; generic date transform parses to instant | Interpret as end of that calendar day in approved business timezone, then convert to UTC. It is not `deadline_at` | Current UTC date parse would place midnight at start of day and expire too early; explicit timezone/date-only transform needed; P1 |
+| `job/expirationdate` | Required final paid runtime day, `YYYY-MM-DD`, inclusive | `vacancies.expires_at` | Generic `date_end_of_day` requires an explicit timezone; tests use `Europe/Brussels` and store UTC | Interpret as end of that calendar day in approved business timezone, then convert to UTC. It is not `deadline_at` | Implemented/configurable; partner timezone confirmation remains an activation gate |
 | `job/remotetype` | Optional only when not fully on-site: `Hybrid remote` or `Fully remote` | `taxonomy.workplace` | Category resolver exists | Map exact values to approved hybrid/remote Categories. Since spec omits field for fully on-site, absence may mean on-site only if partner confirms omission semantics | No default/transform for taxonomy; explicit onsite semantics confirmation; P1 |
 | `job/joobs_language` | Required ad language: `nl`, `fr`, `en`, `de` | Allowlisted `source_language` metadata | Nullable destination and generic mapping key exist | Validate exact allowed code and preserve; do not map to Category/site locale | Joobs allowed-list validation in SMV-094B; filtering deferred |
 | `job/joobs_contracttype` | Optional: permanent, temporary, freelance, internship, student | `taxonomy.employment_type` candidate, but not necessarily equivalent to jobtype | Existing controlled employment type Categories and resolver; no independent contract-type destination | Keep contract kind semantically separate from work schedule (`jobtype`); map only values with approved taxonomy meaning. Avoid conflating temporary contract and part-time | Distinct concept is a domain gap; decide if MVP needs a separate Category type/field; P1 if needed |
@@ -109,18 +110,18 @@ location, and actual workplace are distinct concepts. The example omits optional
 
 Use the provider-scoped unique key `(import_source_id, referencenumber)`. Store
 `requisitionid` separately if product/reporting needs it; it must not deduplicate the
-two city advertisements. The current importer can upsert those two records if the
-mapping and Company resolution produce two rows, but its current fixed Company
-association prevents a multi-employer feed.
+two city advertisements. SMV-094B proves that the generic importer upserts both rows
+independently while a reviewed source-scoped employer composite resolves both to the
+intended Company. It creates no Company and changes no Company profile field.
 
 ### SMV-094A parser contract verification
 
 The supplied example is now copied into the test-fixture boundary and exercised through
 the existing `XmlReader`. `JoobsFeedContract` adds only provider-level document checks
 that the generic reader intentionally does not own: root `source`, version `joobs-1.0`,
-required `referencenumber`/`requisitionid`, unique advertisement references and a valid
-HTTP(S) application URL. It returns in-memory `SourceRecord` values and does not invoke
-mapping, persistence validation or the import runner.
+required v1 business fields, supported language codes, unique advertisement references
+and a valid HTTP(S) application URL. It returns in-memory `SourceRecord` values and does
+not invoke mapping, persistence validation or the import runner.
 
 The contract verifies both advertisements, their shared requisition, different advertising
 cities, actual Antwerpen workplace, exact UTM-tagged URLs, CDATA HTML description, exact
@@ -133,6 +134,19 @@ Negative coverage rejects malformed XML, missing advertisement identifiers, dupl
 `referencenumber`, unsupported feed versions, and missing/invalid application URLs. This
 does not yet validate every required Joobs business field, prove whole-snapshot safety,
 map products, resolve Companies, normalize dates/salary/taxonomy, or write any records.
+
+### SMV-094B generic persistence verification
+
+Configured `source_contract=joobs-1.0` now invokes the existing contract before preview
+or execution. The deterministic test mapping then uses the generic XML reader, mapper,
+validator, source-scoped employer resolver, Vacancy upsert and verified snapshot lifecycle.
+Tests cover idempotent reruns, shared requisition correlation, advertised/workplace
+locations, exact UTM URLs, sanitized HTML, raw salary without unsafe structured amounts,
+language/product metadata, dates, disappearance, reappearance and unsafe snapshots.
+
+Taxonomy values remain deliberately unmapped because the Joobs category/product/contract
+vocabularies and aliases are not approved. New records remain `pending`; `missing_since`
+remains reporting metadata and is not the final Joobs removal/publication policy.
 
 ### Identifier failure and change rules
 
@@ -263,8 +277,8 @@ per month, but the feed gives no explicit gross/net or FTE basis. Therefore set 
 to month only when exact source text parses unambiguously, keep basis unknown/null, and
 do not let it match SMV's comparable monthly salary search (requires explicit
 `gross_fte`). The current parser strips punctuation from numeric tokens, so localized
-decimal/thousands formats are unsafe. Preserve the exact source salary in an import
-record/source-value store before normalization; no raw-salary field exists today.
+decimal/thousands formats are unsafe. SMV-094B therefore preserves the exact fixture text
+in `source_salary_text` and deliberately leaves structured salary amounts unset.
 
 ## Date and publication policy
 

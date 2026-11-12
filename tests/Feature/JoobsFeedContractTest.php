@@ -88,6 +88,20 @@ test('the Joobs contract rejects missing required identifiers', function (string
         ->toThrow(InvalidSourceException::class, "missing required field [{$field}]");
 })->with(['referencenumber', 'requisitionid']);
 
+test('the Joobs contract rejects missing required business fields', function (string $field) {
+    $xml = replaceFirst("/\\s*<{$field}>.*?<\\/{$field}>/s", '', joobsFixtureContents());
+
+    expect(fn () => inspectJoobs($xml))
+        ->toThrow(InvalidSourceException::class, "missing required field [{$field}]");
+})->with(['title', 'date', 'company', 'city', 'country', 'description', 'category', 'expirationdate', 'joobs_language', 'joobs_product']);
+
+test('the Joobs contract rejects unsupported language codes', function () {
+    $xml = replaceFirst('/<joobs_language>.*?<\/joobs_language>/s', '<joobs_language>xx</joobs_language>', joobsFixtureContents());
+
+    expect(fn () => inspectJoobs($xml))
+        ->toThrow(InvalidSourceException::class, 'unsupported language');
+});
+
 test('the Joobs contract rejects duplicate advertisement references', function () {
     $xml = str_replace(
         'SM260142-k7Qd2XvP-breda',

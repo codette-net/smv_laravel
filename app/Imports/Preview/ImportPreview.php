@@ -8,6 +8,7 @@ use App\Imports\LocalSourceLoader;
 use App\Imports\Mapping\ImportMapper;
 use App\Imports\Mapping\MappingCompletion;
 use App\Imports\RecordSelector;
+use App\Imports\SourceContractValidator;
 use App\Imports\SourceFetcher;
 use App\Imports\Validation\ImportRecordValidator;
 use App\Models\ImportMapping;
@@ -25,6 +26,7 @@ class ImportPreview
         $payload = in_array($source->transport, [ImportTransport::Http, ImportTransport::Api], true)
             ? app(SourceFetcher::class)->fetch($source)
             : app(LocalSourceLoader::class)->forSource($source);
+        app(SourceContractValidator::class)->validate($source, $payload);
         $records = [];
         foreach (app(RecordSelector::class)->filter(app(ImportReaderResolver::class)->for($source)->records($source, $payload), $source->selection_rules) as $record) {
             if (count($records) >= $limit) {

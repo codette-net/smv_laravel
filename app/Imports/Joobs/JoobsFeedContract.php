@@ -55,9 +55,17 @@ final class JoobsFeedContract
         $references = [];
 
         foreach ($records as $record) {
-            $reference = $this->requiredString($record, 'referencenumber');
-            $this->requiredString($record, 'requisitionid');
-            $applicationUrl = $this->requiredString($record, 'url');
+            foreach ([
+                'title', 'date', 'referencenumber', 'requisitionid', 'url', 'company',
+                'city', 'state', 'country', 'postalcode', 'description', 'category',
+                'expirationdate', 'joobs_language', 'joobs_workplacecity',
+                'joobs_workplacecountry', 'joobs_product', 'joobs_companyurl',
+            ] as $field) {
+                $this->requiredString($record, $field);
+            }
+
+            $reference = trim((string) $record->get('referencenumber'));
+            $applicationUrl = trim((string) $record->get('url'));
 
             if (isset($references[$reference])) {
                 throw new InvalidSourceException("The Joobs feed contains duplicate referencenumber [{$reference}].");
@@ -65,6 +73,9 @@ final class JoobsFeedContract
 
             if (! $this->isValidApplicationUrl($applicationUrl)) {
                 throw new InvalidSourceException("Joobs advertisement [{$reference}] has an invalid application URL.");
+            }
+            if (! in_array($record->get('joobs_language'), ['nl', 'fr', 'en', 'de'], true)) {
+                throw new InvalidSourceException("Joobs advertisement [{$reference}] has an unsupported language.");
             }
 
             $references[$reference] = true;
