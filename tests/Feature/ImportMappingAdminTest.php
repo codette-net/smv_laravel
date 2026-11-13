@@ -146,15 +146,15 @@ test('mapping completion state derives from the required registry destinations',
     expect(app(MappingCompletion::class)->for($mapping))->toBe('Klaar voor preview');
 });
 
-test('mapping UI presents required identity first and explains existing operations in Dutch', function () {
+test('mapping UI exposes required identity and title definitions and explains existing operations in Dutch', function () {
     $admin = mappingAdmin('admin');
     $source = ImportSource::factory()->create();
-    $definitions = array_values(app(DestinationRegistry::class)->all());
+    $definitions = app(DestinationRegistry::class)->all();
 
-    expect($definitions[0]->key)->toBe('source_reference')
-        ->and($definitions[0]->required)->toBeTrue()
-        ->and($definitions[1]->key)->toBe('vacancy.title')
-        ->and($definitions[1]->required)->toBeTrue();
+    expect($definitions['source_reference']->key)->toBe('source_reference')
+        ->and($definitions['source_reference']->required)->toBeTrue()
+        ->and($definitions['vacancy.title']->key)->toBe('vacancy.title')
+        ->and($definitions['vacancy.title']->required)->toBeTrue();
 
     Livewire::actingAs($admin)->test(CreateImportMapping::class)
         ->fillForm([

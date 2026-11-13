@@ -50,7 +50,10 @@ function vnomProductionMapping(string $path): array
                 ['field' => 'function', 'operator' => 'contains', 'value' => 'Marketing'],
             ],
         ],
-        'configuration' => ['sample_path' => $path],
+        'configuration' => [
+            'sample_path' => $path,
+            'snapshot_reconciliation' => ['enabled' => true],
+        ],
     ]);
     $mapping = ImportMapping::factory()->create(['import_source_id' => $source->id, 'name' => 'VNOM productie']);
     $fields = [
@@ -217,7 +220,7 @@ test('VNOM configuration previews executes reruns and reports missing and restor
 
     $missingReference = 'a1WWy0000027TqXMAU';
     $replacement = vnomProductionFixture($missingReference, 'Commercieel Medewerker vernieuwd');
-    $source->update(['configuration' => ['sample_path' => $replacement]]);
+    $source->update(['configuration' => [...$source->configuration, 'sample_path' => $replacement]]);
     $second = app(VacancyImportRunner::class)->run($mapping);
     expect($second->updated_rows)->toBe(3)
         ->and($second->missing_rows)->toBe(1)
@@ -227,7 +230,7 @@ test('VNOM configuration previews executes reruns and reports missing and restor
         ->and(Vacancy::where('import_source_id', $source->id)->count())->toBe(4);
 
     $restoredFixture = vnomProductionFixture(null, 'Commercieel Medewerker vernieuwd');
-    $source->update(['configuration' => ['sample_path' => $restoredFixture]]);
+    $source->update(['configuration' => [...$source->configuration, 'sample_path' => $restoredFixture]]);
     $third = app(VacancyImportRunner::class)->run($mapping);
     expect($third->imported_rows)->toBe(0)
         ->and($third->updated_rows)->toBe(4)
