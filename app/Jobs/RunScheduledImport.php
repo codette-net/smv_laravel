@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ImportExecutionOrigin;
 use App\Enums\ImportStatus;
 use App\Imports\VacancyImportRunner;
 use App\Models\ImportSource;
@@ -63,7 +64,7 @@ class RunScheduledImport implements ShouldBeUnique, ShouldQueue
             throw new RuntimeException('The import source has no active default mapping.');
         }
 
-        $run = $runner->run($mapping);
+        $run = $runner->run($mapping, ImportExecutionOrigin::Scheduled);
 
         if ($run->status === ImportStatus::Failed) {
             throw new RuntimeException('The scheduled import failed safely.');

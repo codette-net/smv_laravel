@@ -51,4 +51,9 @@ class ImportSourcePolicy
     {
         return false;
     }
+
+    public function run(User $user, ImportSource $source): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'admin']);
+    }
 }

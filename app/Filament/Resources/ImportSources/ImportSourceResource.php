@@ -9,6 +9,7 @@ use App\Filament\Resources\ImportSources\Pages\CreateImportSource;
 use App\Filament\Resources\ImportSources\Pages\EditImportSource;
 use App\Filament\Resources\ImportSources\Pages\ListImportSources;
 use App\Filament\Resources\ImportSources\Pages\ViewImportSource;
+use App\Imports\Monitoring\ImportSourceHealthEvaluator;
 use App\Models\ImportSource;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -50,7 +51,7 @@ class ImportSourceResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->modifyQueryUsing(fn ($query) => $query->with(['company', 'approvedBy', 'latestImport']))
+        return $table->modifyQueryUsing(fn ($query) => $query->with(['company', 'approvedBy', 'latestImport', 'recentImports']))
             ->columns([
                 TextColumn::make('name')->label('Naam')->searchable()->sortable(),
                 TextColumn::make('company.name')->label('Bedrijf')->searchable()->sortable(),
@@ -59,7 +60,10 @@ class ImportSourceResource extends Resource
                 IconColumn::make('is_active')->label('Actief')->boolean(),
                 IconColumn::make('automatic_import_enabled')->label('Automatisch')->boolean(),
                 IconColumn::make('approved_at')->label('Goedgekeurd')->boolean(),
+                TextColumn::make('health')->label('Gezondheid')->state(fn (ImportSource $record) => app(ImportSourceHealthEvaluator::class)->for($record)->health)->badge(),
+                TextColumn::make('schedule_frequency')->label('Frequentie')->badge()->placeholder('-'),
                 TextColumn::make('latestImport.status')->label('Laatste resultaat')->badge()->placeholder('-'),
+                TextColumn::make('last_imported_at')->label('Laatste poging')->dateTime()->placeholder('-')->sortable(),
                 TextColumn::make('updated_at')->label('Bijgewerkt')->dateTime()->sortable(),
             ])
             ->filters([

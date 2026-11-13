@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Enums\ImportExecutionOrigin;
 use App\Enums\ImportLogLevel;
 use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
@@ -20,12 +21,12 @@ class VacancyImportRunner
 {
     public const SOURCE_LOCK_SECONDS = 900;
 
-    public function run(ImportMapping $mapping): Import
+    public function run(ImportMapping $mapping, ImportExecutionOrigin $origin = ImportExecutionOrigin::Manual): Import
     {
         $source = $mapping->importSource()->with('company')->firstOrFail();
         $lock = Cache::lock(self::sourceLockKey($source->id), self::SOURCE_LOCK_SECONDS);
         if (! $lock->get()) {
-            return $this->skippedRun($source->id, $mapping->id);
+            return $this->skippedRun($source->id, $mapping->id, $origin);
         }
 
         try {
@@ -33,6 +34,7 @@ class VacancyImportRunner
             $run = Import::create([
                 'import_source_id' => $source->id,
                 'status' => ImportStatus::Processing,
+                'execution_origin' => $origin,
                 'started_at' => now(),
                 'mapping' => $this->runMapping($mapping->id, $source, 'processing'),
             ]);
@@ -82,7 +84,7 @@ class VacancyImportRunner
 
             return $this->finish($run, ImportStatus::Completed, $snapshot ? 'verified_complete' : 'not_configured');
         } catch (\Throwable $e) {
-            $run ??= Import::create(['import_source_id' => $source->id, 'status' => ImportStatus::Processing, 'started_at' => now(), 'mapping' => $this->runMapping($mapping->id, $source, 'processing')]);
+            $run ??= Import::create(['import_source_id' => $source->id, 'status' => ImportStatus::Processing, 'execution_origin' => $origin, 'started_at' => now(), 'mapping' => $this->runMapping($mapping->id, $source, 'processing')]);
             $this->log($run, ImportLogLevel::Error, 'Importbron kon niet worden verwerkt.', null, null, 'source_failed');
 
             return $this->finish($run, ImportStatus::Failed, 'read_or_parse_failed');
@@ -139,11 +141,12 @@ class VacancyImportRunner
         return null;
     }
 
-    private function skippedRun(int $sourceId, int $mappingId): Import
+    private function skippedRun(int $sourceId, int $mappingId, ImportExecutionOrigin $origin): Import
     {
         $run = Import::create([
             'import_source_id' => $sourceId,
             'status' => ImportStatus::Skipped,
+            'execution_origin' => $origin,
             'started_at' => now(),
             'finished_at' => now(),
             'mapping' => ['mapping_id' => $mappingId, 'snapshot' => ['state' => 'concurrency_rejected']],
