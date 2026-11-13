@@ -889,6 +889,37 @@ is assumed. Verify cron interval/output, CLI path, execution/RAM limits, databas
 availability and source ownership before enabling automation. Joobs is not enabled by
 this infrastructure and retains all documented activation gates.
 
+### Monitoring and recovery
+
+Source health is derived from the existing Import history; there is no parallel incident
+or run table. The health model distinguishes disabled and manual-only sources, never-run,
+active processing, stale/incomplete processing, overdue schedules, consecutive failures,
+lock skips and healthy runs. A scheduled source becomes overdue when its last actual
+execution attempt (not merely `last_scheduled_at`) exceeds its configured cadence plus a
+25% tolerance, with a minimum tolerance of 15 minutes. Two consecutive failed or
+incomplete runs are the MVP repeated-failure threshold. Processing older than 15 minutes
+is shown as incomplete/stale because the bounded job should have ended within 10 minutes.
+
+Run history records nullable `execution_origin` as `manual` or `scheduled`; historical
+rows without provenance remain readable as unknown. Counts distinguish read, applied
+(`imported_rows + updated_rows`) and rejected (`skipped_rows + failed_rows`) records.
+Where two verified complete snapshots exist, the source overview warns when the newest
+count is at least 50% lower and the previous baseline was at least 10 records. This is
+visibility only: it never changes a completed outcome or adds a new reconciliation rule.
+Source-specific expected-count enforcement remains an activation decision.
+
+Administrators may start a fresh run from the ImportSource view using its active default
+mapping. This calls `VacancyImportRunner`, records manual provenance and retains the same
+source lock, provider-scoped upsert identity and snapshot-safety checks. It never resumes
+partial writes or deletes data. Endpoint display strips query and fragment data; normal
+admin history exposes only allowlisted log context and safe outcome codes.
+
+No import email notification is sent yet. The repository has mail transport support but
+no dedicated import-operations recipient or escalation owner. `CONTACT_MAIL_TO` is not an
+operations mailbox and is deliberately not reused. Configure and approve a dedicated
+destination/owner before a later alert-delivery ticket. Until then the Filament overview
+and `IMPORT_OPERATIONS.md` checks are the operational notification boundary.
+
 ### Verified source snapshots
 
 Missing reporting is opt-in per ImportSource through verified snapshot reconciliation.

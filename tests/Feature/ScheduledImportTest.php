@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ApplicationMode;
+use App\Enums\ImportExecutionOrigin;
 use App\Enums\ImportFormat;
 use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportStatus;
@@ -138,6 +139,7 @@ test('a scheduled import job executes the generic runner successfully', function
 
     $run = Import::sole();
     expect($run->status)->toBe(ImportStatus::Completed)
+        ->and($run->execution_origin)->toBe(ImportExecutionOrigin::Scheduled)
         ->and($run->imported_rows)->toBe(1)
         ->and(Vacancy::sole()->source_reference)->toBe('AUTO-1')
         ->and($source->fresh()->last_imported_at)->not->toBeNull();

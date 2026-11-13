@@ -93,6 +93,25 @@ class ImportSource extends Model
         return $this->hasOne(Import::class)->latestOfMany();
     }
 
+    public function recentImports(): HasMany
+    {
+        return $this->hasMany(Import::class)->latest('id')->limit(10);
+    }
+
+    public function safeEndpointLabel(): ?string
+    {
+        if (! is_string($this->endpoint_url) || $this->endpoint_url === '') {
+            return null;
+        }
+
+        $parts = parse_url($this->endpoint_url);
+        if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])) {
+            return null;
+        }
+
+        return $parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '').($parts['path'] ?? '');
+    }
+
     public function vacancies(): HasMany
     {
         return $this->hasMany(Vacancy::class);

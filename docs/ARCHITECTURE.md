@@ -57,7 +57,8 @@ Imports
 ├── validation plus source-scoped taxonomy resolution
 ├── provider-scoped Vacancy upsert
 ├── safe run history/logging and missing-record reporting
-└── synchronous execution (queue/scheduling remain deferred)
+├── disabled-by-default scheduled database-queue execution
+└── derived health, safe run history and locked fresh-run recovery
 
 Blog
 ├── posts and Media Library cover images
@@ -74,8 +75,8 @@ SEO / migration
 └── legacy inventory/redirects (deferred pending exports)
 ```
 
-Import execution currently runs synchronously through `VacancyImportRunner`. There is
-no import console command, scheduled task, or queued import job in the repository.
+Manual import execution runs synchronously through `VacancyImportRunner`; explicitly
+enabled remote sources can also dispatch bounded queued runs through the scheduler.
 Completed runs can record missing source references in `missing_since`; this does not
 unpublish or delete a Vacancy. Any future absence-driven depublication must wait for a
 verified complete-feed boundary and an approved manual-override rule. The Phase 2 feed
@@ -262,6 +263,26 @@ no persistent daemon is assumed.
 Runner failures remain Import records before the job requests a retry. Retries do not
 bypass source-scoped upserts, contract validation or snapshot safety. This infrastructure
 does not activate Joobs or resolve partner-specific activation gates.
+
+## Import monitoring and operator recovery
+
+ImportSource health is a provider-neutral projection over recent Import records rather
+than a second persisted monitoring history. It separates dispatch time, latest execution
+attempt, completion, success and verified completion. Automatic sources use their own
+configured cadence plus a bounded tolerance for overdue detection; `last_scheduled_at`
+never proves that a worker consumed the job. Two consecutive failed/incomplete runs form
+the MVP repeated-failure state, while lock contention retains the existing skipped run.
+
+Verified snapshot counts support a visibility-only substantial-drop warning. A warning
+does not invalidate a snapshot or change reconciliation. Run provenance is a nullable
+manual/scheduled enum so old rows remain compatible. Administrators can recover only by
+starting a fresh run through the default mapping and normal runner; locks, identity,
+validation and snapshot safety remain authoritative. There is no resume or delete path.
+
+Filament exposes safe endpoint labels, statuses, timestamps, counts, snapshot outcomes
+and allowlisted log context. Import notification delivery is deferred until a dedicated
+operations recipient and owner are approved; the public contact recipient is not reused.
+Deployment diagnostics and recovery commands are maintained in `IMPORT_OPERATIONS.md`.
 
 ## Public frontend
 
