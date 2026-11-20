@@ -145,6 +145,12 @@ click or billable CPC event.
 A full ATS workflow, candidate notifications, messaging and timelines remain outside
 the current MVP.
 
+Administrators and super-administrators can review raw outbound apply click aggregates
+under Filament reporting. The report defaults to the latest 30 UTC days, filters by date,
+Vacancy, Company and ImportSource, and exports the same filtered per-Vacancy aggregates
+as CSV. Editors and non-staff users cannot access this commercial report. It does not
+provide conversion, unique-human, partner-confirmed or billing metrics.
+
 Current Vacancy and Company save totals and rankings are available only to Filament
 staff through aggregate pivot queries. Public save counts, individual saver identities,
 historical save events and behavioural profiles are outside scope.

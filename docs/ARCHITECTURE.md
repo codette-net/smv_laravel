@@ -348,6 +348,15 @@ string unchanged. Every successful request is a raw click; there is no cookie, f
 IP/user-agent storage, bot classification or unique-human claim. Internal/e-mail application
 modes and completed `Application` records remain separate.
 
+SMV-097C exposes these events only inside the Filament panel to `super-admin` and `admin`
+roles. A shared reporting query applies inclusive UTC date, Vacancy, Company and
+ImportSource filters to raw events, then derives per-Vacancy counts and Company/source
+aggregates. The default period is the latest 30 UTC calendar days. CSV export uses the
+same filters and emits one aggregate row per Vacancy; it never exports raw event rows or
+personal/request metadata. Raw events remain the source of truth, and the standalone
+`clicked_at` index supports date-first reporting alongside the existing
+`vacancy_id, clicked_at` index.
+
 Result ordering also separates three concerns: data completeness/search relevance,
 organic SEO visibility, and explicit commercial promotion or deprioritization. Current
 publication timestamps describe lifecycle and must not be edited to simulate commercial
