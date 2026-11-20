@@ -148,6 +148,15 @@ import_source_id + source_reference
 Manual vacancies may have both fields null. The physical `imports.source` column remains
 only for legacy compatibility and must not become provider identity in new import code.
 
+An imported Vacancy is never converted or detached in place. The staff manual-copy action
+creates a new row with a new primary key and generated slug, `source=manual`, `status=draft`
+and null source identity/snapshot fields. It reuses the existing Company and copies approved
+editorial fields plus Category and Tag relations. Provider requisition/product/language/raw
+salary metadata, seen/missing/source-offline state, publication timing, featured/filled
+state and placement-package intent are not inherited. No source-to-copy foreign key was
+added: the current system has no general Vacancy audit/provenance convention, and import
+ownership must not be implied by a lightweight audit field.
+
 Vacancy slugs are stable after creation and do not regenerate merely because a title is
 changed.
 

@@ -256,7 +256,17 @@ Only a Vacancy demonstrably archived by the source (`source_offlined_at`) may be
 `published`, and only when both source policies allow it and the record is not filled or
 past its deadline/expiry. A manually archived record has no source-offline marker and stays
 archived. The marker is cleared after reappearance. Permanent editorial ownership requires
-a separate manual Vacancy; a future “create manual copy” action remains deferred.
+a separate manual Vacancy. SMV-108 adds the staff-only Filament action **Maak handmatige
+kopie** for source-owned Vacancies. It creates a new manual `draft` with a new slug, retains
+the existing Company plus useful editorial content/taxonomies/tags and a currently safe
+application destination, and clears provider identity/metadata, snapshot markers,
+publication dates, featured/filled state and placement-package intent. The original is not
+changed. Because the copy has no `import_source_id` or `source_reference`, feed upserts,
+missing reconciliation and source-driven restoration cannot select it.
+
+Publication and missing behavior remain independent per-source policies. Commercial
+ranking remains a separate future feature, and raw outbound apply clicks retain their
+approved 24-month maximum retention.
 
 ## Scheduled import execution
 

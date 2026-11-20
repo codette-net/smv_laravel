@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vacancies\Tables;
 
 use App\Enums\VacancyStatus;
+use App\Filament\Resources\Vacancies\Actions\MakeManualCopyAction;
 use App\Models\Vacancy;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -123,6 +124,7 @@ class VacanciesTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    MakeManualCopyAction::make(),
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),

@@ -184,7 +184,10 @@ An explicitly trusted source may auto-publish new valid records. A source may se
 archive published advertisements absent from a verified complete snapshot; it never deletes
 them. Reappearance preserves identity and manual suppression. Imported mapped fields remain
 feed-owned and may be refreshed; permanent SMV editorial ownership requires a separate
-manual Vacancy. The manual-copy workflow itself is deferred.
+manual Vacancy. Authorized staff can now create that separate Vacancy through **Maak
+handmatige kopie**. The copy starts as a manual draft, retains deliberately selected
+editorial content and relations, carries no import identity or snapshot lifecycle state,
+and is reviewed through the normal manual Vacancy workflow before publication.
 
 The MVP must be capable of demonstrating:
 

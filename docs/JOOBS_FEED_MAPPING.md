@@ -329,7 +329,8 @@ Safe lifecycle decisions for SMV-093:
   hidden.
 - Imported mapped fields are feed-owned and may update on every run, including
   reappearance. Permanent SMV editorial ownership should use a separate manual Vacancy;
-  the future “create manual copy” action is not part of SMV-107.
+  SMV-108 now provides that staff-only manual-copy action. It never detaches or converts the
+  Joobs-owned original and the copy carries no Joobs/import identity or snapshot state.
 
 ## Unresolved partner inputs and fail-closed defaults
 

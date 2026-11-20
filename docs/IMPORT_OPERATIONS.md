@@ -7,6 +7,10 @@ checks and safe recovery for the current Hostinger-compatible bounded-worker mod
 does not replace hosting uptime, cron or database monitoring. Assign a named operator and
 a dedicated alert destination before enabling unattended partner feeds.
 
+Current import operations owner: Jos, temporarily, pending the final operational ownership
+decision. Dylan remains proposed/pending only. A dedicated alert destination is still not
+approved, so ownership does not by itself enable email alerts or unattended Joobs imports.
+
 Joobs is not activated by these procedures. Its employer identity, category/product
 mappings, timezone, empty-feed semantics, publication/removal policy and field ownership
 must still be approved separately.
