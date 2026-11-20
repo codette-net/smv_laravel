@@ -74,3 +74,13 @@ per-vacancy totals or CSV; avoid raw IP/user-agent storage unless a documented s
 anti-abuse need is approved; define bot/preview/duplicate exclusions; and set a retention
 period with staff-only access. Listing impressions can safely follow after the first two
 events because visibility measurement is more complex.
+
+SMV-097B now stores one `outbound_apply_clicks` row per successful controlled redirect:
+only the Vacancy key and UTC event timestamp. Company and ImportSource are derived through
+the Vacancy. No user id, IP address, user-agent, cookie, fingerprint, partner secret or
+application content is stored. Repeated requests, including double clicks and undetected
+bots/link scanners, remain separate raw events; therefore totals are neither unique humans
+nor applications. The repository has no approved central analytics-retention mechanism.
+The product/privacy owner must approve a bounded retention period and its deletion process
+before these raw rows are used for a production reporting promise; automated pruning is not
+part of SMV-097B.

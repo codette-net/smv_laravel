@@ -47,7 +47,7 @@ test('the vacancy detail renders one CTA according to the selected application m
     $email = applicableVacancy(ApplicationMode::Email, ['application_url' => 'https://example.test/ignored', 'application_email' => 'mail@example.test']);
     $internal = applicableVacancy(ApplicationMode::Internal, ['application_url' => 'https://example.test/ignored', 'application_email' => 'ignored@example.test']);
 
-    $this->get(route('vacancies.show', $external))->assertSee('https://example.test/apply', false)->assertDontSee(route('applications.create', $external), false);
+    $this->get(route('vacancies.show', $external))->assertSee(route('vacancies.apply.external', $external), false)->assertDontSee('https://example.test/apply', false)->assertDontSee('href="'.route('applications.create', $external).'"', false);
     $this->get(route('vacancies.show', $email))->assertSee('mailto:mail@example.test', false)->assertSee('Solliciteer via e-mail')->assertDontSee('https://example.test/ignored', false);
     $this->get(route('vacancies.show', $internal))->assertSee(route('applications.create', $internal), false)->assertDontSee('https://example.test/ignored', false);
 });

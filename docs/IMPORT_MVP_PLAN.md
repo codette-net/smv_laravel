@@ -238,7 +238,7 @@ SMV-097 should be split so the first useful capability stays reviewable:
 | Ticket | Goal and acceptance | Estimate (Codex / human) | Dependencies |
 | --- | --- | --- | --- |
 | SMV-097A — Vacancy detail views | Record a minimized event/count for public detail views with vacancy, import source and UTC date; exclude previews/staff/bots under a documented rule; staff-only access and retention approved. | 3-5 h / 2-3 h | Privacy/product owner decision; event storage design. |
-| SMV-097B — Outbound apply clicks | Route external CTAs through a same-site endpoint bound to the Vacancy, record the minimized event, validate the stored destination and redirect while preserving the stored UTM query exactly. Never accept an arbitrary target. | 4-6 h / 3-4 h | SMV-097A storage/policy; application URL tests; partner attribution definition. |
+| SMV-097B — Outbound apply clicks — IMPLEMENTED | External CTAs use a same-site endpoint bound to the public Vacancy. A minimized Vacancy/timestamp event is recorded before redirecting to the validated stored HTTP(S) destination; arbitrary targets are ignored and stored UTM queries remain exact. Each successful request is one raw event with no identity deduplication. | Complete | Retention approval and SMV-097C reporting remain; this event storage does not depend on detail-view tracking. |
 | SMV-097C — Basic report/export | Staff-only date range, per-vacancy totals and import-source grouping, with simple CSV. Label metrics as SMV detail views/outbound clicks, not applications or billable clicks. | 3-5 h / 2-4 h | SMV-097A/B; timezone and access/export decisions. |
 
 Listing impressions remain SMV-098 because meaningful card visibility and deduplication

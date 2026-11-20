@@ -262,4 +262,12 @@ do not create a second stored lifecycle.
 
 Save statistics remain derived data. Current totals and rankings aggregate the unique
 `saved_vacancies` and `saved_companies` rows in SQL and exclude soft-deleted content.
-There is no analytics-events table and no save/unsave Activitylog stream in SMV-080.
+There is no save/unsave Activitylog stream in SMV-080.
+
+### Outbound apply clicks
+
+`outbound_apply_clicks` is the provider-neutral raw event foundation added by SMV-097B.
+Each row contains only `vacancy_id` and `clicked_at` (plus its primary key). Company and
+ImportSource attribution remain normalized through `Vacancy`; no personal or request
+metadata is copied into the event. A physical Vacancy deletion cascades its click rows,
+while Vacancy soft deletion preserves them for later authorized aggregate reporting.

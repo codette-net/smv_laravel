@@ -54,7 +54,8 @@ test('a publicly visible vacancy resolves by its canonical slug and renders its 
         ->assertSee('Utrecht')
         ->assertSee('Een inhoudelijke vacaturebeschrijving.')
         ->assertSee(route('bedrijven.show', $vacancy->company), false)
-        ->assertSee('https://example.test/solliciteren', false)
+        ->assertSee(route('vacancies.apply.external', $vacancy), false)
+        ->assertDontSee('https://example.test/solliciteren', false)
         ->assertSee('Solliciteren vóór:');
 });
 

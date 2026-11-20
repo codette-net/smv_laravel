@@ -9,6 +9,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\EmployerVacancyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OutboundApplyController;
 use App\Http\Controllers\PublicAuthController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\SavedCompanyController;
@@ -88,6 +89,7 @@ Route::get('/vacatures', [VacancyController::class, 'index'])->name('vacancies.i
 Route::post('/vacatures/{vacancy}/bewaren', [SavedVacancyController::class, 'store'])->name('vacancies.save');
 Route::delete('/vacatures/{vacancy}/bewaren', [SavedVacancyController::class, 'destroy'])->middleware('auth')->name('vacancies.unsave');
 Route::get('/vacatures/{vacancy}', [VacancyController::class, 'show'])->name('vacancies.show');
+Route::get('/vacatures/{vacancy}/solliciteren/extern', OutboundApplyController::class)->name('vacancies.apply.external');
 Route::get('/vacatures/{vacancy}/solliciteren', [ApplicationController::class, 'create'])->name('applications.create');
 Route::post('/vacatures/{vacancy}/solliciteren', [ApplicationController::class, 'store'])->name('applications.store');
 Route::get('/vacatures/{vacancy}/solliciteren/bedankt', [ApplicationController::class, 'success'])->name('applications.success');

@@ -339,6 +339,15 @@ source and date. Partner-confirmed/billable events require an explicit reconcili
 contract and must not be inferred from raw internal clicks. Retention, bot/duplicate
 rules and staff-only access are part of the domain boundary, not presentation details.
 
+SMV-097B implements outbound clicks as append-only `outbound_apply_clicks` rows containing
+only the Vacancy foreign key and `clicked_at`. ImportSource and Company attribution are
+derived through Vacancy rather than copied into the event. The public endpoint accepts no
+destination parameter, requires the Vacancy and Company to be publicly eligible, permits
+only a credential-free stored HTTP(S) URL, records the event, and redirects to that stored
+string unchanged. Every successful request is a raw click; there is no cookie, fingerprint,
+IP/user-agent storage, bot classification or unique-human claim. Internal/e-mail application
+modes and completed `Application` records remain separate.
+
 Result ordering also separates three concerns: data completeness/search relevance,
 organic SEO visibility, and explicit commercial promotion or deprioritization. Current
 publication timestamps describe lifecycle and must not be edited to simulate commercial

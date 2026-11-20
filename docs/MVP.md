@@ -138,7 +138,10 @@ Authenticated Users can view their own securely linked internal Applications at
 `/account/sollicitaties`. The page exposes only the submission date, public Vacancy
 context where still available, and a deliberately mapped candidate-facing status.
 Guest or historical e-mail-only Applications are not claimed by e-mail matching.
-External and e-mail destinations remain untrackable and never create fake Applications.
+External destinations create a minimized raw outbound-click event through a controlled
+redirect, but never create fake Applications. E-mail destinations remain untracked.
+A raw outbound click is not a completed application, unique candidate, partner-confirmed
+click or billable CPC event.
 A full ATS workflow, candidate notifications, messaging and timelines remain outside
 the current MVP.
 

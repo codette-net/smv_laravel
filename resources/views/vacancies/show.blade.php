@@ -189,7 +189,7 @@
 
                             <a
                                 class="btn w-full bg-gray-900 text-center text-gray-100 hover:bg-gray-800"
-                                href="{{ $vacancy->application_url }}"
+                                href="{{ route('vacancies.apply.external', $vacancy) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
@@ -325,7 +325,7 @@
 
                                 <a
                                     class="btn whitespace-nowrap bg-gray-900 text-gray-100 hover:bg-gray-800"
-                                    href="{{ $vacancy->application_url }}"
+                                    href="{{ route('vacancies.apply.external', $vacancy) }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
@@ -628,7 +628,7 @@
 
                                 <a
                                     class="btn w-full bg-gray-900 text-center text-gray-100 hover:bg-gray-800"
-                                    href="{{ $vacancy->application_url }}"
+                                    href="{{ route('vacancies.apply.external', $vacancy) }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
