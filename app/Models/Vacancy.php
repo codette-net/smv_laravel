@@ -145,6 +145,11 @@ class Vacancy extends Model
         return $this->hasMany(Application::class);
     }
 
+    public function outboundApplyClicks(): HasMany
+    {
+        return $this->hasMany(OutboundApplyClick::class);
+    }
+
     public function importSource(): BelongsTo
     {
         return $this->belongsTo(ImportSource::class);
