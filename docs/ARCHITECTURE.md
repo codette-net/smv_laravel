@@ -357,6 +357,14 @@ personal/request metadata. Raw events remain the source of truth, and the standa
 `clicked_at` index supports date-first reporting alongside the existing
 `vacancy_id, clicked_at` index.
 
+SMV-097D enforces the approved maximum raw-event retention of 24 months. The daily UTC
+`analytics:prune-outbound-clicks` schedule deletes only rows with `clicked_at` strictly
+before a cutoff calculated once for that run. Deletion walks a fixed eligible ID range in
+bounded batches; a dry-run counts without mutation. Command output and structured Laravel
+logs record the run time, cutoff and eligible/deleted counts without event-level data.
+Reporting remains query-derived, so periods outside the retained raw window return only
+whatever data is still available (normally zero); no historical values are reconstructed.
+
 Result ordering also separates three concerns: data completeness/search relevance,
 organic SEO visibility, and explicit commercial promotion or deprioritization. Current
 publication timestamps describe lifecycle and must not be edited to simulate commercial

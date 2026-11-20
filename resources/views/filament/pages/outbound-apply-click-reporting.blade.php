@@ -5,6 +5,7 @@
                 Dit rapport telt <strong>raw outbound apply clicks</strong> van {{ $periodFrom }} tot en met {{ $periodTo }} (UTC).
                 Elke succesvolle redirect is één event. De cijfers zijn geen unieke kandidaten, sollicitaties,
                 conversies, partnerbevestigde clicks of billable CPC-clicks; dubbelklikken en bots kunnen meetellen.
+                Raw events worden maximaal 24 maanden bewaard; oudere perioden leveren daarom geen historische waarden op.
             </p>
         </div>
 

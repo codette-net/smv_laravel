@@ -156,6 +156,7 @@ test('the Filament report supports filtering sorting zero results and raw repeat
         ->test(OutboundApplyClickReporting::class)
         ->assertSee('Raw outbound apply clicks')
         ->assertSee('geen unieke kandidaten', false)
+        ->assertSee('maximaal 24 maanden')
         ->sortTable('outbound_apply_clicks_count', 'asc')
         ->assertCanSeeTableRecords([$low, $high], inOrder: true)
         ->sortTable('title', 'asc')
