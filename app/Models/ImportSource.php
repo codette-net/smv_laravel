@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportMissingVacancyPolicy;
+use App\Enums\ImportPublicationPolicy;
 use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportTransport;
 use App\Enums\ImportType;
@@ -38,6 +40,8 @@ class ImportSource extends Model
         'selection_rules',
         'default_mapping',
         'is_active',
+        'publication_policy',
+        'missing_vacancy_policy',
         'automatic_import_enabled',
         'schedule_frequency',
         'approved_at',
@@ -57,6 +61,8 @@ class ImportSource extends Model
             'selection_rules' => 'array',
             'default_mapping' => 'array',
             'is_active' => 'boolean',
+            'publication_policy' => ImportPublicationPolicy::class,
+            'missing_vacancy_policy' => ImportMissingVacancyPolicy::class,
             'automatic_import_enabled' => 'boolean',
             'schedule_frequency' => ImportScheduleFrequency::class,
             'approved_at' => 'datetime',
@@ -151,6 +157,16 @@ class ImportSource extends Model
     public function marksSnapshotsAsPartial(): bool
     {
         return data_get($this->configuration, 'snapshot_reconciliation.partial') === true;
+    }
+
+    public function publishesNewVacanciesAutomatically(): bool
+    {
+        return $this->publication_policy === ImportPublicationPolicy::AutoPublish;
+    }
+
+    public function takesMissingVacanciesOffline(): bool
+    {
+        return $this->missing_vacancy_policy === ImportMissingVacancyPolicy::AutoOffline;
     }
 
     public function scopeApprovedForAutomaticRun($query)

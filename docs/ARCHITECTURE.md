@@ -77,9 +77,9 @@ SEO / migration
 
 Manual import execution runs synchronously through `VacancyImportRunner`; explicitly
 enabled remote sources can also dispatch bounded queued runs through the scheduler.
-Completed runs can record missing source references in `missing_since`; this does not
-unpublish or delete a Vacancy. Any future absence-driven depublication must wait for a
-verified complete-feed boundary and an approved manual-override rule. The Phase 2 feed
+Completed verified runs can record missing source references in `missing_since`. The
+ImportSource policy then either leaves publication for staff review or archives a
+published missing Vacancy without deleting it. Unsafe runs never apply that policy. The Phase 2 feed
 audit and proposed Joobs path are documented in `IMPORT_ARCHITECTURE_AUDIT.md`,
 `JOOBS_FEED_MAPPING.md` and `IMPORT_MVP_PLAN.md`.
 
@@ -237,9 +237,26 @@ selection make the run unsafe and prohibit reconciliation. An empty snapshot is 
 only when the source explicitly permits it.
 
 After every record applies successfully, a verified snapshot may set `missing_since` on
-source-owned Vacancies absent from its references. This is reporting metadata, not an
-unpublish/delete operation. A reappearing reference clears that marker while preserving
-the Vacancy's existing editorial status and expiry lifecycle.
+source-owned Vacancies absent from its references. `missing_vacancy_policy=review_required`
+keeps the existing editorial status. `auto_offline` changes a published missing Vacancy to
+`archived`, records `source_offlined_at`, and preserves the row, import identity and history.
+Manual Vacancies are outside reconciliation. Unsafe, partial or failed snapshots never
+invoke either missing policy.
+
+New imported records use the source's `publication_policy`: the conservative default
+`review_required` creates `pending` Vacancies; explicitly trusted sources may use
+`auto_publish`, which enters the existing `published` lifecycle without bypassing Company,
+publication-date, deadline, expiry, filled-state or application validation boundaries.
+Existing imported records keep their editorial status on ordinary feed updates. Mapped
+import fields are feed-owned and may be overwritten; unrelated SMV operational fields are
+not part of the mapper allowlist.
+
+A reappearing reference always clears `missing_since` and retains the same Vacancy identity.
+Only a Vacancy demonstrably archived by the source (`source_offlined_at`) may be restored to
+`published`, and only when both source policies allow it and the record is not filled or
+past its deadline/expiry. A manually archived record has no source-offline marker and stays
+archived. The marker is cleared after reappearance. Permanent editorial ownership requires
+a separate manual Vacancy; a future “create manual copy” action remains deferred.
 
 ## Scheduled import execution
 

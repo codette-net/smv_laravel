@@ -59,6 +59,8 @@ class ImportSourceResource extends Resource
                 TextColumn::make('format')->label('Formaat')->badge(),
                 IconColumn::make('is_active')->label('Actief')->boolean(),
                 IconColumn::make('automatic_import_enabled')->label('Automatisch')->boolean(),
+                TextColumn::make('publication_policy')->label('Nieuwe vacatures')->badge(),
+                TextColumn::make('missing_vacancy_policy')->label('Ontbrekend')->badge(),
                 IconColumn::make('approved_at')->label('Goedgekeurd')->boolean(),
                 TextColumn::make('health')->label('Gezondheid')->state(fn (ImportSource $record) => app(ImportSourceHealthEvaluator::class)->for($record)->health)->badge(),
                 TextColumn::make('schedule_frequency')->label('Frequentie')->badge()->placeholder('-'),

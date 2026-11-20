@@ -3,6 +3,7 @@
 use App\Enums\ApplicationMode;
 use App\Enums\ImportEmployerIdentityType;
 use App\Enums\ImportFormat;
+use App\Enums\ImportMissingVacancyPolicy;
 use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
 use App\Enums\VacancyStatus;
@@ -63,6 +64,7 @@ function joobsPersistenceMapping(?string $xml = null): array
         'format' => ImportFormat::Xml,
         'record_path' => 'source.job',
         'selection_rules' => null,
+        'missing_vacancy_policy' => ImportMissingVacancyPolicy::AutoOffline,
         'configuration' => [
             'sample_path' => joobsPersistenceFeed($xml ?? joobsPersistenceXml()),
             'source_contract' => 'joobs-1.0',

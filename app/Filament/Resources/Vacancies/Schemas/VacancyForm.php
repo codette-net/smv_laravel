@@ -173,7 +173,7 @@ class VacancyForm
                             ->required(fn (Get $get): bool => $get('application_mode') === ApplicationMode::External->value),
                     ]),
                 Section::make('Import en bron')
-                    ->description('Deze herkomstgegevens worden beheerd door de importworkflow.')
+                    ->description('Deze vacature wordt beheerd door een externe feed. Geïmporteerde velden kunnen bij een volgende import worden overschreven. Voor permanente redactionele controle is een afzonderlijke handmatige vacature nodig.')
                     ->columns(2)
                     ->visible(fn (?Vacancy $record): bool => $record?->import_source_id !== null)
                     ->schema([
@@ -186,6 +186,12 @@ class VacancyForm
                             ->disabled(),
                         TextInput::make('reference')
                             ->label('Interne referentie')
+                            ->disabled(),
+                        DateTimePicker::make('missing_since')
+                            ->label('Ontbreekt sinds')
+                            ->disabled(),
+                        DateTimePicker::make('source_offlined_at')
+                            ->label('Automatisch offline sinds')
                             ->disabled(),
                     ]),
             ]);
