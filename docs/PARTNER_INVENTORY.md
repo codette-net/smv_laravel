@@ -8,7 +8,7 @@ owner verification. This document does not authorize imports, invoicing or ranki
 
 | Partner | Commercial status | Feed or integration | Payment model | Reporting | Open questions | Technical readiness | Owner/contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Joobs | Confirmed willingness to proceed with the 13 October reseller proposal; Store addition intended during November, with partner communications in late November/early December. Agreement details remain open. | Joobs v1 complete-snapshot XML specification and two-ad example are present. Intended reseller feed is probably multi-employer. | Reseller pricing proposed; flexibility, channel package definitions and the EUR 389 four-for-three discrepancy are unresolved. Separate referral programme: 25% of monthly subscription revenue for two years, plus possible partner page; opportunity only. | Joobs says it tracks clicks and applications. SMV has no historic internal views/clicks and no basic event tracking yet. | Audience and Belgian share; average applications; best roles; experience/languages; Superior budget/channels/visibility; per-job reporting; discount; pricing discrepancy; invoice cadence/terms; order turnaround; manual email ordering. | Mapping audit complete. Live use still needs approved contract, Company resolution, safe snapshot/unpublishing, fixture tests, inclusive expiry, concurrency control, scheduling and monitoring. | Business owner not documented; assign commercial and technical owners. |
+| Joobs | Confirmed willingness to proceed with the 13 October reseller proposal; Store addition intended during November, with partner communications in late November/early December. Agreement details remain open. | Joobs v1 complete-snapshot XML specification and two-ad example are present. Intended reseller feed is probably multi-employer. | Reseller pricing proposed; flexibility, channel package definitions and the EUR 389 four-for-three discrepancy are unresolved. Separate referral programme: 25% of monthly subscription revenue for two years, plus possible partner page; opportunity only. | Joobs says it tracks clicks and applications. SMV now records and reports privacy-minimal raw outbound apply clicks with a 24-month maximum, but has no historic or detail-view metrics. | Audience and Belgian share; average applications; best roles; experience/languages; Superior budget/channels/visibility; per-job reporting; discount; pricing discrepancy; invoice cadence/terms; order turnaround; manual email ordering. | Mapping audit complete. Live use still needs approved contract, Company resolution, safe snapshot/unpublishing, fixture tests, inclusive expiry, concurrency control, scheduling and monitoring. | Business owner not documented; assign commercial and technical owners. |
 | VONQ | Previously reported as an active revenue source; spelling and agreement require confirmation. | Partner/feed details not verified in this review. | Unknown. Do not infer CPC. | Unknown. | Confirm agreement, current feed, payment basis, contacts and reporting access. | Generic importer may fit after a real spec/sample is supplied. | Not documented. |
 | Brockmeyer | Stakeholder-reported revenue source. | Appcast/programmatic relationship is unverified. | Unknown. | Unknown. | Confirm legal counterparty, Appcast role, feed ownership, payment basis and data access. | No verified source contract/spec in current documentation. | Not documented. |
 | VNOM | Existing feed; prospective CPC arrangement and request for consistently lower search positioning. | Existing VNOM fixtures and generic configuration evidence. | CPC is prospective, not confirmed. | Existing partner-side/internal availability not documented. | Confirm agreement, feed availability, CPC definition, validation, billing source and requested visibility rule. | Generic import foundation is strongest here; production activation still needs operational approval. Do not manipulate dates or ordering. | Not documented. |
@@ -80,14 +80,13 @@ only the Vacancy key and UTC event timestamp. Company and ImportSource are deriv
 the Vacancy. No user id, IP address, user-agent, cookie, fingerprint, partner secret or
 application content is stored. Repeated requests, including double clicks and undetected
 bots/link scanners, remain separate raw events; therefore totals are neither unique humans
-nor applications. The repository has no approved central analytics-retention mechanism.
-The product/privacy owner must approve a bounded retention period and its deletion process
-before these raw rows are used for a production reporting promise. SMV-097C proposes a
-maximum retention period of **24 months** for discussion, matching the current operational
-need for year-over-year partner review without claiming a legal basis. This value is not
-yet approved, so no records are silently deleted and no prune schedule is active. The exact
-follow-up is owner approval (or replacement with a shorter period), followed by a tested,
-observable scheduled prune command before the reporting promise goes live.
+nor applications. SMV-097D records the approved maximum retention period as **24 months**,
+supporting bounded operational and year-over-year commercial reporting without making a
+broader legal claim. A daily UTC schedule deletes raw events strictly older than the cutoff
+in bounded batches. The command supports a non-mutating dry run and logs its run time,
+cutoff and eligible/deleted counts without logging individual events. Events exactly at the
+cutoff remain. There is no longer-term aggregate store, so reports outside the retained
+window return only available data, normally zero.
 
 SMV-097C provides `super-admin`/`admin` users with inclusive UTC date, Vacancy, Company and
 ImportSource filters, totals per Vacancy/Company/source and aggregate CSV rows. The default

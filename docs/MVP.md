@@ -151,6 +151,13 @@ Vacancy, Company and ImportSource, and exports the same filtered per-Vacancy agg
 as CSV. Editors and non-staff users cannot access this commercial report. It does not
 provide conversion, unique-human, partner-confirmed or billing metrics.
 
+These privacy-minimal raw events are retained for at most 24 months to support bounded
+operational and year-over-year commercial reporting. A daily UTC scheduled command prunes
+events strictly older than that boundary in batches and logs its cutoff and count. Reports
+for older periods return only available data, normally zero; SMV does not create or infer
+longer-term historical aggregates. The event still contains no user ID, IP address,
+user-agent, cookie, fingerprint or application content.
+
 Current Vacancy and Company save totals and rankings are available only to Filament
 staff through aggregate pivot queries. Public save counts, individual saver identities,
 historical save events and behavioural profiles are outside scope.

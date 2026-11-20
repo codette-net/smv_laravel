@@ -275,3 +275,9 @@ The composite `(vacancy_id, clicked_at)` index supports per-Vacancy ranges and t
 standalone `clicked_at` index supports report-wide UTC date ranges. SMV-097C does not add
 counter or aggregate tables: Filament totals and aggregate CSV rows are derived from the
 raw events and existing Vacancy relationships.
+
+Raw outbound click rows have an approved maximum retention of 24 months for bounded
+operational and year-over-year commercial reporting. A daily UTC command removes rows
+whose `clicked_at` is strictly older than the run's 24-month cutoff, in bounded ID batches.
+Rows exactly at the cutoff remain. No longer-term aggregate is created, so reporting beyond
+the retained window returns available/zero raw-event results rather than synthetic history.
