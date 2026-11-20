@@ -60,10 +60,9 @@ optional `streetaddress` and uses different `referencenumber` / `url` values per
 The current mapper omits absent elements from normalized preview. At persistence, the
 runner still writes `null` for any mapped vacancy destination whose source element is
 omitted. This means an optional mapped value such as `salary` can clear a previous
-normalized salary on update; there is no source-field ownership/override or raw-record
-history. Decide whether omission means “clear because the employer stopped publishing
-it” (reasonable for source-owned fields) or “leave the editor value unchanged”, then
-test it. Do not present omitted values as preserved today.
+normalized salary on update. SMV-107 confirms that mapped fields are feed-owned, so this
+clearing behavior is intentional. There is no raw-record history or durable inline field
+override; permanent editorial ownership belongs in a separate manual Vacancy.
 
 | XML field | Meaning / requirement | Candidate Laravel destination | Existing support | Required transformation and validation | Gap / priority |
 | --- | --- | --- | --- | --- | --- |
@@ -145,8 +144,10 @@ locations, exact UTM URLs, sanitized HTML, raw salary without unsafe structured 
 language/product metadata, dates, disappearance, reappearance and unsafe snapshots.
 
 Taxonomy values remain deliberately unmapped because the Joobs category/product/contract
-vocabularies and aliases are not approved. New records remain `pending`; `missing_since`
-remains reporting metadata and is not the final Joobs removal/publication policy.
+vocabularies and aliases are not approved. SMV-107 now supplies the provider-neutral
+publication boundary: a Joobs ImportSource can explicitly use `auto_offline`, matching the
+specification requirement that an advertisement no longer present in the feed goes offline.
+The fixture remains review-required for new records and no live source is activated.
 
 ### Identifier failure and change rules
 
@@ -307,8 +308,8 @@ Feed validation and reconciliation are separate stages:
 2. **Apply:** upsert valid advertisements by source/reference only after preflight
    succeeds. A persistence error fails the run and cannot reconcile absence.
 3. **Reconcile:** only an explicitly enabled complete verified snapshot may mark previously
-   seen references absent. Absence currently sets `missing_since`; it never deletes the
-   Vacancy or overwrites its editorial status/publication state.
+   seen references absent. Absence sets `missing_since`; the configured Joobs policy may
+   archive a published missing Vacancy, but never deletes it.
 
 Safe lifecycle decisions for SMV-093:
 
@@ -317,17 +318,18 @@ Safe lifecycle decisions for SMV-093:
   action. An intentional legitimate empty feed needs an explicit operator confirmation or
   partner-provided count/status signal before it may be treated as complete.
 - A missing advertisement receives `missing_since` after one verified complete snapshot.
-  Public unpublishing is not implemented or implied by SMV-093; retain the row/history
-  until a separately approved publication/removal policy exists.
+  Configure Joobs with `missing_vacancy_policy=auto_offline` so a published missing
+  advertisement becomes `archived`; retain its row, identity and history.
 - An advertisement whose inclusive `expires_at` has passed is already hidden by the public
   query. A later omission still records source absence; expiry and feed absence remain
   separate facts.
-- A reappearing reference clears source absence. Preserve `Vacancy.status`; manually
-  archived/expired records remain hidden, while a previously published source-available
-  record may become visible again.
-- Import-owned mapped fields may update on reappearance, but manual editorial overrides
-  require an explicit field-ownership mechanism. Until implemented, mapped fields are
-  source-owned and staff must not be promised durable inline overrides.
+- A reappearing reference clears source absence. A source-driven archive may return to
+  `published` only when the source is also configured for auto-publication and the existing
+  filled/deadline/expiry lifecycle permits it. Manually archived or expired records remain
+  hidden.
+- Imported mapped fields are feed-owned and may update on every run, including
+  reappearance. Permanent SMV editorial ownership should use a separate manual Vacancy;
+  the future “create manual copy” action is not part of SMV-107.
 
 ## Unresolved partner inputs and fail-closed defaults
 

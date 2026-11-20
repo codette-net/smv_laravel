@@ -23,9 +23,9 @@ SMV-031 through SMV-039 are implemented. The current generic pipeline provides:
   per-record employer resolution, and provider-scoped Vacancy upsert through
   `import_source_id + source_reference`;
 - mapped Category/Tag persistence, stable slugs and idempotent reruns;
-- safe Import history/logs, created/updated/skipped/failed counters and reversible
-  missing/restored source reporting (`missing_since` is reporting metadata only; a
-  missing row is not automatically unpublished or deleted);
+- safe Import history/logs, created/updated/skipped/failed counters, reversible
+  missing/restored source reporting and conservative per-source publication/missing
+  policies; missing records are never hard-deleted;
 - production-quality VNOM configuration validated through the generic pipeline, plus
   end-to-end parity coverage for representative VNOM, Michael Page, Orange Career,
   CSV and XLSX fixtures.
@@ -35,12 +35,9 @@ stale-run recovery and unattended activation are operational follow-up work, not
 completed features. Source identifiers and business mappings still require provider
 approval before enabling an automatic production feed.
 
-The XML reader rejects a document with no matching configured record path, but a
-selection rule that selects zero records can still cause all source Vacancies to be
-marked missing. Malformed/truncated XML completion is not explicitly verified. Missing
-reporting only sets `missing_since`; it does not change Vacancy status. Do not enable
-absence-based removal until the whole feed and selected record set are verified before
-writes. See [IMPORT_ARCHITECTURE_AUDIT.md](IMPORT_ARCHITECTURE_AUDIT.md),
+Only verified complete snapshots may reconcile missing records. Empty, malformed,
+partial, invalid, unresolved or failed input fails closed before missing policy is
+applied. See [IMPORT_ARCHITECTURE_AUDIT.md](IMPORT_ARCHITECTURE_AUDIT.md),
 [JOOBS_FEED_MAPPING.md](JOOBS_FEED_MAPPING.md), and
 [IMPORT_MVP_PLAN.md](IMPORT_MVP_PLAN.md) for field coverage and proposals.
 
@@ -459,8 +456,8 @@ The generic XML reader and Vacancy description sanitizer are reused. Configured
 the normal mapper, validator, employer resolver, Vacancy upsert and verified snapshot
 lifecycle handle persistence. SMV-094B tests the supplied fixture, idempotency, metadata,
 exact application URLs, sanitation, configured inclusive expiry, disappearance,
-reappearance and unsafe snapshots. New imported Vacancies remain pending and current
-missing reporting does not unpublish records.
+reappearance and unsafe snapshots. The fixture keeps new records review-required and
+configures Joobs missing advertisements for verified-only automatic offline behavior.
 
 Live activation still requires the employer identity guarantee, closed category/product
 sets and taxonomy aliases, written business-timezone confirmation, and final publication/
@@ -700,19 +697,18 @@ A rerun should not create duplicates when the same source vacancy is already kno
 
 ## Missing source records
 
-A recurring feed may stop returning a previously imported Vacancy. The current runner
-detects and reports missing selected records after a reliable completed run, using
-`missing_since` and safe import logs. It does not unpublish or delete those Vacancies.
+A recurring feed may stop returning a previously imported Vacancy. After a verified
+complete snapshot, the runner records `missing_since` and applies the ImportSource's
+provider-neutral policy:
 
-Do not make automatic deletion the default. Depublication after verified complete
-snapshots is a separate proposed capability and requires an approved status/override
-policy.
+- `review_required` (default): retain the existing status for staff review;
+- `auto_offline`: archive a published missing Vacancy and record `source_offlined_at`.
 
-Potential later behavior:
-
-- report missing records
-- mark as no longer present
-- optionally close/deactivate after explicit configuration
+Neither policy deletes the Vacancy. Source attribution, import/click history and other
+relations remain available. A reappearing reference clears the missing marker and keeps
+the same identity. It returns to `published` only when the source itself caused the archive,
+both source policies permit automatic publication, and deadline/expiry/filled safeguards
+still allow it. Manual suppression remains intact.
 
 ## Reusable mappings
 
@@ -930,6 +926,8 @@ absent imported Vacancies with `missing_since`. Empty input fails closed unless 
 has an explicit `allow_empty` capability. Unsafe, partial, malformed, unresolved and failed
 runs are retained in Import history with an outcome code and never reconcile omissions.
 
-This ticket does not change public availability: `missing_since` remains reporting metadata.
-It never deletes a Vacancy or changes its editorial status; a reappearing source reference
-clears only the missing marker.
+SMV-107 keeps reconciliation opt-in and adds policy only after that safety boundary.
+`review_required` preserves the previous status; `auto_offline` archives published missing
+records without deletion. Reappearance clears source absence, but only a recorded
+source-driven archive can be restored automatically. Import run metadata records the
+publication and missing policies used for the run.

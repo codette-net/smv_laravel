@@ -88,9 +88,9 @@ Laravel readiness.
    URLs and taxonomy resolution. Execute only after the reviewer approves the preview.
 4. Repeat the exact import and confirm updates occur on the same source/reference rows
    with no count increase. Check the Import run counters and Vacancy list.
-5. Do not remove a fixture record and present the current `missing_since` behavior as
-   unpublishing. It is reporting metadata only; no automatic synchronization or removal
-   behavior is ready for demonstration.
+5. A new fixture source defaults to review-only missing behavior. Demonstrate automatic
+   offline behavior only after explicitly choosing that per-source policy and only with a
+   verified complete snapshot; never present unsafe/partial input as synchronization.
 6. Do not use `DatabaseSeeder` as a staging reset. `DatabaseSeeder` calls
    `DemoSeeder` (creates synthetic users, Companies and Vacancies) and
    `AdminUserSeeder`; the latter falls back to a known development password when
@@ -195,12 +195,13 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | Ticket | Objective / dependencies | Likely files | Acceptance criteria | Estimate (Codex / human) | Demo blocker | Release blocker |
 | --- | --- | --- | --- | --- | --- | --- |
 | SMV-092 — Joobs mapping contract | Finalize the mapping/identity design and safe defaults; partner guarantees remain activation inputs. | `docs/JOOBS_FEED_MAPPING.md`, `docs/integrations/joobs/*`, `docs/IMPORTS.md` | DONE: every standard/`joobs_` field classified; advertisement/requisition/employer identity, location, salary/date, snapshot and unresolved-value behavior explicit. | Complete / partner follow-up 2–4 h | No | Design gate complete; open partner values still gate live activation |
-| SMV-093 — Verified snapshot lifecycle | DONE: make absence reporting safe after the SMV-092/100 foundations. | `VacancyImportRunner.php`, ImportSource configuration, Import runs/logs, import/lifecycle tests | Explicit source opt-in; read/parse/map/resolve preflight before apply; empty snapshots require explicit capability; duplicate/invalid/partial/failed snapshots do not reconcile; shared per-source lock; verified absence marks `missing_since` only; status/deletion policy remains unchanged. | Complete | No | Partner activation still needs publication/removal policy confirmation |
-| SMV-094 — Joobs transformations and fixture acceptance | DONE: configured contract plus generic fixture-to-Vacancy persistence. | `SourceContractValidator`, generic mapper/validator/runner, Joobs fixture and persistence tests | Two-city/shared requisition/distinct ad IDs, idempotency, employer resolution, metadata, optional salary, HTML safety, exact URL/UTM, raw salary, dates, location/SEO and failure paths are automated. Unapproved taxonomy values remain unmapped. | Complete | No | Partner identity/value/timezone/publication inputs still gate live activation |
+| SMV-093 — Verified snapshot lifecycle | DONE: make absence reporting safe after the SMV-092/100 foundations. | `VacancyImportRunner.php`, ImportSource configuration, Import runs/logs, import/lifecycle tests | Explicit source opt-in; read/parse/map/resolve preflight before apply; empty snapshots require explicit capability; duplicate/invalid/partial/failed snapshots do not reconcile; shared per-source lock; verified absence records `missing_since`. SMV-107 adds policy after this boundary. | Complete | No | Expected-count/empty-feed policy remains an activation input |
+| SMV-094 — Joobs transformations and fixture acceptance | DONE: configured contract plus generic fixture-to-Vacancy persistence. | `SourceContractValidator`, generic mapper/validator/runner, Joobs fixture and persistence tests | Two-city/shared requisition/distinct ad IDs, idempotency, employer resolution, metadata, optional salary, HTML safety, exact URL/UTM, raw salary, dates, location/SEO and failure paths are automated. Unapproved taxonomy values remain unmapped. | Complete | No | Partner identity/value/timezone inputs still gate live activation |
 | SMV-095A — Generic scheduled and bounded execution | DONE: dispatch due approved sources to unique database-queue jobs and drain them with a bounded scheduled worker. | ImportSource scheduling fields/admin, queued job, due dispatcher/command, scheduler, queue config/tests | Disabled by default; hourly/6-hourly/daily; remote active+approved source and active default mapping required; two attempts; 10-minute timeout; source lock and queue retry invariant tested; no provider activation. | Complete / hosting verification remains | No | Infrastructure ready; live sources still require activation approval and production operations verification |
 | SMV-097 — Basic outbound click tracking | Add same-site redirect for external applications, with minimal provider/ad attribution, after partner/privacy requirements are confirmed. | `routes/web.php`, controller, Vacancy CTA, event storage/migration, tests | Record Vacancy/provider/ad/time with minimized data; redirect only to validated stored URL; preserve UTM exactly; document dedupe/bot rule; reject arbitrary redirect targets. | 5–9 h / 4–7 h | No | Conditional on partner contract requiring SMV clicks |
 | SMV-100 — Multi-employer Company mapping | DONE: source-scoped employer mapping and provider-neutral Vacancy metadata. Stable provider ID is preferred; reviewed exact company-name + source-URL is the fallback. | `ImportSourceEmployer`, generic validator/runner, Filament admin, Vacancy metadata migration, public detail/JobPosting | Deterministic source-scoped resolution; unresolved records skip without default-Company fallback or missing detection; no Company creation/profile writes; metadata and location semantics covered. | Complete | No | Foundation complete; partner identity approval still gates live Joobs |
 | SMV-101 — Import monitoring and recovery | DONE: derive provider-neutral health and safe recovery from existing run history. | Import/ImportLog models, Filament Imports pages, policies, monitoring service, tests/runbook | Health distinguishes disabled/manual/never-run/running/overdue/failure/incomplete/skipped states; counts and verified drops are visible; retry creates a fresh manual-origin run through the locked importer; runbook covers queue/scheduler recovery. | Complete / production ownership verification remains | No | Application operations foundation complete; cron/queue and alert ownership remain environment gates |
+| SMV-107 — Per-source publication policy | DONE: configure new-record publication and verified-missing behavior without provider-specific lifecycle code. | ImportSource policy enums/admin, Vacancy source-offline provenance, generic runner/lifecycle tests | Defaults require review; trusted sources may auto-publish; verified missing records may be archived without deletion; reappearance preserves manual suppression and identity; mapped fields remain feed-owned. | Complete | No | Production source configuration and remaining partner inputs still require approval |
 
 ### Joobs readiness classification
 
@@ -209,7 +210,7 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | Mapping contract and Joobs fixture tests (SMV-092/094) | Required before first live Joobs feed | The supplied spec/example must become an approved mapping and automated contract. Preserve the exact UTM-tagged application URL and prove two city ads with one requisition remain distinct. |
 | Multi-employer Company resolution (SMV-100) | Implemented foundation; configured mappings are still required before first live Joobs feed | A reseller feed uses explicit stable-ID/approved composite mappings, quarantines unresolved identities and never overwrites manual profiles. |
 | Advertised versus actual workplace locations | Required before first live Joobs feed | The example proves these differ. Store both semantics; do not overwrite one with the other or misrepresent workplace location publicly. |
-| Complete-snapshot validation and reversible absence reporting (SMV-093) | Implemented foundation; final publication/removal policy still required before live automation | Validate root/version, full parse, non-empty set and unique ad IDs before writes/reconciliation. A verified complete run records `missing_since`; it does not yet unpublish or delete. |
+| Complete-snapshot validation and reversible absence reporting (SMV-093/107) | Implemented foundation and configurable publication boundary | Validate root/version, full parse, non-empty set and unique ad IDs before writes/reconciliation. A verified complete run records `missing_since`; configured `auto_offline` archives without deleting. |
 | Inclusive expiration date handling | Required before first live Joobs feed | Joobs defines a date-only final paid day. Use approved business timezone end-of-day and boundary/DST tests so the last day is not lost. |
 | Import concurrency protection | Required before first live feed execution | One lock per source is needed even for manual operation to prevent overlapping writes and unsafe absence reconciliation. |
 | Scheduled execution (SMV-095A) | Implemented infrastructure; production cron/runtime verification remains | One cron minute invokes Laravel scheduling; due sources enqueue unique jobs and a bounded database worker drains the import queue. Sources remain disabled until individually approved and enabled. |
@@ -224,8 +225,8 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | --- | --- | --- | --- | --- | --- | --- |
 | SMV-091 — PARTIALLY DONE | Convert stakeholder viewing into evidenced staging acceptance. | Deployed release, operator access, content decision, defect owner. | Dated public/admin/SEO/noindex/responsive/runtime/privacy checklist; critical defects closed or explicitly waived; named acceptor. | General production gate. | 1-3 h / 3-6 h | Accepting owner, device/browser matrix, outstanding defects and waivers. |
 | SMV-092 — DONE (design contract) | Close the Joobs mapping and identity contract with fail-closed defaults. | Repository/spec/SMV-094A evidence; partner follow-up remains activation input. | Field matrix and identity/employer/location/salary/date/snapshot rules finalized in `JOOBS_FEED_MAPPING.md`. | Design gate complete; not general launch gate. | Complete / 2-4 h partner follow-up | Stable employer ID, closed category/product values, timezone and auto-publication confirmation. |
-| SMV-093 — DONE | Make complete-snapshot processing and overlap safe without changing publication policy. | SMV-092/100 foundations. | Explicit opt-in, preflight, safe empty policy, source lock, verified missing/reporting and reappearance are implemented; unsafe runs cannot reconcile. | Foundation complete. | Complete | Expected-count signal, manual field-override mechanism, alert thresholds and partner publication/removal policy. |
-| SMV-094 — DONE (fixture persistence contract) | A proves parsing without persistence; B proves configured end-to-end generic persistence. | SMV-100 storage/resolution and SMV-093 lifecycle. | Fixture contract, rerun/update, sanitation, raw salary, configured date-only expiry, employer resolution, metadata, location/SEO and unsafe/persistence failures are tested. Taxonomy is withheld pending approved aliases. | Code gate complete; partner activation gate remains. | Complete | Taxonomy aliases, employer identity guarantee, publication policy, approved timezone and partner value sets. |
+| SMV-093 — DONE | Make complete-snapshot processing and overlap safe without changing publication policy. | SMV-092/100 foundations. | Explicit opt-in, preflight, safe empty policy, source lock, verified missing/reporting and reappearance are implemented; unsafe runs cannot reconcile. SMV-107 now owns the later policy boundary. | Foundation complete. | Complete | Expected-count signal and alert thresholds. |
+| SMV-094 — DONE (fixture persistence contract) | A proves parsing without persistence; B proves configured end-to-end generic persistence. | SMV-100 storage/resolution and SMV-093 lifecycle. | Fixture contract, rerun/update, sanitation, raw salary, configured date-only expiry, employer resolution, metadata, location/SEO and unsafe/persistence failures are tested. Taxonomy is withheld pending approved aliases. | Code gate complete; partner activation gate remains. | Complete | Taxonomy aliases, employer identity guarantee, approved timezone and partner value sets. |
 | SMV-095A — DONE (infrastructure) | Run explicitly enabled approved sources at a bounded cadence. | SMV-093/094; database queue and cache. | Hourly/6-hourly/daily dispatch, unique per-source jobs, two attempts, bounded worker, timeout/lock/retry invariant, admin controls and fail-closed retries are tested. | Infrastructure ready; hosting cron and operator checks remain. | Complete | Production PHP path/resource limits and source-by-source activation owner. |
 | SMV-097 — 097B/097C/097D IMPLEMENTED; 097A PENDING | Provide honest basic per-vacancy views/clicks and export. | Privacy/product rules; partner attribution definition. | Controlled outbound clicks, administrator-only UTC date-range totals/aggregate CSV and daily enforcement of the approved 24-month raw-event maximum are implemented. Detail views remain uncollected. | Conditional production gate if promised to Joobs; otherwise pre-promise gate. | 10-16 h / 7-11 h | Production scheduler verification, bots/deduplication and Joobs reconciliation format. |
 | SMV-100 — DONE | Reusable source-scoped employer resolution and allowlisted provider-neutral Vacancy metadata. | SMV-092 contract. | Reviewed mappings, deterministic resolution, no unsafe fallback/creation/profile writes, metadata persistence, public search compatibility and actual-workplace JobPosting behavior are implemented and tested. | Foundation complete. | Complete | Partner employer ID is still preferred; pending-Company creation remains out of scope. |
@@ -265,20 +266,22 @@ privacy-conscious minimum are recorded in `PARTNER_INVENTORY.md`.
    are implemented using the SMV-092 contract.
 4. **SMV-093 - safe snapshot lifecycle and per-source lock — COMPLETE.** Explicit source
    opt-in, whole-snapshot preflight, safe empty policy, reappearance reporting and
-   per-source concurrency protection are implemented. Publication/removal policy remains
-   deliberately separate.
-5. **SMV-094B - end-to-end transformations/persistence — IMPLEMENTED.** The configured
+   per-source concurrency protection are implemented.
+5. **SMV-107 - per-source publication/removal policy — COMPLETE.** Conservative defaults,
+   explicit auto-publication, verified-only auto-offline, source-driven restoration and
+   feed-owned field behavior are implemented without Joobs-specific lifecycle code.
+6. **SMV-094B - end-to-end transformations/persistence — IMPLEMENTED.** The configured
    contract and mapping exercise generic persistence, source-scoped employer resolution,
    metadata, safe HTML, raw salary, inclusive expiry and verified disappearance/
    reappearance. Taxonomy activation awaits approved partner value lists.
-6. **Controlled manual pilot (2-4 h / 3-6 h).** Only after 1-5 pass and agreement/feed
+7. **Controlled manual pilot (2-4 h / 3-6 h).** Only after 1-6 pass and agreement/feed
    access are approved; use monitored runs and a recovery checklist. Manual email orders
    can remain a business process until this point.
-7. **SMV-095A and SMV-101 — IMPLEMENTED.** Generic bounded scheduling, queue execution,
+8. **SMV-095A and SMV-101 — IMPLEMENTED.** Generic bounded scheduling, queue execution,
    derived health/anomaly visibility and locked fresh-run recovery are in place. Verify
    production cron/runtime and assign an operator/alert destination before unattended
    partner activation.
-8. **SMV-097A-D (10-16 h / 7-11 h).** Schedule before production only if the Joobs
+9. **SMV-097A-D (10-16 h / 7-11 h).** Schedule before production only if the Joobs
    agreement requires SMV per-vacancy reporting at launch; otherwise deliver before the
    reporting promise becomes active.
 
@@ -397,9 +400,10 @@ lock and a timed-out reservation cannot retry until that stale lock expires. Sch
 worker events also use overlap guards. Cron UTC and `expirationdate` local-day handling
 remain separate. Public expiration is query-side; no expiry cron is needed.
 
-This is infrastructure readiness, not Joobs activation. Joobs remains disabled until its
-employer identity, value lists, timezone, publication/removal, field ownership and
-expected-count/empty-feed decisions are approved.
+This is infrastructure readiness, not Joobs activation. Publication/removal and mapped
+field ownership now have approved provider-neutral defaults, including Joobs
+`auto_offline`. Joobs remains disabled until its employer identity, value lists, timezone
+and expected-count/empty-feed decisions are approved.
 
 Operational failures and recovery:
 

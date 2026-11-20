@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\ImportSources;
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportMissingVacancyPolicy;
+use App\Enums\ImportPublicationPolicy;
 use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportTransport;
 use App\Models\ImportSource;
@@ -79,6 +81,20 @@ class ImportSourceForm
                     ->formatStateUsing(fn (?array $state): ?string => $state === null ? null : json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))
                     ->dehydrateStateUsing(fn (?string $state): ?array => filled($state) ? json_decode($state, true, 512, JSON_THROW_ON_ERROR) : null)
                     ->columnSpanFull(),
+            ]),
+            Section::make('Publicatiebeleid')->columns(2)->columnSpanFull()->schema([
+                Select::make('publication_policy')
+                    ->label('Nieuwe geïmporteerde vacatures')
+                    ->options(ImportPublicationPolicy::class)
+                    ->default(ImportPublicationPolicy::ReviewRequired->value)
+                    ->required()
+                    ->helperText('Dit geldt alleen voor nieuwe vacatures uit deze importbron. Handmatige vacatures blijven volledig redactioneel beheerd.'),
+                Select::make('missing_vacancy_policy')
+                    ->label('Ontbrekende advertenties')
+                    ->options(ImportMissingVacancyPolicy::class)
+                    ->default(ImportMissingVacancyPolicy::ReviewRequired->value)
+                    ->required()
+                    ->helperText('Automatisch offline wordt uitsluitend toegepast na een volledig geverifieerde snapshot; de vacature en historie blijven bewaard.'),
             ]),
             Section::make('Geavanceerde broninstellingen')
                 ->description('Optionele technische instellingen voor deze bron; normaal kan dit leeg blijven.')

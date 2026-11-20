@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\ImportFormat;
+use App\Enums\ImportMissingVacancyPolicy;
+use App\Enums\ImportPublicationPolicy;
 use App\Enums\ImportTransport;
 use App\Models\Company;
 use App\Models\ImportSource;
@@ -31,6 +33,8 @@ class ImportSourceFactory extends Factory
             'configuration' => ['timeout' => 15],
             'selection_rules' => [['path' => 'function', 'operator' => 'contains_any', 'values' => ['Sales']]],
             'is_active' => true,
+            'publication_policy' => ImportPublicationPolicy::ReviewRequired,
+            'missing_vacancy_policy' => ImportMissingVacancyPolicy::ReviewRequired,
             'automatic_import_enabled' => false,
         ];
     }

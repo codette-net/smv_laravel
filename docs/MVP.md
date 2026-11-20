@@ -177,6 +177,15 @@ First-class MVP formats:
 
 The architecture must separate source transport from source format and support reusable mappings across repeated feed runs.
 
+Publication and missing-advertisement behavior are configured per ImportSource. New and
+untrusted sources default to staff review: new imported Vacancies remain pending and
+verified missing records retain their current status with a visible `missing_since` signal.
+An explicitly trusted source may auto-publish new valid records. A source may separately
+archive published advertisements absent from a verified complete snapshot; it never deletes
+them. Reappearance preserves identity and manual suppression. Imported mapped fields remain
+feed-owned and may be refreshed; permanent SMV editorial ownership requires a separate
+manual Vacancy. The manual-copy workflow itself is deferred.
+
 The MVP must be capable of demonstrating:
 
 - remote feed or uploaded source configuration

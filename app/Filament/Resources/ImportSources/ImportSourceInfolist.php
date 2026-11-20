@@ -21,6 +21,8 @@ class ImportSourceInfolist
                 IconEntry::make('is_active')->label('Actief')->boolean(), TextEntry::make('record_path')->label('Recordpad')->placeholder('-'),
                 IconEntry::make('automatic_import_enabled')->label('Automatisch')->boolean(),
                 TextEntry::make('schedule_frequency')->label('Frequentie')->placeholder('-'),
+                TextEntry::make('publication_policy')->label('Nieuwe vacatures')->badge(),
+                TextEntry::make('missing_vacancy_policy')->label('Ontbrekende advertenties')->badge(),
                 TextEntry::make('safe_endpoint')->label('URL / endpoint (zonder querygegevens)')->state(fn (ImportSource $record): ?string => $record->safeEndpointLabel())->placeholder('-')->columnSpanFull(),
             ]),
             Section::make('Operationele gezondheid')->columns(2)->columnSpanFull()->schema([

@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Enums\ApplicationMode;
 use App\Enums\ImportExecutionOrigin;
 use App\Enums\ImportLogLevel;
 use App\Enums\ImportStatus;
@@ -13,6 +14,7 @@ use App\Imports\Validation\ImportRecordValidator;
 use App\Models\Import;
 use App\Models\ImportLog;
 use App\Models\ImportMapping;
+use App\Models\ImportSource;
 use App\Models\Vacancy;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -75,9 +77,9 @@ class VacancyImportRunner
                     }
                 }
             }
-            $this->finalizeSeenVacancies($run, $persistedVacancies);
+            $this->finalizeSeenVacancies($run, $source, $persistedVacancies);
             if ($snapshot) {
-                $this->detectMissingVacancies($run, $source->id, array_column($records, 'reference'));
+                $this->detectMissingVacancies($run, $source, array_column($records, 'reference'));
             } elseif ($hasUnsafeRecord) {
                 $this->log($run, ImportLogLevel::Warning, 'Controle op ontbrekende vacatures is overgeslagen omdat deze run niet volledig betrouwbaar was.', null, null, 'missing_detection_skipped');
             }
@@ -171,6 +173,10 @@ class VacancyImportRunner
     {
         return [
             'mapping_id' => $mappingId,
+            'policies' => [
+                'publication' => $source->publication_policy->value,
+                'missing_vacancy' => $source->missing_vacancy_policy->value,
+            ],
             'snapshot' => [
                 'state' => $state,
                 'reconciliation_enabled' => $source->usesVerifiedSnapshotReconciliation(),
@@ -203,9 +209,21 @@ class VacancyImportRunner
         if ($created && ! array_key_exists('description', $attributes)) {
             $attributes['description'] = '';
         }
-        $attributes += ['company_id' => $outcome->companyId, 'import_source_id' => $source->id, 'source_reference' => $reference, 'source' => VacancySource::Import, 'status' => $created ? VacancyStatus::Pending : $vacancy->status];
+        $attributes += [
+            'company_id' => $outcome->companyId,
+            'import_source_id' => $source->id,
+            'source_reference' => $reference,
+            'source' => VacancySource::Import,
+            'status' => $created ? VacancyStatus::Pending : $vacancy->status,
+        ];
         $vacancy ??= new Vacancy;
-        $vacancy->fill($attributes)->save();
+        $vacancy->fill($attributes);
+        if ($created
+            && $source->publishesNewVacanciesAutomatically()
+            && $this->hasValidApplicationDestination($vacancy)) {
+            $vacancy->status = VacancyStatus::Active;
+        }
+        $vacancy->save();
         foreach (['employment_type', 'workplace', 'sector', 'function_area', 'experience', 'qualification'] as $type) {
             if (! in_array("taxonomy.{$type}", $fields, true)) {
                 continue;
@@ -227,7 +245,7 @@ class VacancyImportRunner
     }
 
     /** @param array<int, array{created: bool, vacancy_id: int, source_reference: string, was_missing: bool}> $vacancies */
-    private function finalizeSeenVacancies(Import $run, array $vacancies): void
+    private function finalizeSeenVacancies(Import $run, ImportSource $source, array $vacancies): void
     {
         if ($vacancies === []) {
             return;
@@ -245,24 +263,40 @@ class VacancyImportRunner
                 continue;
             }
 
+            $restoredVacancy = Vacancy::query()->findOrFail($vacancy['vacancy_id']);
+            $restoredAutomatically = false;
+            if ($restoredVacancy->source_offlined_at !== null) {
+                if ($source->takesMissingVacanciesOffline()
+                    && $source->publishesNewVacanciesAutomatically()
+                    && $this->canRestorePublishedStatus($restoredVacancy)) {
+                    $restoredVacancy->status = VacancyStatus::Active;
+                    $restoredAutomatically = true;
+                }
+
+                $restoredVacancy->source_offlined_at = null;
+                $restoredVacancy->save();
+            }
+
             $run->increment('restored_rows');
             $this->log($run, ImportLogLevel::Info, 'Vacature is teruggekeerd in de importbron.', null, null, 'restored_in_source', [
                 'source_reference' => $vacancy['source_reference'],
                 'vacancy_id' => $vacancy['vacancy_id'],
+                'publication_restored' => $restoredAutomatically,
             ]);
         }
     }
 
     /** @param list<string> $seenReferences */
-    private function detectMissingVacancies(Import $run, int $sourceId, array $seenReferences): void
+    private function detectMissingVacancies(Import $run, ImportSource $source, array $seenReferences): void
     {
         Vacancy::query()
-            ->where('import_source_id', $sourceId)
+            ->where('import_source_id', $source->id)
             ->when($seenReferences !== [], fn ($query) => $query->whereNotIn('source_reference', $seenReferences))
             ->orderBy('id')
-            ->each(function (Vacancy $vacancy) use ($run): void {
+            ->each(function (Vacancy $vacancy) use ($run, $source): void {
+                $automaticallyOfflined = false;
                 if ($vacancy->missing_since === null) {
-                    $vacancy->forceFill(['missing_since' => now()])->save();
+                    $vacancy->missing_since = now();
                     $run->increment('missing_rows');
                     $message = 'Vacature ontbreekt voor het eerst in de importbron.';
                     $code = 'missing_from_source';
@@ -271,11 +305,56 @@ class VacancyImportRunner
                     $code = 'still_missing_from_source';
                 }
 
+                if ($source->takesMissingVacanciesOffline() && $vacancy->status === VacancyStatus::Active) {
+                    $vacancy->status = VacancyStatus::Archived;
+                    $vacancy->source_offlined_at = now();
+                    $automaticallyOfflined = true;
+                    $message .= ' De vacature is automatisch offline gehaald.';
+                }
+
+                if ($vacancy->isDirty()) {
+                    $vacancy->save();
+                }
+
                 $this->log($run, ImportLogLevel::Warning, $message, null, null, $code, [
                     'source_reference' => $vacancy->source_reference,
                     'vacancy_id' => $vacancy->id,
+                    'automatically_offlined' => $automaticallyOfflined,
                 ]);
             });
+    }
+
+    private function canRestorePublishedStatus(Vacancy $vacancy): bool
+    {
+        return $vacancy->status === VacancyStatus::Archived
+            && ! $vacancy->is_filled
+            && ! $vacancy->deadline_at?->isPast()
+            && ! $vacancy->expires_at?->isPast()
+            && $this->hasValidApplicationDestination($vacancy);
+    }
+
+    private function hasValidApplicationDestination(Vacancy $vacancy): bool
+    {
+        return match ($vacancy->application_mode) {
+            ApplicationMode::Internal => true,
+            ApplicationMode::Email => filter_var($vacancy->application_email, FILTER_VALIDATE_EMAIL) !== false,
+            ApplicationMode::External => $this->isSafeExternalApplicationUrl($vacancy->application_url),
+            default => false,
+        };
+    }
+
+    private function isSafeExternalApplicationUrl(?string $url): bool
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $parts = parse_url($url);
+
+        return is_array($parts)
+            && in_array(strtolower((string) ($parts['scheme'] ?? '')), ['http', 'https'], true)
+            && ! isset($parts['user'])
+            && ! isset($parts['pass']);
     }
 
     /** @param array<string, int|string|null> $context */

@@ -131,6 +131,14 @@ class VacancyInfolist
                         TextEntry::make('source_reference')
                             ->label('Bronreferentie')
                             ->placeholder('-'),
+                        TextEntry::make('missing_since')
+                            ->label('Ontbreekt sinds')
+                            ->dateTime()
+                            ->placeholder('-'),
+                        TextEntry::make('source_offlined_at')
+                            ->label('Automatisch offline sinds')
+                            ->dateTime()
+                            ->placeholder('-'),
                     ]),
                 Section::make('Administratie')
                     ->columns(2)

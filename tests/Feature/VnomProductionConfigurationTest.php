@@ -215,8 +215,11 @@ test('VNOM configuration previews executes reruns and reports missing and restor
     $vacancy->update(['status' => VacancyStatus::Active]);
     $this->get(route('vacancies.show', $vacancy->fresh()))
         ->assertOk()
-        ->assertSee($vacancy->application_url, false)
+        ->assertSee(route('vacancies.apply.external', $vacancy), false)
+        ->assertDontSee($vacancy->application_url, false)
         ->assertSee('Solliciteer nu');
+    $this->get(route('vacancies.apply.external', $vacancy))
+        ->assertRedirect($vacancy->application_url);
 
     $missingReference = 'a1WWy0000027TqXMAU';
     $replacement = vnomProductionFixture($missingReference, 'Commercieel Medewerker vernieuwd');
