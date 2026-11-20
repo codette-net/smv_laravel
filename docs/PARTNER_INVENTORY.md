@@ -82,5 +82,16 @@ application content is stored. Repeated requests, including double clicks and un
 bots/link scanners, remain separate raw events; therefore totals are neither unique humans
 nor applications. The repository has no approved central analytics-retention mechanism.
 The product/privacy owner must approve a bounded retention period and its deletion process
-before these raw rows are used for a production reporting promise; automated pruning is not
-part of SMV-097B.
+before these raw rows are used for a production reporting promise. SMV-097C proposes a
+maximum retention period of **24 months** for discussion, matching the current operational
+need for year-over-year partner review without claiming a legal basis. This value is not
+yet approved, so no records are silently deleted and no prune schedule is active. The exact
+follow-up is owner approval (or replacement with a shorter period), followed by a tested,
+observable scheduled prune command before the reporting promise goes live.
+
+SMV-097C provides `super-admin`/`admin` users with inclusive UTC date, Vacancy, Company and
+ImportSource filters, totals per Vacancy/Company/source and aggregate CSV rows. The default
+window is the latest 30 UTC calendar days. CSV contains identifiers/reference, Vacancy,
+Company, source, current status, raw click count and reporting period; it contains no raw
+click rows or personal/request metadata. These SMV counts still cannot prove a unique human,
+completed application, partner acceptance, billability or hiring outcome.

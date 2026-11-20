@@ -271,3 +271,7 @@ Each row contains only `vacancy_id` and `clicked_at` (plus its primary key). Com
 ImportSource attribution remain normalized through `Vacancy`; no personal or request
 metadata is copied into the event. A physical Vacancy deletion cascades its click rows,
 while Vacancy soft deletion preserves them for later authorized aggregate reporting.
+The composite `(vacancy_id, clicked_at)` index supports per-Vacancy ranges and the
+standalone `clicked_at` index supports report-wide UTC date ranges. SMV-097C does not add
+counter or aggregate tables: Filament totals and aggregate CSV rows are derived from the
+raw events and existing Vacancy relationships.
