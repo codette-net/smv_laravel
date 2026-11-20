@@ -931,3 +931,17 @@ SMV-107 keeps reconciliation opt-in and adds policy only after that safety bound
 records without deletion. Reappearance clears source absence, but only a recorded
 source-driven archive can be restored automatically. Import run metadata records the
 publication and missing policies used for the run.
+
+Imported mapped fields remain feed-owned. Permanent SMV editorial ownership uses the
+staff-only **Maak handmatige kopie** action on an imported record. It creates a separate
+manual `draft`, copies the existing Company, editorial/location/normalized compensation
+content, taxonomies, tags and only a valid safe application destination, then sends staff
+to the normal Vacancy edit flow. It deliberately clears `import_source_id`, provider
+references/requisition/product/language/raw salary metadata, seen/missing/source-offline
+state, publication/deadline/expiry state, featured/filled state and placement-package
+intent. The original remains feed-owned; the manual copy is outside all source upserts and
+snapshot reconciliation.
+
+The current import-operations owner is Jos, temporarily, pending the final operational
+ownership decision. Dylan remains only a proposed future owner and is not the confirmed
+operator. Alert delivery still requires an approved dedicated operations destination.

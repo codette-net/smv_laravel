@@ -8,8 +8,12 @@ use App\Models\Vacancy;
 
 class VacancyPolicy
 {
-    public function before(User $user): ?bool
+    public function before(User $user, string $ability): ?bool
     {
+        if ($ability === 'duplicate') {
+            return null;
+        }
+
         return $user->hasAnyRole(['super-admin', 'admin']) ? true : null;
     }
 
@@ -34,6 +38,12 @@ class VacancyPolicy
             $vacancy->status === VacancyStatus::Draft
             && $vacancy->company()->where('user_id', $user->id)->exists()
         );
+    }
+
+    public function duplicate(User $user, Vacancy $vacancy): bool
+    {
+        return $vacancy->import_source_id !== null
+            && $user->hasAnyRole(['super-admin', 'admin', 'editor']);
     }
 
     public function delete(User $user, Vacancy $vacancy): bool

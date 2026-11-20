@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Vacancies\Pages;
 
 use App\Enums\VacancyStatus;
+use App\Filament\Resources\Vacancies\Actions\MakeManualCopyAction;
 use App\Filament\Resources\Vacancies\Pages\Concerns\SynchronizesVacancyTaxonomies;
 use App\Filament\Resources\Vacancies\VacancyResource;
 use Filament\Actions\DeleteAction;
@@ -18,6 +19,7 @@ class EditVacancy extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            MakeManualCopyAction::make(),
             ViewAction::make(),
             DeleteAction::make(),
         ];
