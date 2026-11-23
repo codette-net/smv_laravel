@@ -423,11 +423,10 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - `/vacature-plaatsen` is the noindex four-step employer conversion flow: package,
   Vacancy details, private preview and pending hand-off. Guests see the commercial
   choice before public login/registration; mobile keeps a compact current-step label;
-- Filament Vacancy create/edit currently has a release-relevant application-destination
-  reactivity defect (SMV-113): manual smoke testing found that switching between internal,
-  external and e-mail modes does not reliably reveal/update the relevant destination field,
-  while the public placement flow does react. The fix must cover new and existing forms and
-  inactive-field validation before release;
+- Filament Vacancy create/edit application destinations (SMV-113) now normalize enum-backed
+  mode state, react across internal, external and e-mail transitions on new and existing forms,
+  validate only the active destination, and constrain active external links to HTTP(S). The
+  public placement flow remains unchanged;
 - the Vacancy description step and owned Company profile description progressively
   enhance a normal textarea into the same compact Alpine editor for paragraphs,
   `h2`/`h3`, emphasis, lists and links. The accessible toolbar uses inline Lucide SVG

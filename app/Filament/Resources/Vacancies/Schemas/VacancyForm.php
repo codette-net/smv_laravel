@@ -161,16 +161,17 @@ class VacancyForm
                             ->columnSpanFull(),
                         TextInput::make('application_email')
                             ->label('Sollicitatie e-mailadres')
-                            ->email()
+                            ->email(fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::Email))
                             ->maxLength(255)
-                            ->visible(fn (Get $get): bool => $get('application_mode') === ApplicationMode::Email->value)
-                            ->required(fn (Get $get): bool => $get('application_mode') === ApplicationMode::Email->value),
+                            ->visible(fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::Email))
+                            ->required(fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::Email)),
                         TextInput::make('application_url')
                             ->label('Externe sollicitatielink')
-                            ->url()
+                            ->url(fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::External))
+                            ->rule('url:http,https', fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::External))
                             ->maxLength(2048)
-                            ->visible(fn (Get $get): bool => $get('application_mode') === ApplicationMode::External->value)
-                            ->required(fn (Get $get): bool => $get('application_mode') === ApplicationMode::External->value),
+                            ->visible(fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::External))
+                            ->required(fn (Get $get): bool => self::applicationModeIs($get, ApplicationMode::External)),
                     ]),
                 Section::make('Import en bron')
                     ->description('Deze vacature wordt beheerd door een externe feed. Geïmporteerde velden kunnen bij een volgende import worden overschreven. Voor permanente redactionele controle is een afzonderlijke handmatige vacature nodig.')
@@ -223,5 +224,12 @@ class VacancyForm
             ->searchable()
             ->preload()
             ->dehydrated(false);
+    }
+
+    private static function applicationModeIs(Get $get, ApplicationMode $mode): bool
+    {
+        $state = $get('application_mode');
+
+        return $state === $mode || $state === $mode->value;
     }
 }
