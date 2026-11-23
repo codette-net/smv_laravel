@@ -71,8 +71,11 @@ recovery are deliberately not represented as completed functionality.
 
 | Ticket | Status | Repository result |
 | --- | --- | --- |
-| SMV-050 Packages audit/completion | **NEEDS REVIEW** | Package schema/model exist, but public/admin product behavior, pricing and entitlement rules are not agreed. |
-| SMV-051 Orders/payments audit/completion | **NEEDS REVIEW** | Historical models/schema exist; no confirmed checkout/provider/reconciliation MVP flow exists. |
+| SMV-050 Packages audit/completion | **REQUIRED MVP — NEEDS REVIEW** | Package/product names, prices, VAT, fulfilment and entitlement rules still require approval; the employer placement flow currently records package intent only and must feed the Order work. |
+| SMV-051 Orders/payments audit/completion | **REQUIRED MVP — REFINED** | Existing Order/OrderItem/Payment schema and models are only a historical foundation. The missing purchase workflow is now split into SMV-110 (Order foundation), SMV-111 (provider-neutral/fake gateway) and SMV-112 (confirmed Stripe integration). |
+| SMV-110 Order foundation | **P0 — PROPOSED** | Build the provider-independent Order boundary with product/price/tax snapshots and placement linkage; do not integrate a real gateway. |
+| SMV-111 Payment gateway abstraction and fake gateway | **P0 — PROPOSED** | Define the provider-neutral payment boundary and deterministic fake pending/success/failure/cancelled/callback-retry scenarios. |
+| SMV-112 Stripe checkout/payment integration | **P1 — UNBLOCKED / PROPOSED** | Implement the confirmed Stripe integration after the provider-neutral Order and fake-gateway boundaries; credentials, webhook configuration and final commercial/payment terms remain implementation inputs. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
 | SMV-079 Saved Vacancies | **DONE** | User-owned Vacancy and Company-profile saves, guest auth continuation, public card state and private paginated account lists exist. |
@@ -95,15 +98,17 @@ recovery are deliberately not represented as completed functionality.
 | --- | --- | --- |
 | SMV-070 Frontend consistency pass | **PARTIALLY DONE** | Shared public layout, Tidy-derived cards/controls, responsive navigation, homepage filters, Company pages and static pages are aligned. Final client content/visual sign-off remains; premium-card markup has no persisted listing-tier domain yet. |
 | SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. The source-level audit now covers the custom listbox, account menus and reduced-motion policy; browser-level keyboard, screen-reader and breakpoint evidence remains required before this can be marked DONE. |
-| SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. |
-| SMV-073 Migration dry run | **NOT STARTED** | Needs production-like data/export inputs and deployment environment. |
-| SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
+| SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. SMV-109 is the reusable data prerequisite. |
+| SMV-073 Migration dry run | **NOT STARTED** | Needs the SMV-109 production-like dataset, production-like data/export inputs and deployment environment. |
+| SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, SMV-109 acceptance data, migration dry run and operational configuration. |
+| SMV-109 Production-like acceptance dataset | **P0 — PROPOSED** | Create safe, repeatable demo/acceptance data for browser smoke, imports, monitoring, reporting and future Order/payment scenarios; never include production credentials or partner secrets. |
+| SMV-113 Filament Vacancy application destination reactivity | **DONE** | Filament Vacancy create/edit forms now normalize enum-backed mode state, react immediately across all three modes, validate only the active destination, and restrict active external links to HTTP(S). |
 | SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
 | SMV-076 Public SEO regression hardening | **DONE** | Blog and archive pagination use clean self-canonicals, public metadata is escaped once at the output boundary, indexable static pages are present in the sitemap, and the environment-aware robots path matches the Filament dashboard. |
 | SMV-077 Company discovery and filtering | **DONE** | Public-only Company search, one-category filtering, richer reusable cards and the homepage employer banner exist. |
 | SMV-077A Dedicated Company category archives | **NOT STARTED** | A future category directory/archive may extend the current in-page single-category discovery without introducing dead routes now. |
 
-## Phase H — Vacancy discovery extension
+## Phase I — Vacancy discovery extension
 
 The evidence and proposed policy for this phase are documented in
 `MVP_DISCOVERY_EXTENSION_AUDIT.md`. These tickets are planned, not implemented.
@@ -112,7 +117,9 @@ The evidence and proposed policy for this phase are documented in
 | --- | --- | --- |
 | SMV-082 Compensation data and normalization contract | **DONE** | Nullable explicit salary basis, normalized admin/import writes and reusable EUR-month-FTE / EUR-hour comparability scopes are implemented without reclassifying legacy rows. |
 | SMV-083 Search/filter completion and salary/rate ranges | **DONE** | Homepage and Vacancy listing share primary/secondary GET filters, structured taxonomies and inclusive comparable compensation overlap. |
-| SMV-083A Structured province data/filter | **DEFERRED** | Add only after Vacancy has an explicit validated province value; free-text place names must not be guessed into provinces. |
+| SMV-083A Structured province data/filter | **DEFERRED** | Add only after Vacancy has an explicit validated province value; free-text place names must not be guessed into provinces. SMV-114 may provide the normalization/reference layer without replacing `vacancies.location`. |
+| SMV-114 Benelux place reference library | **P1/P2 — PROPOSED** | Establish normalized Netherlands/Belgium/Luxembourg place names, aliases and country/region metadata as a reference layer; do not add geocoding, radius search or an immediate foreign-key replacement. |
+| SMV-115 Vacancy cover image | **P1/P2 — PROPOSED** | Add an optional Vacancy-specific media asset using existing conventions, with Vacancy image precedence and Company-image fallback where supported. |
 | SMV-084 Sector/function-area ownership and administration | **NOT STARTED** | Complete explicit Vacancy/Company assignment and import/admin boundaries using the existing Category architecture. |
 | SMV-085 Public sector/function-area archives | **NOT STARTED** | Add type-safe overview/detail routes, counts, filters, pagination and public Company context. |
 | SMV-086 Linked public taxonomy labels | **NOT STARTED** | Link deliberate Vacancy/Company taxonomy labels to canonical archives without nested links. |
@@ -121,6 +128,22 @@ The evidence and proposed policy for this phase are documented in
 | SMV-089 Discovery SEO and regression gate | **NOT STARTED** | Verify archive SEO/sitemap policy, visibility, performance and cross-feature regressions. |
 
 ## Next work queue
+
+### Immediate post-SMV-071 queue
+
+The immediate release-critical order is now:
+
+1. **SMV-109** — create the reusable production-like acceptance dataset.
+2. **SMV-110** — build the provider-independent Order foundation.
+3. **SMV-111** — add the provider-neutral payment boundary and fake gateway.
+4. **SMV-112** — integrate the confirmed Stripe provider after SMV-110/111 inputs are ready.
+
+In parallel, continue the Phase G release gates: finish evidence for SMV-071, implement
+SMV-072 browser smoke, complete SMV-044/045 legacy URL inventory and redirects, run the
+SMV-046 staging SEO crawl, approve/freeze content, then execute SMV-073 and SMV-074.
+SMV-109 is a shared prerequisite for browser and dry-run work. SMV-112 follows SMV-110 and
+SMV-111 using the confirmed Stripe provider. SMV-114 and SMV-115 remain valuable but less
+launch-critical.
 
 ### A. Functional / MVP
 
@@ -140,11 +163,54 @@ The evidence and proposed policy for this phase are documented in
 
 #### SMV-050 — Packages and commercial scope audit
 
-- **Status:** NEEDS REVIEW
+- **Status:** REQUIRED MVP — NEEDS REVIEW
 - **Why now:** `/tarieven` is public while package/pricing/entitlement behavior is still placeholder-level.
-- **Scope:** reconcile Package/Order/Payment foundations with the actual launch offer; decide which package/entitlement behavior SMV-078 needs before checkout hand-off.
+- **Scope:** reconcile the existing Package foundation with the actual launch offer; approve
+  product names, prices, VAT, fulfilment, cancellation/refund and entitlement rules that
+  SMV-110/111 will consume.
 - **Dependencies:** approved products, prices, VAT/payment and employer workflow decisions.
-- **Acceptance:** documented keep/change/defer decisions, schema gap list and small follow-up tickets; no speculative checkout implementation.
+- **Acceptance:** documented package/product contract and schema gap list; the employer
+  placement flow no longer treats package intent as a paid entitlement; no speculative real
+  provider integration.
+
+#### SMV-110 — Order foundation
+
+- **Status:** P0 — PROPOSED
+- **Goal:** create the provider-independent Order boundary required by the employer placement
+  flow before selecting a payment provider.
+- **Scope:** User/employer, Company, Order, one or more OrderItems where appropriate, selected
+  advertising product/package, immutable product/price/currency/VAT snapshots, totals, order
+  status and a safe relation to Vacancy/placement intent. Historical Orders must remain
+  readable from their snapshots even when current Package pricing changes.
+- **Dependencies:** SMV-050 decisions and SMV-078 placement intent; review the existing
+  Package/Order/OrderItem models before changing schema.
+- **Out of scope:** real provider calls, checkout UI and payment webhooks (SMV-111/112).
+- **Acceptance:** a purchase creates an auditable Order boundary without reading mutable current
+  package price for historical totals; draft/pending/paid/failed/cancelled transitions are
+  explicit and entitlement is not granted by unverified client input.
+
+#### SMV-111 — Payment gateway abstraction and fake gateway
+
+- **Status:** P0 — PROPOSED
+- **Goal:** make Order/payment workflows testable without contacting Stripe.
+- **Scope:** document a provider-neutral gateway contract and deterministic fake gateway for
+  pending, successful, failed, cancelled, duplicate callback/webhook and retry/idempotency
+  scenarios.
+- **Dependencies:** SMV-110 and approved Order/payment statuses.
+- **Out of scope:** selecting or integrating a real payment provider.
+- **Acceptance:** payment state changes are idempotent, auditable and cannot double-grant an
+  entitlement; feature tests cover every fake outcome and duplicate callback. The fake gateway
+  remains available for all automated tests after Stripe is introduced.
+
+#### SMV-112 — Stripe checkout / payment provider
+
+- **Status:** P1 — UNBLOCKED / PROPOSED
+- **Goal:** integrate Stripe as the confirmed real checkout provider after the provider-neutral
+  Order and fake-gateway boundaries are complete.
+- **Dependencies:** SMV-050, SMV-110, SMV-111, approved Stripe account/credentials,
+  webhook configuration and final commercial/payment terms.
+- **Out of scope:** changing the provider-neutral fake gateway into a live dependency; SMV-111
+  remains the deterministic test boundary.
 
 #### SMV-078 — Employer vacancy advertising flow, account foundation and stabilization
 
@@ -326,12 +392,44 @@ The evidence and proposed policy for this phase are documented in
   outdated section-order assumption. Browser-level keyboard/screen-reader checks at 320/375/768/
   1024px and desktop were not available in this environment, so the ticket remains PARTIALLY DONE.
 
+#### SMV-109 — Production-like acceptance dataset
+
+- **Status:** P0 — PROPOSED
+- **Goal:** provide safe, reusable data for manual acceptance, browser smoke, import and
+  monitoring scenarios, outbound-click reporting and future Order/payment testing. This is
+  not a substitute for unit-test factories.
+- **Scope:** representative candidate, employer, editor, admin and super-admin Users;
+  multiple Companies; manual and imported Vacancies across draft/pending/published/archived/
+  expired/filled states; internal/e-mail/external application modes; saves and internal
+  Applications; ImportSources; import history with missing/reappearing cases; outbound-click
+  history; reporting rows; and Orders once SMV-110 exists.
+- **Safety:** disposable or clearly non-production records only. Never include production
+  credentials, real partner secrets or copied personal data.
+- **Dependencies:** stable factories/seeders and the Phase G staging acceptance plan.
+- **Acceptance:** one documented, repeatable reset/seed path supports named browser scenarios,
+  import monitoring/recovery checks and the SMV-073 dry run without modifying production data.
+
+#### SMV-113 — Fix Filament Vacancy application destination reactivity
+
+- **Status:** DONE
+- **Goal:** make the Filament Vacancy create/edit form react immediately to application-mode
+  changes.
+- **Verified cause:** edit hydration supplies the enum-cast `ApplicationMode`, while the form's
+  visibility and required closures only matched raw string values.
+- **Acceptance:** internal mode exposes only internal behavior; external mode exposes and
+  validates an external URL; e-mail mode exposes and validates an e-mail destination; new and
+  existing forms update immediately; inactive destination fields do not validate stale values.
+- **Result:** create/edit transitions are covered by focused Filament tests; the existing public
+  placement and application destinations remain unchanged.
+- **Out of scope:** changing the public placement flow or application-domain semantics.
+
 #### SMV-072 — Critical-path end-to-end smoke suite
 
 - **Status:** PARTIALLY DONE
 - **Why now:** feature tests are broad, but release confidence also needs browser-level route and interaction coverage.
 - **Scope:** homepage search, Vacancy filtering/detail/application, Company/Blog navigation, admin login and one import preview/run/history happy path.
-- **Dependencies:** SMV-062 and SMV-075 preferably complete.
+- **Dependencies:** SMV-062 and SMV-075 preferably complete; SMV-109 supplies the reusable
+  roles, records and lifecycle states for deterministic browser scenarios.
 - **Acceptance:** repeatable staging/local smoke checklist or automated browser suite with no console/runtime errors.
 
 #### SMV-073 — Production-like migration dry run
@@ -339,7 +437,8 @@ The evidence and proposed policy for this phase are documented in
 - **Status:** NOT STARTED
 - **Why now:** verifies migrations, private/public storage, seed policy and import runtime before cutover.
 - **Scope:** disposable production-like environment, backup/restore rehearsal, migrations, builds, representative feed run and rollback/incident notes.
-- **Dependencies:** hosting/staging details, SMV-044/045 and content dataset.
+- **Dependencies:** hosting/staging details, SMV-044/045, approved content and the SMV-109
+  production-like acceptance dataset.
 - **Acceptance:** timed repeatable runbook with verified data/media/import integrity and named rollback owner.
 
 #### SMV-074 — Production launch checklist
@@ -347,10 +446,10 @@ The evidence and proposed policy for this phase are documented in
 - **Status:** NOT STARTED
 - **Why now:** final integration gate rather than another feature phase.
 - **Scope:** environment, queues if adopted, mail, storage, HTTPS, robots/sitemap, redirects, analytics/Search Console, monitoring and post-launch checks.
-- **Dependencies:** SMV-046, SMV-062/063 and SMV-071–073.
+- **Dependencies:** SMV-046, SMV-062/063, SMV-071–073 and SMV-109.
 - **Acceptance:** signed checklist, production smoke pass, indexability verified and rollback/monitoring responsibilities assigned.
 
-### D. Vacancy discovery extension
+### I. Vacancy discovery extension
 
 #### SMV-082 — Compensation data and normalization contract
 
@@ -411,6 +510,31 @@ The evidence and proposed policy for this phase are documented in
 - **Scope when justified:** explicit nullable province value, controlled Dutch options,
   admin/import normalization, combined place/province filtering and migration coverage.
 - **Out of scope:** geocoding, radius search and guessing province from arbitrary text.
+
+#### SMV-114 — Benelux place reference library
+
+- **Classification/status:** P1/P2 — PROPOSED normalization/reference work.
+- **Goal:** provide canonical place names, aliases and country/region metadata for the
+  Netherlands, Belgium and Luxembourg without guessing geography from free text.
+- **In scope:** a reviewable reference layer that can later support autocomplete, import
+  normalization and reliable province/region filters; define how it relates to SMV-083A.
+- **Out of scope:** geocoding, radius search, external-provider selection and an immediate
+  foreign-key replacement for `vacancies.location`.
+- **Acceptance:** aliases resolve deterministically or remain unknown; country and region
+  metadata are explicit; existing free-text Vacancy locations remain backward compatible.
+
+#### SMV-115 — Vacancy cover image
+
+- **Classification/status:** P1/P2 — PROPOSED media enhancement.
+- **Goal:** support an optional Vacancy-specific image for campaigns, teams or locations while
+  retaining Company imagery as the fallback.
+- **In scope:** existing Media Library conventions, safe upload/replace/remove behavior and
+  Vacancy-image precedence wherever the relevant public UI supports it. Decide whether employer
+  editing or staff/admin upload is the first MVP surface.
+- **Out of scope:** making an image mandatory, replacing Company media, or introducing a new
+  media subsystem.
+- **Acceptance:** a Vacancy without its own image renders normally; a valid Vacancy image takes
+  precedence; replacement/removal cannot expose another User's media.
 
 #### SMV-084 — Sector/function-area ownership and administration
 
@@ -537,12 +661,19 @@ The evidence and proposed policy for this phase are documented in
 SMV-045 and SMV-046 remain mandatory after the SMV-044 inventory and a staging host are
 available, but are not independently actionable before those dependencies exist.
 
-### H. External feed operations and Joobs onboarding (proposals)
+## Phase H — External feed operations and Joobs onboarding
 
 SMV-083 is already assigned above to Vacancy compensation/search filtering and is not
 reused. The initial SMV-090–099 entries below were documentation proposals only; these
 updated proposals retain those IDs where possible and add SMV-100+. No application
-changes are approved. Joobs is not assumed to block the upcoming demo.
+changes are approved. Phase H is now substantially mature at the generic-platform level:
+Joobs contract/mapping, source-scoped employer resolution, verified snapshots, bounded
+scheduling, monitoring/recovery, per-source publication/missing policy, manual-copy workflow
+and outbound-click reporting/24-month retention are implemented. Jos is the temporary import
+operations owner; Dylan is not confirmed. Remaining work is partner
+activation input, production operational acceptance, optional detail-view tracking,
+cross-provider expansion and future commercial reporting/ranking. Phase G release gates and
+the MVP Order/payment work remain primary and must not be obscured by feed expansion.
 
 | Suggested ticket | Priority/status | Goal and acceptance boundary | Demo blocker |
 | --- | --- | --- | --- |
