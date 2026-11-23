@@ -66,7 +66,11 @@ as stakeholder suggestions until the named approval or evidence is supplied.
 - Verified newsletter reach and measurement date.
 - Verified social reach and measurement date.
 - Publishable client testimonials and permission to use names or logos.
-- Final package terms, including the exact delivery included with each package.
+- Final package terms, including the exact delivery included with each package. The current
+  placement flow remains non-binding intent until the required SMV-110/111 Order/payment
+  foundation is implemented; Stripe is now the confirmed provider for SMV-112. The fake
+  gateway remains the deterministic testing boundary, while final commercial terms and
+  credentials/webhook configuration still need implementation approval.
 - Final Superior details: positioning, newsletter/social distribution, media budget
   and operational fulfilment.
 - Reconcile package naming and pricing across channels. The site currently uses

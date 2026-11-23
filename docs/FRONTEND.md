@@ -423,6 +423,11 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - `/vacature-plaatsen` is the noindex four-step employer conversion flow: package,
   Vacancy details, private preview and pending hand-off. Guests see the commercial
   choice before public login/registration; mobile keeps a compact current-step label;
+- Filament Vacancy create/edit currently has a release-relevant application-destination
+  reactivity defect (SMV-113): manual smoke testing found that switching between internal,
+  external and e-mail modes does not reliably reveal/update the relevant destination field,
+  while the public placement flow does react. The fix must cover new and existing forms and
+  inactive-field validation before release;
 - the Vacancy description step and owned Company profile description progressively
   enhance a normal textarea into the same compact Alpine editor for paragraphs,
   `h2`/`h3`, emphasis, lists and links. The accessible toolbar uses inline Lucide SVG
@@ -467,6 +472,9 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   public Vacancy count, limited typed categories and the unchanged circular async save
   control. The `/bedrijven` category browser scrolls horizontally on narrow screens and
   links to the current GET filter; dedicated category archives are deferred to SMV-077A;
+- Vacancy-specific cover imagery is not yet part of the public/admin contract. SMV-115 may
+  add an optional Vacancy media collection using existing Media Library conventions, with
+  Vacancy image precedence and Company fallback; a missing Vacancy image must remain valid;
 - About/contact stock photography is limited to existing Tidy assets and remains subject
   to final stakeholder approval.
 

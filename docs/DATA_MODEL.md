@@ -3,7 +3,8 @@
 ## Purpose
 
 Document the confirmed SMV-001 foundation, intended domain rules and known legacy
-WordPress fields. Later mapping structures remain deliberately undecided until SMV-030.
+WordPress fields. Import mapping structures are now documented in `IMPORTS.md`; future
+changes still require real source evidence and an explicit ticket.
 
 ## Primary domains
 
@@ -56,6 +57,11 @@ _company_select     -> company relationship
 ```
 
 These mappings are guidance, not authorization to rename existing working columns without repository inspection.
+
+The legacy `_job_cover_image` value is not yet a Vacancy-specific media contract. Company
+logo/cover media and Blog featured media use the existing Media Library conventions; SMV-115
+may add an optional Vacancy cover collection with Vacancy-first/Company-fallback presentation
+without making an image required.
 
 ## Known legacy company fields
 
@@ -179,6 +185,34 @@ rules are available through Vacancy helpers/scopes and remain separate from
 `publiclyVisible()`. SMV-083 composes those scopes with inclusive interval overlap in the
 shared homepage/listing query. There is no currency,
 assumed-hours or FTE conversion in this contract.
+
+## Orders and payments
+
+The repository contains historical `Package`, `Order`, `OrderItem` and `Payment` models and
+tables, but the employer placement flow currently stores only `Vacancy::placement_package`
+intent. It does not yet create an Order, Payment or entitlement, so these models are a
+foundation rather than a completed commercial workflow.
+
+SMV-110 should establish the provider-independent Order boundary. An OrderItem must retain
+the purchased product/package identity plus immutable title, price, currency, VAT and total
+snapshots so historical Orders remain correct when current Package rows change. A safe
+relation to the User/employer, Company and Vacancy/placement intent must be explicit without
+granting entitlement from client input. SMV-111 should define provider-neutral payment state
+and fake pending/success/failure/cancelled/duplicate-callback/retry scenarios; that fake
+gateway remains the deterministic automated-test boundary after live integration. SMV-112 is
+the confirmed Stripe integration. The current migration's historical
+`payments.payment_provider` default of `mollie` is legacy schema state, not a live provider
+configuration; Stripe implementation must introduce explicit provider configuration rather
+than activating that default.
+
+## Benelux place reference
+
+Vacancy `location` remains free text. SMV-114 may introduce a normalized Netherlands,
+Belgium and Luxembourg place reference with aliases and country/region metadata for import
+normalization and future autocomplete. It must initially remain a reference/normalization
+layer rather than an immediate foreign-key replacement. SMV-083A's structured province value
+remains deferred until an explicit validated value is approved; no geocoding, radius search
+or province guessing is part of this contract.
 
 SMV-001 established soft deletion on important operational models where the schema
 already supported it. Financial and historical records are protected from accidental

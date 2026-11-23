@@ -15,10 +15,12 @@ Company detail pages, Blog archives and the
 static Dutch pages `/adverteren`, `/over-ons`, `/tarieven` and `/contact`. The Contact
 page includes a validated, spam-protected, e-mail-only general enquiry form.
 
-The main remaining MVP/release work is no longer foundational implementation. It is:
+The main remaining MVP/release work is now a combination of release validation and one
+unfinished commercial foundation. It is:
 
-- confirm the definitive commercial package/payment entitlement scope after the safe
-  public employer-posting slice;
+- approve package/payment terms and implement the Order plus provider-neutral payment
+boundary required by the employer placement flow (SMV-050/110/111); confirmed Stripe checkout
+integration follows in SMV-112;
 - complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
 - complete accessibility, end-to-end, migration and launch validation.
@@ -28,7 +30,12 @@ database record and require no account. Direct employer Vacancy advertising is a
 separate staged flow (SMV-078), rather than an expansion of the Contact form. Guests may
 select Standaard or Superior, authenticate through the normal `web` guard, create a
 Vacancy draft for an owned Company, preview it and hand it off in `pending` state. The
-selected package is intent only: payment, entitlement and publication are not implied.
+selected package is currently intent only: payment, entitlement and publication are not
+implied. This is an unfinished MVP boundary, not optional polish. SMV-110 must create the
+provider-independent Order foundation with immutable product/price/tax snapshots; SMV-111
+must make payment outcomes testable through a fake gateway, which remains intact after Stripe
+integration. SMV-112 integrates the confirmed Stripe provider once credentials, webhooks and
+final commercial terms are available.
 The authenticated `/account` foundation lets an employer complete presentation/contact
 fields and Media Library branding for owned Companies and review owned Vacancies.
 All authenticated Users can also save public Vacancies and Company profiles and revisit
@@ -158,6 +165,29 @@ for older periods return only available data, normally zero; SMV does not create
 longer-term historical aggregates. The event still contains no user ID, IP address,
 user-agent, cookie, fingerprint or application content.
 
+### Commercial Orders and payments
+
+Packages and the employer placement flow already exist, but the current flow records only
+`vacancies.placement_package` intent. It does not yet create an Order, Payment or purchase
+entitlement. Orders/payments are therefore part of the MVP scope because they are required by
+the existing commercial flow, not a post-launch enhancement.
+
+The implementation sequence is deliberately provider-neutral: SMV-110 defines an auditable
+Order/OrderItem boundary with immutable product, price, currency, VAT and total snapshots;
+SMV-111 defines the gateway contract and fake pending/success/failure/cancelled,
+duplicate-callback and retry/idempotency scenarios; SMV-112 integrates the confirmed Stripe
+provider without replacing the fake gateway used by automated tests. Historical Orders must never recalculate
+their purchased price from mutable current Package rows.
+
+### Production-like acceptance data
+
+SMV-109 will provide a disposable, repeatable dataset for manual acceptance and browser
+smoke: representative roles, Companies, manual/imported Vacancy lifecycle states,
+application modes, saves, Applications, ImportSources, import history, missing/reappearing
+records, outbound clicks, reporting rows and later Orders. It is separate from factories and
+must contain no production credentials, partner secrets or copied personal data. The same
+dataset supports SMV-072 and SMV-073.
+
 Current Vacancy and Company save totals and rankings are available only to Filament
 staff through aggregate pivot queries. Public save counts, individual saver identities,
 historical save events and behavioural profiles are outside scope.
@@ -267,5 +297,9 @@ The MVP is ready for controlled launch when:
 - redirects/canonicals/indexability are tested
 - required structured data is present and valid
 - staging/production deployment is repeatable
+- a documented production-like acceptance dataset supports repeatable browser/import/
+  monitoring scenarios without production credentials
+- the employer commercial flow has an auditable Order boundary and provider-neutral payment
+  tests, or an explicitly approved launch waiver
 - there are no known critical authorization or data-loss issues
 - core behavior has automated test coverage appropriate to risk

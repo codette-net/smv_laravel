@@ -8,13 +8,16 @@ formal acceptance, and Joobs automation does not automatically block the general
 
 ## Current evidence
 
-- Generic importer supports manual synchronous XML/JSON/CSV/XLSX imports, preview,
-  validation, typed taxonomy resolution, sanitization, provider-scoped Vacancy upsert
-  and reversible missing reporting.
+- Generic importer supports manual and bounded scheduled XML/JSON/CSV/XLSX imports,
+  preview, validation, typed taxonomy resolution, sanitization, provider-scoped Vacancy
+  upsert and reversible missing reporting.
 - It supports reviewed per-record Company resolution, configured Joobs contract
-  validation, allowlisted source metadata and safe full-snapshot verification. It does
-  not support automated scheduling, queue processing, removal-driven unpublishing or
-  outbound analytics.
+  validation, allowlisted source metadata, safe full-snapshot verification, per-source
+  publication/missing policy, queue execution and monitoring/recovery. SMV-097B/C/D add
+  privacy-minimal outbound-click reporting and the approved 24-month retention boundary;
+  detail-view tracking and partner-confirmed/billable reconciliation remain separate.
+- No live partner feed is activated. Production cron/queue operation, partner activation
+  inputs and operations acceptance remain gates.
 - Phase 2 import audit suite passed 139 tests / 870 assertions. In the SMV-090 focused
   rerun, 135 selected public/admin/import/application/SEO tests passed (987 assertions);
   `PublicLayoutTest.php` had 10 pass and one existing homepage order assertion failure.
@@ -29,6 +32,8 @@ formal acceptance, and Joobs automation does not automatically block the general
 | --- | --- | --- | --- | --- | --- | --- |
 | SMV-090 — Demo scope and import safety | Document demo flows, safe fixture/data boundaries, blockers and manual acceptance. Does not require Joobs integration. | `docs/IMPORT_MVP_PLAN.md`, `docs/BACKLOG.md`, existing feature tests | Demo scope and checklist below reviewed; any manual import uses isolated staging data/fixture only; no live partner feed or removal sync. | Audit/documentation complete; owner review 30–60 min | No, unless manual import is included | No |
 | SMV-091 — Staging acceptance and smoke | Deploy to staging, verify public/admin critical path, configure safe staging runtime and capture defects. Depends on staging URL/credentials, approved content and hosting access. | `docs/DEVELOPMENT_WORKFLOW.md`, `docs/SEO.md`, `docs/SEO_MIGRATION.md`, `docs/BACKLOG.md` SMV-072/074, routes and main feature tests | Checklist below passes in deployed staging; staging stays noindex; production remains distinct; no critical runtime/browser errors; demo data/privacy state reviewed. | 2–4 h / 3–6 h | Yes | Conditional release blocker; staging smoke is required before production |
+| SMV-109 — Production-like acceptance dataset | Create a disposable, repeatable dataset for browser acceptance, import monitoring/reporting and future Order/payment scenarios. Depends on reviewed factories/seeders and isolated staging. | seeders/factories, `docs/BACKLOG.md`, acceptance runbook | Named role/company/vacancy/import/reporting scenarios can be reset and rerun without production credentials, partner secrets or copied personal data. | 2–4 h / 1–2 h | No | Shared prerequisite for SMV-072 and SMV-073 |
+| SMV-113 — Filament Vacancy application destination reactivity | Fix the release-relevant create/edit form defect found during manual smoke testing. | `VacancyForm.php`, Filament form tests | Internal, external and e-mail modes immediately reveal and validate only their active destination field for both new and existing Vacancies. | 2–4 h / 1–2 h | Yes | Release-relevant before launch unless explicitly waived |
 
 ### Minimal demo acceptance checklist
 
@@ -39,10 +44,10 @@ formal acceptance, and Joobs automation does not automatically block the general
 | Vacancy details/lifecycle | `PublicVacancyShowTest.php`, `VacancyLifecycleTest.php` | Browser check content hierarchy, application CTA, valid data and 404 for hidden listing |
 | Company index/detail | `PublicCompanyIndexTest.php`, `PublicCompanyPageTest.php` | Browser check representative public profiles/media and vacancy blocks |
 | Blog | `BlogTest.php`, `BlogContentSeederTest.php` | Browser check approved content/images, index/detail/archive navigation |
-| Filament administration | `AdminAuthorizationTest.php`, domain/admin tests | Staging login/roles; verify vacancy/company/blog administration; verify source/mapping/preview/history and only run isolated manual import if agreed |
+| Filament administration | `AdminAuthorizationTest.php`, domain/admin tests | Staging login/roles; verify vacancy/company/blog administration; verify source/mapping/preview/history, exercise SMV-113 application-mode switching and only run isolated manual import if agreed |
 | Application links | `ApplicationFlowTest.php`, `CandidateApplicationHistoryTest.php` | Verify external URLs go to the correct destination and retain query strings; verify internal flow only if demo scope includes it |
 | Basic SEO | `SeoFoundationTest.php`, Blog and sitemap tests | Crawl staging: title/canonical/robots/schema/sitemap; verify staging noindex and no secrets in rendered pages |
-| Responsive/accessibility | No committed browser suite; `SMV-071` partial | Test desktop and mobile widths, keyboard navigation, focus and screen-reader labels on key flows |
+| Responsive/accessibility | No committed browser suite; `SMV-071` partial | Use SMV-109 data and test desktop/mobile widths, keyboard navigation, focus and screen-reader labels on key flows; retain dated evidence for SMV-072 |
 | Deployment/runtime | Automated feature tests do not establish deployed config | Confirm HTTPS, APP_ENV/DEBUG, DB, private/public storage, mail transport, backup/restore owner, logs and error visibility |
 
 The stakeholder review confirms that the staging site was reachable and suitable for a
@@ -67,12 +72,15 @@ application destination, Company directory/detail, Blog index/article, staff Fil
 administration, manual Vacancy create/edit, and basic SEO output. Manual import is an
 optional admin demonstration only if its data can be safely isolated. Public account
 registration/employer draft flow may be shown only if it is part of the agreed demo;
-payment, package entitlement and employer publication are not implemented as completed
-commercial flows.
+payment and package entitlement are not implemented as completed commercial flows. They
+remain unfinished MVP work (SMV-110/111), not optional launch polish; confirmed Stripe
+checkout is tracked under SMV-112 once credentials, webhooks and final commercial terms are
+available. Employer publication remains a separate moderated flow.
 
-**Exclude:** Joobs or any live partner endpoint; unattended scheduling/queue execution;
-automatic missing-ad unpublishing; partner click/conversion/billing claims; production
-data and candidate records. A legacy WordPress import acceptance does not establish
+**Exclude:** Joobs or any live partner endpoint; unattended partner-feed activation or
+production scheduler operation; automatic missing-ad unpublishing during a demo;
+partner click/conversion/billing claims; production data and candidate records. A legacy
+WordPress import acceptance does not establish
 Laravel readiness.
 
 #### Safe demo data and import boundary
@@ -198,10 +206,11 @@ feed may contain multiple customer ads. Confirm endpoint scope with Joobs.
 | SMV-093 — Verified snapshot lifecycle | DONE: make absence reporting safe after the SMV-092/100 foundations. | `VacancyImportRunner.php`, ImportSource configuration, Import runs/logs, import/lifecycle tests | Explicit source opt-in; read/parse/map/resolve preflight before apply; empty snapshots require explicit capability; duplicate/invalid/partial/failed snapshots do not reconcile; shared per-source lock; verified absence records `missing_since`. SMV-107 adds policy after this boundary. | Complete | No | Expected-count/empty-feed policy remains an activation input |
 | SMV-094 — Joobs transformations and fixture acceptance | DONE: configured contract plus generic fixture-to-Vacancy persistence. | `SourceContractValidator`, generic mapper/validator/runner, Joobs fixture and persistence tests | Two-city/shared requisition/distinct ad IDs, idempotency, employer resolution, metadata, optional salary, HTML safety, exact URL/UTM, raw salary, dates, location/SEO and failure paths are automated. Unapproved taxonomy values remain unmapped. | Complete | No | Partner identity/value/timezone inputs still gate live activation |
 | SMV-095A — Generic scheduled and bounded execution | DONE: dispatch due approved sources to unique database-queue jobs and drain them with a bounded scheduled worker. | ImportSource scheduling fields/admin, queued job, due dispatcher/command, scheduler, queue config/tests | Disabled by default; hourly/6-hourly/daily; remote active+approved source and active default mapping required; two attempts; 10-minute timeout; source lock and queue retry invariant tested; no provider activation. | Complete / hosting verification remains | No | Infrastructure ready; live sources still require activation approval and production operations verification |
-| SMV-097 — Basic outbound click tracking | Add same-site redirect for external applications, with minimal provider/ad attribution, after partner/privacy requirements are confirmed. | `routes/web.php`, controller, Vacancy CTA, event storage/migration, tests | Record Vacancy/provider/ad/time with minimized data; redirect only to validated stored URL; preserve UTM exactly; document dedupe/bot rule; reject arbitrary redirect targets. | 5–9 h / 4–7 h | No | Conditional on partner contract requiring SMV clicks |
+| SMV-097 — Basic outbound click tracking | SMV-097B/C/D implemented: controlled external redirect, staff aggregate report/CSV and bounded 24-month retention. Detail-view tracking remains SMV-097A. | `routes/web.php`, controller, Vacancy CTA, event storage/migration, Filament report, retention command/tests | Raw events remain privacy-minimal; stored UTM survives exactly; report/export is aggregate-only; pruning is bounded and UTC-based. | 097B/C/D complete; 097A remains 3–5 h / 2–3 h | No | Verify production scheduler before making a partner reporting promise |
 | SMV-100 — Multi-employer Company mapping | DONE: source-scoped employer mapping and provider-neutral Vacancy metadata. Stable provider ID is preferred; reviewed exact company-name + source-URL is the fallback. | `ImportSourceEmployer`, generic validator/runner, Filament admin, Vacancy metadata migration, public detail/JobPosting | Deterministic source-scoped resolution; unresolved records skip without default-Company fallback or missing detection; no Company creation/profile writes; metadata and location semantics covered. | Complete | No | Foundation complete; partner identity approval still gates live Joobs |
 | SMV-101 — Import monitoring and recovery | DONE: derive provider-neutral health and safe recovery from existing run history. | Import/ImportLog models, Filament Imports pages, policies, monitoring service, tests/runbook | Health distinguishes disabled/manual/never-run/running/overdue/failure/incomplete/skipped states; counts and verified drops are visible; retry creates a fresh manual-origin run through the locked importer; runbook covers queue/scheduler recovery. | Complete / production ownership verification remains | No | Application operations foundation complete; cron/queue and alert ownership remain environment gates |
 | SMV-107 — Per-source publication policy | DONE: configure new-record publication and verified-missing behavior without provider-specific lifecycle code. | ImportSource policy enums/admin, Vacancy source-offline provenance, generic runner/lifecycle tests | Defaults require review; trusted sources may auto-publish; verified missing records may be archived without deletion; reappearance preserves manual suppression and identity; mapped fields remain feed-owned. | Complete | No | Production source configuration and remaining partner inputs still require approval |
+| SMV-108 — Duplicate imported Vacancy as manual SMV Vacancy | DONE: provide a staff-only feed-owned to manual-copy boundary. | `CreateManualVacancyCopy`, Vacancy admin/tests | Separate manual draft retains approved editorial fields and safe application destination while clearing import identity, source lifecycle and placement intent. | Complete | No | No live partner activation implied |
 
 ### Joobs readiness classification
 

@@ -4,9 +4,10 @@
 
 The repository audit and foundation stabilization are complete. The application now has
 working public recruitment flows, Filament administration, a format-independent import
-pipeline, a native Blog and the technical SEO foundation. The remaining work is mostly
-commercial-scope confirmation, content/brand approval, legacy URL migration and release
-hardening.
+pipeline, a native Blog and the technical SEO foundation. The remaining work is commercial
+Order/payment completion, content/brand approval, legacy URL migration and release
+hardening; generic feed operations are substantially mature but still need partner activation
+and production acceptance.
 
 ## Guiding principles
 
@@ -49,6 +50,10 @@ Contact
 └── no ContactMessage database persistence
 
 Packages / Orders / Payments
+├── Package catalogue and placement intent (implemented)
+├── provider-independent Order/OrderItem boundary (SMV-110)
+├── provider-neutral payment gateway plus fake gateway (SMV-111)
+└── confirmed Stripe checkout integration (SMV-112)
 
 Imports
 ├── upload, HTTP and API source configuration
@@ -134,10 +139,17 @@ owning Company and never trusts a submitted Company outside that User's relation
 
 The placement flow stores only bounded session state before persistence: an
 `AdvertisingPackage` selection and Laravel's normal intended URL. Once submitted, the
-Vacancy records `placement_package` as commercial intent, not as a paid entitlement.
+Vacancy records `placement_package` as commercial intent, not as a paid entitlement. This
+is an unfinished MVP boundary: SMV-110 must create an auditable Order with immutable
+product/price/currency/VAT snapshots, and SMV-111 must make payment outcomes testable without
+a real provider. Historical Orders must not recalculate from mutable Package rows. Stripe is
+the confirmed provider for SMV-112; the fake gateway from SMV-111 remains the test boundary
+and must not be replaced by live Stripe calls in automated tests.
 New public employer Vacancies remain `draft` through data entry/preview and become
 `pending` on hand-off. They are never published or featured by this flow. SMV-050 owns
-the definitive package/entitlement domain and SMV-051 owns Orders and Payments.
+the definitive package/entitlement decisions; SMV-110/111 own the provider-neutral
+implementation boundary; SMV-112 owns the confirmed Stripe integration once credentials,
+webhooks and final commercial terms are available.
 
 SMV-078B adds a deliberately small public account foundation. Authenticated users enter
 through `/account`; employers can update only presentation/contact fields on Companies
@@ -405,3 +417,12 @@ Open decision: the Hostinger/staging deployment workflow still requires confirma
 from repository/server operations information that is not currently available.
 
 The build must support a staging environment before production cutover.
+
+## Production-like acceptance data
+
+SMV-109 is a disposable, repeatable acceptance dataset rather than another factory layer. It
+will exercise representative Users/roles, Companies, manual and imported Vacancy lifecycle
+states, application modes, saves, Applications, ImportSources, missing/reappearing import
+history, outbound-click reporting and later Orders. It must never contain production
+credentials, partner secrets or copied personal data. The same dataset is a dependency for
+SMV-072 browser smoke and SMV-073 migration/deployment rehearsal.
