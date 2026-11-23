@@ -94,7 +94,7 @@ recovery are deliberately not represented as completed functionality.
 | Ticket | Status | Exact remainder |
 | --- | --- | --- |
 | SMV-070 Frontend consistency pass | **PARTIALLY DONE** | Shared public layout, Tidy-derived cards/controls, responsive navigation, homepage filters, Company pages and static pages are aligned. Final client content/visual sign-off remains; premium-card markup has no persisted listing-tier domain yet. |
-| SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. A deliberate keyboard/screen-reader/mobile audit is still required, especially for the custom listbox, account menus and disabled/non-functional actions. |
+| SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. The source-level audit now covers the custom listbox, account menus and reduced-motion policy; browser-level keyboard, screen-reader and breakpoint evidence remains required before this can be marked DONE. |
 | SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. |
 | SMV-073 Migration dry run | **NOT STARTED** | Needs production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, migration dry run and operational configuration. |
@@ -315,6 +315,16 @@ The evidence and proposed policy for this phase are documented in
 - **Scope:** keyboard, focus, screen-reader names/state, reduced motion, mobile overflow and inactive-action audit; fix only verified issues.
 - **Dependencies:** stable SMV-070 markup.
 - **Acceptance:** critical public flows are keyboard-usable at mobile/desktop breakpoints and documented accessibility checks pass.
+- **SMV-071 audit evidence (20 November 2026):** the shared header now labels mobile navigation,
+  restores focus to the mobile trigger and account trigger after Escape, and gives the mobile
+  menu button an explicit button type. The shared custom listbox now preserves its server-side
+  hidden value and moves focus to the selected option (or first option) when opened with click,
+  Enter, Space or either arrow key. The public stylesheet applies a reduced-motion policy to
+  transitions and animations. These boundaries are covered by
+  `tests/Feature/AccessibilityRegressionTest.php`; the related public, account and interaction
+  feature suites remain green apart from one existing homepage assertion that depends on an
+  outdated section-order assumption. Browser-level keyboard/screen-reader checks at 320/375/768/
+  1024px and desktop were not available in this environment, so the ticket remains PARTIALLY DONE.
 
 #### SMV-072 — Critical-path end-to-end smoke suite
 

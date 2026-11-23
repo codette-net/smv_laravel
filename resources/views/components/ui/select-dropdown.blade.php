@@ -25,10 +25,11 @@
             <span class="text-red-500" aria-hidden="true">*</span>
         @endif
     </label>
-    <div class="relative inline-flex w-full" x-data="{ open: false, value: @js($currentValue), label: @js($selectedLabel) }">
+    <div class="relative inline-flex w-full" x-data="{ open: false, value: @js($currentValue), label: @js($selectedLabel), openMenu() { this.open = true; this.$nextTick(() => { const selected = this.$refs.options.querySelector('[aria-selected=true]'); (selected ?? this.$refs.options.querySelector('button'))?.focus(); }); } }">
         <input
             name="{{ $name }}"
             type="hidden"
+            value="{{ $currentValue }}"
             x-model="value"
             x-ref="input"
             @if ($required) required @endif
@@ -45,10 +46,11 @@
             @if ($errorMessage) aria-invalid="true" aria-describedby="{{ $id }}-error" @endif
             :aria-expanded="open"
             x-ref="trigger"
-            x-on:click.prevent="open = ! open"
-            x-on:keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.options.querySelector('button')?.focus())"
-            x-on:keydown.enter.prevent="open = ! open"
-            x-on:keydown.space.prevent="open = ! open"
+            x-on:click.prevent="open ? open = false : openMenu()"
+            x-on:keydown.arrow-down.prevent="openMenu()"
+            x-on:keydown.arrow-up.prevent="openMenu()"
+            x-on:keydown.enter.prevent="open ? open = false : openMenu()"
+            x-on:keydown.space.prevent="open ? open = false : openMenu()"
         >
             <span class="flex min-w-0 items-center">
                 <span class="truncate" x-text="label"></span>

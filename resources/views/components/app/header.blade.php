@@ -47,14 +47,14 @@
 
                 </ul>
                 <div class="relative flex flex-1 justify-end z-40" x-data="{ open: false }">
-                    <button class="grow flex max-w-44 items-center justify-end truncate" type="button" aria-controls="account-menu" aria-haspopup="true" :aria-expanded="open" x-on:click.prevent="open = ! open" x-on:keydown.escape="open = false">
+                    <button x-ref="accountTrigger" class="grow flex max-w-44 items-center justify-end truncate" type="button" aria-controls="account-menu" aria-haspopup="true" :aria-expanded="open" x-on:click.prevent="open = ! open">
                         <span class="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full" :class="stuck ? 'bg-gray-100 text-gray-600' : @js($darkAtTop ? 'bg-white/10 text-gray-100' : 'bg-gray-100 text-gray-600')">
                             <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.118a7.5 7.5 0 0 1 15 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.5-1.632Z" /></svg>
                         </span>
                         <span class="truncate text-sm font-medium" :class="stuck ? 'text-gray-700' : @js($darkAtTop ? 'text-gray-200' : 'text-gray-700')">{{ auth()->user()?->name ?? 'Account' }}</span>
                         <svg class="ml-1 h-3 w-3 shrink-0 fill-current" :class="stuck ? 'text-gray-400' : @js($darkAtTop ? 'text-gray-300' : 'text-gray-400')" viewBox="0 0 12 12" aria-hidden="true"><path d="M5.9 11.4.5 6l1.4-1.4 4 4 4-4L11.3 6z" /></svg>
                     </button>
-                    <div class="origin-top-right z-50 absolute top-full right-0 min-w-60 bg-white border border-gray-200 py-1.5 rounded-lg shadow-lg overflow-hidden mt-1" id="account-menu" x-cloak x-show="open" x-on:click.outside="open = false" x-on:keydown.escape.window="open = false" x-transition:enter="transition ease-out duration-200 transform" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-out duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                    <div class="origin-top-right z-50 absolute top-full right-0 min-w-60 bg-white border border-gray-200 py-1.5 rounded-lg shadow-lg overflow-hidden mt-1" id="account-menu" x-cloak x-show="open" x-on:click.outside="open = false" x-on:keydown.escape.window="if (open) { open = false; $nextTick(() => $refs.accountTrigger.focus()) }" x-transition:enter="transition ease-out duration-200 transform" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-out duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
                         @auth
                             <div class="border-b border-gray-200 px-3 py-2">
                                 <p class="truncate text-sm font-medium text-gray-800">{{ auth()->user()->name }}</p>
@@ -86,6 +86,8 @@
                 <!-- Hamburger button -->
                 <button
                     class="group inline-flex w-8 h-8 text-center items-center justify-center transition"
+                    type="button"
+                    x-ref="menuTrigger"
                     :class="stuck ? 'text-gray-800' : @js($darkAtTop ? 'text-gray-100' : 'text-gray-800')"
                     aria-controls="mobile-nav" :aria-expanded="expanded" @click.stop="expanded = !expanded">
                     <span class="sr-only">Menu</span>
@@ -106,9 +108,10 @@
                 <!-- Mobile navigation -->
                 <nav
                     id="mobile-nav"
+                    aria-label="Mobiele hoofdnavigatie"
                     class="fixed inset-x-4 top-20 z-60 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-xl bg-white shadow-lg shadow-black/[0.08] ring-1 ring-gray-200"
                     @click.outside="expanded = false"
-                    @keydown.escape.window="expanded = false"
+                    @keydown.escape.window="if (expanded) { expanded = false; $nextTick(() => $refs.menuTrigger.focus()) }"
                     x-show="expanded"
                     x-transition:enter="transition ease-out duration-200 transform"
                     x-transition:enter-start="opacity-0 -translate-y-2"

@@ -386,8 +386,21 @@ its canonical view and reusable components before replacing prototype wiring.
 
 The recent public-site pass has completed much of the intended SMV-070 consistency
 work: the production pages share the light SMV/Tidy-derived surface, cards, controls,
-responsive filters, header and footer. SMV-071 remains partial until keyboard/screen
-reader behavior and responsive pages have received a deliberate accessibility pass.
+responsive filters, header and footer. SMV-071 remains partial until browser-level
+keyboard/screen-reader behavior and responsive pages have received a deliberate
+accessibility pass.
+
+### SMV-071 source audit (20 November 2026)
+
+The shared public shell now labels the mobile navigation, declares the mobile menu trigger as
+`type="button"`, and restores focus to the trigger when either the mobile menu or account menu
+is dismissed with Escape. The shared custom listbox preserves its server-rendered hidden value
+for the no-JavaScript form path and focuses the selected option (or first option) when opened
+with click, Enter, Space or either arrow key. The existing reduced-motion media query now also
+limits global transitions and animations. These behaviors are covered by
+`tests/Feature/AccessibilityRegressionTest.php` and the relevant public/account feature tests.
+This is source/test evidence only; a browser-level keyboard, screen-reader and breakpoint
+check at 320/375/768/1024px and desktop remains a release prerequisite.
 Vacancy cards use a top-right bookmark icon with the shared white tooltip pattern; the
 public detail page retains the explicit text control. Company cards use the equivalent
 icon for separately persisted Company-profile saves. State is loaded in bulk with the
