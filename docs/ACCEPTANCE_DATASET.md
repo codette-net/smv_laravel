@@ -83,16 +83,23 @@ Application. Five deterministic outbound click events span the manual and import
 and several recent dates, so the SMV-097C date/source/Company filters visibly change the report.
 No external click is represented as an Application.
 
-## Reruns and future Orders
+## Orders
+
+The seeder includes two deterministic employer-owned Order examples linked to placement
+Vacancies: `SMV-ACCEPTANCE-DRAFT` and `SMV-ACCEPTANCE-PENDING`. They contain package and
+price snapshots only; no Payment or Stripe transaction is fabricated. Re-running the seeder
+updates these rows and replaces their fixture OrderItems without multiplying records.
+
+## Reruns and future Payments
 
 Users, Companies, Vacancies, ImportSources, mappings, import runs/logs, Applications, saved
 pivots and click events use stable fixture keys or timestamps. Rerunning the seeder updates the
 intended fixtures and does not multiply them. Acceptance data is deliberately separate from
 factories and should not be made a prerequisite for isolated feature tests.
 
-SMV-110 and SMV-111 can append deterministic draft/pending/paid/failed/cancelled Order and
-payment scenarios after their provider-neutral boundaries exist. SMV-109 creates no Orders,
-Payments or placeholder commercial records.
+SMV-111 can append deterministic paid/failed/cancelled Payment-attempt scenarios after its
+provider-neutral boundary exists. The fake gateway remains the automated-test provider after
+the confirmed Stripe integration in SMV-112.
 
 This dataset is the shared manual/browser prerequisite for SMV-072 and the disposable
 production-like data prerequisite for the SMV-073 migration/dry-run rehearsal.

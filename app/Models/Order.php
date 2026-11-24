@@ -7,6 +7,7 @@ use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -24,6 +25,7 @@ class Order extends Model
         'vat_cents',
         'total_cents',
         'currency',
+        'vat_rate_basis_points',
     ];
 
     protected function casts(): array
@@ -33,6 +35,7 @@ class Order extends Model
             'subtotal_cents' => 'integer',
             'vat_cents' => 'integer',
             'total_cents' => 'integer',
+            'vat_rate_basis_points' => 'integer',
         ];
     }
 
@@ -54,5 +57,15 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function vacancies(): BelongsToMany
+    {
+        return $this->belongsToMany(Vacancy::class, 'order_items');
+    }
+
+    public static function generateReference(): string
+    {
+        return 'SMV-'.strtoupper((string) str()->random(12));
     }
 }

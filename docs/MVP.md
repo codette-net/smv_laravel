@@ -35,7 +35,10 @@ implied. This is an unfinished MVP boundary, not optional polish. SMV-110 must c
 provider-independent Order foundation with immutable product/price/tax snapshots; SMV-111
 must make payment outcomes testable through a fake gateway, which remains intact after Stripe
 integration. SMV-112 integrates the confirmed Stripe provider once credentials, webhooks and
-final commercial terms are available.
+final commercial terms are available. Order creation now validates purchaser, Company and
+optional Vacancy ownership and remains separate from Payment, entitlement and publication.
+The acceptance dataset includes deterministic draft and pending-payment examples without
+fabricated gateway transactions.
 The authenticated `/account` foundation lets an employer complete presentation/contact
 fields and Media Library branding for owned Companies and review owned Vacancies.
 All authenticated Users can also save public Vacancies and Company profiles and revisit

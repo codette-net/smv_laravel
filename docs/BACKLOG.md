@@ -73,7 +73,7 @@ recovery are deliberately not represented as completed functionality.
 | --- | --- | --- |
 | SMV-050 Packages audit/completion | **REQUIRED MVP — NEEDS REVIEW** | Package/product names, prices, VAT, fulfilment and entitlement rules still require approval; the employer placement flow currently records package intent only and must feed the Order work. |
 | SMV-051 Orders/payments audit/completion | **REQUIRED MVP — REFINED** | Existing Order/OrderItem/Payment schema and models are only a historical foundation. The missing purchase workflow is now split into SMV-110 (Order foundation), SMV-111 (provider-neutral/fake gateway) and SMV-112 (confirmed Stripe integration). |
-| SMV-110 Order foundation | **P0 — PROPOSED** | Build the provider-independent Order boundary with product/price/tax snapshots and placement linkage; do not integrate a real gateway. |
+| SMV-110 Order foundation | **P0 — DONE** | `CreateOrder` provides provider-independent, atomic Order/OrderItem creation with immutable product/price/currency/VAT snapshots, ownership and placement linkage; no gateway integration. |
 | SMV-111 Payment gateway abstraction and fake gateway | **P0 — PROPOSED** | Define the provider-neutral payment boundary and deterministic fake pending/success/failure/cancelled/callback-retry scenarios. |
 | SMV-112 Stripe checkout/payment integration | **P1 — UNBLOCKED / PROPOSED** | Implement the confirmed Stripe integration after the provider-neutral Order and fake-gateway boundaries; credentials, webhook configuration and final commercial/payment terms remain implementation inputs. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
