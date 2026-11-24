@@ -85,10 +85,11 @@ No external click is represented as an Application.
 
 ## Orders
 
-The seeder includes two deterministic employer-owned Order examples linked to placement
-Vacancies: `SMV-ACCEPTANCE-DRAFT` and `SMV-ACCEPTANCE-PENDING`. They contain package and
-price snapshots only; no Payment or Stripe transaction is fabricated. Re-running the seeder
-updates these rows and replaces their fixture OrderItems without multiplying records.
+The seeder includes three deterministic employer-owned Order examples linked to placement
+Vacancies: `SMV-ACCEPTANCE-DRAFT`, `SMV-ACCEPTANCE-PENDING` and `SMV-ACCEPTANCE-PAID`.
+The pending Order has failed and cancelled Fake attempts; the paid Order has one successful
+Fake attempt. All references are clearly synthetic and no Stripe transaction is fabricated.
+Re-running the seeder updates these rows, attempts and OrderItems without multiplying records.
 
 ## Reruns and future Payments
 
@@ -97,9 +98,9 @@ pivots and click events use stable fixture keys or timestamps. Rerunning the see
 intended fixtures and does not multiply them. Acceptance data is deliberately separate from
 factories and should not be made a prerequisite for isolated feature tests.
 
-SMV-111 can append deterministic paid/failed/cancelled Payment-attempt scenarios after its
-provider-neutral boundary exists. The fake gateway remains the automated-test provider after
-the confirmed Stripe integration in SMV-112.
+The Fake gateway remains the automated-test provider after the confirmed Stripe integration in
+SMV-112. Customer checkout, webhook verification and entitlement activation remain future
+work.
 
 This dataset is the shared manual/browser prerequisite for SMV-072 and the disposable
 production-like data prerequisite for the SMV-073 migration/dry-run rehearsal.

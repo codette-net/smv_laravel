@@ -202,10 +202,14 @@ catalog is the `AdvertisingPackage` enum (the historical `packages` table is als
 when an active row is explicitly supplied). `placement_package` remains intent only and is
 linked through an OrderItem; creating an Order does not grant entitlement or publication.
 VAT is an explicit basis-point input and defaults to unresolved/no tax until commercial rules
-are approved. SMV-111 should define provider-neutral payment state
-and fake pending/success/failure/cancelled/duplicate-callback/retry scenarios; that fake
-gateway remains the deterministic automated-test boundary after live integration. SMV-112 is
-the confirmed Stripe integration. The current migration's historical
+are approved. SMV-111 defines provider-neutral payment state and fake pending/success/failure/cancelled/
+duplicate-callback/retry scenarios without network access. Payment is a separate attempt
+record: an Order can have multiple failed/cancelled attempts, while only one successful
+attempt transitions the Order to `paid`. `idempotency_key` and `provider_reference` are
+unique attempt/provider boundaries; amount and currency always come from the Order snapshot.
+The historical `provider`/`provider_payment_id` and `raw_payload` fields remain readable for
+legacy records, but the old `mollie` schema default is not provider selection. SMV-112 is the
+confirmed Stripe integration. The current migration's historical
 `payments.payment_provider` default of `mollie` is legacy schema state, not a live provider
 configuration; Stripe implementation must introduce explicit provider configuration rather
 than activating that default.
