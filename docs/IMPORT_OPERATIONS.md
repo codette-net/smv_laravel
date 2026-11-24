@@ -15,6 +15,16 @@ Joobs is not activated by these procedures. Its employer identity, category/prod
 mappings, timezone, empty-feed semantics, publication/removal policy and field ownership
 must still be approved separately.
 
+## Acceptance fixture sources
+
+SMV-109 provides safe, synthetic ImportSources and history for operator/UI walkthroughs. Run
+`php artisan db:seed --class=Database\Seeders\AcceptanceDemoSeeder` only in a local, testing
+or isolated staging environment. The trusted and monitoring sources use reserved `.invalid`
+HTTPS endpoints and are never fetched during seeding; the review and manual sources use upload
+transport. Use `docs/ACCEPTANCE_DATASET.md` for the stable source/vacancy references and the
+missing, restored, failed and skipped history scenarios. These fixtures do not activate Joobs
+or replace a production source configuration.
+
 ## Routine checks
 
 1. Open **Imports → Importbronnen** in Filament. Check source health, latest outcome,

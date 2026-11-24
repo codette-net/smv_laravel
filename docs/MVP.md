@@ -181,12 +181,15 @@ their purchased price from mutable current Package rows.
 
 ### Production-like acceptance data
 
-SMV-109 will provide a disposable, repeatable dataset for manual acceptance and browser
-smoke: representative roles, Companies, manual/imported Vacancy lifecycle states,
-application modes, saves, Applications, ImportSources, import history, missing/reappearing
-records, outbound clicks, reporting rows and later Orders. It is separate from factories and
-must contain no production credentials, partner secrets or copied personal data. The same
-dataset supports SMV-072 and SMV-073.
+SMV-109 provides a disposable, repeatable dataset for manual acceptance and browser smoke:
+representative roles, Companies, manual/imported Vacancy lifecycle states, application modes,
+saves, Applications, ImportSources, import history, missing/reappearing records, outbound
+clicks and reporting rows. Run it explicitly with
+`php artisan db:seed --class=Database\Seeders\AcceptanceDemoSeeder` against a local,
+testing or isolated staging database. It is separate from factories, refuses production and
+contains no production credentials, partner secrets or copied personal data. See
+`docs/ACCEPTANCE_DATASET.md` for the fixture table and scenario guide. The same dataset
+supports SMV-072 and SMV-073; later Order/payment fixtures belong to SMV-110/111.
 
 Current Vacancy and Company save totals and rankings are available only to Filament
 staff through aggregate pivot queries. Public save counts, individual saver identities,

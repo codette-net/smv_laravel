@@ -106,3 +106,17 @@ git status
 ```
 
 Expected: clean working tree.
+
+## Acceptance dataset
+
+For manual acceptance, browser smoke or a disposable dry run, seed the dedicated dataset
+explicitly:
+
+```text
+php artisan db:seed --class=Database\Seeders\AcceptanceDemoSeeder
+```
+
+`AcceptanceDemoSeeder` is guarded to `local`, `testing` and `staging`, uses only synthetic
+`.test` accounts and `.invalid` fixture endpoints, and is not called by `DatabaseSeeder`.
+Do not run it against production or a shared database. The fixture accounts and scenario
+references are documented in `docs/ACCEPTANCE_DATASET.md`.
