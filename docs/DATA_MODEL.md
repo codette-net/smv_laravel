@@ -193,11 +193,16 @@ tables, but the employer placement flow currently stores only `Vacancy::placemen
 intent. It does not yet create an Order, Payment or entitlement, so these models are a
 foundation rather than a completed commercial workflow.
 
-SMV-110 should establish the provider-independent Order boundary. An OrderItem must retain
-the purchased product/package identity plus immutable title, price, currency, VAT and total
-snapshots so historical Orders remain correct when current Package rows change. A safe
-relation to the User/employer, Company and Vacancy/placement intent must be explicit without
-granting entitlement from client input. SMV-111 should define provider-neutral payment state
+SMV-110 establishes the provider-independent Order boundary. `CreateOrder` validates that the
+purchaser owns the Company and that any linked Vacancy belongs to that Company, then creates
+an Order and one or more OrderItems atomically. OrderItems retain the purchased product code,
+label, quantity, unit price, subtotal, currency, VAT rate/amount and total snapshots; the
+Order retains aggregate money snapshots and a stable `SMV-*` reference. The current approved
+catalog is the `AdvertisingPackage` enum (the historical `packages` table is also supported
+when an active row is explicitly supplied). `placement_package` remains intent only and is
+linked through an OrderItem; creating an Order does not grant entitlement or publication.
+VAT is an explicit basis-point input and defaults to unresolved/no tax until commercial rules
+are approved. SMV-111 should define provider-neutral payment state
 and fake pending/success/failure/cancelled/duplicate-callback/retry scenarios; that fake
 gateway remains the deterministic automated-test boundary after live integration. SMV-112 is
 the confirmed Stripe integration. The current migration's historical

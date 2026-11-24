@@ -17,9 +17,14 @@ class OrderItem extends Model
         'order_id',
         'package_id',
         'vacancy_id',
+        'product_code',
         'title_snapshot',
         'price_cents',
+        'currency',
+        'vat_rate_basis_points',
         'quantity',
+        'subtotal_cents',
+        'vat_cents',
         'total_cents',
     ];
 
@@ -27,7 +32,10 @@ class OrderItem extends Model
     {
         return [
             'price_cents' => 'integer',
+            'vat_rate_basis_points' => 'integer',
             'quantity' => 'integer',
+            'subtotal_cents' => 'integer',
+            'vat_cents' => 'integer',
             'total_cents' => 'integer',
         ];
     }

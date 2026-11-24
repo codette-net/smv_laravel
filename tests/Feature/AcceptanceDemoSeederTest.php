@@ -9,6 +9,7 @@ use App\Models\Application;
 use App\Models\Company;
 use App\Models\Import;
 use App\Models\ImportSource;
+use App\Models\Order;
 use App\Models\OutboundApplyClick;
 use App\Models\User;
 use App\Models\Vacancy;
@@ -35,7 +36,9 @@ test('acceptance seeder creates the documented role, company, vacancy, source an
         ->and(Vacancy::query()->where('source', VacancySource::Import->value)->where('source_reference', 'acceptance-import-review')->where('status', VacancyStatus::Pending->value)->exists())->toBeTrue()
         ->and(Vacancy::query()->where('source_reference', 'acceptance-import-missing')->whereNotNull('missing_since')->exists())->toBeTrue()
         ->and(Vacancy::query()->where('source_reference', 'acceptance-import-offline')->where('status', VacancyStatus::Archived->value)->whereNotNull('source_offlined_at')->exists())->toBeTrue()
-        ->and(Vacancy::query()->where('source_reference', 'acceptance-import-restored')->where('status', VacancyStatus::Active->value)->whereNull('missing_since')->whereNull('source_offlined_at')->exists())->toBeTrue();
+        ->and(Vacancy::query()->where('source_reference', 'acceptance-import-restored')->where('status', VacancyStatus::Active->value)->whereNull('missing_since')->whereNull('source_offlined_at')->exists())->toBeTrue()
+        ->and(Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING'])->count())->toBe(2)
+        ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->where('status', 'pending_payment')->whereHas('orderItems')->exists())->toBeTrue();
 });
 
 test('acceptance imports use safe local fixtures and expose useful policy and monitoring states', function (): void {
@@ -88,6 +91,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'imports' => Import::query()->where('filename', 'like', 'acceptance-%')->count(),
         'applications' => Application::query()->whereHas('candidate', fn ($query) => $query->where('email', 'like', '%@smv-acceptance.test'))->count(),
         'clicks' => OutboundApplyClick::query()->count(),
+        'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING'])->count(),
     ];
 
     seedAcceptanceDataset();
@@ -100,6 +104,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'imports' => Import::query()->where('filename', 'like', 'acceptance-%')->count(),
         'applications' => Application::query()->whereHas('candidate', fn ($query) => $query->where('email', 'like', '%@smv-acceptance.test'))->count(),
         'clicks' => OutboundApplyClick::query()->count(),
+        'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING'])->count(),
     ])->toBe($counts);
 });
 

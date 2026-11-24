@@ -151,6 +151,14 @@ the definitive package/entitlement decisions; SMV-110/111 own the provider-neutr
 implementation boundary; SMV-112 owns the confirmed Stripe integration once credentials,
 webhooks and final commercial terms are available.
 
+`App\Actions\Orders\CreateOrder` is the single order-creation boundary. It validates
+purchaser, Company and optional Vacancy ownership, resolves the approved package catalog,
+snapshots all commercial values using integer minor units, and creates Order plus OrderItems in
+one transaction. Order status is provider-neutral (`draft`, `pending_payment`, `paid`, with
+legacy statuses retained for historical rows); Payment attempts remain a separate model and
+are not created by this boundary. A placement package is intent, not entitlement: publication
+still follows moderation and the verified payment/fulfilment boundary planned for SMV-111.
+
 SMV-078B adds a deliberately small public account foundation. Authenticated users enter
 through `/account`; employers can update only presentation/contact fields on Companies
 whose `user_id` they own and can list Vacancies belonging to those Companies. Status,

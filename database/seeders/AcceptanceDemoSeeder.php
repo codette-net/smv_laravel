@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\ApplicationStatus;
 use App\Enums\CategoryType;
@@ -16,6 +17,7 @@ use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
 use App\Enums\ImportType;
+use App\Enums\OrderStatus;
 use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
@@ -29,6 +31,7 @@ use App\Models\ImportMapping;
 use App\Models\ImportMappingField;
 use App\Models\ImportSource;
 use App\Models\ImportSourceEmployer;
+use App\Models\Order;
 use App\Models\OutboundApplyClick;
 use App\Models\User;
 use App\Models\Vacancy;
@@ -68,6 +71,7 @@ final class AcceptanceDemoSeeder extends Seeder
 
             $this->seedAccountHistory($users['candidate'], $companies, $vacancies);
             $this->seedOutboundClicks($vacancies);
+            $this->seedOrders($users['employer'], $companies['complete'], $vacancies);
         });
     }
 
@@ -811,6 +815,48 @@ final class AcceptanceDemoSeeder extends Seeder
                 ->where('clicked_at', $clickedAt)
                 ->first() ?? new OutboundApplyClick;
             $click->forceFill(['vacancy_id' => $vacancy->id, 'clicked_at' => $clickedAt])->save();
+        }
+    }
+
+    /** @param array<string, Vacancy> $vacancies */
+    private function seedOrders(User $employer, Company $company, array $vacancies): void
+    {
+        $definitions = [
+            ['reference' => 'SMV-ACCEPTANCE-DRAFT', 'status' => OrderStatus::Draft, 'package' => AdvertisingPackage::Standard, 'vacancy' => $vacancies['draft']],
+            ['reference' => 'SMV-ACCEPTANCE-PENDING', 'status' => OrderStatus::PendingPayment, 'package' => AdvertisingPackage::Superior, 'vacancy' => $vacancies['internal']],
+        ];
+
+        foreach ($definitions as $definition) {
+            $price = $definition['package']->priceCents();
+            $order = Order::withTrashed()->firstOrNew(['order_number' => $definition['reference']]);
+            $order->fill([
+                'user_id' => $employer->id,
+                'company_id' => $company->id,
+                'status' => $definition['status'],
+                'subtotal_cents' => $price,
+                'vat_cents' => 0,
+                'total_cents' => $price,
+                'currency' => 'EUR',
+                'vat_rate_basis_points' => null,
+            ]);
+            $order->save();
+
+            if ($order->trashed()) {
+                $order->restore();
+            }
+
+            $order->orderItems()->delete();
+            $order->orderItems()->create([
+                'vacancy_id' => $definition['vacancy']->id,
+                'product_code' => $definition['package']->value,
+                'title_snapshot' => $definition['package']->label(),
+                'price_cents' => $price,
+                'currency' => 'EUR',
+                'quantity' => 1,
+                'subtotal_cents' => $price,
+                'vat_cents' => 0,
+                'total_cents' => $price,
+            ]);
         }
     }
 
