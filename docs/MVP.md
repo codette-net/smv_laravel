@@ -33,7 +33,7 @@ Vacancy draft for an owned Company, preview it and hand it off in `pending` stat
 selected package is currently intent only: payment, entitlement and publication are not
 implied. This is an unfinished MVP boundary, not optional polish. SMV-110 must create the
 provider-independent Order foundation with immutable product/price/tax snapshots; SMV-111
-must make payment outcomes testable through a fake gateway, which remains intact after Stripe
+now makes payment outcomes testable through a provider-neutral fake gateway, which remains intact after Stripe
 integration. SMV-112 integrates the confirmed Stripe provider once credentials, webhooks and
 final commercial terms are available. Order creation now validates purchaser, Company and
 optional Vacancy ownership and remains separate from Payment, entitlement and publication.

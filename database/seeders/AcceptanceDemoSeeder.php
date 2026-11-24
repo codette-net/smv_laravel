@@ -18,6 +18,7 @@ use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
 use App\Enums\ImportType;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
@@ -33,6 +34,7 @@ use App\Models\ImportSource;
 use App\Models\ImportSourceEmployer;
 use App\Models\Order;
 use App\Models\OutboundApplyClick;
+use App\Models\Payment;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Database\Seeder;
@@ -824,6 +826,7 @@ final class AcceptanceDemoSeeder extends Seeder
         $definitions = [
             ['reference' => 'SMV-ACCEPTANCE-DRAFT', 'status' => OrderStatus::Draft, 'package' => AdvertisingPackage::Standard, 'vacancy' => $vacancies['draft']],
             ['reference' => 'SMV-ACCEPTANCE-PENDING', 'status' => OrderStatus::PendingPayment, 'package' => AdvertisingPackage::Superior, 'vacancy' => $vacancies['internal']],
+            ['reference' => 'SMV-ACCEPTANCE-PAID', 'status' => OrderStatus::Paid, 'package' => AdvertisingPackage::Standard, 'vacancy' => $vacancies['external']],
         ];
 
         foreach ($definitions as $definition) {
@@ -857,6 +860,36 @@ final class AcceptanceDemoSeeder extends Seeder
                 'vat_cents' => 0,
                 'total_cents' => $price,
             ]);
+        }
+
+        $pending = Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->firstOrFail();
+        $paid = Order::query()->where('order_number', 'SMV-ACCEPTANCE-PAID')->firstOrFail();
+
+        $attempts = [
+            ['key' => 'acceptance-payment-failed', 'order' => $pending, 'status' => PaymentStatus::Failed, 'reference' => 'fake-acceptance-failed'],
+            ['key' => 'acceptance-payment-cancelled', 'order' => $pending, 'status' => PaymentStatus::Cancelled, 'reference' => 'fake-acceptance-cancelled'],
+            ['key' => 'acceptance-payment-paid', 'order' => $paid, 'status' => PaymentStatus::Paid, 'reference' => 'fake-acceptance-paid'],
+        ];
+
+        foreach ($attempts as $attempt) {
+            $payment = Payment::withTrashed()->firstOrNew(['idempotency_key' => $attempt['key']]);
+            $payment->fill([
+                'order_id' => $attempt['order']->id,
+                'provider' => 'fake',
+                'provider_payment_id' => $attempt['reference'],
+                'provider_reference' => $attempt['reference'],
+                'status' => $attempt['status'],
+                'amount_cents' => $attempt['order']->total_cents,
+                'currency' => $attempt['order']->currency,
+                'paid_at' => $attempt['status'] === PaymentStatus::Paid ? now()->subHour() : null,
+                'completed_at' => now()->subHour(),
+                'metadata' => ['fixture' => true, 'scenario' => $attempt['status']->value],
+            ]);
+            $payment->save();
+
+            if ($payment->trashed()) {
+                $payment->restore();
+            }
         }
     }
 

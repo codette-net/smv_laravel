@@ -16,13 +16,17 @@ class Payment extends Model
 
     protected $fillable = [
         'order_id',
+        'idempotency_key',
         'provider',
         'provider_payment_id',
+        'provider_reference',
         'status',
         'amount_cents',
         'currency',
         'paid_at',
+        'completed_at',
         'raw_payload',
+        'metadata',
     ];
 
     protected function casts(): array
@@ -31,7 +35,9 @@ class Payment extends Model
             'status' => PaymentStatus::class,
             'amount_cents' => 'integer',
             'paid_at' => 'datetime',
+            'completed_at' => 'datetime',
             'raw_payload' => 'array',
+            'metadata' => 'array',
         ];
     }
 

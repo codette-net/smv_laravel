@@ -159,6 +159,14 @@ legacy statuses retained for historical rows); Payment attempts remain a separat
 are not created by this boundary. A placement package is intent, not entitlement: publication
 still follows moderation and the verified payment/fulfilment boundary planned for SMV-111.
 
+`StartPayment` is the provider-neutral payment-attempt boundary. It resolves the configured
+gateway, creates a pending Payment from the immutable Order total/currency, and applies the
+gateway result. `ConfirmPayment` is idempotent and is safe to call from a future Stripe
+webhook: it marks one attempt paid and transitions the Order once, without allowing failed or
+cancelled attempts to reverse a paid Order. The deterministic Fake gateway is available only
+outside production by default; it never performs network calls. Payment confirmation still
+does not grant Vacancy entitlement or publication.
+
 SMV-078B adds a deliberately small public account foundation. Authenticated users enter
 through `/account`; employers can update only presentation/contact fields on Companies
 whose `user_id` they own and can list Vacancies belonging to those Companies. Status,

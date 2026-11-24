@@ -64,13 +64,31 @@ class OrderResource extends Resource
                         ->state(fn (Order $record): string => $record->vacancies->pluck('title')->filter()->join(', '))
                         ->placeholder('-'),
                 ]),
+            Section::make('Betalingspogingen')
+                ->schema([
+                    TextEntry::make('payments')
+                        ->label('Betalingen')
+                        ->state(fn (Order $record): string => $record->payments
+                            ->map(fn ($payment): string => sprintf(
+                                '%s · %s · %s · %s %s · ref %s · aangemaakt %s · afgerond %s',
+                                $payment->status->value,
+                                $payment->provider,
+                                number_format($payment->amount_cents / 100, 2, ',', '.'),
+                                $payment->currency,
+                                $payment->provider_reference ?: '-',
+                                $payment->created_at?->toDateTimeString() ?? '-',
+                                $payment->completed_at?->toDateTimeString() ?? '-',
+                            ))
+                            ->join('; '))
+                        ->placeholder('-'),
+                ]),
         ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'company']))
+            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'company'])->withCount('payments'))
             ->columns([
                 TextColumn::make('order_number')->label('Referentie')->searchable()->sortable(),
                 TextColumn::make('user.name')->label('Klant')->searchable()->sortable(),
@@ -78,6 +96,7 @@ class OrderResource extends Resource
                 TextColumn::make('status')->label('Status')->badge()->sortable(),
                 TextColumn::make('total_cents')->label('Totaal')->money(fn (Order $record): string => $record->currency)->sortable(),
                 TextColumn::make('currency')->label('Valuta'),
+                TextColumn::make('payments_count')->label('Betalingspogingen')->numeric(),
                 TextColumn::make('created_at')->label('Aangemaakt')->dateTime()->sortable(),
             ])
             ->filters([
