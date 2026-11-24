@@ -101,7 +101,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. SMV-109 is the reusable data prerequisite. |
 | SMV-073 Migration dry run | **NOT STARTED** | Needs the SMV-109 production-like dataset, production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, SMV-109 acceptance data, migration dry run and operational configuration. |
-| SMV-109 Production-like acceptance dataset | **P0 — PROPOSED** | Create safe, repeatable demo/acceptance data for browser smoke, imports, monitoring, reporting and future Order/payment scenarios; never include production credentials or partner secrets. |
+| SMV-109 Production-like acceptance dataset | **DONE** | `AcceptanceDemoSeeder` provides guarded, synthetic, repeatable role/company/Vacancy/import/history/application/save/click fixtures for SMV-072 and SMV-073 without production credentials or partner endpoints. |
 | SMV-113 Filament Vacancy application destination reactivity | **DONE** | Filament Vacancy create/edit forms now normalize enum-backed mode state, react immediately across all three modes, validate only the active destination, and restrict active external links to HTTP(S). |
 | SMV-075 Prototype/showcase and release-cache cleanup | **DONE** | The intended showcase layout is available as `<x-app-layout>`, useful Tidy/component references remain, obsolete duplicate/onboarding prototypes and tracked conflict artefacts are removed, and `artisan view:cache` succeeds. |
 | SMV-076 Public SEO regression hardening | **DONE** | Blog and archive pagination use clean self-canonicals, public metadata is escaped once at the output boundary, indexable static pages are present in the sitemap, and the environment-aware robots path matches the Filament dashboard. |
@@ -133,10 +133,9 @@ The evidence and proposed policy for this phase are documented in
 
 The immediate release-critical order is now:
 
-1. **SMV-109** — create the reusable production-like acceptance dataset.
-2. **SMV-110** — build the provider-independent Order foundation.
-3. **SMV-111** — add the provider-neutral payment boundary and fake gateway.
-4. **SMV-112** — integrate the confirmed Stripe provider after SMV-110/111 inputs are ready.
+1. **SMV-110** — build the provider-independent Order foundation.
+2. **SMV-111** — add the provider-neutral payment boundary and fake gateway.
+3. **SMV-112** — integrate the confirmed Stripe provider after SMV-110/111 inputs are ready.
 
 In parallel, continue the Phase G release gates: finish evidence for SMV-071, implement
 SMV-072 browser smoke, complete SMV-044/045 legacy URL inventory and redirects, run the
@@ -394,7 +393,7 @@ launch-critical.
 
 #### SMV-109 — Production-like acceptance dataset
 
-- **Status:** P0 — PROPOSED
+- **Status:** DONE
 - **Goal:** provide safe, reusable data for manual acceptance, browser smoke, import and
   monitoring scenarios, outbound-click reporting and future Order/payment testing. This is
   not a substitute for unit-test factories.
@@ -406,8 +405,11 @@ launch-critical.
 - **Safety:** disposable or clearly non-production records only. Never include production
   credentials, real partner secrets or copied personal data.
 - **Dependencies:** stable factories/seeders and the Phase G staging acceptance plan.
-- **Acceptance:** one documented, repeatable reset/seed path supports named browser scenarios,
-  import monitoring/recovery checks and the SMV-073 dry run without modifying production data.
+- **Acceptance:** `AcceptanceDemoSeeder` is explicitly invoked, refuses production, uses stable
+  `.test` accounts and `.invalid` fixture endpoints, reruns without multiplying deterministic
+  records, and is documented in `docs/ACCEPTANCE_DATASET.md`. It supports named browser
+  scenarios, import monitoring/recovery checks and the SMV-073 dry run without modifying
+  production data. Future Order/payment fixtures remain SMV-110/111 scope.
 
 #### SMV-113 — Fix Filament Vacancy application destination reactivity
 
