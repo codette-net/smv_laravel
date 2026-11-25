@@ -6,12 +6,14 @@ use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\CompensationPeriod;
+use App\Enums\ContactPurpose;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Http\Requests\SaveVacancyPlacementRequest;
 use App\Http\Requests\SelectAdvertisingPackageRequest;
 use App\Models\Category;
 use App\Models\Vacancy;
+use App\Support\Commerce\PackageCatalogue;
 use App\Support\Vacancies\VacancyDescription;
 use App\Support\VacancyPlacementSession;
 use Illuminate\Contracts\View\View;
@@ -31,21 +33,26 @@ class EmployerVacancyController extends Controller
         'qualification_category_id' => CategoryType::qualification,
     ];
 
-    public function index(): View
+    public function index(PackageCatalogue $catalogue): View
     {
         return view('vacancy-placement.index', [
-            'plans' => AdvertisingPackage::presentation(),
+            'plans' => $catalogue->presentation(),
         ]);
     }
 
     public function selectPackage(
         SelectAdvertisingPackageRequest $request,
         VacancyPlacementSession $placement,
+        PackageCatalogue $catalogue,
     ): RedirectResponse {
         $package = AdvertisingPackage::from($request->validated('package'));
+        $catalogPackage = $catalogue->find($package);
 
-        if (! $package->entersPlacementFlow()) {
-            return to_route('contact', ['reason' => 'advertising']);
+        if ($catalogPackage === null || ! $catalogPackage->isAvailableForCheckout()) {
+            return to_route('contact', [
+                'reason' => ContactPurpose::Advertising->value,
+                'package' => $package->value,
+            ]);
         }
 
         $placement->rememberPackage($package);

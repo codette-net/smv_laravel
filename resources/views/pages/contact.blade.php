@@ -38,6 +38,12 @@
                             </div>
                         @endif
 
+                        @if ($selectedPackageLabel)
+                            <div class="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+                                Uw aanvraag gaat over <strong>{{ $selectedPackageLabel }}</strong>. Deze context wordt veilig met uw bericht meegestuurd.
+                            </div>
+                        @endif
+
                         @if ($errors->any())
                             <div class="mt-8 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900" role="alert" aria-labelledby="contact-errors-title">
                                 <p class="font-semibold" id="contact-errors-title">Controleer de gemarkeerde velden.</p>
@@ -51,6 +57,9 @@
 
                         <form class="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" action="{{ route('contact.store') }}" method="POST">
                             @csrf
+                            @if ($selectedPackage)
+                                <input name="package" type="hidden" value="{{ $selectedPackage }}">
+                            @endif
                             <h2 class="text-xl font-semibold text-slate-900">Stuur ons een bericht</h2>
                             <p class="mt-2 text-sm leading-6 text-slate-600">Velden met een sterretje zijn verplicht.</p>
 

@@ -186,6 +186,23 @@ rules are available through Vacancy helpers/scopes and remain separate from
 shared homepage/listing query. There is no currency,
 assumed-hours or FTE conversion in this contract.
 
+## Packages
+
+`packages.slug` is the stable product identifier (`standard`, `superior`, `custom`).
+Customer-facing `name`, `description` and JSON `features` are editable independently from
+structured `price_cents`, `currency`, `vat_rate_basis_points`, `vacancy_duration_days`,
+`placement_quantity`, `package_type`, quote/checkout flags and validity dates. Staff-only
+`operational_notes` record manual Superior fulfilment without claiming automated ranking or
+advertising. `is_active` controls publication; checkout additionally requires an approved
+current price, tax configuration, positive duration/quantity and non-quote semantics.
+
+Standaard is initialized at EUR 189/60 days/one placement, Superior at EUR 398/initially
+60 configurable days/one placement, and Maatwerk at a EUR 950 starting price with no direct
+checkout. All are net prices approved through 2026-12-31. Package administration deliberately
+does not expose create/delete actions, preserving stable product codes and historical
+OrderItem relations. Future bundles may use OrderItem quantity and later issue separately
+tracked placement credits, but credits/subscriptions are not implemented.
+
 ## Orders and payments
 
 The repository contains historical `Package`, `Order`, `OrderItem` and `Payment` models and
@@ -198,11 +215,12 @@ purchaser owns the Company and that any linked Vacancy belongs to that Company, 
 an Order and one or more OrderItems atomically. OrderItems retain the purchased product code,
 label, quantity, unit price, subtotal, currency, VAT rate/amount and total snapshots; the
 Order retains aggregate money snapshots and a stable `SMV-*` reference. The current approved
-catalog is the `AdvertisingPackage` enum (the historical `packages` table is also supported
-when an active row is explicitly supplied). `placement_package` remains intent only and is
+catalog is the persisted `Package` model, resolved through stable `AdvertisingPackage` slug
+values with safe bootstrap configuration for fresh/test installs. `placement_package` remains intent only and is
 linked through an OrderItem; creating an Order does not grant entitlement or publication.
-VAT is an explicit basis-point input and defaults to unresolved/no tax until commercial rules
-are approved. SMV-111 defines provider-neutral payment state and fake pending/success/failure/cancelled/
+The supported MVP default VAT is 2100 basis points (21%) and remains configurable per Package;
+tax-incomplete products fail closed for checkout while Order/OrderItem tax snapshots remain
+immutable. SMV-111 defines provider-neutral payment state and fake pending/success/failure/cancelled/
 duplicate-callback/retry scenarios without network access. Payment is a separate attempt
 record: an Order can have multiple failed/cancelled attempts, while only one successful
 attempt transitions the Order to `paid`. `idempotency_key` and `provider_reference` are

@@ -71,7 +71,7 @@ test('a guest sees the package step before authentication and maatwerk follows c
         ->and(Company::count())->toBe(0);
 
     $this->post(route('vacancy-placement.package'), ['package' => AdvertisingPackage::Custom->value])
-        ->assertRedirect(route('contact', ['reason' => 'advertising']));
+        ->assertRedirect(route('contact', ['reason' => 'advertising', 'package' => 'custom']));
 });
 
 test('quick registration creates one employer and pending company then resumes the chosen package', function () {

@@ -456,8 +456,12 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - the Filament dashboard includes a compact staff-only current-save widget. It shows
   aggregate Vacancy/Company totals and rankings, never saver identities, and is not a
   public analytics surface;
-- pricing presents Standaard, Superior and Maatwerk without implying checkout or an
-  automated ranking implementation;
+- pricing and the placement entry render the editable Package catalogue consistently:
+  Standaard EUR 189, Superior EUR 398 and Maatwerk from EUR 950, all excluding VAT and
+  carrying the approved 2026 validity label. Standaard/Superior continue into the
+  non-entitling placement flow; Maatwerk opens Contact with allowlisted package context.
+  Superior promotional wording describes manual sales fulfilment and never claims automated
+  ranking or advertising;
 - Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062
   general-purpose form. It reuses the shared input, textarea, select and button
   primitives plus a Tidy-derived accessible status modal. Validation/failure feedback

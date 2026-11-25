@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Package;
 use Illuminate\Database\Seeder;
 
 class PackageSeeder extends Seeder
@@ -12,6 +12,11 @@ class PackageSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        foreach (config('commercial.packages') as $slug => $attributes) {
+            Package::query()->firstOrCreate(
+                ['slug' => $slug],
+                $attributes,
+            );
+        }
     }
 }

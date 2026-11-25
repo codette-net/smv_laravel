@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use App\Support\Commerce\PackageCatalogue;
+
 enum AdvertisingPackage: string
 {
     case Standard = 'standard';
@@ -19,68 +21,43 @@ enum AdvertisingPackage: string
 
     public function priceLabel(): string
     {
-        return match ($this) {
-            self::Standard => '€ 189',
-            self::Superior => '€ 398',
-            self::Custom => 'Op aanvraag',
-        };
+        return app(PackageCatalogue::class)->find($this)?->presentation()['price'] ?? 'Prijs op aanvraag';
     }
 
     public function priceCents(): ?int
     {
-        return match ($this) {
-            self::Standard => 18_900,
-            self::Superior => 39_800,
-            self::Custom => null,
-        };
+        return app(PackageCatalogue::class)->find($this)?->price_cents;
     }
 
     public function durationDays(): ?int
     {
-        return $this === self::Custom ? null : 60;
+        return app(PackageCatalogue::class)->find($this)?->vacancy_duration_days;
     }
 
     public function introduction(): string
     {
-        return match ($this) {
-            self::Standard => 'Een gerichte plaatsing voor één sales- of marketingvacature.',
-            self::Superior => 'Voor vacatures die in overleg aanvullende zichtbaarheid krijgen.',
-            self::Custom => 'Voor meerdere vacatures, terugkerende werving of aanvullende campagneondersteuning.',
-        };
+        return app(PackageCatalogue::class)->find($this)?->description ?? '';
     }
 
     /** @return array<int, string> */
     public function features(): array
     {
-        return match ($this) {
-            self::Standard => ['60 dagen zichtbaar', 'Reguliere positionering op SMV', 'Afstemming over aangeleverd materiaal'],
-            self::Superior => ['60 dagen zichtbaar', 'Extra positionering en aandacht in overleg', 'Mogelijke nieuwsbrief- en socialinzet afgestemd op de functie'],
-            self::Custom => ['Aanpak afgestemd op uw wervingsvraag', 'Ruimte voor meerdere plaatsingen', 'Aanvullende zichtbaarheid en jobmarketing bespreekbaar'],
-        };
+        return app(PackageCatalogue::class)->find($this)?->features ?? [];
     }
 
     public function entersPlacementFlow(): bool
     {
-        return $this !== self::Custom;
+        return app(PackageCatalogue::class)->find($this)?->isAvailableForCheckout() ?? false;
     }
 
     public function isRecommended(): bool
     {
-        return $this === self::Superior;
+        return app(PackageCatalogue::class)->find($this)?->is_featured ?? false;
     }
 
     /** @return array<int, array<string, mixed>> */
     public static function presentation(): array
     {
-        return array_map(fn (self $package): array => [
-            'value' => $package->value,
-            'name' => $package->label(),
-            'price' => $package->priceLabel(),
-            'suffix' => $package->priceCents() === null ? null : 'excl. btw',
-            'intro' => $package->introduction(),
-            'features' => $package->features(),
-            'featured' => $package->isRecommended(),
-            'enters_flow' => $package->entersPlacementFlow(),
-        ], self::cases());
+        return app(PackageCatalogue::class)->presentation();
     }
 }

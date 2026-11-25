@@ -1,0 +1,100 @@
+<?php
+
+$defaultVatRate = (int) env('COMMERCIAL_DEFAULT_VAT_RATE_BASIS_POINTS', 2100);
+
+return [
+    'default_vat_rate_basis_points' => $defaultVatRate,
+    'allow_expired_prices_in_non_production' => filter_var(
+        env('COMMERCIAL_ALLOW_EXPIRED_PRICES', true),
+        FILTER_VALIDATE_BOOL,
+    ),
+
+    /*
+     * Safe bootstrap catalogue. Persisted Package rows are the editable source of truth;
+     * these values keep fresh/test installations usable until PackageSeeder has run.
+     */
+    'packages' => [
+        'standard' => [
+            'name' => 'Standaard',
+            'description' => 'Een gerichte plaatsing voor één sales- of marketingvacature.',
+            'features' => [
+                '60 dagen zichtbaar',
+                'Reguliere plaatsing op Sales en Marketing Vacatures',
+                'Afstemming over aangeleverd vacaturemateriaal',
+            ],
+            'price_cents' => 18_900,
+            'currency' => 'EUR',
+            'vacancy_duration_days' => 60,
+            'placement_quantity' => 1,
+            'package_type' => 'placement',
+            'is_quote_only' => false,
+            'checkout_eligible' => true,
+            'is_active' => true,
+            'is_featured' => false,
+            'includes_featured' => false,
+            'includes_social_campaign' => false,
+            'includes_newsletter' => false,
+            'sort_order' => 10,
+            'valid_from' => '2026-11-24',
+            'valid_until' => '2026-12-31',
+            'vat_rate_basis_points' => $defaultVatRate,
+            'cta_label' => 'Kies Standaard',
+            'operational_notes' => null,
+        ],
+        'superior' => [
+            'name' => 'Superior',
+            'description' => 'Extra zichtbaarheid, promotionele ondersteuning en persoonlijke begeleiding voor één vacature.',
+            'features' => [
+                'Configureerbare plaatsingsduur, bij start 60 dagen',
+                'Hogere zichtbaarheid binnen de bestaande handmatige mogelijkheden',
+                'Aanvullende promotionele activiteit en advertising door het salesteam',
+                'Persoonlijke begeleiding en hulp bij de vacaturepresentatie',
+            ],
+            'price_cents' => 39_800,
+            'currency' => 'EUR',
+            'vacancy_duration_days' => 60,
+            'placement_quantity' => 1,
+            'package_type' => 'placement',
+            'is_quote_only' => false,
+            'checkout_eligible' => true,
+            'is_active' => true,
+            'is_featured' => true,
+            'includes_featured' => true,
+            'includes_social_campaign' => false,
+            'includes_newsletter' => false,
+            'sort_order' => 20,
+            'valid_from' => '2026-11-24',
+            'valid_until' => '2026-12-31',
+            'vat_rate_basis_points' => $defaultVatRate,
+            'cta_label' => 'Kies Superior',
+            'operational_notes' => 'Handmatige fulfilment: extra zichtbaarheid, aanvullende promotie/advertising en persoonlijke begeleiding. Er is geen geautomatiseerde ranking of campagnekoppeling.',
+        ],
+        'custom' => [
+            'name' => 'Maatwerk',
+            'description' => 'Een offerte op maat voor een bredere of terugkerende wervingsvraag.',
+            'features' => [
+                'Vanafprijs voor een voorstel op maat',
+                'Duur en deliverables worden per opdracht afgesproken',
+                'Ruimte voor meerdere plaatsingen en aanvullende ondersteuning',
+            ],
+            'price_cents' => 95_000,
+            'currency' => 'EUR',
+            'vacancy_duration_days' => null,
+            'placement_quantity' => 1,
+            'package_type' => 'custom',
+            'is_quote_only' => true,
+            'checkout_eligible' => false,
+            'is_active' => true,
+            'is_featured' => false,
+            'includes_featured' => false,
+            'includes_social_campaign' => false,
+            'includes_newsletter' => false,
+            'sort_order' => 30,
+            'valid_from' => '2026-11-24',
+            'valid_until' => '2026-12-31',
+            'vat_rate_basis_points' => $defaultVatRate,
+            'cta_label' => 'Bespreek Maatwerk',
+            'operational_notes' => 'Offerte/contactflow. Geen directe checkout; duur en deliverables verschillen per overeenkomst.',
+        ],
+    ],
+];

@@ -7,7 +7,7 @@ test('the template-based public pages are available through their canonical rout
         ->assertSee('Van materiaal tot evaluatie')
         ->assertSee('href="'.route('vacancy-placement.index').'"', false)
         ->assertSee('href="'.route('pricing').'"', false)
-        ->assertSee('href="'.route('contact', ['reason' => 'advertising']).'"', false);
+        ->assertSee(route('contact', ['reason' => 'advertising', 'package' => 'custom']));
     $this->get(route('pricing'))
         ->assertOk()
         ->assertSee('Standaard')

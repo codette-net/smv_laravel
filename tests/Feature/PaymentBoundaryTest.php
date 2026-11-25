@@ -145,6 +145,6 @@ test('payment uses the order snapshot after package price changes', function () 
 
     $payment = app(StartPayment::class)->execute($user, $order, 'snapshot-attempt');
 
-    expect($payment->amount_cents)->toBe(12_345)
+    expect($payment->amount_cents)->toBe(14_937)
         ->and($payment->currency)->toBe('EUR');
 });

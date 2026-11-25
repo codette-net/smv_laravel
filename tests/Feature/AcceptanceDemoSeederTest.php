@@ -11,6 +11,7 @@ use App\Models\Import;
 use App\Models\ImportSource;
 use App\Models\Order;
 use App\Models\OutboundApplyClick;
+use App\Models\Package;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\Vacancy;
@@ -40,8 +41,10 @@ test('acceptance seeder creates the documented role, company, vacancy, source an
         ->and(Vacancy::query()->where('source_reference', 'acceptance-import-restored')->where('status', VacancyStatus::Active->value)->whereNull('missing_since')->whereNull('source_offlined_at')->exists())->toBeTrue()
         ->and(Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING'])->count())->toBe(2)
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->where('status', 'pending_payment')->whereHas('orderItems')->exists())->toBeTrue()
+        ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->where('vat_rate_basis_points', 2100)->where('vat_cents', 8358)->exists())->toBeTrue()
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PAID')->where('status', 'paid')->exists())->toBeTrue()
-        ->and(Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count())->toBe(3);
+        ->and(Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count())->toBe(3)
+        ->and(Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count())->toBe(3);
 });
 
 test('acceptance imports use safe local fixtures and expose useful policy and monitoring states', function (): void {
@@ -96,6 +99,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'clicks' => OutboundApplyClick::query()->count(),
         'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING', 'SMV-ACCEPTANCE-PAID'])->count(),
         'payments' => Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count(),
+        'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
     ];
 
     seedAcceptanceDataset();
@@ -110,6 +114,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'clicks' => OutboundApplyClick::query()->count(),
         'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING', 'SMV-ACCEPTANCE-PAID'])->count(),
         'payments' => Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count(),
+        'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
     ])->toBe($counts);
 });
 

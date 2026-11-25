@@ -30,6 +30,9 @@
                                 @if ($plan['suffix'])
                                     <p class="mt-1 text-sm text-slate-500">{{ $plan['suffix'] }}</p>
                                 @endif
+                                @if ($plan['validity_label'])
+                                    <p class="mt-1 text-xs text-slate-500">{{ $plan['validity_label'] }}</p>
+                                @endif
                                 <p class="mt-4 leading-6 text-slate-600">{{ $plan['intro'] }}</p>
                             </div>
                             <ul class="grow space-y-3 text-slate-600">
@@ -40,14 +43,21 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            <form class="mt-7 rounded-sm bg-slate-50 p-3" action="{{ route('vacancy-placement.package') }}" method="POST">
-                                @csrf
-                                <input name="package" type="hidden" value="{{ $plan['value'] }}">
-                                <x-ui.button class="w-full justify-center" type="submit" variant="brand">
-                                    {{ $plan['enters_flow'] ? 'Kies '.$plan['name'] : 'Bespreek de mogelijkheden' }}
-                                    <span class="ml-1 text-blue-300">→</span>
-                                </x-ui.button>
-                            </form>
+                            <div class="mt-7 rounded-sm bg-slate-50 p-3">
+                                @if ($plan['enters_flow'])
+                                    <form action="{{ route('vacancy-placement.package') }}" method="POST">
+                                        @csrf
+                                        <input name="package" type="hidden" value="{{ $plan['value'] }}">
+                                        <x-ui.button class="w-full justify-center" type="submit" variant="brand">
+                                            {{ $plan['cta_label'] }} <span class="ml-1 text-blue-300">→</span>
+                                        </x-ui.button>
+                                    </form>
+                                @else
+                                    <a class="btn w-full justify-center bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact', ['reason' => 'advertising', 'package' => $plan['value']]) }}">
+                                        {{ $plan['cta_label'] }} <span class="ml-1 text-blue-300">→</span>
+                                    </a>
+                                @endif
+                            </div>
                         </article>
                     @endforeach
                 </div>
@@ -63,7 +73,7 @@
                     <h2 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Bespreek de mogelijkheden</h2>
                     <p class="mt-3 max-w-2xl text-slate-600">We stemmen maatwerk, terugkerende plaatsingen en aanvullende ondersteuning graag rechtstreeks met u af.</p>
                 </div>
-                <a class="btn shrink-0 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact', ['reason' => 'advertising']) }}">Neem contact op <span class="ml-1 text-blue-300">→</span></a>
+                <a class="btn shrink-0 bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact', ['reason' => 'advertising', 'package' => 'custom']) }}">Neem contact op <span class="ml-1 text-blue-300">→</span></a>
             </div>
         </div>
     </section>

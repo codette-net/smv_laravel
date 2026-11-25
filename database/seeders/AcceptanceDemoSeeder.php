@@ -34,6 +34,7 @@ use App\Models\ImportSource;
 use App\Models\ImportSourceEmployer;
 use App\Models\Order;
 use App\Models\OutboundApplyClick;
+use App\Models\Package;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\Vacancy;
@@ -58,6 +59,7 @@ final class AcceptanceDemoSeeder extends Seeder
         $this->guardEnvironment();
         $this->seedRoles();
         $this->call(CategorySeeder::class);
+        $this->call(PackageSeeder::class);
 
         $users = $this->seedUsers();
 
@@ -823,24 +825,28 @@ final class AcceptanceDemoSeeder extends Seeder
     /** @param array<string, Vacancy> $vacancies */
     private function seedOrders(User $employer, Company $company, array $vacancies): void
     {
+        $standard = Package::query()->where('slug', AdvertisingPackage::Standard->value)->firstOrFail();
+        $superior = Package::query()->where('slug', AdvertisingPackage::Superior->value)->firstOrFail();
         $definitions = [
-            ['reference' => 'SMV-ACCEPTANCE-DRAFT', 'status' => OrderStatus::Draft, 'package' => AdvertisingPackage::Standard, 'vacancy' => $vacancies['draft']],
-            ['reference' => 'SMV-ACCEPTANCE-PENDING', 'status' => OrderStatus::PendingPayment, 'package' => AdvertisingPackage::Superior, 'vacancy' => $vacancies['internal']],
-            ['reference' => 'SMV-ACCEPTANCE-PAID', 'status' => OrderStatus::Paid, 'package' => AdvertisingPackage::Standard, 'vacancy' => $vacancies['external']],
+            ['reference' => 'SMV-ACCEPTANCE-DRAFT', 'status' => OrderStatus::Draft, 'package' => $standard, 'vacancy' => $vacancies['draft']],
+            ['reference' => 'SMV-ACCEPTANCE-PENDING', 'status' => OrderStatus::PendingPayment, 'package' => $superior, 'vacancy' => $vacancies['internal']],
+            ['reference' => 'SMV-ACCEPTANCE-PAID', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => $vacancies['external']],
         ];
 
         foreach ($definitions as $definition) {
-            $price = $definition['package']->priceCents();
+            $price = $definition['package']->price_cents;
+            $vatRate = $definition['package']->vat_rate_basis_points;
+            $vat = intdiv(($price * $vatRate) + 5000, 10_000);
             $order = Order::withTrashed()->firstOrNew(['order_number' => $definition['reference']]);
             $order->fill([
                 'user_id' => $employer->id,
                 'company_id' => $company->id,
                 'status' => $definition['status'],
                 'subtotal_cents' => $price,
-                'vat_cents' => 0,
-                'total_cents' => $price,
-                'currency' => 'EUR',
-                'vat_rate_basis_points' => null,
+                'vat_cents' => $vat,
+                'total_cents' => $price + $vat,
+                'currency' => $definition['package']->currency,
+                'vat_rate_basis_points' => $vatRate,
             ]);
             $order->save();
 
@@ -850,15 +856,17 @@ final class AcceptanceDemoSeeder extends Seeder
 
             $order->orderItems()->delete();
             $order->orderItems()->create([
+                'package_id' => $definition['package']->id,
                 'vacancy_id' => $definition['vacancy']->id,
-                'product_code' => $definition['package']->value,
-                'title_snapshot' => $definition['package']->label(),
+                'product_code' => $definition['package']->slug,
+                'title_snapshot' => $definition['package']->name,
                 'price_cents' => $price,
-                'currency' => 'EUR',
+                'currency' => $definition['package']->currency,
+                'vat_rate_basis_points' => $vatRate,
                 'quantity' => 1,
                 'subtotal_cents' => $price,
-                'vat_cents' => 0,
-                'total_cents' => $price,
+                'vat_cents' => $vat,
+                'total_cents' => $price + $vat,
             ]);
         }
 

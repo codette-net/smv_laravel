@@ -16,16 +16,20 @@ as stakeholder suggestions until the named approval or evidence is supplied.
 - Audience: juniors, mediors, trainees, interns and other career stages where the
   available Vacancy data supports them.
 - Employer entry point: `Adverteren`, leading to `/adverteren`.
-- Initial public pricing: Standaard EUR 189 and Superior EUR 398, both excluding VAT
-  and with a 60-day publication period; Maatwerk remains on request.
+- Approved public pricing through 31 December 2026: Standaard EUR 189 excluding VAT for
+  one 60-day placement; Superior EUR 398 excluding VAT for one placement with an
+  admin-configurable initial 60-day duration; Maatwerk starts at EUR 950 excluding VAT
+  and remains quote/contact-only.
+- The supported MVP VAT default is 21%. Public copy, benefit lists, duration, price,
+  availability and validity are admin-editable; broader tax compliance is deferred.
 - Direct employer contact: `sales@salesenmarketingvacatures.nl` and `06 30852152`.
 - Response wording: on working days SMV tries to respond within 24 hours; this is not
   presented as an absolute SLA.
 - SMV-062 general Contact form: operational with configurable internal e-mail delivery,
   cautious success wording and no database retention.
 - SMV-078 employer entry: Standaard and Superior start at `/vacature-plaatsen`; Maatwerk
-  opens Contact with an allowlisted advertising reason. The chosen package remains a
-  non-binding intent until the separate commercial/payment work is completed.
+  opens Contact with allowlisted advertising and package context. The chosen package remains
+  non-binding intent until Stripe payment and the later entitlement boundary are completed.
 - SMV-078B account foundation: authenticated employers use `/account` for owned Company
   profile completion and owned Vacancy status/history; `/dashboard` remains Filament for
   authorized staff only.
@@ -66,18 +70,18 @@ as stakeholder suggestions until the named approval or evidence is supplied.
 - Verified newsletter reach and measurement date.
 - Verified social reach and measurement date.
 - Publishable client testimonials and permission to use names or logos.
-- Final package terms, including the exact delivery included with each package. The current
-  placement flow remains non-binding intent until the required SMV-110/111 Order/payment
-  foundation is implemented; Stripe is now the confirmed provider for SMV-112. The fake
-  gateway remains the deterministic testing boundary, while final commercial terms and
-  credentials/webhook configuration still need implementation approval.
-- Final Superior details: positioning, newsletter/social distribution, media budget
-  and operational fulfilment.
-- Reconcile package naming and pricing across channels. The site currently uses
-  Standaard/Superior at EUR 189/EUR 398; the Joobs proposal refers to Normaal/Superior and
-  includes an unexplained EUR 389 four-for-three offer while four individual Normaal jobs
-  would total EUR 356.
+- Stripe credentials, Checkout/Webhook configuration and production operational ownership
+  for SMV-112. The Fake gateway remains the deterministic testing boundary.
+- The exact manual execution of Superior promotion/ranking and guidance remains a sales-team
+  responsibility. No media budget, channel, automated ranking or campaign SLA is promised.
+- Any reseller-specific naming or pricing remains separate from the approved direct-channel
+  Standaard/Superior/Maatwerk catalogue.
 - Refund, cancellation and in-flight Vacancy amendment terms.
+- Tax treatment outside the currently supported 21% MVP transaction case.
+- Newly approved public pricing/validity metadata for periods after 31 December 2026.
+- Bundle quantities/pricing and subscription rules. The future direction is placement
+  credits (for example five credits from a five-for-four product), not an assumption that
+  every Order always buys exactly one Vacancy.
 - Confirmation of any additional public contact address, including a complete `info@`
   address if one should be published.
 - Final owned photography and usage rights.
@@ -116,7 +120,7 @@ as stakeholder suggestions until the named approval or evidence is supplied.
 | About / company information | Existing About page and concise ownership wording exist; both sources offer history fragments. | Keep existing structure and edit approved factual history only. | Verify start year (2010 versus 2011/"15 years"), ownership narrative, team names/roles and portraits. | Non-blocking if the current cautious copy is accepted; blocking for stronger history/team claims. |
 | Vacancy and candidate explanation | Discovery, detail, salary/location/experience filtering and application flows exist. Dylan emphasizes relevant information and career stages. | Add only reviewed explanatory microcopy to existing pages/components. | Decide which career stages are primary and avoid promising job alerts, complete salary data or recruitment advice that is not operational. | Not a technical blocker; misleading claims are a content blocker. |
 | Employer / advertising | `/adverteren`, `/tarieven` and `/vacature-plaatsen` exist. Stakeholders describe assisted intake, review, publication and later reporting. | Edit service steps that are actually delivered; retain the current non-binding package intent. | Confirm label, turnaround, amendment service, fulfilment owner, reporting cadence and multi-vacancy handling. | Commercial wording must be approved before production sales activity. |
-| Packages | Standaard EUR 189 and Superior EUR 398 excluding VAT for 60 days are implemented as presentation/intent. | Retain only if owners reconfirm them for the direct SMV channel. | Reconcile Normaal/Standaard naming, Superior visibility, EUR 100 media indication, newsletter/social delivery, refunds and Joobs reseller pricing. | Blocking for partner/order communications; no checkout implementation is implied. |
+| Packages | The editable direct catalogue contains Standaard EUR 189/60 days, Superior EUR 398/configurable duration and Maatwerk from EUR 950/contact-only, excluding VAT and valid through 2026-12-31. | Keep public benefits aligned with deliverable manual fulfilment and enter a newly approved price period before expiry. | Refund/cancellation terms, post-2026 pricing, unsupported VAT cases and reseller-specific terms. | Ready for SMV-112; package selection still grants no entitlement. |
 | Contact and calls to action | Working Contact form, sales address, phone and cautious working-day response wording exist. | Existing form and CTA components can be reused. | Confirm complete `info@` address, contact reasons, public phone number and final CTA vocabulary. | Current verified contact route can launch; unverified alternatives cannot. |
 | Blog | Native Blog and stakeholder articles exist; Dylan suggests candidate-led themes, weekly cadence, Tim as author and Jos as publisher. | Continue existing editorial workflow after article approval. | Confirm editorial owner, cadence, promotion responsibility, remaining cover and factual claims. | Existing approved posts can launch; cadence is not a blocker. |
 | SEO titles/descriptions | Existing metadata foundation and page-level copy exist. No final stakeholder SEO-title/description set was supplied. | Derive titles/descriptions only after page proposition is approved, using existing SEO mechanisms. | Final keywords, claims and page copy; legacy redirect inventory remains separate. | Metadata review is required, but no new SEO architecture is needed. |
@@ -124,11 +128,11 @@ as stakeholder suggestions until the named approval or evidence is supplied.
 ## Small content implementation sequence
 
 1. **Ready after one owner review (1-2 h Codex, 1-2 h human):** approve one homepage
-   proposition, navigation label, restrained About wording, verified contact details and
-   direct-channel package names/prices; then edit existing Blade copy in a separate task.
-2. **Requires commercial confirmation (1-2 h Codex, 2-4 h human):** finalize the employer
-   service steps, turnaround language, Standaard/Normaal and Superior contents, media
-   budget, reporting promise and reseller-channel differences.
+   proposition, navigation label, restrained About wording and verified contact details;
+   then edit existing Blade copy in a separate task.
+2. **Commercial operations follow-up:** define refunds/cancellation, post-2026 prices,
+   unsupported VAT handling, reporting wording and reseller-specific terms. The direct
+   catalogue and manual Superior benefits are already settled for MVP implementation.
 3. **Missing assets/evidence (implementation 1-3 h after receipt; review 1-2 h):** select
    approved images/logo variants, record provenance, verify history/reach figures and
    secure logo/testimonial permissions.

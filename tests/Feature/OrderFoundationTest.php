@@ -86,7 +86,9 @@ test('package rows are snapshotted and later price changes do not change histori
     $order = app(CreateOrder::class)->execute($user, $company, [['package' => $package]]);
     $package->update(['price_cents' => 99_999, 'name' => 'Nieuw pakketlabel']);
 
-    expect($order->fresh()->total_cents)->toBe(12_345)
+    expect($order->fresh()->subtotal_cents)->toBe(12_345)
+        ->and($order->fresh()->vat_cents)->toBe(2_592)
+        ->and($order->fresh()->total_cents)->toBe(14_937)
         ->and($order->fresh()->orderItems->sole()->title_snapshot)->toBe('Historisch pakket')
         ->and($order->fresh()->orderItems->sole()->price_cents)->toBe(12_345);
 });

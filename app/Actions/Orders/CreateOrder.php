@@ -9,18 +9,22 @@ use App\Models\Order;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Support\Commerce\PackageCatalogue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class CreateOrder
 {
+    public function __construct(private readonly PackageCatalogue $catalogue) {}
+
     /**
      * Create an auditable order from the currently offered products.
      *
      * Each item accepts a Package, an AdvertisingPackage, or its stable slug/value,
-     * plus an optional Company-owned Vacancy and quantity. VAT is deliberately an
-     * explicit input until commercial tax rules are approved.
+     * plus an optional Company-owned Vacancy and quantity. VAT defaults to the
+     * selected package configuration and may be explicitly overridden for a supported
+     * tax treatment.
      *
      * @param  array<int, array{package: Package|AdvertisingPackage|string, vacancy?: Vacancy|null, quantity?: int, vat_rate_basis_points?: int|null}>  $items
      */
@@ -85,7 +89,7 @@ class CreateOrder
         $quantity = (int) ($item['quantity'] ?? 1);
         $vatRate = array_key_exists('vat_rate_basis_points', $item)
             ? $item['vat_rate_basis_points']
-            : null;
+            : $product['vat_rate_basis_points'];
 
         if ($quantity < 1) {
             throw new InvalidArgumentException('Order item quantity must be at least one.');
@@ -117,20 +121,21 @@ class CreateOrder
         ];
     }
 
-    /** @return array{package_id: int|null, product_code: string, title_snapshot: string, price_cents: int, currency: string} */
+    /** @return array{package_id: int|null, product_code: string, title_snapshot: string, price_cents: int, currency: string, vat_rate_basis_points: int|null} */
     private function resolveProduct(Package|AdvertisingPackage|string|null $product): array
     {
         if ($product instanceof Package) {
-            if (! $product->is_active || $product->price_cents < 0) {
+            if (! $product->isAvailableForCheckout()) {
                 throw new InvalidArgumentException('The selected package is not available for purchase.');
             }
 
             return [
-                'package_id' => $product->id,
+                'package_id' => $product->exists ? $product->id : null,
                 'product_code' => $product->slug,
                 'title_snapshot' => $product->name,
                 'price_cents' => $product->price_cents,
                 'currency' => strtoupper($product->currency),
+                'vat_rate_basis_points' => $product->vat_rate_basis_points,
             ];
         }
 
@@ -138,25 +143,15 @@ class CreateOrder
             ? $product
             : AdvertisingPackage::tryFrom((string) $product);
 
-        if (! $package && is_string($product)) {
-            $catalogPackage = Package::query()->where('slug', $product)->first();
+        $catalogPackage = $package !== null
+            ? $this->catalogue->find($package)
+            : (is_string($product) ? $this->catalogue->find($product) : null);
 
-            if ($catalogPackage) {
-                return $this->resolveProduct($catalogPackage);
-            }
-        }
-
-        if (! $package || ! $package->entersPlacementFlow() || $package->priceCents() === null) {
+        if ($catalogPackage === null) {
             throw new InvalidArgumentException('The selected package is not available for purchase.');
         }
 
-        return [
-            'package_id' => null,
-            'product_code' => $package->value,
-            'title_snapshot' => $package->label(),
-            'price_cents' => $package->priceCents(),
-            'currency' => 'EUR',
-        ];
+        return $this->resolveProduct($catalogPackage);
     }
 
     private function uniqueOrderNumber(): string
