@@ -15,11 +15,15 @@ Company detail pages, Blog archives and the
 static Dutch pages `/adverteren`, `/over-ons`, `/tarieven` and `/contact`. The Contact
 page includes a validated, spam-protected, e-mail-only general enquiry form.
 
-The main remaining MVP/release work is now release validation plus Stripe checkout against
-the completed provider-neutral commercial foundation. It is:
+The main remaining MVP/release work is now release validation plus the approved commercial
+path on top of the completed provider-neutral foundation. It is:
 
+- implement the focused SMV-050B commercial ranking layer;
 - connect Stripe checkout in SMV-112 to the completed configurable Package catalogue,
-  immutable Order snapshots and provider-neutral Payment boundary from SMV-050/110/111;
+  immutable Order snapshots and provider-neutral Payment boundary from SMV-050/110/111,
+  then complete paid placement entitlement through SMV-116;
+- add the minimal SMV-117 cancellation/refund workflow and complete SMV-097A public
+  Vacancy-detail view reporting;
 - complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
 - complete accessibility, end-to-end, migration and launch validation.
@@ -166,6 +170,15 @@ for older periods return only available data, normally zero; SMV does not create
 longer-term historical aggregates. The event still contains no user ID, IP address,
 user-agent, cookie, fingerprint or application content.
 
+SMV-097A retains this privacy boundary for successful public Vacancy-detail responses.
+Preview, non-public and irrelevant internal responses do not count. Each accepted response
+is a raw view, not a unique visitor; SMV adds no cookie, fingerprint or IP tracking merely to
+deduplicate analytics. Raw view events use the same documented 24-month maximum as raw
+outbound clicks. Staff reporting will show views and **raw outbound-apply CTR**, defined as
+raw outbound clicks divided by raw detail views for the same filters and period; when the
+view denominator is zero, CTR is unavailable rather than zero or fabricated. Browser-level
+acceptance must confirm the inclusion and exclusion boundaries.
+
 ### Commercial Orders and payments
 
 The configurable Package catalogue supplies public presentation and future checkout inputs.
@@ -177,7 +190,10 @@ expire after 2026-12-31 in production unless staff enter a newly approved period
 
 Public descriptions and benefit bullets are editable independently from structured duration,
 placement quantity, checkout eligibility, VAT and price-validity fields. Superior fulfilment
-notes are visible to staff; there is no claim that ranking or advertising is automated.
+notes are visible to staff. Public copy may describe additional promotion, advertising,
+guidance and increased visibility, but operational channel budgets are private and must not
+be published. No HubSpot, advertisement-channel integration or budget accounting is part of
+the MVP commercial path.
 The configured supported MVP VAT rate is 21%. Package-level VAT is snapshotted into Orders,
 and tax-incomplete products cannot enter checkout; unsupported tax situations require an
 explicit later decision.
@@ -191,9 +207,24 @@ their purchased price from mutable current Package rows.
 
 `vacancies.placement_package` remains intent only. Selecting a Package, creating an Order or
 confirming a Payment does not itself publish a Vacancy or grant placement entitlement.
-Future five-for-four bundles may issue five separately consumed placement credits, and later
-subscriptions may replenish credits, but no credit, discount or subscription domain is part
-of this MVP ticket.
+SMV-116 introduces Company-owned placement credits: an eligible successful Order grants each
+credit exactly once, each credit retains its purchased package benefits, and reservation,
+redemption and reversal against a Vacancy are atomic and idempotent. Redemption activates the
+correct placement duration but never bypasses Vacancy review. Future five-for-four products
+may grant multiple separately consumed credits and later subscriptions may issue recurring
+grants, without turning SMV-116 into a generalized wallet or implementing those products now.
+
+SMV-050B adds an effective commercial score only after public visibility and search/filter
+eligibility. Its configurable components start with Standaard 0 or Superior +20 (only with a
+valid paid placement entitlement), Company priority and a Vacancy override that may be
+negative. Existing relevance, deterministic pagination, featured presentation and lifecycle
+dates remain intact. SMV-117 then provides authorized unpaid cancellation and complete paid
+refunds with provider-authoritative state and internal audit; partial refunds are deferred,
+and consumed credits or active Vacancies cannot be silently reversed.
+
+SMV-118 is outside the commercial implementation sequence and reserved for the consolidated
+UI/UX round. It may add an optional scheduled full-width banner presentation to an existing
+Vacancy, but that placement is separate from ranking, `is_featured` and Superior entitlement.
 
 ### Production-like acceptance data
 
