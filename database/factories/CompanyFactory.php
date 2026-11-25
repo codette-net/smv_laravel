@@ -38,6 +38,7 @@ class CompanyFactory extends Factory
             'video_url' => fake()->url(),
             'status' => CompanyStatus::Active,
             'is_featured' => fake()->boolean(20),
+            'commercial_priority' => 0,
         ];
     }
 }

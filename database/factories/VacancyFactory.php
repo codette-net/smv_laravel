@@ -39,6 +39,7 @@ class VacancyFactory extends Factory
             'deadline_at' => fake()->dateTimeBetween('now', '+1 month'),
             'expires_at' => fake()->dateTimeBetween('+1 month', '+2 months'),
             'is_featured' => fake()->boolean(25),
+            'commercial_priority_adjustment' => 0,
             'is_filled' => fake()->boolean(15),
             'status' => fake()->randomElement(['draft', 'published', 'pending']),
             'source' => 'manual',

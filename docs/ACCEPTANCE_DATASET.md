@@ -46,10 +46,11 @@ All addresses use the reserved `.test` domain and all passwords are acceptance-o
 ### Companies
 
 - `acceptance-company-complete`: complete public profile with logo fallback and several public
-  Vacancy relationships; owned by the acceptance employer.
-- `acceptance-company-minimal`: deliberately incomplete public profile for missing-field states.
-- `acceptance-company-imported`: source-scoped imported-employer target Company.
-- `acceptance-company-empty`: active Company without a current public Vacancy.
+  Vacancy relationships; owned by the acceptance employer; Company priority `+5`.
+- `acceptance-company-minimal`: deliberately incomplete public profile for missing-field states;
+  Company priority `-5`.
+- `acceptance-company-imported`: source-scoped imported-employer target Company; priority `0`.
+- `acceptance-company-empty`: active Company without a current public Vacancy; priority `0`.
 
 ### Manual Vacancies
 
@@ -61,6 +62,15 @@ states, Dutch/Belgian locations, taxonomies, tags, salary and hourly-rate filter
 
 Use `acceptance-manual-external` for outbound apply-click tracking and
 `acceptance-manual-internal` for the public internal Application flow.
+
+For SMV-050B ranking acceptance, `acceptance-manual-internal` has Superior package intent,
+Company `+5` and Vacancy `+5`, for an effective score of `10`; the package component remains
+`0` because no SMV-116 entitlement exists. `acceptance-manual-external` has Standard intent,
+Company `+5` and Vacancy `0` (effective `5`). `acceptance-manual-email` combines Company `-5`
+with Vacancy `+10`, and `acceptance-manual-draft` has Vacancy `-10` while remaining non-public.
+`acceptance-import-active` has an SMV-managed Vacancy adjustment of `+6` to exercise imported
+record administration. Reruns preserve these deterministic values without manufacturing paid
+entitlement.
 
 ### Imported Vacancies and sources
 
@@ -88,6 +98,8 @@ No external click is represented as an Application.
 The acceptance seeder initializes the same editable Standaard, Superior and Maatwerk
 catalogue as a fresh installation. The rows contain structured placement/quote rules,
 benefits, staff fulfilment notes, configured 21% VAT and validity through 2026-12-31.
+Standaard starts at package priority `0`, Superior at `+20` and Maatwerk at `0`; these configured
+values are visible to staff but cannot affect a Vacancy until SMV-116 provides entitlement.
 Rerunning the seeder creates missing catalogue rows without overwriting later staff edits.
 
 ## Orders

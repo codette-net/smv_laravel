@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Companies\Tables;
 
 use App\Enums\CompanyStatus;
+use App\Models\Company;
+use App\Support\Commerce\CommercialPriority;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -11,15 +13,18 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 
 class CompaniesTable
 {
@@ -55,6 +60,21 @@ class CompaniesTable
                     ->label('Uitgelicht')
                     ->boolean()
                     ->sortable(),
+                TextInputColumn::make('commercial_priority')
+                    ->label('Commerciële prioriteit')
+                    ->type('number')
+                    ->step(1)
+                    ->rules(['required', 'integer', 'between:'.CommercialPriority::MINIMUM.','.CommercialPriority::MAXIMUM])
+                    ->sortable()
+                    ->updateStateUsing(function (Company $record, mixed $state): int {
+                        Gate::authorize('manageRanking', $record);
+                        $value = (int) $state;
+                        $record->update(['commercial_priority' => $value]);
+
+                        Notification::make()->title('Bedrijfsprioriteit opgeslagen')->success()->send();
+
+                        return $value;
+                    }),
                 TextColumn::make('vacancies_count')
                     ->label('Vacatures')
                     ->numeric()

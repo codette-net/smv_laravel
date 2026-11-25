@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Companies\Schemas;
 
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
+use App\Support\Commerce\CommercialPriority;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -70,6 +71,18 @@ class CompanyForm
                             ->collection('cover')
                             ->image()
                             ->maxSize(5120),
+                    ]),
+                Section::make('Commerciële ranking')
+                    ->description('Handmatige bedrijfsprioriteit voor in aanmerking komende vacatures. Dit wijzigt geen zichtbaarheid of publicatiestatus.')
+                    ->schema([
+                        TextInput::make('commercial_priority')
+                            ->label('Bedrijfsprioriteit')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(CommercialPriority::MINIMUM)
+                            ->maxValue(CommercialPriority::MAXIMUM)
+                            ->default(0)
+                            ->required(),
                     ]),
                 Section::make('Contact')
                     ->columns(2)

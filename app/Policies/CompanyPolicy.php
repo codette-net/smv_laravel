@@ -32,6 +32,11 @@ class CompanyPolicy
         return $user->hasRole('editor') || $company->user_id === $user->id;
     }
 
+    public function manageRanking(User $user, ?Company $company = null): bool
+    {
+        return $user->hasRole('editor');
+    }
+
     public function delete(User $user, Company $company): bool
     {
         return false;

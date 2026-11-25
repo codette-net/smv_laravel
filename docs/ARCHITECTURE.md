@@ -161,23 +161,27 @@ installations. In production an inactive, expired, quote-only or VAT-incomplete 
 closed for checkout. Local/testing may explicitly retain expired fixtures without presenting
 them as newly approved production prices.
 
-The existing `Vacancy.is_featured` flag remains a presentation concern. SMV-050B adds a
+The existing `Vacancy.is_featured` flag remains a presentation concern. SMV-050B provides a
 separate commercial ranking layer only after `Vacancy::publiclyVisible()` and the requested
 search/filter constraints have established the eligible set. Effective commercial score is
 the sum of a configurable package score (initially Standaard 0 and Superior +20), Company
 priority and Vacancy override; overrides may be negative. The package component applies only
-for a valid paid placement entitlement and therefore fails closed at zero until SMV-116 exists.
-Company priority and Vacancy override remain independently usable. Existing relevance behavior
-remains part of the ordering contract, with deterministic final tie-breakers for stable
-pagination. Neither ranking nor deprioritization may mutate publication timestamps or overload
-`is_featured`.
+for a valid paid placement entitlement. `VacancyPackagePriorityProvider` is currently bound to
+`NoEntitledVacancyPackagePriority`, so package intent and paid Orders both yield zero until
+SMV-116 replaces that boundary. Company priority and Vacancy adjustment are independently
+usable. The default general Vacancy result order is effective priority, publication date,
+creation date and ID. A valid explicit user sort bypasses commercial ordering and keeps the
+existing deadline/title/date contract. Neither ranking nor deprioritization mutates publication
+timestamps or overloads `is_featured`.
 
-SMV-050B administration belongs in a dedicated Filament ranking overview rather than the
-public Vacancy form: numeric inline edits, filters, sorting and bulk set/add/reset operations
-manage Company priority and Vacancy override. Manual changes follow existing audit conventions
-where available. A nullable expiry for a temporary manual boost is acceptable only if it does
-not materially complicate this focused MVP. HubSpot, advertisement-channel integration and
-budget accounting remain outside the boundary; operational advertising budgets are private.
+SMV-050B administration uses the dedicated policy-protected Filament **Vacatureranking** page
+rather than the public Vacancy form. A paginated server-side table exposes component/effective
+scores, inline Vacancy adjustments, Company/status/package filters, reference search and
+transactional bulk set/add/reset. Company and Package resources expose their respective single
+source fields. Values are signed small integers constrained to -1000 through 1000 in staff UI.
+The application has no active model Activitylog convention, so this ticket does not introduce a
+parallel audit mechanism; normal timestamps remain. Temporary boost expiry, HubSpot,
+advertisement-channel integration and budget accounting remain outside the boundary.
 
 `App\Actions\Orders\CreateOrder` is the single order-creation boundary. It validates
 purchaser, Company and optional Vacancy ownership, resolves the approved package catalog,

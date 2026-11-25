@@ -159,10 +159,12 @@ test('the Joobs fixture persists through the generic importer with stable advert
         ->and($antwerp->application_url)->toBe('https://joobs.be/nl/jobs/k7Qd2XvP?utm_source=salesenmarketingvacatures&utm_medium=jobboard&utm_campaign=SM260142&utm_content=antwerpen')
         ->and($antwerp->description)->toContain('<p>', '<strong>Account Manager B2B</strong>', '<ul>');
 
+    $antwerp->update(['commercial_priority_adjustment' => 17]);
     $second = app(VacancyImportRunner::class)->run($mapping);
 
     expect($second->imported_rows)->toBe(0)
         ->and($second->updated_rows)->toBe(2)
+        ->and($antwerp->fresh()->commercial_priority_adjustment)->toBe(17)
         ->and(Vacancy::where('import_source_id', $source->id)->count())->toBe(2)
         ->and(Vacancy::where('import_source_id', $source->id)->pluck('id')->sort()->values()->all())->toBe($ids);
 });
@@ -186,7 +188,10 @@ test('verified Joobs disappearance and reappearance preserve identity and editor
     [$source, $mapping] = joobsPersistenceMapping();
     app(VacancyImportRunner::class)->run($mapping);
     $missing = Vacancy::where('source_reference', 'SM260142-k7Qd2XvP-breda')->firstOrFail();
-    $missing->update(['status' => VacancyStatus::Archived]);
+    $missing->update([
+        'status' => VacancyStatus::Archived,
+        'commercial_priority_adjustment' => -14,
+    ]);
     $oneAdvertisement = preg_replace('/(<job>.*?<\/job>)\s*<job>.*?<\/job>/s', '$1', joobsPersistenceXml(), 1);
     replaceJoobsPersistenceFeed($source, (string) $oneAdvertisement);
 
@@ -204,6 +209,7 @@ test('verified Joobs disappearance and reappearance preserve identity and editor
     expect($reappearance->restored_rows)->toBe(1)
         ->and($missing->fresh()->missing_since)->toBeNull()
         ->and($missing->fresh()->status)->toBe(VacancyStatus::Archived)
+        ->and($missing->fresh()->commercial_priority_adjustment)->toBe(-14)
         ->and($missing->fresh()->id)->toBe($missing->id)
         ->and(Vacancy::where('import_source_id', $source->id)->count())->toBe(2);
 });

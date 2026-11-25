@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\VacancyPackagePriorityProvider;
+use App\Support\Commerce\NoEntitledVacancyPackagePriority;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -15,7 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            VacancyPackagePriorityProvider::class,
+            NoEntitledVacancyPackagePriority::class,
+        );
     }
 
     /**

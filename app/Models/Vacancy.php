@@ -8,6 +8,7 @@ use App\Enums\CompensationPeriod;
 use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
+use App\Support\Vacancies\VacancyCommercialPriority;
 use App\Support\Vacancies\VacancyDescription;
 use Database\Factories\VacancyFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -98,6 +99,7 @@ class Vacancy extends Model
         'deadline_at',
         'expires_at',
         'is_featured',
+        'commercial_priority_adjustment',
         'is_filled',
         'status',
         'source',
@@ -114,6 +116,7 @@ class Vacancy extends Model
             'missing_since' => 'datetime',
             'source_offlined_at' => 'datetime',
             'is_featured' => 'boolean',
+            'commercial_priority_adjustment' => 'integer',
             'is_filled' => 'boolean',
             'salary_min' => 'integer',
             'salary_max' => 'integer',
@@ -187,6 +190,18 @@ class Vacancy extends Model
         return $query->withExists([
             'savedByUsers as is_saved' => fn (Builder $query) => $query->whereKey($user->getKey()),
         ]);
+    }
+
+    /** @param Builder<Vacancy> $query */
+    public function scopeWithCommercialPriority(Builder $query): Builder
+    {
+        return app(VacancyCommercialPriority::class)->addSelects($query);
+    }
+
+    /** @return array{package: int, company: int, vacancy: int, effective: int} */
+    public function commercialPriorityComponents(): array
+    {
+        return app(VacancyCommercialPriority::class)->components($this);
     }
 
     /**

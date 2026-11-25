@@ -482,15 +482,22 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - About/contact stock photography is limited to existing Tidy assets and remains subject
   to final stakeholder approval.
 
-### Planned commercial UI boundaries
+### Commercial UI boundaries
 
-SMV-050B adds a dedicated staff-only Filament ranking overview rather than overloading public
-or employer Vacancy forms. It must support numeric inline editing, filters, sorting and bulk
-set/add/reset for Company priority and Vacancy override, including negative overrides. The
-public Vacancy result components continue to use the existing card system, featured
-presentation and search/filter controls; ranking changes order only after eligibility and
-must remain deterministic across pagination. Optional temporary boost expiry may be exposed
-only if the implementation stays simple and auditable.
+SMV-050B provides a dedicated staff-only Filament **Vacatureranking** overview rather than
+overloading public or employer Vacancy forms. Its server-paginated table supports 25, 50, 100
+or 250 rows, Vacancy title/reference search, Company/status/package filters, effective sorting,
+bounded inline Vacancy adjustment and transactional bulk set/add/reset. Company administration
+offers the one Company priority in its form and list; Package administration offers package
+priority. Administrators and editors are authorized through policies, while employer/candidate
+accounts cannot use these controls.
+
+The public homepage and `/vacatures` keep the existing cards and filters. Their general default
+Vacancy result ordering applies effective commercial priority only after eligibility, followed
+by stable date/ID tie-breakers. Explicit user sorting remains unchanged. Current free-text
+matching is boolean, so ranking cannot introduce a non-matching result. Company-detail previews
+and related-Vacancy blocks retain their existing chronological purpose. Featured presentation,
+publication dates and ranking remain independent; temporary boost expiry is not implemented.
 
 SMV-097A extends the existing staff reporting screen with raw public detail-view totals and a
 clearly labelled raw outbound-apply CTR. The report must not present these events as unique

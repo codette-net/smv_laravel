@@ -61,6 +61,7 @@ class CreateManualVacancyCopy
                 'deadline_at' => null,
                 'expires_at' => null,
                 'is_featured' => false,
+                'commercial_priority_adjustment' => 0,
                 'is_filled' => false,
                 'status' => VacancyStatus::Draft,
                 'source' => VacancySource::Manual,

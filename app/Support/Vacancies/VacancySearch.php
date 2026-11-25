@@ -34,6 +34,13 @@ class VacancySearch
             : 'nieuwste';
     }
 
+    public function hasExplicitSort(Request $request): bool
+    {
+        $sort = $request->query('sort');
+
+        return is_string($sort) && array_key_exists($sort, VacancyFilterOptions::SORTS);
+    }
+
     /** @param array<string, string> $filters */
     public function validationErrors(array $filters): array
     {
@@ -76,7 +83,7 @@ class VacancySearch
     }
 
     /** @param array<string, string> $filters */
-    public function query(array $filters, string $sort): Builder
+    public function query(array $filters, string $sort, bool $applyCommercialPriority = true): Builder
     {
         $vacancies = Vacancy::query()
             ->publiclyVisible()
@@ -113,12 +120,16 @@ class VacancySearch
             $this->applyCompensationFilter($vacancies, $filters);
         }
 
-        $this->applySort($vacancies, $sort);
+        if ($applyCommercialPriority) {
+            $vacancies->withCommercialPriority();
+        }
+
+        $this->applySort($vacancies, $sort, $applyCommercialPriority);
 
         return $vacancies;
     }
 
-    private function applySort(Builder $query, string $sort): void
+    private function applySort(Builder $query, string $sort, bool $applyCommercialPriority): void
     {
         match ($sort) {
             'deadline' => $query
@@ -127,7 +138,11 @@ class VacancySearch
                 ->orderByDesc('published_at')
                 ->orderByDesc('id'),
             'az' => $query->orderBy('title')->orderByDesc('id'),
-            default => $query->orderByDesc('published_at')->orderByDesc('created_at')->orderByDesc('id'),
+            default => $query
+                ->when($applyCommercialPriority, fn (Builder $query): Builder => $query->orderByDesc('effective_priority'))
+                ->orderByDesc('published_at')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id'),
         };
     }
 

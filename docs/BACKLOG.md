@@ -72,7 +72,7 @@ recovery are deliberately not represented as completed functionality.
 | Ticket | Status | Repository result |
 | --- | --- | --- |
 | SMV-050 Packages audit/completion | **P0 — DONE** | One editable Package catalogue now supplies public presentation and Order snapshots: Standaard EUR 189/60 days, Superior EUR 398/configurable duration and Maatwerk from EUR 950/quote-only, all net prices approved through 2026-12-31. Configured MVP VAT is 21%; broader tax treatment and fulfilment automation remain outside this ticket. |
-| SMV-050B Commercial Vacancy ranking MVP | **P0 — READY FOR IMPLEMENTATION** | Add configurable package, Company and Vacancy score components after public/search eligibility. Superior starts at +20 and Standaard at 0 only when backed by a valid paid placement entitlement; preserve relevance, deterministic pagination, featured presentation and publication dates. |
+| SMV-050B Commercial Vacancy ranking MVP | **P0 — DONE** | Signed Package, Company and Vacancy score inputs, an entitlement-safe SQL score boundary, authorized Filament inline/bulk management and deterministic default public ordering are implemented. Package score deliberately remains 0 until SMV-116 supplies authoritative entitlement. Explicit user sorts, visibility, filters, featured state and publication dates remain authoritative. |
 | SMV-051 Orders/payments audit/completion | **REQUIRED MVP — REFINED** | Existing Order/OrderItem/Payment schema and models are only a historical foundation. The missing purchase workflow is now split into SMV-110 (Order foundation), SMV-111 (provider-neutral/fake gateway) and SMV-112 (confirmed Stripe integration). |
 | SMV-110 Order foundation | **P0 — DONE** | `CreateOrder` provides provider-independent, atomic Order/OrderItem creation with immutable product/price/currency/VAT snapshots, ownership and placement linkage; no gateway integration. |
 | SMV-111 Payment gateway abstraction and fake gateway | **P0 — DONE** | Provider-neutral Payment attempts, deterministic Fake pending/success/failure/cancellation outcomes, amount integrity and idempotent confirmation are implemented without network access. |
@@ -138,7 +138,7 @@ The evidence and proposed policy for this phase are documented in
 The approved commercial implementation order is now:
 
 1. **SMV-050** — completed the configurable package catalogue and approved MVP pricing.
-2. **SMV-050B** — implement the focused commercial ranking MVP.
+2. **SMV-050B** — completed the focused commercial ranking MVP with a fail-closed SMV-116 boundary.
 3. **SMV-112** — integrate the confirmed Stripe provider against the completed SMV-110/111 boundaries.
 4. **SMV-116** — grant and consume paid Company placement credits/entitlements.
 5. **SMV-117** — add the minimal cancellation/refund and internal-audit workflow.
@@ -188,28 +188,33 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
 
 #### SMV-050B — Commercial Vacancy ranking MVP
 
-- **Status:** P0 — READY FOR IMPLEMENTATION
-- **Goal:** introduce one deterministic commercial score without weakening public lifecycle,
-  search/filter eligibility or existing relevance behavior.
+- **Status:** P0 — DONE
+- **Result:** one deterministic database-query commercial score is active for the default
+  general Vacancy result ordering without weakening lifecycle or search/filter eligibility.
 - **Score:** effective score is the sum of a configurable package score (initial defaults:
   Standaard 0, Superior +20), configurable Company priority and configurable Vacancy override.
   Vacancy overrides may be negative. A package score applies only while the Vacancy has a
   valid paid placement entitlement; package selection, Order creation and payment alone are
-  insufficient. Until SMV-116 supplies that entitlement, the package component fails closed
-  at zero while Company priority and Vacancy override remain independently usable.
-- **Ordering:** calculate commercial priority only after `Vacancy::publiclyVisible()` and all
-  requested search/filter constraints. Keep existing relevance and featured behavior, add a
-  stable final tie-breaker for pagination and never change `published_at` to simulate priority.
-- **Administration:** provide a dedicated Filament overview with numeric inline editing,
-  filters, sorting and bulk set/add/reset operations for Company priority and Vacancy override.
-  Use existing audit conventions for manual changes. Support optional boost expiry only if it
-  remains a small, explicit extension.
+  insufficient. `VacancyPackagePriorityProvider` is currently bound to the null entitlement
+  implementation, so the package component fails closed at zero while Company priority and
+  Vacancy adjustment operate now.
+- **Ordering:** `VacancySearch` applies effective priority after `Vacancy::publiclyVisible()`
+  and requested filters for the default homepage/listing result order, followed by publication,
+  creation and ID tie-breakers. Any valid explicit user sort keeps its previous ordering.
+  Current free-text matching is boolean rather than weighted; ranking cannot bypass it.
+- **Administration:** the dedicated policy-protected Filament **Vacatureranking** page provides
+  title/reference search, Company/status/package filters, effective sorting, 25/50/100/250
+  pagination, immediate bounded inline Vacancy editing and transactional bulk set/add/reset.
+  Company administration exposes the single Company priority, and Package administration
+  exposes package priority. The application has no active model Activitylog convention to
+  extend; ordinary employers/candidates remain excluded. Temporary boost expiry was not needed.
 - **Out of scope:** HubSpot, advertisement-channel integration, private advertising-budget
   accounting, entitlement issuance and banners. Public Superior copy may describe increased
   visibility, promotion, advertising and guidance, but must not publish operational budgets.
-- **Acceptance:** score components/defaults are configurable; expired/absent entitlement gives
-  no package boost; negative overrides and deterministic pagination are tested; publication
-  dates, visibility, relevance, featured presentation and non-commercial records remain safe.
+- **Verification:** configured defaults, paid-Order non-entitlement, positive/negative totals,
+  actual public ordering, explicit sorts, filtering, stable pagination, non-public exclusion,
+  homepage behavior, Filament operations/authorization, import reruns and manual copies are
+  covered. Ranking never writes lifecycle dates, `is_featured` or provider metadata.
 
 #### SMV-110 — Order foundation
 

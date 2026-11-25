@@ -7,6 +7,7 @@ use App\Filament\Resources\Packages\Pages\EditPackage;
 use App\Filament\Resources\Packages\Pages\ListPackages;
 use App\Filament\Resources\Packages\Pages\ViewPackage;
 use App\Models\Package;
+use App\Support\Commerce\CommercialPriority;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -99,6 +100,14 @@ class PackageResource extends Resource
                     DatePicker::make('valid_from')->label('Prijs geldig vanaf'),
                     DatePicker::make('valid_until')->label('Prijs geldig t/m'),
                     TextInput::make('sort_order')->label('Sorteervolgorde')->numeric()->required(),
+                    TextInput::make('commercial_priority')
+                        ->label('Commerciële pakketprioriteit')
+                        ->numeric()
+                        ->integer()
+                        ->minValue(CommercialPriority::MINIMUM)
+                        ->maxValue(CommercialPriority::MAXIMUM)
+                        ->helperText('Wordt pas toegepast met een geldig betaald plaatsingsrecht uit SMV-116.')
+                        ->required(),
                     Toggle::make('is_quote_only')->label('Alleen offerte/contact'),
                     Toggle::make('checkout_eligible')->label('Checkout toegestaan'),
                     Toggle::make('is_active')->label('Publiek beschikbaar'),
@@ -133,6 +142,7 @@ class PackageResource extends Resource
                         ->formatStateUsing(fn (?int $state): string => $state === null ? 'Niet ingesteld' : number_format($state / 100, 2, ',', '.').' %'),
                     TextEntry::make('vacancy_duration_days')->label('Duur')->suffix(' dagen')->placeholder('Per overeenkomst'),
                     TextEntry::make('placement_quantity')->label('Plaatsingen'),
+                    TextEntry::make('commercial_priority')->label('Commerciële pakketprioriteit')->numeric(),
                     TextEntry::make('valid_from')->label('Geldig vanaf')->date(),
                     TextEntry::make('valid_until')->label('Geldig t/m')->date(),
                     TextEntry::make('operational_notes')->label('Operationele notities')->placeholder('-')->columnSpanFull(),
@@ -149,6 +159,7 @@ class PackageResource extends Resource
                 TextColumn::make('slug')->label('Productcode')->searchable(),
                 TextColumn::make('price_cents')->label('Netto prijs')->money(fn (Package $record): string => $record->currency)->sortable(),
                 TextColumn::make('vacancy_duration_days')->label('Duur')->suffix(' dagen')->placeholder('Variabel'),
+                TextColumn::make('commercial_priority')->label('Prioriteit')->numeric()->sortable(),
                 TextColumn::make('valid_until')->label('Geldig t/m')->date()->sortable(),
                 IconColumn::make('checkout_eligible')->label('Checkout')->boolean(),
                 IconColumn::make('is_active')->label('Actief')->boolean(),

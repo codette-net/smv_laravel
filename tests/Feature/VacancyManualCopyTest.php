@@ -126,6 +126,7 @@ test('the action creates an independent draft with deliberate content and relati
         'deadline_at' => now()->addWeek(),
         'expires_at' => now()->addMonth(),
         'is_featured' => true,
+        'commercial_priority_adjustment' => 25,
         'is_filled' => true,
         'status' => VacancyStatus::Archived,
     ]);
@@ -169,6 +170,7 @@ test('the action creates an independent draft with deliberate content and relati
         ->and($copy->deadline_at)->toBeNull()
         ->and($copy->expires_at)->toBeNull()
         ->and($copy->is_featured)->toBeFalse()
+        ->and($copy->commercial_priority_adjustment)->toBe(0)
         ->and($copy->is_filled)->toBeFalse()
         ->and($copy->status)->toBe(VacancyStatus::Draft)
         ->and($copy->source)->toBe(VacancySource::Manual)

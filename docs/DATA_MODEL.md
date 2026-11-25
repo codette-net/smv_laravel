@@ -201,9 +201,10 @@ Standaard is initialized at EUR 189/60 days/one placement, Superior at EUR 398/i
 checkout. All are net prices approved through 2026-12-31. Package administration deliberately
 does not expose create/delete actions, preserving stable product codes and historical
 OrderItem relations. Future bundles may use OrderItem quantity and later issue separately
-tracked placement credits. SMV-050B may resolve a configurable commercial score by stable
-package code; its initial Standaard 0 and Superior +20 values are configuration defaults, not
-immutable Package domain rules. The score is usable only through a valid paid entitlement.
+tracked placement credits. `packages.commercial_priority` stores the configurable signed
+integer package score by stable product code; Standaard 0 and Superior +20 are initial defaults,
+not immutable domain rules. The configured value is usable only through a valid paid
+entitlement.
 
 ## Orders and payments
 
@@ -234,15 +235,23 @@ confirmed Stripe integration. The current migration's historical
 configuration; Stripe implementation must introduce explicit provider configuration rather
 than activating that default.
 
-## Planned commercial ranking and entitlements
+## Commercial ranking and planned entitlements
 
-SMV-050B will keep commercial ordering separate from lifecycle, search eligibility and the
-existing `is_featured` presentation flag. Its effective score has three independently
-configurable inputs: entitled package score, Company priority and Vacancy override. Vacancy
-override may be negative; optional temporary-boost expiry may be added only as a bounded
-extension. Manual changes require the repository's available audit convention. Exact columns
-and indexes belong to implementation design, but stable deterministic ordering and efficient
-pagination are acceptance requirements. `published_at` is never a score workaround.
+SMV-050B keeps commercial ordering separate from lifecycle, search eligibility and the existing
+`is_featured` presentation flag. `companies.commercial_priority` and
+`vacancies.commercial_priority_adjustment` are signed small integers defaulting to zero; staff
+inputs are bounded to -1000 through 1000. `packages.commercial_priority` stores the third
+configurable component. Effective priority is derived in the Vacancy SQL query and is not
+persisted redundantly:
+
+`effective_priority = entitled package priority + Company priority + Vacancy adjustment`
+
+The current `NoEntitledVacancyPackagePriority` always supplies zero for the first component.
+It deliberately ignores `placement_package`, Order and Payment state. SMV-116 must replace the
+`VacancyPackagePriorityProvider` binding with an authoritative entitlement-backed query/model
+implementation. Company/Vacancy values may be negative. Correlated Company selection and
+deterministic date/ID tie-breakers keep pagination server-side; `published_at` is never a score
+workaround. There is no temporary-expiry field or redundant effective-score column.
 
 SMV-116 will introduce Company-owned placement-credit records rather than infer entitlement
 from `vacancies.placement_package`, Order status or Payment status. Each grant retains its

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AdvertisingPackage;
 use App\Enums\ImportMissingVacancyPolicy;
 use App\Enums\ImportPublicationPolicy;
 use App\Enums\ImportStatus;
@@ -45,6 +46,22 @@ test('acceptance seeder creates the documented role, company, vacancy, source an
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PAID')->where('status', 'paid')->exists())->toBeTrue()
         ->and(Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count())->toBe(3)
         ->and(Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count())->toBe(3);
+
+    $internal = Vacancy::query()->where('reference', 'acceptance-manual-internal')->firstOrFail();
+    $external = Vacancy::query()->where('reference', 'acceptance-manual-external')->firstOrFail();
+    $imported = Vacancy::query()->where('source_reference', 'acceptance-import-active')->firstOrFail();
+
+    expect($internal->company->commercial_priority)->toBe(5)
+        ->and($internal->commercial_priority_adjustment)->toBe(5)
+        ->and($internal->placement_package)->toBe(AdvertisingPackage::Superior)
+        ->and($external->commercial_priority_adjustment)->toBe(0)
+        ->and($imported->commercial_priority_adjustment)->toBe(6)
+        ->and(Vacancy::query()->withCommercialPriority()->findOrFail($internal->id)->commercialPriorityComponents())->toBe([
+            'package' => 0,
+            'company' => 5,
+            'vacancy' => 5,
+            'effective' => 10,
+        ]);
 });
 
 test('acceptance imports use safe local fixtures and expose useful policy and monitoring states', function (): void {
