@@ -18,7 +18,8 @@ page includes a validated, spam-protected, e-mail-only general enquiry form.
 The main remaining MVP/release work is now release validation plus the approved commercial
 path on top of the completed provider-neutral foundation. It is:
 
-- implement the focused SMV-050B commercial ranking layer;
+- use the completed SMV-050B commercial ranking layer while keeping package priority disabled
+  until paid entitlement exists;
 - connect Stripe checkout in SMV-112 to the completed configurable Package catalogue,
   immutable Order snapshots and provider-neutral Payment boundary from SMV-050/110/111,
   then complete paid placement entitlement through SMV-116;
@@ -214,11 +215,16 @@ correct placement duration but never bypasses Vacancy review. Future five-for-fo
 may grant multiple separately consumed credits and later subscriptions may issue recurring
 grants, without turning SMV-116 into a generalized wallet or implementing those products now.
 
-SMV-050B adds an effective commercial score only after public visibility and search/filter
-eligibility. Its configurable components start with Standaard 0 or Superior +20 (only with a
-valid paid placement entitlement), Company priority and a Vacancy override that may be
-negative. Existing relevance, deterministic pagination, featured presentation and lifecycle
-dates remain intact. SMV-117 then provides authorized unpaid cancellation and complete paid
+SMV-050B now derives an effective commercial score only after public visibility and
+search/filter eligibility. Its bounded integer components are configured package priority
+(Standaard 0 and Superior +20 by default), Company priority and a Vacancy adjustment that may
+be negative. The package component currently returns zero through the fail-closed entitlement
+provider, even for package intent or a paid Order; SMV-116 will replace that provider.
+The default general homepage/listing result order uses effective priority followed by stable
+date/ID tie-breakers. Any valid user-selected sort retains its existing order. Current free-text
+search has boolean matching rather than weighted relevance, so priority only reorders eligible
+matches. Featured presentation and lifecycle dates remain separate. SMV-117 then provides
+authorized unpaid cancellation and complete paid
 refunds with provider-authoritative state and internal audit; partial refunds are deferred,
 and consumed credits or active Vacancies cannot be silently reversed.
 

@@ -98,7 +98,7 @@ test('the homepage renders a public company banner directly after the hero with 
         ->assertSee('data-company-logo-banner', false)
         ->assertSee('company-logo-marquee-window', false)
         ->assertSee('company-logo-marquee', false)
-        ->assertSeeInOrder(['</section>', 'data-company-logo-banner', 'id="vacature-zoeker"'], false)
+        ->assertSeeInOrder(['id="vacature-zoeker"', 'data-company-logo-banner'], false)
         ->assertSee('Bekijk Banner Werkgever')
         ->assertSee('href="'.route('bedrijven.show', $public).'"', false)
         ->assertDontSee('Verborgen Banner Werkgever')

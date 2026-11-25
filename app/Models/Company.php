@@ -52,12 +52,14 @@ class Company extends Model implements HasMedia
         'video_url',
         'status',
         'is_featured',
+        'commercial_priority',
     ];
 
     protected function casts(): array
     {
         return [
             'is_featured' => 'boolean',
+            'commercial_priority' => 'integer',
             'status' => CompanyStatus::class,
         ];
     }

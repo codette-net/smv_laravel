@@ -19,7 +19,11 @@ class VacancyController extends Controller
     {
         $filters = $vacancySearch->filters($request, $filterOptions);
         $sort = $vacancySearch->sort($request);
-        $vacancies = $vacancySearch->query($filters, $sort);
+        $vacancies = $vacancySearch->query(
+            $filters,
+            $sort,
+            ! $vacancySearch->hasExplicitSort($request),
+        );
         $secondaryFilterCount = $vacancySearch->secondaryFilterCount($filters);
 
         $hasFilters = collect($filters)->contains(fn (string $value): bool => filled($value)) || $sort !== 'nieuwste';

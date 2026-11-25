@@ -43,8 +43,9 @@ test('approved package catalogue stores structured prices durations benefits and
         ->and($standard->valid_until->toDateString())->toBe('2026-12-31')
         ->and($superior->price_cents)->toBe(39_800)
         ->and($superior->package_type)->toBe(PackageType::Placement)
+        ->and($superior->commercial_priority)->toBe(20)
         ->and($superior->features)->toContain('Persoonlijke begeleiding en hulp bij de vacaturepresentatie')
-        ->and($superior->operational_notes)->toContain('geen geautomatiseerde ranking')
+        ->and($superior->operational_notes)->toContain('SMV-116')
         ->and($custom->price_cents)->toBe(95_000)
         ->and($custom->package_type)->toBe(PackageType::Custom)
         ->and($custom->is_quote_only)->toBeTrue()
@@ -172,6 +173,7 @@ test('package administration is readable by editors and editable only by adminis
             'features' => ['Bewerkbaar voordeel'],
             'price_cents' => 19_900,
             'vacancy_duration_days' => 65,
+            'commercial_priority' => 12,
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -179,7 +181,8 @@ test('package administration is readable by editors and editable only by adminis
     expect($package->fresh()->name)->toBe('Standaard beheerbaar')
         ->and($package->fresh()->features)->toBe(['Bewerkbaar voordeel'])
         ->and($package->fresh()->price_cents)->toBe(19_900)
-        ->and($package->fresh()->vacancy_duration_days)->toBe(65);
+        ->and($package->fresh()->vacancy_duration_days)->toBe(65)
+        ->and($package->fresh()->commercial_priority)->toBe(12);
 
     $this->actingAs($editor)
         ->get(PackageResource::getUrl('view', ['record' => $package]))

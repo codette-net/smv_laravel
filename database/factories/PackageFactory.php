@@ -34,6 +34,7 @@ class PackageFactory extends Factory
             'is_quote_only' => false,
             'checkout_eligible' => true,
             'is_featured' => false,
+            'commercial_priority' => 0,
             'cta_label' => 'Kies pakket',
             'operational_notes' => null,
             'includes_featured' => false,

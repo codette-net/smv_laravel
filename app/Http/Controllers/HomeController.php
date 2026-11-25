@@ -36,7 +36,10 @@ class HomeController extends Controller
         $companyCategoryConstraint = fn ($query) => $query->where('type', CategoryType::company_category->value);
 
         return view('home', [
-            'vacancies' => $vacancySearch->query($filters, $sort)->paginate(6)->withQueryString(),
+            'vacancies' => $vacancySearch
+                ->query($filters, $sort, ! $vacancySearch->hasExplicitSort($request))
+                ->paginate(6)
+                ->withQueryString(),
             'featuredCompanies' => Company::query()
                 ->publiclyVisible()
                 ->withSavedStateFor($request->user())

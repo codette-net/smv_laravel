@@ -46,6 +46,11 @@ class VacancyPolicy
             && $user->hasAnyRole(['super-admin', 'admin', 'editor']);
     }
 
+    public function manageRanking(User $user, ?Vacancy $vacancy = null): bool
+    {
+        return $user->hasRole('editor');
+    }
+
     public function delete(User $user, Vacancy $vacancy): bool
     {
         return false;

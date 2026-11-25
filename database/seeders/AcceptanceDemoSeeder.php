@@ -131,6 +131,7 @@ final class AcceptanceDemoSeeder extends Seeder
                 'logo' => 'images/smv-logo.svg',
                 'status' => CompanyStatus::Active,
                 'is_featured' => true,
+                'commercial_priority' => 5,
             ],
             'minimal' => [
                 'name' => 'Kompas Growth Lab',
@@ -141,6 +142,7 @@ final class AcceptanceDemoSeeder extends Seeder
                 'location' => 'Antwerpen',
                 'status' => CompanyStatus::Active,
                 'is_featured' => false,
+                'commercial_priority' => -5,
             ],
             'imported' => [
                 'name' => 'Rivierenland Commerce Group',
@@ -151,6 +153,7 @@ final class AcceptanceDemoSeeder extends Seeder
                 'location' => 'Breda',
                 'status' => CompanyStatus::Active,
                 'is_featured' => false,
+                'commercial_priority' => 0,
             ],
             'empty' => [
                 'name' => 'Legehaven Interim',
@@ -160,6 +163,7 @@ final class AcceptanceDemoSeeder extends Seeder
                 'location' => 'Rotterdam',
                 'status' => CompanyStatus::Active,
                 'is_featured' => false,
+                'commercial_priority' => 0,
             ],
         ];
 
@@ -479,6 +483,8 @@ final class AcceptanceDemoSeeder extends Seeder
             'salary_period' => 'month',
             'salary_basis' => SalaryBasis::GrossFullTimeEquivalent,
             'is_featured' => true,
+            'placement_package' => AdvertisingPackage::Superior,
+            'commercial_priority_adjustment' => 5,
             'description' => 'Een stabiele fictieve vacature voor de interne sollicitatieflow en kandidaatgeschiedenis.',
             'source' => VacancySource::Manual,
         ], $categories['internal'], ['acceptance', 'internal']);
@@ -498,6 +504,8 @@ final class AcceptanceDemoSeeder extends Seeder
             'rate_max' => 110,
             'rate_currency' => 'EUR',
             'rate_period' => 'hour',
+            'placement_package' => AdvertisingPackage::Standard,
+            'commercial_priority_adjustment' => 0,
             'description' => 'Een fictieve vacature met een gecontroleerde externe sollicitatielink voor click tracking.',
             'source' => VacancySource::Manual,
         ], $categories['external'], ['acceptance', 'external']);
@@ -511,6 +519,7 @@ final class AcceptanceDemoSeeder extends Seeder
             'application_email' => 'apply@kompas-growth.'.self::EMAIL_DOMAIN,
             'status' => VacancyStatus::Pending,
             'deadline_at' => now()->addDays(25),
+            'commercial_priority_adjustment' => 10,
             'description' => 'Een fictieve vacature met e-mailbestemming voor moderatie en destination-tests.',
             'source' => VacancySource::Manual,
         ], $categories['email'], ['acceptance', 'email']);
@@ -522,6 +531,7 @@ final class AcceptanceDemoSeeder extends Seeder
             'location' => 'Rotterdam',
             'application_mode' => ApplicationMode::Internal,
             'status' => VacancyStatus::Draft,
+            'commercial_priority_adjustment' => -10,
             'description' => 'Een fictieve conceptvacature voor het redactionele publicatieproces.',
             'source' => VacancySource::Manual,
         ], $categories['draft'], ['acceptance', 'draft']);
@@ -573,6 +583,7 @@ final class AcceptanceDemoSeeder extends Seeder
             'application_mode' => ApplicationMode::External,
             'application_url' => 'https://careers.smv-acceptance.test/import/active',
             'last_seen_at' => now()->subDay(),
+            'commercial_priority_adjustment' => 6,
         ], $categories['imported']);
 
         $vacancies['import_review'] = $this->upsertImportedVacancy('import-review', $companies['imported'], $sources['review'], $runs['review_verified'], [
