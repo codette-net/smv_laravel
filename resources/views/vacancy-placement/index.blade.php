@@ -30,19 +30,28 @@
                     @if ($plan['suffix'])
                         <p class="mt-1 text-sm text-slate-500">{{ $plan['suffix'] }}</p>
                     @endif
+                    @if ($plan['validity_label'])
+                        <p class="mt-1 text-xs text-slate-500">{{ $plan['validity_label'] }}</p>
+                    @endif
                     <p class="mt-4 leading-7 text-slate-600">{{ $plan['intro'] }}</p>
                     <ul class="mt-6 grow space-y-3 text-sm text-slate-600">
                         @foreach ($plan['features'] as $feature)
                             <li class="flex gap-3"><span class="text-emerald-600" aria-hidden="true">✓</span><span>{{ $feature }}</span></li>
                         @endforeach
                     </ul>
-                    <form class="mt-7" action="{{ route('vacancy-placement.package') }}" method="POST">
-                        @csrf
-                        <input name="package" type="hidden" value="{{ $plan['value'] }}">
-                        <x-ui.button class="w-full justify-center" type="submit" variant="brand">
-                            {{ $plan['enters_flow'] ? 'Kies '.$plan['name'] : 'Bespreek maatwerk' }}
-                        </x-ui.button>
-                    </form>
+                    @if ($plan['enters_flow'])
+                        <form class="mt-7" action="{{ route('vacancy-placement.package') }}" method="POST">
+                            @csrf
+                            <input name="package" type="hidden" value="{{ $plan['value'] }}">
+                            <x-ui.button class="w-full justify-center" type="submit" variant="brand">
+                                {{ $plan['cta_label'] }}
+                            </x-ui.button>
+                        </form>
+                    @else
+                        <a class="btn mt-7 w-full justify-center bg-blue-600 text-white hover:bg-blue-700" href="{{ route('contact', ['reason' => 'advertising', 'package' => $plan['value']]) }}">
+                            {{ $plan['cta_label'] }}
+                        </a>
+                    @endif
                 </article>
             @endforeach
         </div>

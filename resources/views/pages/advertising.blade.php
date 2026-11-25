@@ -68,7 +68,7 @@
             </div>
             <div class="flex shrink-0 flex-wrap gap-3">
                 <a class="btn bg-blue-600 text-white hover:bg-blue-700" href="{{ route('vacancy-placement.index') }}">Vacature plaatsen</a>
-                <a class="btn border border-slate-300 bg-white text-slate-800 hover:bg-slate-50" href="{{ route('contact', ['reason' => 'advertising']) }}">Maatwerk bespreken</a>
+                <a class="btn border border-slate-300 bg-white text-slate-800 hover:bg-slate-50" href="{{ route('contact', ['reason' => 'advertising', 'package' => 'custom']) }}">Maatwerk bespreken</a>
             </div>
         </div>
     </section>

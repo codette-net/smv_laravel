@@ -6,6 +6,9 @@ Er is een nieuw bericht verstuurd via het contactformulier op Salesenmarketingva
 **Naam:** {{ $contactName }}  
 **E-mail:** {{ $contactEmail }}  
 **Reden van contact:** {{ $purposeLabel }}  
+@if ($packageLabel)
+**Pakketcontext:** {{ $packageLabel }}<br>
+@endif
 @if ($company)
 **Bedrijf:** {{ $company }}  
 @endif

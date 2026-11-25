@@ -83,12 +83,20 @@ Application. Five deterministic outbound click events span the manual and import
 and several recent dates, so the SMV-097C date/source/Company filters visibly change the report.
 No external click is represented as an Application.
 
+## Packages
+
+The acceptance seeder initializes the same editable Standaard, Superior and Maatwerk
+catalogue as a fresh installation. The rows contain structured placement/quote rules,
+benefits, staff fulfilment notes, configured 21% VAT and validity through 2026-12-31.
+Rerunning the seeder creates missing catalogue rows without overwriting later staff edits.
+
 ## Orders
 
 The seeder includes three deterministic employer-owned Order examples linked to placement
 Vacancies: `SMV-ACCEPTANCE-DRAFT`, `SMV-ACCEPTANCE-PENDING` and `SMV-ACCEPTANCE-PAID`.
-The pending Order has failed and cancelled Fake attempts; the paid Order has one successful
-Fake attempt. All references are clearly synthetic and no Stripe transaction is fabricated.
+Their OrderItems retain the approved product/price/currency/21%-VAT snapshots. The pending
+Order has failed and cancelled Fake attempts; the paid Order has one successful Fake attempt.
+All references are clearly synthetic and no Stripe transaction is fabricated.
 Re-running the seeder updates these rows, attempts and OrderItems without multiplying records.
 
 ## Reruns and future Payments

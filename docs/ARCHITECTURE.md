@@ -50,7 +50,7 @@ Contact
 └── no ContactMessage database persistence
 
 Packages / Orders / Payments
-├── Package catalogue and placement intent (implemented)
+├── editable Package catalogue, price validity and structured placement rules (SMV-050)
 ├── provider-independent Order/OrderItem boundary (SMV-110)
 ├── provider-neutral payment gateway plus fake gateway (SMV-111)
 └── confirmed Stripe checkout integration (SMV-112)
@@ -139,17 +139,30 @@ owning Company and never trusts a submitted Company outside that User's relation
 
 The placement flow stores only bounded session state before persistence: an
 `AdvertisingPackage` selection and Laravel's normal intended URL. Once submitted, the
-Vacancy records `placement_package` as commercial intent, not as a paid entitlement. This
-is an unfinished MVP boundary: SMV-110 must create an auditable Order with immutable
-product/price/currency/VAT snapshots, and SMV-111 must make payment outcomes testable without
-a real provider. Historical Orders must not recalculate from mutable Package rows. Stripe is
+Vacancy records `placement_package` as commercial intent, not as a paid entitlement. SMV-110
+provides auditable Orders with immutable product/price/currency/VAT snapshots, and SMV-111
+makes payment outcomes testable without a real provider. Historical Orders must not
+recalculate from mutable Package rows. Stripe is
 the confirmed provider for SMV-112; the fake gateway from SMV-111 remains the test boundary
 and must not be replaced by live Stripe calls in automated tests.
 New public employer Vacancies remain `draft` through data entry/preview and become
-`pending` on hand-off. They are never published or featured by this flow. SMV-050 owns
-the definitive package/entitlement decisions; SMV-110/111 own the provider-neutral
+`pending` on hand-off. They are never published or featured by this flow. SMV-050 now
+provides the definitive configurable catalogue; SMV-110/111 own the provider-neutral
 implementation boundary; SMV-112 owns the confirmed Stripe integration once credentials,
-webhooks and final commercial terms are available.
+webhooks and remaining operational terms are available.
+
+`PackageCatalogue` resolves persisted Package rows by the stable `AdvertisingPackage` slug.
+Persisted rows are the editable source of truth for public names/descriptions/benefits and
+structured net price, currency, duration, placement quantity, quote/checkout flags, VAT and
+validity dates. Configuration provides only the approved bootstrap values for fresh and test
+installations. In production an inactive, expired, quote-only or VAT-incomplete Package fails
+closed for checkout. Local/testing may explicitly retain expired fixtures without presenting
+them as newly approved production prices.
+
+The existing `Vacancy.is_featured` flag changes card presentation, but `VacancySearch` still
+uses lifecycle/relevance sorts and does not automatically rank Superior purchases. Sales may
+deliver Superior visibility, promotion and editorial guidance manually using current staff
+tools; connecting payment to featured state, sponsored ordering or campaign APIs is deferred.
 
 `App\Actions\Orders\CreateOrder` is the single order-creation boundary. It validates
 purchaser, Company and optional Vacancy ownership, resolves the approved package catalog,
@@ -157,7 +170,9 @@ snapshots all commercial values using integer minor units, and creates Order plu
 one transaction. Order status is provider-neutral (`draft`, `pending_payment`, `paid`, with
 legacy statuses retained for historical rows); Payment attempts remain a separate model and
 are not created by this boundary. A placement package is intent, not entitlement: publication
-still follows moderation and the verified payment/fulfilment boundary planned for SMV-111.
+still follows moderation and a later verified fulfilment/entitlement boundary. The configured
+21% supported-MVP VAT is read from Package configuration rather than browser input; explicit
+tax overrides remain possible only at the application boundary for supported situations.
 
 `StartPayment` is the provider-neutral payment-attempt boundary. It resolves the configured
 gateway, creates a pending Payment from the immutable Order total/currency, and applies the

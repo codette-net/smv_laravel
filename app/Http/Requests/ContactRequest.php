@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AdvertisingPackage;
 use App\Enums\ContactPurpose;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -20,6 +21,7 @@ class ContactRequest extends FormRequest
             'email',
             'company',
             'phone',
+            'package',
             'message',
             'website',
         ]))->map(fn (mixed $value): mixed => is_string($value) ? trim($value) : $value)->all());
@@ -34,6 +36,7 @@ class ContactRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'string', 'email:rfc', 'max:255'],
             'purpose' => ['required', Rule::enum(ContactPurpose::class)],
+            'package' => ['nullable', Rule::enum(AdvertisingPackage::class)],
             'company' => ['nullable', 'string', 'max:160'],
             'phone' => ['nullable', 'string', 'min:8', 'max:32', 'regex:/^\+?[0-9][0-9\s().\/-]{6,30}[0-9]$/'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
@@ -53,6 +56,7 @@ class ContactRequest extends FormRequest
             'min.string' => 'Het veld :attribute moet minimaal :min tekens bevatten.',
             'max.string' => 'Het veld :attribute mag maximaal :max tekens bevatten.',
             'purpose.enum' => 'Kies een geldige reden voor uw bericht.',
+            'package.enum' => 'Kies een geldig pakket.',
             'phone.regex' => 'Vul een geldig (internationaal) telefoonnummer in.',
         ];
     }
@@ -66,6 +70,7 @@ class ContactRequest extends FormRequest
             'name' => 'naam',
             'email' => 'e-mailadres',
             'purpose' => 'reden van contact',
+            'package' => 'pakket',
             'company' => 'bedrijfsnaam',
             'phone' => 'telefoonnummer',
             'message' => 'bericht',

@@ -71,11 +71,11 @@ recovery are deliberately not represented as completed functionality.
 
 | Ticket | Status | Repository result |
 | --- | --- | --- |
-| SMV-050 Packages audit/completion | **REQUIRED MVP — NEEDS REVIEW** | Package/product names, prices, VAT, fulfilment and entitlement rules still require approval; the employer placement flow currently records package intent only and must feed the Order work. |
+| SMV-050 Packages audit/completion | **P0 — DONE** | One editable Package catalogue now supplies public presentation and Order snapshots: Standaard EUR 189/60 days, Superior EUR 398/configurable duration and Maatwerk from EUR 950/quote-only, all net prices approved through 2026-12-31. Configured MVP VAT is 21%; broader tax treatment and fulfilment automation remain outside this ticket. |
 | SMV-051 Orders/payments audit/completion | **REQUIRED MVP — REFINED** | Existing Order/OrderItem/Payment schema and models are only a historical foundation. The missing purchase workflow is now split into SMV-110 (Order foundation), SMV-111 (provider-neutral/fake gateway) and SMV-112 (confirmed Stripe integration). |
 | SMV-110 Order foundation | **P0 — DONE** | `CreateOrder` provides provider-independent, atomic Order/OrderItem creation with immutable product/price/currency/VAT snapshots, ownership and placement linkage; no gateway integration. |
 | SMV-111 Payment gateway abstraction and fake gateway | **P0 — DONE** | Provider-neutral Payment attempts, deterministic Fake pending/success/failure/cancellation outcomes, amount integrity and idempotent confirmation are implemented without network access. |
-| SMV-112 Stripe checkout/payment integration | **P1 — UNBLOCKED / PROPOSED** | Implement the confirmed Stripe integration after the provider-neutral Order and fake-gateway boundaries; credentials, webhook configuration and final commercial/payment terms remain implementation inputs. |
+| SMV-112 Stripe checkout/payment integration | **P1 — READY FOR IMPLEMENTATION** | Implement Stripe against the configurable Package, immutable Order and provider-neutral Payment boundaries. Credentials, webhook configuration, refunds/cancellation terms and unsupported VAT situations remain explicit inputs. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
 | SMV-079 Saved Vacancies | **DONE** | User-owned Vacancy and Company-profile saves, guest auth continuation, public card state and private paginated account lists exist. |
@@ -133,9 +133,9 @@ The evidence and proposed policy for this phase are documented in
 
 The immediate release-critical order is now:
 
-1. **SMV-110** — build the provider-independent Order foundation.
-2. **SMV-111** — add the provider-neutral payment boundary and fake gateway.
-3. **SMV-112** — integrate the confirmed Stripe provider after SMV-110/111 inputs are ready.
+1. **SMV-050** — completed the configurable package catalogue and approved MVP pricing.
+2. **SMV-110/111** — completed the immutable Order and provider-neutral Payment boundaries.
+3. **SMV-112** — integrate the confirmed Stripe provider against those completed boundaries.
 
 In parallel, continue the Phase G release gates: finish evidence for SMV-071, implement
 SMV-072 browser smoke, complete SMV-044/045 legacy URL inventory and redirects, run the
@@ -162,21 +162,25 @@ launch-critical.
 
 #### SMV-050 — Packages and commercial scope audit
 
-- **Status:** REQUIRED MVP — NEEDS REVIEW
-- **Why now:** `/tarieven` is public while package/pricing/entitlement behavior is still placeholder-level.
-- **Scope:** reconcile the existing Package foundation with the actual launch offer; approve
-  product names, prices, VAT, fulfilment, cancellation/refund and entitlement rules that
-  SMV-110/111 will consume.
-- **Dependencies:** approved products, prices, VAT/payment and employer workflow decisions.
-- **Acceptance:** documented package/product contract and schema gap list; the employer
-  placement flow no longer treats package intent as a paid entitlement; no speculative real
-  provider integration.
+- **Status:** DONE
+- **Result:** persisted Package rows are the editable catalogue for public copy, benefits,
+  net minor-unit prices, currency, placement count/duration, checkout/quote semantics,
+  price validity, VAT configuration and staff-only fulfilment notes. The enum remains only
+  the stable placement identifier and safe bootstrap configuration supports fresh/test setups.
+- **Approved launch catalogue:** Standaard EUR 189/60 days, Superior EUR 398 with a
+  configurable initial 60-day duration, and Maatwerk from EUR 950 through Contact only.
+  Prices exclude VAT and are approved through 2026-12-31.
+- **Safety:** checkout eligibility fails closed for inactive/expired/tax-incomplete rows in
+  production; local/test may explicitly allow expired fixtures. Package selection, Order
+  creation and Payment still grant no Vacancy entitlement or publication.
+- **Deferred:** refunds/cancellation terms, unsupported VAT jurisdictions, automated ranking/
+  advertising, bundles, placement credits, subscriptions and quotation management.
 
 #### SMV-110 — Order foundation
 
-- **Status:** P0 — PROPOSED
-- **Goal:** create the provider-independent Order boundary required by the employer placement
-  flow before selecting a payment provider.
+- **Status:** DONE
+- **Result:** `CreateOrder` supplies the provider-independent Order boundary required by the
+  employer placement flow.
 - **Scope:** User/employer, Company, Order, one or more OrderItems where appropriate, selected
   advertising product/package, immutable product/price/currency/VAT snapshots, totals, order
   status and a safe relation to Vacancy/placement intent. Historical Orders must remain
@@ -190,8 +194,8 @@ launch-critical.
 
 #### SMV-111 — Payment gateway abstraction and fake gateway
 
-- **Status:** P0 — PROPOSED
-- **Goal:** make Order/payment workflows testable without contacting Stripe.
+- **Status:** DONE
+- **Result:** Order/payment workflows are testable without contacting Stripe.
 - **Scope:** document a provider-neutral gateway contract and deterministic fake gateway for
   pending, successful, failed, cancelled, duplicate callback/webhook and retry/idempotency
   scenarios.
@@ -203,11 +207,11 @@ launch-critical.
 
 #### SMV-112 — Stripe checkout / payment provider
 
-- **Status:** P1 — UNBLOCKED / PROPOSED
+- **Status:** P1 — READY FOR IMPLEMENTATION
 - **Goal:** integrate Stripe as the confirmed real checkout provider after the provider-neutral
   Order and fake-gateway boundaries are complete.
 - **Dependencies:** SMV-050, SMV-110, SMV-111, approved Stripe account/credentials,
-  webhook configuration and final commercial/payment terms.
+  webhook configuration and remaining operational terms.
 - **Out of scope:** changing the provider-neutral fake gateway into a live dependency; SMV-111
   remains the deterministic test boundary.
 
@@ -224,9 +228,10 @@ launch-critical.
   owned Company, previews it privately, and submits it as `pending`. The flow cannot set
   publication, import identity or featured entitlement. Public visibility continues to
   depend exclusively on `Vacancy::publiclyVisible()`.
-- **Packages:** `AdvertisingPackage` centralizes the already-published labels/prices and
-  `vacancies.placement_package` records intent only. It is deliberately not an Order,
-  payment or entitlement. Maatwerk uses the allowlisted SMV-062 Contact context.
+- **Packages:** `AdvertisingPackage` is the stable selection identifier; persisted Package
+  rows supply editable labels, benefits, prices and structured rules. The
+  `vacancies.placement_package` value remains intent only, never an Order, payment or
+  entitlement. Maatwerk uses the allowlisted SMV-062 Contact context.
 - **Security/SEO:** owner policies and Company-scoped validation protect every private
   Vacancy mutation; auth and wizard pages are `noindex, nofollow`, use clean canonicals
   and are absent from the sitemap. Ordinary employers retain no Filament access.
@@ -235,8 +240,8 @@ launch-critical.
   publish-now fills a missing `published_at` on transition to `published`; explicit
   future scheduling and historical publication dates are preserved. Deadline is the
   application cutoff and expiry the listing cutoff; both currently end public visibility.
-- **Deferred:** SMV-050 still owns definitive package/entitlement rules; SMV-051 owns
-  Order/payment/provider handling. Candidate notifications and external/e-mail
+- **Deferred:** SMV-112 owns Stripe checkout/webhooks and a later boundary owns paid
+  entitlement fulfilment. Candidate notifications and external/e-mail
   application tracking remain deliberately unavailable.
 
 #### SMV-079 — Saved Vacancies
@@ -693,8 +698,8 @@ the MVP Order/payment work remain primary and must not be obscured by feed expan
 | SMV-101 Import monitoring/recovery | P1 — DONE | Existing Import runs now derive source health, overdue state, two-run repeated failures, safe snapshot outcomes and substantial verified-count drops. Filament shows source/run operations data and offers an administrator-only fresh manual run through the normal locked importer. Manual/scheduled provenance and an operations runbook are included; email alerts remain disabled until a dedicated recipient/owner is configured. | No; production cron/queue ownership remains an operations gate. |
 | SMV-102 Targeted search relevance | P2 — DEFERRED | Improve only against measured queries and curated typed taxonomy; no arbitrary boosts. | No. |
 | SMV-103 Cross-provider expansion | P2 — DEFERRED | VONQ/Brockmeyer/Appcast/Adver/8vance from verified specs; extend existing VNOM only for confirmed operational/commercial gaps. | No. |
-| SMV-104 Launch content decision pass | P0 — PROPOSED | Approve homepage proposition, geography/audience, navigation label, About history, contact details and direct-channel package names/prices from `CONTENT_STATUS.md`; no layout rebuild. | Yes for accurate launch copy. |
-| SMV-105 Employer/package content integration | P0 — PROPOSED | After commercial approval, update existing pages/components with actual service steps, turnaround and Standaard/Normaal/Superior fulfilment; do not promise tracking or checkout not implemented. | Yes for employer sales launch; independent of Joobs feed code. |
+| SMV-104 Launch content decision pass | P0 — PROPOSED | Approve homepage proposition, geography/audience, navigation label, About history and contact details from `CONTENT_STATUS.md`; direct-channel package names/prices are settled by SMV-050. | Yes for accurate launch copy. |
+| SMV-105 Employer/package content integration | P0 — DONE (package scope) | SMV-050 renders the approved configurable Standaard/Superior/Maatwerk catalogue and manual fulfilment wording in existing pages/components without implying checkout or automation. Broader page-copy approval remains SMV-104. | No package-code blocker; sales operations must deliver the published manual benefits. |
 | SMV-106 Brand assets and claim evidence | P1 — PROPOSED | Receive approved imagery/logo provenance and evidence dates for history/reach/client claims; integrate only licensed, approved assets. | Conditional; current cautious copy/assets can launch if explicitly accepted. |
 | SMV-107 Per-source publication and missing-vacancy policy | P1 — DONE | Every ImportSource defaults new advertisements to staff review and missing advertisements to review-only. Trusted sources may explicitly auto-publish new records; verified complete snapshots may explicitly archive missing records without deletion. Source-driven archives are distinguishable for safe reappearance, while manual suppression and unrelated operational fields remain intact. Joobs can be configured `auto_offline` without provider-specific lifecycle code. | No; production source configuration and remaining partner inputs still require approval. |
 | SMV-108 Duplicate imported Vacancy as manual SMV Vacancy | P1 — DONE | Authorized Vacancy staff can create a separate manual draft from an imported Vacancy. Editorial content, the existing Company, taxonomies, tags and only a safe current application destination are copied; import identity, provider metadata, snapshot/publication state, featured/filled state and commercial placement intent are cleared. The original remains feed-owned and later updates/reconciliation cannot mutate the manual copy. | No; this does not activate Joobs or change ranking, packages or source policies. |

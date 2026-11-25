@@ -17,6 +17,7 @@ class ContactRequestMail extends Mailable
         public readonly string $contactName,
         public readonly string $contactEmail,
         public readonly string $purposeLabel,
+        public readonly ?string $packageLabel,
         public readonly ?string $company,
         public readonly ?string $phone,
         public readonly string $messageBody,

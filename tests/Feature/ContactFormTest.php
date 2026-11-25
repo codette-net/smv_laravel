@@ -56,6 +56,26 @@ test('an allowlisted advertising reason is preselected without changing the cano
         ->assertSee('<link rel="canonical" href="'.route('contact').'">', false);
 });
 
+test('maatwerk contact preserves an allowlisted package context', function () {
+    Mail::fake();
+
+    $this->get(route('contact', ['reason' => 'advertising', 'package' => 'custom']))
+        ->assertOk()
+        ->assertSee('Uw aanvraag gaat over')
+        ->assertSee('Maatwerk')
+        ->assertSee('name="package" type="hidden" value="custom"', false);
+
+    $this->get(route('contact', ['reason' => 'advertising', 'package' => 'not-allowed']))
+        ->assertOk()
+        ->assertDontSee('name="package" type="hidden"', false);
+
+    $this->post(route('contact.store'), validContactData(['package' => 'custom']))
+        ->assertRedirect(route('contact'))
+        ->assertSessionHas('contact_success');
+
+    Mail::assertSent(ContactRequestMail::class, fn (ContactRequestMail $mail): bool => $mail->packageLabel === 'Maatwerk');
+});
+
 test('a valid contact request sends one internal email and uses post redirect get', function () {
     Mail::fake();
     config(['contact.mail_to' => 'contact-recipient@example.com']);
