@@ -53,7 +53,9 @@ Packages / Orders / Payments
 ├── editable Package catalogue, price validity and structured placement rules (SMV-050)
 ├── provider-independent Order/OrderItem boundary (SMV-110)
 ├── provider-neutral payment gateway plus fake gateway (SMV-111)
-└── confirmed Stripe checkout integration (SMV-112)
+├── confirmed Stripe checkout integration (SMV-112)
+├── Company placement-credit and entitlement boundary (SMV-116)
+└── cancellation/refund audit workflow (SMV-117)
 
 Imports
 ├── upload, HTTP and API source configuration
@@ -159,10 +161,23 @@ installations. In production an inactive, expired, quote-only or VAT-incomplete 
 closed for checkout. Local/testing may explicitly retain expired fixtures without presenting
 them as newly approved production prices.
 
-The existing `Vacancy.is_featured` flag changes card presentation, but `VacancySearch` still
-uses lifecycle/relevance sorts and does not automatically rank Superior purchases. Sales may
-deliver Superior visibility, promotion and editorial guidance manually using current staff
-tools; connecting payment to featured state, sponsored ordering or campaign APIs is deferred.
+The existing `Vacancy.is_featured` flag remains a presentation concern. SMV-050B adds a
+separate commercial ranking layer only after `Vacancy::publiclyVisible()` and the requested
+search/filter constraints have established the eligible set. Effective commercial score is
+the sum of a configurable package score (initially Standaard 0 and Superior +20), Company
+priority and Vacancy override; overrides may be negative. The package component applies only
+for a valid paid placement entitlement and therefore fails closed at zero until SMV-116 exists.
+Company priority and Vacancy override remain independently usable. Existing relevance behavior
+remains part of the ordering contract, with deterministic final tie-breakers for stable
+pagination. Neither ranking nor deprioritization may mutate publication timestamps or overload
+`is_featured`.
+
+SMV-050B administration belongs in a dedicated Filament ranking overview rather than the
+public Vacancy form: numeric inline edits, filters, sorting and bulk set/add/reset operations
+manage Company priority and Vacancy override. Manual changes follow existing audit conventions
+where available. A nullable expiry for a temporary manual boost is acceptable only if it does
+not materially complicate this focused MVP. HubSpot, advertisement-channel integration and
+budget accounting remain outside the boundary; operational advertising budgets are private.
 
 `App\Actions\Orders\CreateOrder` is the single order-creation boundary. It validates
 purchaser, Company and optional Vacancy ownership, resolves the approved package catalog,
@@ -181,6 +196,21 @@ webhook: it marks one attempt paid and transitions the Order once, without allow
 cancelled attempts to reverse a paid Order. The deterministic Fake gateway is available only
 outside production by default; it never performs network calls. Payment confirmation still
 does not grant Vacancy entitlement or publication.
+
+SMV-116 is the separate fulfilment boundary. An eligible successful Order/OrderItem grants
+package-preserving placement credits to its Company exactly once. Credit reservation,
+redemption and reversal against a Vacancy must be transactional and idempotent, retain the
+originating Order/OrderItem and package benefits, and activate the purchased placement
+duration only when normal Vacancy review permits it. This boundary can later support an Order
+granting several credits or a subscription issuing grants, but it is not a general wallet or
+financial ledger. Payment state alone never bypasses moderation.
+
+SMV-117 reuses the gateway boundary for authorized commercial reversals. An unpaid Order may
+be cancelled locally under the Order state rules; a paid Order requires a provider-authoritative
+refund, initially for the complete amount. The audit record must retain operator, reason,
+amount, timestamps, Order and provider outcome. A consumed credit or active Vacancy creates an
+explicit fail-closed resolution case—neither entitlement nor publication may be silently
+restored, revoked or reversed. Partial refunds are deferred.
 
 SMV-078B adds a deliberately small public account foundation. Authenticated users enter
 through `/account`; employers can update only presentation/contact fields on Companies
@@ -435,12 +465,22 @@ logs record the run time, cutoff and eligible/deleted counts without event-level
 Reporting remains query-derived, so periods outside the retained raw window return only
 whatever data is still available (normally zero); no historical values are reconstructed.
 
+SMV-097A extends this model with a separate minimal raw Vacancy-detail-view event for each
+successful public detail response. It excludes previews, non-public responses and irrelevant
+internal routes, and stores no visitor fingerprint, cookie, IP address or identity solely for
+analytics. A raw view must never be labelled a unique visitor. Raw view rows follow the same
+24-month maximum retention and bounded pruning policy as raw outbound clicks. Staff reporting
+may join the two aggregate series by the same date/Vacancy/Company/ImportSource filters and
+show **raw outbound-apply CTR = raw outbound clicks / raw detail views**; a zero denominator
+produces no CTR value. Existing outbound reporting and privacy constraints remain unchanged.
+
 Result ordering also separates three concerns: data completeness/search relevance,
 organic SEO visibility, and explicit commercial promotion or deprioritization. Current
 publication timestamps describe lifecycle and must not be edited to simulate commercial
-priority. Any later sponsored/deprioritized mechanism needs explicit effective dates,
-reason/audit data, deterministic ordering and disclosure. It is a version II feature
-unless stakeholders approve it as a release requirement.
+priority. SMV-050B is the approved focused commercial mechanism: explicit score components,
+optional expiry for a bounded manual boost, audit evidence and deterministic ordering. It
+does not alter search eligibility or organic SEO claims and stays independent from the
+optional SMV-118 banner presentation.
 
 ## Deployment
 

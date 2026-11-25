@@ -72,10 +72,14 @@ recovery are deliberately not represented as completed functionality.
 | Ticket | Status | Repository result |
 | --- | --- | --- |
 | SMV-050 Packages audit/completion | **P0 — DONE** | One editable Package catalogue now supplies public presentation and Order snapshots: Standaard EUR 189/60 days, Superior EUR 398/configurable duration and Maatwerk from EUR 950/quote-only, all net prices approved through 2026-12-31. Configured MVP VAT is 21%; broader tax treatment and fulfilment automation remain outside this ticket. |
+| SMV-050B Commercial Vacancy ranking MVP | **P0 — READY FOR IMPLEMENTATION** | Add configurable package, Company and Vacancy score components after public/search eligibility. Superior starts at +20 and Standaard at 0 only when backed by a valid paid placement entitlement; preserve relevance, deterministic pagination, featured presentation and publication dates. |
 | SMV-051 Orders/payments audit/completion | **REQUIRED MVP — REFINED** | Existing Order/OrderItem/Payment schema and models are only a historical foundation. The missing purchase workflow is now split into SMV-110 (Order foundation), SMV-111 (provider-neutral/fake gateway) and SMV-112 (confirmed Stripe integration). |
 | SMV-110 Order foundation | **P0 — DONE** | `CreateOrder` provides provider-independent, atomic Order/OrderItem creation with immutable product/price/currency/VAT snapshots, ownership and placement linkage; no gateway integration. |
 | SMV-111 Payment gateway abstraction and fake gateway | **P0 — DONE** | Provider-neutral Payment attempts, deterministic Fake pending/success/failure/cancellation outcomes, amount integrity and idempotent confirmation are implemented without network access. |
-| SMV-112 Stripe checkout/payment integration | **P1 — READY FOR IMPLEMENTATION** | Implement Stripe against the configurable Package, immutable Order and provider-neutral Payment boundaries. Credentials, webhook configuration, refunds/cancellation terms and unsupported VAT situations remain explicit inputs. |
+| SMV-112 Stripe checkout/payment integration | **P1 — READY FOR IMPLEMENTATION** | Implement Stripe against the configurable Package, immutable Order and provider-neutral Payment boundaries. Credentials, webhook configuration and unsupported VAT situations remain explicit inputs; checkout is not commercially complete until SMV-116 turns an eligible paid Order into usable placement entitlement. |
+| SMV-116 Company placement credits and entitlements | **P0 — PROPOSED** | Grant Company-owned, package-preserving placement credits exactly once for eligible successful Orders; reserve/redeem/reverse them atomically and idempotently against a Vacancy without bypassing review. Support correct placement duration and leave bundle/subscription grants extensible but unimplemented. |
+| SMV-117 Order cancellation, refunds and internal audit | **P1 — PROPOSED (minimal MVP)** | Distinguish authorized unpaid cancellation from provider-authoritative paid refund, initially complete refunds only. Audit operator, reason, amount, timestamps, Order and outcome, and fail safely when credits are consumed or Vacancies active. |
+| SMV-118 Promotional Vacancy banner and UI/UX polish | **P2 — RESERVED FOR UI/UX ROUND** | Add an optional scheduled, admin-managed full-width Vacancy banner variant with optional image/short text, using the normal detail URL, visibility and apply tracking. Keep it independent from ranking, featured state and automatic Superior fulfilment. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
 | SMV-079 Saved Vacancies | **DONE** | User-owned Vacancy and Company-profile saves, guest auth continuation, public card state and private paginated account lists exist. |
@@ -131,18 +135,22 @@ The evidence and proposed policy for this phase are documented in
 
 ### Immediate post-SMV-071 queue
 
-The immediate release-critical order is now:
+The approved commercial implementation order is now:
 
 1. **SMV-050** — completed the configurable package catalogue and approved MVP pricing.
-2. **SMV-110/111** — completed the immutable Order and provider-neutral Payment boundaries.
-3. **SMV-112** — integrate the confirmed Stripe provider against those completed boundaries.
+2. **SMV-050B** — implement the focused commercial ranking MVP.
+3. **SMV-112** — integrate the confirmed Stripe provider against the completed SMV-110/111 boundaries.
+4. **SMV-116** — grant and consume paid Company placement credits/entitlements.
+5. **SMV-117** — add the minimal cancellation/refund and internal-audit workflow.
+6. **SMV-097A** — finish privacy-minimal Vacancy-detail views, reporting and browser acceptance.
 
 In parallel, continue the Phase G release gates: finish evidence for SMV-071, implement
 SMV-072 browser smoke, complete SMV-044/045 legacy URL inventory and redirects, run the
 SMV-046 staging SEO crawl, approve/freeze content, then execute SMV-073 and SMV-074.
 SMV-109 is a shared prerequisite for browser and dry-run work. SMV-112 follows SMV-110 and
-SMV-111 using the confirmed Stripe provider. SMV-114 and SMV-115 remain valuable but less
-launch-critical.
+SMV-111 using the confirmed Stripe provider, but production checkout is not commercially
+complete without SMV-116. SMV-118 remains reserved for the later consolidated UI/UX round;
+SMV-114 and SMV-115 remain valuable but less launch-critical.
 
 ### A. Functional / MVP
 
@@ -173,8 +181,35 @@ launch-critical.
 - **Safety:** checkout eligibility fails closed for inactive/expired/tax-incomplete rows in
   production; local/test may explicitly allow expired fixtures. Package selection, Order
   creation and Payment still grant no Vacancy entitlement or publication.
-- **Deferred:** refunds/cancellation terms, unsupported VAT jurisdictions, automated ranking/
-  advertising, bundles, placement credits, subscriptions and quotation management.
+- **Planned separately:** SMV-050B owns ranking, SMV-116 owns placement credits/entitlement,
+  and SMV-117 owns minimal cancellation/refund handling. Unsupported VAT jurisdictions,
+  bundle/subscription products, advertising integrations and quotation management remain
+  deferred.
+
+#### SMV-050B — Commercial Vacancy ranking MVP
+
+- **Status:** P0 — READY FOR IMPLEMENTATION
+- **Goal:** introduce one deterministic commercial score without weakening public lifecycle,
+  search/filter eligibility or existing relevance behavior.
+- **Score:** effective score is the sum of a configurable package score (initial defaults:
+  Standaard 0, Superior +20), configurable Company priority and configurable Vacancy override.
+  Vacancy overrides may be negative. A package score applies only while the Vacancy has a
+  valid paid placement entitlement; package selection, Order creation and payment alone are
+  insufficient. Until SMV-116 supplies that entitlement, the package component fails closed
+  at zero while Company priority and Vacancy override remain independently usable.
+- **Ordering:** calculate commercial priority only after `Vacancy::publiclyVisible()` and all
+  requested search/filter constraints. Keep existing relevance and featured behavior, add a
+  stable final tie-breaker for pagination and never change `published_at` to simulate priority.
+- **Administration:** provide a dedicated Filament overview with numeric inline editing,
+  filters, sorting and bulk set/add/reset operations for Company priority and Vacancy override.
+  Use existing audit conventions for manual changes. Support optional boost expiry only if it
+  remains a small, explicit extension.
+- **Out of scope:** HubSpot, advertisement-channel integration, private advertising-budget
+  accounting, entitlement issuance and banners. Public Superior copy may describe increased
+  visibility, promotion, advertising and guidance, but must not publish operational budgets.
+- **Acceptance:** score components/defaults are configurable; expired/absent entitlement gives
+  no package boost; negative overrides and deterministic pagination are tested; publication
+  dates, visibility, relevance, featured presentation and non-commercial records remain safe.
 
 #### SMV-110 — Order foundation
 
@@ -213,7 +248,58 @@ launch-critical.
 - **Dependencies:** SMV-050, SMV-110, SMV-111, approved Stripe account/credentials,
   webhook configuration and remaining operational terms.
 - **Out of scope:** changing the provider-neutral fake gateway into a live dependency; SMV-111
-  remains the deterministic test boundary.
+  remains the deterministic test boundary. SMV-116, not checkout or webhook code, owns the
+  resulting placement-credit grant and consumption boundary.
+
+#### SMV-116 — Company placement credits and entitlements
+
+- **Status:** P0 — PROPOSED; follows SMV-112 for the production path and can use the SMV-111
+  fake gateway in automated tests.
+- **Goal:** turn an eligible successful Order into a usable Company-owned placement entitlement
+  exactly once, while preserving the purchased package benefits and duration.
+- **Scope:** auditable credit grants tied to Order/OrderItem and Company; package/type metadata;
+  reservation, redemption and reversal state; related Vacancy; atomic/idempotent consumption;
+  and activation of the correct placement duration only after the normal review boundary.
+- **Safety:** duplicate webhooks/retries cannot double-grant or double-consume. Payment never
+  bypasses Vacancy moderation, and a credit cannot silently migrate between Companies.
+- **Extensibility:** later bundle products may grant multiple credits and subscriptions may
+  issue recurring grants, but neither product type nor a generalized wallet/financial ledger
+  belongs in this ticket.
+- **Acceptance:** eligible paid Orders grant once; ineligible/failed/cancelled attempts grant
+  nothing; concurrent reservation/redemption is safe; entitlement expiry and Vacancy linkage
+  are explicit; publication still requires approved Vacancy lifecycle state.
+
+#### SMV-117 — Order cancellation, refunds and internal audit
+
+- **Status:** P1 — PROPOSED (minimal MVP); implement after SMV-116 so entitlement consequences
+  are explicit.
+- **Goal:** let authorized editors/sales staff and administrators perform permitted commercial
+  reversals without treating cancellation and refund as the same operation.
+- **Scope:** cancel unpaid Orders; issue complete refunds for paid Orders through the existing
+  gateway boundary and Stripe implementation; retain provider payment state as authoritative;
+  audit operator, reason, amount, timestamps, Order and provider outcome.
+- **Safety:** consumed credits and active Vacancies cannot be silently restored, revoked or
+  reversed. Conflicting cases fail closed for explicit staff resolution. Partial refunds are
+  deferred.
+- **Acceptance:** authorization, state transitions, provider success/failure/idempotency and
+  audit evidence are tested; no refund is represented as a local-only successful provider
+  outcome.
+
+#### SMV-118 — Promotional Vacancy banner and UI/UX polish
+
+- **Status:** P2 — RESERVED FOR UI/UX ROUND
+- **Goal:** add an optional visually distinctive presentation variant to an existing Vacancy,
+  not a new Vacancy type or automatic package benefit.
+- **Scope:** admin-managed placement and optional schedule, optional banner-specific image and
+  short text, full container/grid width where supported (`col-span-2` on suitable desktop
+  grids), responsive mobile treatment and reusable Blade/Tailwind presentation using existing
+  image conventions.
+- **Safety:** preserve the normal Vacancy detail URL, public visibility, application destination
+  and outbound tracking. Keep banner placement independent from commercial score,
+  `is_featured` and Superior; never promise it automatically with a package.
+- **Acceptance:** inactive/out-of-window/non-public Vacancies never render as banners; ordinary
+  cards remain unchanged; accessible responsive output and existing click/detail behavior are
+  covered in the later consolidated UI/UX/browser pass.
 
 #### SMV-078 — Employer vacancy advertising flow, account foundation and stabilization
 
@@ -691,7 +777,7 @@ the MVP Order/payment work remain primary and must not be obscured by feed expan
 | SMV-094 Joobs mapping and fixture acceptance | P1 — DONE (fixture persistence contract) | SMV-094A proves the XML contract without persistence. SMV-094B runs the two-city fixture through configured contract validation and the generic mapper, employer resolver, Vacancy upsert and snapshot lifecycle; identity, reruns, metadata, sanitation, URLs, raw salary, dates, location/SEO and unsafe paths are tested. Taxonomy/value lists, employer-ID guarantee and timezone approval remain activation inputs. | No; partner/operations gates remain. |
 | SMV-095A Generic scheduled and bounded import execution | P1 — DONE (infrastructure) | Disabled-by-default hourly/6-hourly/daily source schedules dispatch unique database-queue jobs. Jobs use the generic runner, two attempts, 10-minute timeout, existing 15-minute source lock and 16-minute queue retry window. Laravel schedules a bounded `--stop-when-empty` worker; approved active remote sources with an active default mapping are eligible. No partner feed is activated. | No; operations verification and partner activation remain. |
 | SMV-096 Expiration status maintenance | P2 — NEEDS REVIEW | Public expiry is query-driven; add scheduled status mutation only if admin workflow requires it. | No. |
-| SMV-097 Basic vacancy views and outbound click reporting | P1 — SMV-097B/097C/097D DONE; 097A PENDING | External Vacancy CTAs use a controlled Vacancy-bound redirect and minimized raw events. Administrators have a UTC-filtered Filament report with totals per Vacancy, Company and ImportSource plus deterministic aggregate CSV export. Every successful redirect remains a raw event, not a unique user, application, partner-confirmed click or billable click. Raw click events are retained for at most 24 months and pruned daily in bounded batches. Detail-view tracking remains separate. | Required before production only if SMV promises Joobs per-job reporting at launch; production scheduler operation must be verified. |
+| SMV-097 Basic vacancy views and outbound click reporting | P1 — SMV-097B/097C/097D DONE; 097A PENDING | Existing outbound tracking/reporting remains intact. SMV-097A records only successful public Vacancy-detail responses as minimized anonymous raw views, excludes preview/non-public/internal paths, applies the existing 24-month raw-event maximum and extends staff reporting with raw views plus **raw outbound-apply CTR = raw outbound clicks / raw detail views** for the same filters (undefined when views are zero). It never claims unique visitors and adds no fingerprint, cookie or IP tracking. | Required before production only if SMV promises per-job reporting at launch; include browser-level acceptance and verify production pruning. |
 | SMV-098 Listing impression analytics | P2 — DEFERRED | Define meaningful card visibility, bot/dedupe rules and CTR only after SMV-097. Do not call detail views impressions. | No. |
 | SMV-099 Partner/commercial reporting | P2 — DEFERRED | Partner-confirmed clicks/conversions and product reconciliation only after terms/data access; never invoice from internal clicks alone. | No. |
 | SMV-100 Multi-employer Company mapping | P1 — DONE | Added reviewed source-scoped employer mappings, deterministic provider-ID/composite resolution, legacy single-Company behavior for sources not configured for per-record resolution, nullable provider-neutral Vacancy metadata, distinct advertised/workplace presentation and JobPosting fallback. Unresolved rows cannot drive missing detection. | No; partner identity approval remains a live-feed gate. |

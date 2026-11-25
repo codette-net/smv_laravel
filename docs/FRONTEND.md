@@ -460,8 +460,9 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   Standaard EUR 189, Superior EUR 398 and Maatwerk from EUR 950, all excluding VAT and
   carrying the approved 2026 validity label. Standaard/Superior continue into the
   non-entitling placement flow; Maatwerk opens Contact with allowlisted package context.
-  Superior promotional wording describes manual sales fulfilment and never claims automated
-  ranking or advertising;
+  Superior promotional wording may describe additional promotion, advertising, guidance and
+  increased visibility, but must not disclose operational media budgets or promise a specific
+  channel, banner placement or unimplemented entitlement;
 - Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062
   general-purpose form. It reuses the shared input, textarea, select and button
   primitives plus a Tidy-derived accessible status modal. Validation/failure feedback
@@ -480,6 +481,28 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   Vacancy image precedence and Company fallback; a missing Vacancy image must remain valid;
 - About/contact stock photography is limited to existing Tidy assets and remains subject
   to final stakeholder approval.
+
+### Planned commercial UI boundaries
+
+SMV-050B adds a dedicated staff-only Filament ranking overview rather than overloading public
+or employer Vacancy forms. It must support numeric inline editing, filters, sorting and bulk
+set/add/reset for Company priority and Vacancy override, including negative overrides. The
+public Vacancy result components continue to use the existing card system, featured
+presentation and search/filter controls; ranking changes order only after eligibility and
+must remain deterministic across pagination. Optional temporary boost expiry may be exposed
+only if the implementation stays simple and auditable.
+
+SMV-097A extends the existing staff reporting screen with raw public detail-view totals and a
+clearly labelled raw outbound-apply CTR. The report must not present these events as unique
+visitors and does not add public analytics UI, cookies, fingerprints or IP-based tracking.
+
+SMV-118 is reserved for the later consolidated UI/UX styling round. It may add a reusable
+optional banner variant for an existing Vacancy: full container/grid width where supported,
+`col-span-2` on suitable desktop grids, a responsive mobile layout, optional banner-specific
+image and short text, and admin-controlled placement/scheduling. It keeps the normal Vacancy
+detail link, lifecycle and application tracking. Banner state is independent from
+`is_featured`, SMV-050B ranking and Superior entitlement, and must reuse existing Blade,
+Tailwind, accessibility and image-handling conventions.
 
 Open copy, commercial and asset approvals are maintained in `CONTENT_STATUS.md`. The
 repository still contains a large unused Mosaic asset library; audit usage before release

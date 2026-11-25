@@ -201,7 +201,9 @@ Standaard is initialized at EUR 189/60 days/one placement, Superior at EUR 398/i
 checkout. All are net prices approved through 2026-12-31. Package administration deliberately
 does not expose create/delete actions, preserving stable product codes and historical
 OrderItem relations. Future bundles may use OrderItem quantity and later issue separately
-tracked placement credits, but credits/subscriptions are not implemented.
+tracked placement credits. SMV-050B may resolve a configurable commercial score by stable
+package code; its initial Standaard 0 and Superior +20 values are configuration defaults, not
+immutable Package domain rules. The score is usable only through a valid paid entitlement.
 
 ## Orders and payments
 
@@ -231,6 +233,32 @@ confirmed Stripe integration. The current migration's historical
 `payments.payment_provider` default of `mollie` is legacy schema state, not a live provider
 configuration; Stripe implementation must introduce explicit provider configuration rather
 than activating that default.
+
+## Planned commercial ranking and entitlements
+
+SMV-050B will keep commercial ordering separate from lifecycle, search eligibility and the
+existing `is_featured` presentation flag. Its effective score has three independently
+configurable inputs: entitled package score, Company priority and Vacancy override. Vacancy
+override may be negative; optional temporary-boost expiry may be added only as a bounded
+extension. Manual changes require the repository's available audit convention. Exact columns
+and indexes belong to implementation design, but stable deterministic ordering and efficient
+pagination are acceptance requirements. `published_at` is never a score workaround.
+
+SMV-116 will introduce Company-owned placement-credit records rather than infer entitlement
+from `vacancies.placement_package`, Order status or Payment status. Each grant retains its
+originating eligible Order/OrderItem, Company, purchased package/type and placement duration,
+and is created exactly once. Reservation, redemption and reversal retain timestamps/state and
+the related Vacancy where applicable. Database constraints plus transactions must make grant
+and consumption idempotent and atomic. A redeemed credit can activate duration only after the
+normal Vacancy review boundary. The model should permit a later product to grant several
+credits or a subscription to issue grants, without implementing a generic wallet or ledger.
+
+SMV-117 adds auditable cancellation/refund operations rather than rewriting historical
+Payment attempts. Each operation records Order, authorized operator, reason, requested/actual
+amount, relevant timestamps, action type and provider outcome. Unpaid cancellation and paid
+refund are distinct; Stripe/provider state remains authoritative and the initial refund scope
+is complete refunds. Consumed credits and active Vacancies must remain explicit conflict state,
+not be silently restored or reversed.
 
 ## Benelux place reference
 
@@ -351,3 +379,18 @@ operational and year-over-year commercial reporting. A daily UTC command removes
 whose `clicked_at` is strictly older than the run's 24-month cutoff, in bounded ID batches.
 Rows exactly at the cutoff remain. No longer-term aggregate is created, so reporting beyond
 the retained window returns available/zero raw-event results rather than synthetic history.
+
+### Vacancy detail views (planned SMV-097A)
+
+SMV-097A will add a separate provider-neutral raw view event containing the Vacancy relation
+and event timestamp needed for UTC reporting. It records only successful public Vacancy-detail
+responses; preview, non-public and irrelevant internal responses are excluded. It stores no
+visitor fingerprint, cookie, IP address or identity merely to estimate uniqueness, so each row
+is a raw view and cannot support a unique-visitor claim. Company and ImportSource remain
+derived through Vacancy, matching outbound-click normalization.
+
+Raw view events use the same 24-month maximum, strict UTC cutoff and bounded pruning approach
+as raw outbound clicks. Staff reports derive raw view totals and **raw outbound-apply CTR** for
+matching filters as raw click count divided by raw detail-view count. A zero view count yields
+an unavailable CTR, not a synthetic zero. No aggregate table or history beyond retained raw
+events is promised by this ticket.
