@@ -4,6 +4,7 @@ use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
+use App\Enums\OrderStatus;
 use App\Enums\SalaryBasis;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
@@ -258,7 +259,7 @@ test('only the owner may preview and edit a draft and editing returns to preview
         ->not->toContain('&amp;amp;');
 });
 
-test('submission creates a pending moderation handoff without payment publication or featured entitlement', function () {
+test('submission creates one immutable pending Order without payment publication or featured entitlement', function () {
     $user = placementEmployer();
     $vacancy = Vacancy::factory()->create([
         'company_id' => placementCompany($user)->id,
@@ -270,27 +271,33 @@ test('submission creates a pending moderation handoff without payment publicatio
         'published_at' => null,
     ]);
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->withSession(['vacancy_placement.package' => AdvertisingPackage::Superior->value])
         ->post(route('vacancy-placement.submit', $vacancy), [
             'status' => VacancyStatus::Active->value,
             'is_featured' => true,
         ])
-        ->assertRedirect(route('vacancy-placement.success', $vacancy))
         ->assertSessionMissing('vacancy_placement.package');
 
     $vacancy->refresh();
+    $order = Order::query()->with('orderItems')->sole();
+    $response->assertRedirect(route('account.orders.show', $order));
+
     expect($vacancy->status)->toBe(VacancyStatus::Pending)
         ->and($vacancy->published_at)->toBeNull()
         ->and($vacancy->is_featured)->toBeFalse()
         ->and(Vacancy::publiclyVisible()->count())->toBe(0)
-        ->and(Order::count())->toBe(0)
+        ->and($order->status)->toBe(OrderStatus::PendingPayment)
+        ->and($order->total_cents)->toBe(48_158)
+        ->and($order->orderItems->sole()->product_code)->toBe('superior')
+        ->and($order->orderItems->sole()->vacancy_id)->toBe($vacancy->id)
         ->and(Payment::count())->toBe(0);
 
-    $this->get(route('vacancy-placement.success', $vacancy))
+    $this->get(route('account.orders.show', $order))
         ->assertOk()
-        ->assertSee('Er is nog niets betaald')
-        ->assertSee('niet gepubliceerd of uitgelicht');
+        ->assertSee('Superior')
+        ->assertSee('Veilig betalen via Stripe')
+        ->assertSee('Publicatie, plaatsingsrechten');
 
     $this->get(route('vacancy-placement.edit', $vacancy))->assertForbidden();
 });

@@ -20,9 +20,9 @@ path on top of the completed provider-neutral foundation. It is:
 
 - use the completed SMV-050B commercial ranking layer while keeping package priority disabled
   until paid entitlement exists;
-- connect Stripe checkout in SMV-112 to the completed configurable Package catalogue,
-  immutable Order snapshots and provider-neutral Payment boundary from SMV-050/110/111,
-  then complete paid placement entitlement through SMV-116;
+- use the completed Stripe Checkout/webhook integration against immutable Order snapshots and
+  the provider-neutral Payment boundary, then complete paid placement entitlement through
+  SMV-116;
 - add the minimal SMV-117 cancellation/refund workflow and complete SMV-097A public
   Vacancy-detail view reporting;
 - complete final stakeholder approval of public copy and template imagery;
@@ -37,8 +37,8 @@ Vacancy draft for an owned Company, preview it and hand it off in `pending` stat
 selected package remains intent only: payment, entitlement and publication are not implied.
 SMV-110 provides immutable Order product/price/tax snapshots and SMV-111 makes payment
 outcomes testable through a provider-neutral fake gateway, which remains intact after Stripe
-integration. SMV-112 integrates the confirmed Stripe provider once credentials and webhooks
-are available. Order creation validates purchaser, Company and
+integration. SMV-112 adds hosted Stripe Checkout, verified webhooks and private customer Order
+history. Order creation validates purchaser, Company and
 optional Vacancy ownership and remains separate from Payment, entitlement and publication.
 The acceptance dataset includes the approved Package catalogue plus deterministic draft,
 pending-payment and paid examples with clearly synthetic Fake-gateway attempts.
@@ -182,7 +182,7 @@ acceptance must confirm the inclusion and exclusion boundaries.
 
 ### Commercial Orders and payments
 
-The configurable Package catalogue supplies public presentation and future checkout inputs.
+The configurable Package catalogue supplies public presentation and immutable checkout inputs.
 Standaard is EUR 189 excluding VAT for one 60-day placement. Superior is EUR 398 excluding
 VAT for one placement with an admin-configurable duration (initially 60 days), additional
 manual promotion/visibility and personal editorial guidance. Maatwerk starts at EUR 950
@@ -202,9 +202,10 @@ explicit later decision.
 The implementation remains provider-neutral: SMV-110 defines an auditable
 Order/OrderItem boundary with immutable product, price, currency, VAT and total snapshots;
 SMV-111 defines the gateway contract and fake pending/success/failure/cancelled,
-duplicate-callback and retry/idempotency scenarios; SMV-112 integrates the confirmed Stripe
-provider without replacing the fake gateway used by automated tests. Historical Orders must never recalculate
-their purchased price from mutable current Package rows.
+duplicate-callback and retry/idempotency scenarios. SMV-112 integrates hosted Stripe Checkout
+and signed, idempotent webhook reconciliation without replacing the Fake used by automated
+tests. The browser return URL never confirms payment; only a verified provider event can do so.
+Historical Orders never recalculate their purchased price from mutable current Package rows.
 
 `vacancies.placement_package` remains intent only. Selecting a Package, creating an Order or
 confirming a Payment does not itself publish a Vacancy or grant placement entitlement.

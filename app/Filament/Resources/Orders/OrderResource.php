@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Order;
+use App\Models\Payment;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
@@ -69,13 +70,15 @@ class OrderResource extends Resource
                     TextEntry::make('payments')
                         ->label('Betalingen')
                         ->state(fn (Order $record): string => $record->payments
-                            ->map(fn ($payment): string => sprintf(
-                                '%s · %s · %s · %s %s · ref %s · aangemaakt %s · afgerond %s',
+                            ->sortByDesc('id')
+                            ->map(fn (Payment $payment): string => sprintf(
+                                '%s · %s · %s %s · Checkout %s · PaymentIntent %s · aangemaakt %s · afgerond %s',
                                 $payment->status->value,
                                 $payment->provider,
                                 number_format($payment->amount_cents / 100, 2, ',', '.'),
                                 $payment->currency,
                                 $payment->provider_reference ?: '-',
+                                $payment->provider_payment_id ?: '-',
                                 $payment->created_at?->toDateTimeString() ?? '-',
                                 $payment->completed_at?->toDateTimeString() ?? '-',
                             ))

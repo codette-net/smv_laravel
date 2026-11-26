@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\CategoryType;
 use App\Http\Requests\UpdateEmployerCompanyRequest;
 use App\Models\Company;
+use App\Models\Order;
 use App\Models\Vacancy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +37,21 @@ class AccountController extends Controller
             'savedVacanciesCount' => $request->user()->savedVacancies()->count(),
             'savedCompaniesCount' => $request->user()->savedCompanies()->count(),
             'applicationsCount' => $request->user()->applications()->count(),
+            'ordersCount' => $request->user()->orders()->count(),
         ]);
+    }
+
+    public function orders(Request $request): View
+    {
+        $orders = Order::query()
+            ->where('user_id', $request->user()->id)
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->with(['company', 'orderItems.vacancy', 'payments' => fn ($query) => $query->latest('id')])
+            ->latest('created_at')
+            ->latest('id')
+            ->paginate(12);
+
+        return view('account.orders.index', compact('orders'));
     }
 
     public function applications(Request $request): View

@@ -76,7 +76,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-051 Orders/payments audit/completion | **REQUIRED MVP — REFINED** | Existing Order/OrderItem/Payment schema and models are only a historical foundation. The missing purchase workflow is now split into SMV-110 (Order foundation), SMV-111 (provider-neutral/fake gateway) and SMV-112 (confirmed Stripe integration). |
 | SMV-110 Order foundation | **P0 — DONE** | `CreateOrder` provides provider-independent, atomic Order/OrderItem creation with immutable product/price/currency/VAT snapshots, ownership and placement linkage; no gateway integration. |
 | SMV-111 Payment gateway abstraction and fake gateway | **P0 — DONE** | Provider-neutral Payment attempts, deterministic Fake pending/success/failure/cancellation outcomes, amount integrity and idempotent confirmation are implemented without network access. |
-| SMV-112 Stripe checkout/payment integration | **P1 — READY FOR IMPLEMENTATION** | Implement Stripe against the configurable Package, immutable Order and provider-neutral Payment boundaries. Credentials, webhook configuration and unsupported VAT situations remain explicit inputs; checkout is not commercially complete until SMV-116 turns an eligible paid Order into usable placement entitlement. |
+| SMV-112 Stripe checkout/payment integration | **P1 — DONE** | Hosted Stripe Checkout, signed/idempotent webhook reconciliation, owner-scoped customer Order history and staff payment references now use immutable Order snapshots through the SMV-111 gateway boundary. The Fake remains the automated-test provider. Payment still grants no entitlement or publication; SMV-116 owns that boundary. |
 | SMV-116 Company placement credits and entitlements | **P0 — PROPOSED** | Grant Company-owned, package-preserving placement credits exactly once for eligible successful Orders; reserve/redeem/reverse them atomically and idempotently against a Vacancy without bypassing review. Support correct placement duration and leave bundle/subscription grants extensible but unimplemented. |
 | SMV-117 Order cancellation, refunds and internal audit | **P1 — PROPOSED (minimal MVP)** | Distinguish authorized unpaid cancellation from provider-authoritative paid refund, initially complete refunds only. Audit operator, reason, amount, timestamps, Order and outcome, and fail safely when credits are consumed or Vacancies active. |
 | SMV-118 Promotional Vacancy banner and UI/UX polish | **P2 — RESERVED FOR UI/UX ROUND** | Add an optional scheduled, admin-managed full-width Vacancy banner variant with optional image/short text, using the normal detail URL, visibility and apply tracking. Keep it independent from ranking, featured state and automatic Superior fulfilment. |
@@ -139,7 +139,7 @@ The approved commercial implementation order is now:
 
 1. **SMV-050** — completed the configurable package catalogue and approved MVP pricing.
 2. **SMV-050B** — completed the focused commercial ranking MVP with a fail-closed SMV-116 boundary.
-3. **SMV-112** — integrate the confirmed Stripe provider against the completed SMV-110/111 boundaries.
+3. **SMV-112** — completed the confirmed Stripe provider integration against the SMV-110/111 boundaries.
 4. **SMV-116** — grant and consume paid Company placement credits/entitlements.
 5. **SMV-117** — add the minimal cancellation/refund and internal-audit workflow.
 6. **SMV-097A** — finish privacy-minimal Vacancy-detail views, reporting and browser acceptance.
@@ -147,9 +147,9 @@ The approved commercial implementation order is now:
 In parallel, continue the Phase G release gates: finish evidence for SMV-071, implement
 SMV-072 browser smoke, complete SMV-044/045 legacy URL inventory and redirects, run the
 SMV-046 staging SEO crawl, approve/freeze content, then execute SMV-073 and SMV-074.
-SMV-109 is a shared prerequisite for browser and dry-run work. SMV-112 follows SMV-110 and
-SMV-111 using the confirmed Stripe provider, but production checkout is not commercially
-complete without SMV-116. SMV-118 remains reserved for the later consolidated UI/UX round;
+SMV-109 is a shared prerequisite for browser and dry-run work. SMV-112 now supplies the Stripe
+payment path, but production checkout is not commercially complete without SMV-116. SMV-118
+remains reserved for the later consolidated UI/UX round;
 SMV-114 and SMV-115 remain valuable but less launch-critical.
 
 ### A. Functional / MVP
@@ -247,11 +247,15 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
 
 #### SMV-112 — Stripe checkout / payment provider
 
-- **Status:** P1 — READY FOR IMPLEMENTATION
-- **Goal:** integrate Stripe as the confirmed real checkout provider after the provider-neutral
-  Order and fake-gateway boundaries are complete.
-- **Dependencies:** SMV-050, SMV-110, SMV-111, approved Stripe account/credentials,
-  webhook configuration and remaining operational terms.
+- **Status:** P1 — DONE
+- **Result:** owned pending Orders enter hosted Stripe Checkout using immutable OrderItem money
+  snapshots. A signed `/stripe/webhook` boundary validates provider mode, internal references,
+  amount and currency, then records each Stripe event once and applies provider-authoritative
+  success/failure/expiry without trusting browser return routes. Customer Order history and
+  retry are available under `/account/bestellingen`; staff can inspect Stripe references on the
+  existing Order resource. The Fake gateway remains the deterministic automated-test default.
+- **Operations:** credentials, explicit test/live mode and the webhook signing secret are
+  deployment inputs documented in `PAYMENTS.md`; no secret or full payload is logged.
 - **Out of scope:** changing the provider-neutral fake gateway into a live dependency; SMV-111
   remains the deterministic test boundary. SMV-116, not checkout or webhook code, owns the
   resulting placement-credit grant and consumption boundary.

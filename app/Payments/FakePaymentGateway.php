@@ -13,6 +13,11 @@ final class FakePaymentGateway implements PaymentGateway
         $this->outcome = $outcome ?? FakePaymentOutcome::Pending;
     }
 
+    public function provider(): string
+    {
+        return 'fake';
+    }
+
     public function start(PaymentRequest $request): PaymentGatewayResult
     {
         return new PaymentGatewayResult(

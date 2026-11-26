@@ -18,6 +18,7 @@
         "spatie/laravel-sitemap": "*",
         "spatie/laravel-sluggable": "*",
         "spatie/laravel-tags": "*",
+        "stripe/stripe-php": "^23.1",
         "symfony/html-sanitizer": "^7.4"
     },
     "require-dev": {

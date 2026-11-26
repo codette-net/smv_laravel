@@ -7,8 +7,12 @@ use App\Models\User;
 
 class OrderPolicy
 {
-    public function before(User $user): ?bool
+    public function before(User $user, string $ability): ?bool
     {
+        if ($ability === 'pay') {
+            return null;
+        }
+
         return $user->hasAnyRole(['super-admin', 'admin']) ? true : null;
     }
 
@@ -19,7 +23,16 @@ class OrderPolicy
 
     public function view(User $user, Order $order): bool
     {
-        return $user->hasRole('editor');
+        return $user->hasRole('editor') || (
+            $order->user_id === $user->id
+            && $order->company()->where('user_id', $user->id)->exists()
+        );
+    }
+
+    public function pay(User $user, Order $order): bool
+    {
+        return $order->user_id === $user->id
+            && $order->company()->where('user_id', $user->id)->exists();
     }
 
     public function create(User $user): bool
