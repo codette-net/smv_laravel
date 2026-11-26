@@ -68,6 +68,11 @@ class CreateOrder
                     'vacancy_id' => $snapshot['vacancy_id'],
                     'product_code' => $snapshot['product_code'],
                     'title_snapshot' => $snapshot['title_snapshot'],
+                    'package_type_snapshot' => $snapshot['package_type_snapshot'],
+                    'placement_quantity_snapshot' => $snapshot['placement_quantity_snapshot'],
+                    'vacancy_duration_days_snapshot' => $snapshot['vacancy_duration_days_snapshot'],
+                    'commercial_priority_snapshot' => $snapshot['commercial_priority_snapshot'],
+                    'entitlement_snapshot' => $snapshot['entitlement_snapshot'],
                     'price_cents' => $snapshot['price_cents'],
                     'currency' => $snapshot['currency'],
                     'vat_rate_basis_points' => $snapshot['vat_rate_basis_points'],
@@ -112,6 +117,11 @@ class CreateOrder
             'vacancy_id' => $vacancy?->id,
             'product_code' => $product['product_code'],
             'title_snapshot' => $product['title_snapshot'],
+            'package_type_snapshot' => $product['package_type_snapshot'],
+            'placement_quantity_snapshot' => $product['placement_quantity_snapshot'],
+            'vacancy_duration_days_snapshot' => $product['vacancy_duration_days_snapshot'],
+            'commercial_priority_snapshot' => $product['commercial_priority_snapshot'],
+            'entitlement_snapshot' => $product['entitlement_snapshot'],
             'price_cents' => $product['price_cents'],
             'currency' => $product['currency'],
             'vat_rate_basis_points' => $vatRate,
@@ -121,7 +131,7 @@ class CreateOrder
         ];
     }
 
-    /** @return array{package_id: int|null, product_code: string, title_snapshot: string, price_cents: int, currency: string, vat_rate_basis_points: int|null} */
+    /** @return array{package_id: int|null, product_code: string, title_snapshot: string, package_type_snapshot: string, placement_quantity_snapshot: int, vacancy_duration_days_snapshot: int, commercial_priority_snapshot: int, entitlement_snapshot: array<string, mixed>, price_cents: int, currency: string, vat_rate_basis_points: int|null} */
     private function resolveProduct(Package|AdvertisingPackage|string|null $product): array
     {
         if ($product instanceof Package) {
@@ -133,6 +143,16 @@ class CreateOrder
                 'package_id' => $product->exists ? $product->id : null,
                 'product_code' => $product->slug,
                 'title_snapshot' => $product->name,
+                'package_type_snapshot' => $product->package_type->value,
+                'placement_quantity_snapshot' => $product->placement_quantity,
+                'vacancy_duration_days_snapshot' => (int) $product->vacancy_duration_days,
+                'commercial_priority_snapshot' => $product->commercial_priority,
+                'entitlement_snapshot' => [
+                    'features' => $product->features ?? [],
+                    'includes_featured' => $product->includes_featured,
+                    'includes_social_campaign' => $product->includes_social_campaign,
+                    'includes_newsletter' => $product->includes_newsletter,
+                ],
                 'price_cents' => $product->price_cents,
                 'currency' => strtoupper($product->currency),
                 'vat_rate_basis_points' => $product->vat_rate_basis_points,

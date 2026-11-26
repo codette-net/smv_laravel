@@ -90,6 +90,23 @@ class CompanyInfolist
                         TextEntry::make('created_at')->label('Aangemaakt op')->dateTime(),
                         TextEntry::make('updated_at')->label('Bijgewerkt op')->dateTime(),
                     ]),
+                Section::make('Plaatsingsrechten')
+                    ->schema([
+                        TextEntry::make('placement_credits_summary')
+                            ->label('Inventaris')
+                            ->state(fn (Company $record): string => $record->placementCredits()
+                                ->with(['vacancy', 'order'])
+                                ->get()
+                                ->map(fn ($credit): string => sprintf(
+                                    '%s · %s · bestelling %s · vacature %s',
+                                    $credit->package_name_snapshot,
+                                    $credit->status()->getLabel(),
+                                    $credit->order?->order_number ?? '-',
+                                    $credit->vacancy?->title ?? '-',
+                                ))
+                                ->join('; '))
+                            ->placeholder('Geen plaatsingsrechten'),
+                    ]),
             ]);
     }
 }

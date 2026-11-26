@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Contracts\VacancyPackagePriorityProvider;
 use App\Payments\Stripe\StripeCheckoutClient;
 use App\Payments\Stripe\StripeSdkCheckoutClient;
-use App\Support\Commerce\NoEntitledVacancyPackagePriority;
+use App\Support\Commerce\EntitledVacancyPackagePriority;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             VacancyPackagePriorityProvider::class,
-            NoEntitledVacancyPackagePriority::class,
+            EntitledVacancyPackagePriority::class,
         );
     }
 

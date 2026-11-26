@@ -10,6 +10,7 @@ use App\Enums\PaymentStatus;
 use App\Models\Company;
 use App\Models\Order;
 use App\Models\Package;
+use App\Models\Payment;
 use App\Models\User;
 use App\Payments\FakePaymentGateway;
 use App\Payments\FakePaymentOutcome;
@@ -147,4 +148,21 @@ test('payment uses the order snapshot after package price changes', function () 
 
     expect($payment->amount_cents)->toBe(14_937)
         ->and($payment->currency)->toBe('EUR');
+});
+
+test('an incomplete legacy placement snapshot fails before starting provider checkout', function () {
+    $user = paymentEmployer();
+    $order = paymentOrder($user);
+    $order->orderItems()->update([
+        'placement_quantity_snapshot' => null,
+        'vacancy_duration_days_snapshot' => null,
+        'commercial_priority_snapshot' => null,
+    ]);
+    fakeGateway(FakePaymentOutcome::Pending);
+
+    expect(fn () => app(StartPayment::class)->execute($user, $order, 'incomplete-entitlement'))
+        ->toThrow(InvalidArgumentException::class, 'immutable placement entitlement snapshot');
+
+    expect(Payment::count())->toBe(0)
+        ->and($order->fresh()->status)->toBe(OrderStatus::PendingPayment);
 });

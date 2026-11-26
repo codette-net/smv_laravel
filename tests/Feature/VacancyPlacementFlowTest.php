@@ -297,7 +297,7 @@ test('submission creates one immutable pending Order without payment publication
         ->assertOk()
         ->assertSee('Superior')
         ->assertSee('Veilig betalen via Stripe')
-        ->assertSee('Publicatie, plaatsingsrechten');
+        ->assertSee('gekoppelde vacature blijft in beoordeling');
 
     $this->get(route('vacancy-placement.edit', $vacancy))->assertForbidden();
 });

@@ -63,14 +63,16 @@ states, Dutch/Belgian locations, taxonomies, tags, salary and hourly-rate filter
 Use `acceptance-manual-external` for outbound apply-click tracking and
 `acceptance-manual-internal` for the public internal Application flow.
 
-For SMV-050B ranking acceptance, `acceptance-manual-internal` has Superior package intent,
+For ranking acceptance, `acceptance-manual-internal` has Superior package intent,
 Company `+5` and Vacancy `+5`, for an effective score of `10`; the package component remains
-`0` because no SMV-116 entitlement exists. `acceptance-manual-external` has Standard intent,
-Company `+5` and Vacancy `0` (effective `5`). `acceptance-manual-email` combines Company `-5`
+`0` because the related Order is unpaid. `acceptance-manual-external` has an active paid
+Standard placement, Company `+5` and Vacancy `0` (effective `5`, because Standard starts at
+package score `0`). `acceptance-manual-email` combines Company `-5`
 with Vacancy `+10`, and `acceptance-manual-draft` has Vacancy `-10` while remaining non-public.
 `acceptance-import-active` has an SMV-managed Vacancy adjustment of `+6` to exercise imported
-record administration. Reruns preserve these deterministic values without manufacturing paid
-entitlement.
+record administration. `acceptance-placement-superior-active` provides the active paid Superior
+`+20` scenario, `acceptance-placement-pending` proves allocation does not bypass review and
+`acceptance-placement-expired` proves expired package priority is removed.
 
 ### Imported Vacancies and sources
 
@@ -98,8 +100,9 @@ No external click is represented as an Application.
 The acceptance seeder initializes the same editable Standaard, Superior and Maatwerk
 catalogue as a fresh installation. The rows contain structured placement/quote rules,
 benefits, staff fulfilment notes, configured 21% VAT and validity through 2026-12-31.
-Standaard starts at package priority `0`, Superior at `+20` and Maatwerk at `0`; these configured
-values are visible to staff but cannot affect a Vacancy until SMV-116 provides entitlement.
+Standaard starts at package priority `0`, Superior at `+20` and Maatwerk at `0`; the configured
+score is snapshotted into a purchased credit and affects ranking only while its allocation is
+active and the Vacancy remains publicly eligible.
 Rerunning the seeder creates missing catalogue rows without overwriting later staff edits.
 
 ## Orders
@@ -108,8 +111,12 @@ The seeder includes three deterministic employer-owned Order examples linked to 
 Vacancies: `SMV-ACCEPTANCE-DRAFT`, `SMV-ACCEPTANCE-PENDING` and `SMV-ACCEPTANCE-PAID`.
 Their OrderItems retain the approved product/price/currency/21%-VAT snapshots. The pending
 Order has failed and cancelled Fake attempts; the paid Order has one successful Fake attempt.
-All references are clearly synthetic and no Stripe transaction is fabricated.
-Re-running the seeder updates these rows, attempts and OrderItems without multiplying records.
+Additional paid fixture Orders supply available Standard and Superior credits, an allocated
+pending Superior placement, an active Superior placement and an expired placement. Their
+OrderItems also retain package type, placement quantity, duration, priority and benefits. All
+references are clearly synthetic and no Stripe transaction is fabricated. Re-running the
+seeder reconciles each paid fixture through the production grant action without multiplying
+credits or audit events; granted snapshots remain stable once credits exist.
 
 ## Reruns and future Payments
 
@@ -121,7 +128,8 @@ factories and should not be made a prerequisite for isolated feature tests.
 The Fake gateway remains the automated-test provider after the Stripe integration. The seeded
 Orders are suitable for customer/staff history inspection, but they deliberately fabricate no
 Stripe transaction. Hosted Checkout and verified webhooks are covered by isolated tests with an
-in-memory Stripe client boundary. Entitlement activation remains SMV-116 work.
+in-memory Stripe client boundary. Payment-to-credit and activation behavior use the same
+idempotent application actions as production without contacting Stripe.
 
 This dataset is the shared manual/browser prerequisite for SMV-072 and the disposable
 production-like data prerequisite for the SMV-073 migration/dry-run rehearsal.

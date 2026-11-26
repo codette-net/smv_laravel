@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
+use App\Models\PlacementCredit;
 use App\Models\User;
 use App\Payments\Stripe\StripeCheckoutClient;
 use App\Payments\Stripe\StripeCheckoutSession;
@@ -114,7 +115,8 @@ test('a verified paid Checkout event confirms the Payment and Order exactly once
         ->and($payment->fresh()->provider_payment_id)->toBe('pi_test_smv_1')
         ->and($payment->fresh()->paid_at)->not->toBeNull()
         ->and($order->fresh()->status)->toBe(OrderStatus::Paid)
-        ->and(PaymentWebhookEvent::count())->toBe(1);
+        ->and(PaymentWebhookEvent::count())->toBe(1)
+        ->and(PlacementCredit::query()->where('order_id', $order->id)->count())->toBe(1);
 });
 
 test('Checkout completion remains pending until actual payment status succeeds asynchronously', function (): void {
@@ -126,7 +128,8 @@ test('Checkout completion remains pending until actual payment status succeeds a
 
     sendStripeWebhook($this, $pending, stripeWebhookSignature($pending, 'whsec_smv_test'))->assertOk();
     expect($payment->fresh()->status)->toBe(PaymentStatus::Pending)
-        ->and($order->fresh()->status)->toBe(OrderStatus::PendingPayment);
+        ->and($order->fresh()->status)->toBe(OrderStatus::PendingPayment)
+        ->and(PlacementCredit::count())->toBe(0);
 
     $success = stripeWebhookPayload('evt_checkout_async_success', 'checkout.session.async_payment_succeeded', $payment, [
         'payment_intent' => 'pi_test_delayed',
@@ -134,7 +137,8 @@ test('Checkout completion remains pending until actual payment status succeeds a
     sendStripeWebhook($this, $success, stripeWebhookSignature($success, 'whsec_smv_test'))->assertOk();
 
     expect($payment->fresh()->status)->toBe(PaymentStatus::Paid)
-        ->and($order->fresh()->status)->toBe(OrderStatus::Paid);
+        ->and($order->fresh()->status)->toBe(OrderStatus::Paid)
+        ->and(PlacementCredit::query()->where('order_id', $order->id)->count())->toBe(1);
 });
 
 test('failed and expired Checkout events remain auditable and allow a new attempt', function (string $eventType, PaymentStatus $expected): void {

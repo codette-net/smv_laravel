@@ -447,7 +447,11 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   User can review securely linked internal Applications through
   `/account/sollicitaties`, manage saved Vacancies through `/account/bewaarde-vacatures`, saved
   Company profiles through `/account/bewaarde-bedrijven`, and owned Orders through
-  `/account/bestellingen`; unavailable items render
+  `/account/bestellingen`. Employers inspect available, allocated and active Company placement
+  credits at `/account/plaatsingsrechten`, including originating Orders, related Vacancies and
+  expiry. A compatible available credit can be assigned to an owned manual draft from that
+  overview or selected on the existing private Vacancy preview, avoiding a duplicate Order;
+  assignment never publishes the Vacancy. Unavailable items render
   without protected content. Account routes are private and
   `noindex, nofollow`;
 - Mijn sollicitaties uses existing badge components and intentionally shows only a
@@ -460,12 +464,12 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - pricing and the placement entry render the editable Package catalogue consistently:
   Standaard EUR 189, Superior EUR 398 and Maatwerk from EUR 950, all excluding VAT and
   carrying the approved 2026 validity label. Standaard/Superior continue into the
-  non-entitling placement flow and an owned Order summary with hosted Stripe Checkout;
+  moderated paid-placement flow and an owned Order summary with hosted Stripe Checkout;
   Maatwerk opens Contact with allowlisted package context. Checkout success/cancel pages show
   the persisted state and never claim payment before a verified webhook.
   Superior promotional wording may describe additional promotion, advertising, guidance and
   increased visibility, but must not disclose operational media budgets or promise a specific
-  channel, banner placement or unimplemented entitlement;
+  channel or banner placement;
 - Contact retains the confirmed direct e-mail/telephone routes and now adds the SMV-062
   general-purpose form. It reuses the shared input, textarea, select and button
   primitives plus a Tidy-derived accessible status modal. Validation/failure feedback
@@ -501,6 +505,12 @@ by stable date/ID tie-breakers. Explicit user sorting remains unchanged. Current
 matching is boolean, so ranking cannot introduce a non-matching result. Company-detail previews
 and related-Vacancy blocks retain their existing chronological purpose. Featured presentation,
 publication dates and ranking remain independent; temporary boost expiry is not implemented.
+
+SMV-116 adds only the compact account placement-credit overview and credit selector to the
+existing employer flow. Staff inspect the same immutable grants and their event history through
+the read-only Filament **Plaatsingsrechten** resource and Order/Company infolists. There are no
+raw balance controls. Standard/Superior ranking is active only during a published entitlement's
+stored validity window; Maatwerk remains quote-only.
 
 SMV-097A extends the existing staff reporting screen with raw public detail-view totals and a
 clearly labelled raw outbound-apply CTR. The report must not present these events as unique

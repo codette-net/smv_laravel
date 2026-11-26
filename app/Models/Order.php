@@ -59,6 +59,11 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function placementCredits(): HasMany
+    {
+        return $this->hasMany(PlacementCredit::class);
+    }
+
     public function vacancies(): BelongsToMany
     {
         return $this->belongsToMany(Vacancy::class, 'order_items');

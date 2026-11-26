@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Orders\CreateOrReuseVacancyOrder;
+use App\Actions\Placements\AllocatePlacementCredit;
 use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
@@ -13,12 +14,14 @@ use App\Enums\VacancyStatus;
 use App\Http\Requests\SaveVacancyPlacementRequest;
 use App\Http\Requests\SelectAdvertisingPackageRequest;
 use App\Models\Category;
+use App\Models\PlacementCredit;
 use App\Models\Vacancy;
 use App\Support\Commerce\PackageCatalogue;
 use App\Support\Vacancies\VacancyDescription;
 use App\Support\VacancyPlacementSession;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -170,15 +173,44 @@ class EmployerVacancyController extends Controller
             'vacancy' => $vacancy,
             'package' => $vacancy->placement_package,
             'descriptionHtml' => app(VacancyDescription::class)->sanitize($vacancy->description),
+            'availableCredits' => PlacementCredit::query()
+                ->available()
+                ->where('company_id', $vacancy->company_id)
+                ->where('product_code', $vacancy->placement_package?->value)
+                ->orderBy('granted_at')
+                ->get(),
         ]);
     }
 
     public function submit(
+        Request $request,
         Vacancy $vacancy,
         VacancyPlacementSession $placement,
         CreateOrReuseVacancyOrder $createOrder,
+        AllocatePlacementCredit $allocateCredit,
     ): RedirectResponse {
         $this->authorizeOwnedDraft($vacancy);
+
+        if ($request->filled('placement_credit_id')) {
+            $credit = PlacementCredit::query()->findOrFail($request->integer('placement_credit_id'));
+
+            try {
+                DB::transaction(function () use ($request, $vacancy, $credit, $allocateCredit): void {
+                    $allocateCredit->execute($request->user(), $credit, $vacancy);
+                    $vacancy->update([
+                        'status' => VacancyStatus::Pending,
+                        'published_at' => null,
+                        'is_featured' => false,
+                    ]);
+                });
+            } catch (\InvalidArgumentException $exception) {
+                return back()->withErrors(['placement_credit_id' => $exception->getMessage()]);
+            }
+
+            $placement->clear();
+
+            return to_route('vacancy-placement.success', $vacancy);
+        }
 
         $order = DB::transaction(function () use ($vacancy, $createOrder) {
             $order = $createOrder->execute(auth()->user(), $vacancy);

@@ -62,6 +62,10 @@ test('order creation snapshots the approved package and placement intent without
     $item = $order->orderItems->sole();
     expect($item->product_code)->toBe('standard')
         ->and($item->title_snapshot)->toBe('Standaard')
+        ->and($item->package_type_snapshot)->toBe('placement')
+        ->and($item->placement_quantity_snapshot)->toBe(1)
+        ->and($item->vacancy_duration_days_snapshot)->toBe(60)
+        ->and($item->commercial_priority_snapshot)->toBe(0)
         ->and($item->price_cents)->toBe(18_900)
         ->and($item->subtotal_cents)->toBe(18_900)
         ->and($item->vat_cents)->toBe(3_969)

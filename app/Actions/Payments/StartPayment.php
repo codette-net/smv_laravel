@@ -38,6 +38,13 @@ class StartPayment
                 throw new InvalidArgumentException('The order is not ready for payment.');
             }
 
+            $incompletePlacement = $lockedOrder->orderItems()
+                ->get()
+                ->first(fn ($item): bool => $item->isPlacementProduct() && ! $item->hasCompletePlacementEntitlementSnapshot());
+            if ($incompletePlacement !== null) {
+                throw new InvalidArgumentException('The Order has no complete immutable placement entitlement snapshot.');
+            }
+
             if ($idempotencyKey !== null) {
                 $existing = Payment::query()->where('idempotency_key', $idempotencyKey)->first();
                 if ($existing !== null) {
