@@ -87,6 +87,20 @@ For later implementation tasks:
 
 Prefer repository scripts and PHP/Composer/npm commands already used by the project.
 
+### Hostinger production Composer install
+
+Deploy the committed `composer.lock` and run Composer in install mode, not update
+mode, so production uses the reviewed dependency versions without rewriting the
+lockfile:
+
+```sh
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+```
+
+This still runs Composer's production autoload/package discovery scripts. Do not run
+`composer update` on the production host. Laravel Boost is not a production dependency;
+developers with Boost installed can run `php artisan boost:update --ansi` explicitly.
+
 Be alert to:
 
 - Windows path separators in ad-hoc scripts
