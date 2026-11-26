@@ -9,12 +9,14 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\EmployerVacancyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderCheckoutController;
 use App\Http\Controllers\OutboundApplyController;
 use App\Http\Controllers\PublicAuthController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\SavedCompanyController;
 use App\Http\Controllers\SavedVacancyController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\VacancyController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +28,7 @@ Route::get('/tarieven', [PublicPageController::class, 'pricing'])->name('pricing
 Route::get('/contact', [PublicPageController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact')->name('contact.store');
 Route::get('/adverteren', [PublicPageController::class, 'advertising'])->name('advertising');
+Route::post('/stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/inloggen', [PublicAuthController::class, 'createLogin'])->name('login');
@@ -43,6 +46,11 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::get('/sollicitaties', [AccountController::class, 'applications'])->name('applications');
     Route::get('/bewaarde-vacatures', [AccountController::class, 'savedVacancies'])->name('saved-vacancies');
     Route::get('/bewaarde-bedrijven', [AccountController::class, 'savedCompanies'])->name('saved-companies');
+    Route::get('/bestellingen', [AccountController::class, 'orders'])->name('orders.index');
+    Route::get('/bestellingen/{order}', [OrderCheckoutController::class, 'show'])->name('orders.show');
+    Route::post('/bestellingen/{order}/betalen', [OrderCheckoutController::class, 'start'])->name('orders.pay');
+    Route::get('/bestellingen/{order}/betaling/terug', [OrderCheckoutController::class, 'success'])->name('orders.success');
+    Route::get('/bestellingen/{order}/betaling/geannuleerd', [OrderCheckoutController::class, 'cancelled'])->name('orders.cancelled');
     Route::get('/bedrijven/{company}/bewerken', [AccountController::class, 'editCompany'])->name('companies.edit');
     Route::patch('/bedrijven/{company}', [AccountController::class, 'updateCompany'])->name('companies.update');
 });

@@ -144,14 +144,14 @@ The placement flow stores only bounded session state before persistence: an
 Vacancy records `placement_package` as commercial intent, not as a paid entitlement. SMV-110
 provides auditable Orders with immutable product/price/currency/VAT snapshots, and SMV-111
 makes payment outcomes testable without a real provider. Historical Orders must not
-recalculate from mutable Package rows. Stripe is
-the confirmed provider for SMV-112; the fake gateway from SMV-111 remains the test boundary
-and must not be replaced by live Stripe calls in automated tests.
+recalculate from mutable Package rows. SMV-112 implements hosted Stripe Checkout and verified
+webhooks; the Fake gateway from SMV-111 remains the automated-test boundary and must not be
+replaced by live Stripe calls in tests.
 New public employer Vacancies remain `draft` through data entry/preview and become
 `pending` on hand-off. They are never published or featured by this flow. SMV-050 now
 provides the definitive configurable catalogue; SMV-110/111 own the provider-neutral
-implementation boundary; SMV-112 owns the confirmed Stripe integration once credentials,
-webhooks and remaining operational terms are available.
+implementation boundary and SMV-112 connects it to Stripe. Environment credentials and webhook
+registration remain deployment responsibilities.
 
 `PackageCatalogue` resolves persisted Package rows by the stable `AdvertisingPackage` slug.
 Persisted rows are the editable source of truth for public names/descriptions/benefits and
@@ -195,10 +195,17 @@ tax overrides remain possible only at the application boundary for supported sit
 
 `StartPayment` is the provider-neutral payment-attempt boundary. It resolves the configured
 gateway, creates a pending Payment from the immutable Order total/currency, and applies the
-gateway result. `ConfirmPayment` is idempotent and is safe to call from a future Stripe
-webhook: it marks one attempt paid and transitions the Order once, without allowing failed or
-cancelled attempts to reverse a paid Order. The deterministic Fake gateway is available only
-outside production by default; it never performs network calls. Payment confirmation still
+gateway result. The Stripe implementation creates hosted Checkout Sessions from OrderItem net
+and VAT snapshots, uses the Payment idempotency key for safe session retries, and never reads
+mutable Package prices during checkout. Browser success/cancel routes are display-only.
+
+`POST /stripe/webhook` verifies Stripe's signature against the raw request body before the
+event reaches `ProcessStripeWebhook`. The processor maps the stored Checkout Session reference
+back to the Payment, validates live/test mode, amount, currency and signed internal references,
+and records each provider event once in `payment_webhook_events`. Paid provider events call
+`ConfirmPayment` authoritatively; delayed failures or expiry cannot regress an already-paid
+Order. `ConfirmPayment` and webhook handling are idempotent. The deterministic Fake gateway
+remains the automated-test default and never performs network calls. Payment confirmation still
 does not grant Vacancy entitlement or publication.
 
 SMV-116 is the separate fulfilment boundary. An eligible successful Order/OrderItem grants

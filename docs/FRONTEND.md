@@ -445,8 +445,9 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   from the staff-only Filament `/dashboard`. Employers can complete owned Company
   profiles and browse owned Vacancies through `/account/vacatures`. Every authenticated
   User can review securely linked internal Applications through
-  `/account/sollicitaties`, manage saved Vacancies through `/account/bewaarde-vacatures` and saved
-  Company profiles through `/account/bewaarde-bedrijven`; unavailable items render
+  `/account/sollicitaties`, manage saved Vacancies through `/account/bewaarde-vacatures`, saved
+  Company profiles through `/account/bewaarde-bedrijven`, and owned Orders through
+  `/account/bestellingen`; unavailable items render
   without protected content. Account routes are private and
   `noindex, nofollow`;
 - Mijn sollicitaties uses existing badge components and intentionally shows only a
@@ -459,7 +460,9 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 - pricing and the placement entry render the editable Package catalogue consistently:
   Standaard EUR 189, Superior EUR 398 and Maatwerk from EUR 950, all excluding VAT and
   carrying the approved 2026 validity label. Standaard/Superior continue into the
-  non-entitling placement flow; Maatwerk opens Contact with allowlisted package context.
+  non-entitling placement flow and an owned Order summary with hosted Stripe Checkout;
+  Maatwerk opens Contact with allowlisted package context. Checkout success/cancel pages show
+  the persisted state and never claim payment before a verified webhook.
   Superior promotional wording may describe additional promotion, advertising, guidance and
   increased visibility, but must not disclose operational media budgets or promise a specific
   channel, banner placement or unimplemented entitlement;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Orders\CreateOrReuseVacancyOrder;
 use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CategoryType;
@@ -172,19 +173,27 @@ class EmployerVacancyController extends Controller
         ]);
     }
 
-    public function submit(Vacancy $vacancy, VacancyPlacementSession $placement): RedirectResponse
-    {
+    public function submit(
+        Vacancy $vacancy,
+        VacancyPlacementSession $placement,
+        CreateOrReuseVacancyOrder $createOrder,
+    ): RedirectResponse {
         $this->authorizeOwnedDraft($vacancy);
 
-        $vacancy->update([
-            'status' => VacancyStatus::Pending,
-            'published_at' => null,
-            'is_featured' => false,
-        ]);
+        $order = DB::transaction(function () use ($vacancy, $createOrder) {
+            $order = $createOrder->execute(auth()->user(), $vacancy);
+            $vacancy->update([
+                'status' => VacancyStatus::Pending,
+                'published_at' => null,
+                'is_featured' => false,
+            ]);
+
+            return $order;
+        });
 
         $placement->clear();
 
-        return to_route('vacancy-placement.success', $vacancy);
+        return to_route('account.orders.show', $order);
     }
 
     public function success(Vacancy $vacancy): View

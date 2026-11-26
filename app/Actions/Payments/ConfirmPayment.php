@@ -10,9 +10,9 @@ use InvalidArgumentException;
 
 class ConfirmPayment
 {
-    public function execute(Payment $payment): Payment
+    public function execute(Payment $payment, bool $providerAuthoritative = false): Payment
     {
-        return DB::transaction(function () use ($payment): Payment {
+        return DB::transaction(function () use ($payment, $providerAuthoritative): Payment {
             $lockedPayment = Payment::query()->lockForUpdate()->findOrFail($payment->id);
             $order = $lockedPayment->order()->lockForUpdate()->firstOrFail();
 
@@ -25,10 +25,30 @@ class ConfirmPayment
             }
 
             if ($order->status === OrderStatus::Paid) {
+                if ($providerAuthoritative) {
+                    $lockedPayment->update([
+                        'status' => PaymentStatus::Paid,
+                        'paid_at' => $lockedPayment->paid_at ?? now(),
+                        'completed_at' => $lockedPayment->completed_at ?? now(),
+                    ]);
+
+                    return $lockedPayment->fresh();
+                }
+
                 throw new InvalidArgumentException('A different payment already paid this order.');
             }
 
-            if (! in_array($lockedPayment->status, [PaymentStatus::Pending, PaymentStatus::Open], true)) {
+            $confirmable = [PaymentStatus::Pending, PaymentStatus::Open];
+            if ($providerAuthoritative) {
+                $confirmable = [
+                    ...$confirmable,
+                    PaymentStatus::Failed,
+                    PaymentStatus::Cancelled,
+                    PaymentStatus::Expired,
+                ];
+            }
+
+            if (! in_array($lockedPayment->status, $confirmable, true)) {
                 throw new InvalidArgumentException('Only a pending payment can be confirmed.');
             }
 

@@ -208,10 +208,9 @@ entitlement.
 
 ## Orders and payments
 
-The repository contains historical `Package`, `Order`, `OrderItem` and `Payment` models and
-tables, but the employer placement flow currently stores only `Vacancy::placement_package`
-intent. It does not yet create an Order, Payment or entitlement, so these models are a
-foundation rather than a completed commercial workflow.
+The employer placement hand-off creates or reuses a pending Order linked to the owned Vacancy.
+It does not publish the Vacancy or grant an entitlement. `Vacancy::placement_package` remains
+the selected intent; the immutable Order/OrderItem rows are the commercial snapshot.
 
 SMV-110 establishes the provider-independent Order boundary. `CreateOrder` validates that the
 purchaser owns the Company and that any linked Vacancy belongs to that Company, then creates
@@ -229,11 +228,11 @@ record: an Order can have multiple failed/cancelled attempts, while only one suc
 attempt transitions the Order to `paid`. `idempotency_key` and `provider_reference` are
 unique attempt/provider boundaries; amount and currency always come from the Order snapshot.
 The historical `provider`/`provider_payment_id` and `raw_payload` fields remain readable for
-legacy records, but the old `mollie` schema default is not provider selection. SMV-112 is the
-confirmed Stripe integration. The current migration's historical
-`payments.payment_provider` default of `mollie` is legacy schema state, not a live provider
-configuration; Stripe implementation must introduce explicit provider configuration rather
-than activating that default.
+legacy records, but the old `mollie` schema default is not provider selection. Explicit
+`PAYMENT_GATEWAY` configuration selects Fake or Stripe. Stripe Checkout Session IDs are stored
+as provider references; PaymentIntent IDs are populated from verified provider events.
+`payment_webhook_events` is the provider/event idempotency ledger and optionally links each
+processed event to its Payment. Browser return pages do not mutate financial state.
 
 ## Commercial ranking and planned entitlements
 

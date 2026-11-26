@@ -118,9 +118,10 @@ pivots and click events use stable fixture keys or timestamps. Rerunning the see
 intended fixtures and does not multiply them. Acceptance data is deliberately separate from
 factories and should not be made a prerequisite for isolated feature tests.
 
-The Fake gateway remains the automated-test provider after the confirmed Stripe integration in
-SMV-112. Customer checkout, webhook verification and entitlement activation remain future
-work.
+The Fake gateway remains the automated-test provider after the Stripe integration. The seeded
+Orders are suitable for customer/staff history inspection, but they deliberately fabricate no
+Stripe transaction. Hosted Checkout and verified webhooks are covered by isolated tests with an
+in-memory Stripe client boundary. Entitlement activation remains SMV-116 work.
 
 This dataset is the shared manual/browser prerequisite for SMV-072 and the disposable
 production-like data prerequisite for the SMV-073 migration/dry-run rehearsal.

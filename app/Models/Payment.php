@@ -45,4 +45,11 @@ class Payment extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function redirectUrl(): ?string
+    {
+        $url = $this->metadata['redirect_url'] ?? $this->metadata['checkout_url'] ?? null;
+
+        return is_string($url) && filter_var($url, FILTER_VALIDATE_URL) ? $url : null;
+    }
 }

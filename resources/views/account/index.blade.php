@@ -51,6 +51,16 @@
                     </div>
                 </section>
 
+                <section aria-labelledby="orders-heading">
+                    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900" id="orders-heading">Mijn bestellingen</h2>
+                            <p class="mt-2 text-slate-600">{{ $ordersCount }} {{ $ordersCount === 1 ? 'bestelling' : 'bestellingen' }} met actuele betaalstatus.</p>
+                        </div>
+                        <a class="mt-4 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-800 sm:mt-0" href="{{ route('account.orders.index') }}">Bekijk mijn bestellingen →</a>
+                    </div>
+                </section>
+
                 @if ($companies->isNotEmpty())
                 <section aria-labelledby="companies-heading">
                     <div class="flex items-center justify-between gap-4">

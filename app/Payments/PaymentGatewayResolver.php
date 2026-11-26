@@ -2,6 +2,7 @@
 
 namespace App\Payments;
 
+use App\Payments\Stripe\StripePaymentGateway;
 use RuntimeException;
 
 final class PaymentGatewayResolver
@@ -20,6 +21,7 @@ final class PaymentGatewayResolver
 
         return match ($provider) {
             'fake' => app(FakePaymentGateway::class),
+            'stripe' => app(StripePaymentGateway::class),
             default => throw new RuntimeException('No payment gateway is configured for this environment.'),
         };
     }

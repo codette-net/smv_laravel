@@ -12,5 +12,6 @@ final readonly class PaymentGatewayResult
         public string $provider,
         public string $providerReference,
         public array $metadata = [],
+        public ?string $redirectUrl = null,
     ) {}
 }
