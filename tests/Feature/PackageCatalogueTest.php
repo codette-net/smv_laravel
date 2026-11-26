@@ -45,7 +45,7 @@ test('approved package catalogue stores structured prices durations benefits and
         ->and($superior->package_type)->toBe(PackageType::Placement)
         ->and($superior->commercial_priority)->toBe(20)
         ->and($superior->features)->toContain('Persoonlijke begeleiding en hulp bij de vacaturepresentatie')
-        ->and($superior->operational_notes)->toContain('SMV-116')
+        ->and($superior->operational_notes)->toContain('geldig actief betaald plaatsingsrecht')
         ->and($custom->price_cents)->toBe(95_000)
         ->and($custom->package_type)->toBe(PackageType::Custom)
         ->and($custom->is_quote_only)->toBeTrue()

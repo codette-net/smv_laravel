@@ -166,9 +166,9 @@ separate commercial ranking layer only after `Vacancy::publiclyVisible()` and th
 search/filter constraints have established the eligible set. Effective commercial score is
 the sum of a configurable package score (initially Standaard 0 and Superior +20), Company
 priority and Vacancy override; overrides may be negative. The package component applies only
-for a valid paid placement entitlement. `VacancyPackagePriorityProvider` is currently bound to
-`NoEntitledVacancyPackagePriority`, so package intent and paid Orders both yield zero until
-SMV-116 replaces that boundary. Company priority and Vacancy adjustment are independently
+for a valid active paid placement entitlement. `VacancyPackagePriorityProvider` is bound to
+`EntitledVacancyPackagePriority`, whose correlated SQL reads the snapshotted package score only
+inside the entitlement and public-eligibility window. Company priority and Vacancy adjustment are independently
 usable. The default general Vacancy result order is effective priority, publication date,
 creation date and ID. A valid explicit user sort bypasses commercial ordering and keeps the
 existing deadline/title/date contract. Neither ranking nor deprioritization mutates publication
@@ -189,7 +189,7 @@ snapshots all commercial values using integer minor units, and creates Order plu
 one transaction. Order status is provider-neutral (`draft`, `pending_payment`, `paid`, with
 legacy statuses retained for historical rows); Payment attempts remain a separate model and
 are not created by this boundary. A placement package is intent, not entitlement: publication
-still follows moderation and a later verified fulfilment/entitlement boundary. The configured
+still follows moderation and verified payment fulfilment. The configured
 21% supported-MVP VAT is read from Package configuration rather than browser input; explicit
 tax overrides remain possible only at the application boundary for supported situations.
 
@@ -205,16 +205,20 @@ back to the Payment, validates live/test mode, amount, currency and signed inter
 and records each provider event once in `payment_webhook_events`. Paid provider events call
 `ConfirmPayment` authoritatively; delayed failures or expiry cannot regress an already-paid
 Order. `ConfirmPayment` and webhook handling are idempotent. The deterministic Fake gateway
-remains the automated-test default and never performs network calls. Payment confirmation still
-does not grant Vacancy entitlement or publication.
+remains the automated-test default and never performs network calls. Payment confirmation calls
+the separate SMV-116 fulfilment action in the same transaction; it still never publishes a
+Vacancy.
 
-SMV-116 is the separate fulfilment boundary. An eligible successful Order/OrderItem grants
-package-preserving placement credits to its Company exactly once. Credit reservation,
-redemption and reversal against a Vacancy must be transactional and idempotent, retain the
-originating Order/OrderItem and package benefits, and activate the purchased placement
-duration only when normal Vacancy review permits it. This boundary can later support an Order
-granting several credits or a subscription issuing grants, but it is not a general wallet or
-financial ledger. Payment state alone never bypasses moderation.
+SMV-116 stores one Company-owned `PlacementCredit` per purchased unit, uniquely keyed by
+OrderItem and grant sequence. OrderItems snapshot placement quantity, duration, package priority
+and relevant benefits in addition to money. Grants, Company-scoped allocation and activation use
+row locks, unique constraints and deduplicated `PlacementCreditEvent` history. A safely linked
+manual Vacancy may receive one credit at payment, but remains pending; an unused compatible
+credit can instead be selected for an owned draft without creating another Order. Duration
+starts at first public eligibility, is never restarted by ordinary edits/reactivation, and
+clamps rather than extends Vacancy expiry. The manual reconciliation command reuses the same
+grant action for recovery. This supports several separately consumed grants from one OrderItem
+without becoming a general wallet or financial ledger.
 
 SMV-117 reuses the gateway boundary for authorized commercial reversals. An unpaid Order may
 be cancelled locally under the Order state rules; a paid Order requires a provider-authoritative

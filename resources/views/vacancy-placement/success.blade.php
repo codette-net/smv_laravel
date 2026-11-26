@@ -13,7 +13,11 @@
             <h1 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Uw vacature is veilig ingediend</h1>
             <p class="mt-4 leading-7 text-slate-600">De vacature <strong>{{ $vacancy->title }}</strong> staat nu in afwachting. SMV kan deze in het bestaande beheer controleren en neemt contact op over de verdere plaatsing.</p>
             <div class="mt-6 rounded-lg bg-slate-100 p-4 text-left text-sm leading-6 text-slate-600">
-                Er is nog niets betaald en de vacature is niet gepubliceerd of uitgelicht. Bestelling en betaling volgen later via de toekomstige commerciële afhandeling.
+                @if ($vacancy->placementCredits()->exists())
+                    Het betaalde plaatsingsrecht is toegewezen. De looptijd start pas wanneer SMV de vacature beoordeelt en publiceert; er is niets automatisch gepubliceerd of uitgelicht.
+                @else
+                    De vacature is niet gepubliceerd of uitgelicht. Rond de bestelling en betaling af om het plaatsingsrecht beschikbaar te maken.
+                @endif
             </div>
             <div class="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                 <a class="btn justify-center bg-blue-600 text-white hover:bg-blue-700" href="{{ route('home') }}">Naar de homepage</a>

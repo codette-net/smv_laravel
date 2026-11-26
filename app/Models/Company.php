@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Placements\ActivatePlacementCredit;
 use App\Enums\CategoryType;
 use App\Enums\CompanyStatus;
 use App\Support\Companies\CompanyDescription;
@@ -30,6 +31,14 @@ class Company extends Model implements HasMedia
         static::saving(function (Company $company): void {
             if ($company->isDirty('description') && $company->description !== null) {
                 $company->description = app(CompanyDescription::class)->sanitize($company->description);
+            }
+        });
+
+        static::saved(function (Company $company): void {
+            if ($company->wasChanged('status') && $company->status === CompanyStatus::Active) {
+                $company->vacancies()
+                    ->whereHas('placementCredits', fn (Builder $query) => $query->whereNull('activated_at')->whereNull('reversed_at'))
+                    ->each(fn (Vacancy $vacancy) => app(ActivatePlacementCredit::class)->execute($vacancy));
             }
         });
     }
@@ -224,6 +233,11 @@ class Company extends Model implements HasMedia
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function placementCredits(): HasMany
+    {
+        return $this->hasMany(PlacementCredit::class);
     }
 
     public function categories(): MorphToMany

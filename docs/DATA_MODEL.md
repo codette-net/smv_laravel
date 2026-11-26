@@ -215,7 +215,8 @@ the selected intent; the immutable Order/OrderItem rows are the commercial snaps
 SMV-110 establishes the provider-independent Order boundary. `CreateOrder` validates that the
 purchaser owns the Company and that any linked Vacancy belongs to that Company, then creates
 an Order and one or more OrderItems atomically. OrderItems retain the purchased product code,
-label, quantity, unit price, subtotal, currency, VAT rate/amount and total snapshots; the
+label, quantity, unit price, subtotal, currency, VAT rate/amount and total snapshots, plus the
+purchased package type, placement quantity, duration, package priority and relevant benefits; the
 Order retains aggregate money snapshots and a stable `SMV-*` reference. The current approved
 catalog is the persisted `Package` model, resolved through stable `AdvertisingPackage` slug
 values with safe bootstrap configuration for fresh/test installs. `placement_package` remains intent only and is
@@ -234,7 +235,7 @@ as provider references; PaymentIntent IDs are populated from verified provider e
 `payment_webhook_events` is the provider/event idempotency ledger and optionally links each
 processed event to its Payment. Browser return pages do not mutate financial state.
 
-## Commercial ranking and planned entitlements
+## Commercial ranking and paid placement entitlements
 
 SMV-050B keeps commercial ordering separate from lifecycle, search eligibility and the existing
 `is_featured` presentation flag. `companies.commercial_priority` and
@@ -245,21 +246,34 @@ persisted redundantly:
 
 `effective_priority = entitled package priority + Company priority + Vacancy adjustment`
 
-The current `NoEntitledVacancyPackagePriority` always supplies zero for the first component.
-It deliberately ignores `placement_package`, Order and Payment state. SMV-116 must replace the
-`VacancyPackagePriorityProvider` binding with an authoritative entitlement-backed query/model
-implementation. Company/Vacancy values may be negative. Correlated Company selection and
+`EntitledVacancyPackagePriority` supplies the first component only from a non-reversed
+`placement_credits` row whose allocation is activated and whose validity window contains the
+current time. It also verifies Vacancy and Company public eligibility in the correlated SQL
+expression. `placement_package`, Order state and Payment state are not ranking evidence by
+themselves. Company/Vacancy values may be negative. Correlated Company selection and
 deterministic date/ID tie-breakers keep pagination server-side; `published_at` is never a score
 workaround. There is no temporary-expiry field or redundant effective-score column.
 
-SMV-116 will introduce Company-owned placement-credit records rather than infer entitlement
-from `vacancies.placement_package`, Order status or Payment status. Each grant retains its
-originating eligible Order/OrderItem, Company, purchased package/type and placement duration,
-and is created exactly once. Reservation, redemption and reversal retain timestamps/state and
-the related Vacancy where applicable. Database constraints plus transactions must make grant
-and consumption idempotent and atomic. A redeemed credit can activate duration only after the
-normal Vacancy review boundary. The model should permit a later product to grant several
-credits or a subscription to issue grants, without implementing a generic wallet or ledger.
+`placement_credits` contains one immutable purchased unit per grant sequence, owned by a
+Company and linked to its originating Order and OrderItem. It snapshots package/type, duration,
+commercial priority and benefits and stores allocation, activation, expiry and future reversal
+timestamps. The unique `(order_item_id, grant_sequence)` key prevents double grant, while a
+unique nullable `vacancy_id` plus row locks prevents double consumption. One OrderItem quantity
+may therefore grant several independently redeemable credits without a mutable Company balance.
+
+`placement_credit_events` retains the append-only grant, allocation and activation history with
+stable deduplication keys and optional actor/Vacancy context. Payment confirmation grants and,
+when one linked manual Vacancy is unambiguous and eligible, allocates one credit; neither action
+changes review/publication state. Employer redemption is Company-scoped and accepts only a
+compatible manual draft. Activation occurs when both the allocated Vacancy and Company become
+publicly eligible. The activation timestamp is the effective `published_at`, expiry is that
+instant plus the snapshotted duration, and an existing earlier Vacancy expiry is never extended.
+Later edits, archiving or reactivation do not restart the term. Manual/imported publications do
+not require credits; they simply receive no package ranking component.
+
+`placements:reconcile-paid-orders` is the retryable operational repair path. It processes only
+paid Orders and uses the same idempotent grant action as `ConfirmPayment`. Historical OrderItems
+without the new entitlement snapshots are deliberately not inferred from mutable Package rows.
 
 SMV-117 adds auditable cancellation/refund operations rather than rewriting historical
 Payment attempts. Each operation records Order, authorized operator, reason, requested/actual

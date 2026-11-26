@@ -10,7 +10,7 @@
             @if ($order->status === \App\Enums\OrderStatus::Paid)
                 <p class="text-sm font-semibold uppercase tracking-widest text-emerald-700">Betaling bevestigd</p>
                 <h1 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Uw bestelling is betaald</h1>
-                <p class="mt-4 leading-7 text-slate-600">Stripe heeft de betaling bevestigd via de beveiligde webhook. De vacature blijft in beoordeling; betaling publiceert haar niet automatisch.</p>
+                <p class="mt-4 leading-7 text-slate-600">Stripe heeft de betaling bevestigd via de beveiligde webhook en het plaatsingsrecht is aan uw bedrijf toegekend. Een gekoppelde vacature blijft in beoordeling; betaling publiceert haar niet automatisch.</p>
             @else
                 <p class="text-sm font-semibold uppercase tracking-widest text-blue-700">Betaling wordt verwerkt</p>
                 <h1 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">We wachten op de betaalbevestiging</h1>

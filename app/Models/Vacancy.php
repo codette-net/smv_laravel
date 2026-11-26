@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\Placements\ActivatePlacementCredit;
 use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\CompensationPeriod;
@@ -57,6 +58,12 @@ class Vacancy extends Model
                 && $vacancy->published_at === null
                 && ! $wasPublished) {
                 $vacancy->published_at = now();
+            }
+        });
+
+        static::saved(function (Vacancy $vacancy): void {
+            if ($vacancy->status === VacancyStatus::Active) {
+                app(ActivatePlacementCredit::class)->execute($vacancy);
             }
         });
     }
@@ -153,6 +160,11 @@ class Vacancy extends Model
     public function outboundApplyClicks(): HasMany
     {
         return $this->hasMany(OutboundApplyClick::class);
+    }
+
+    public function placementCredits(): HasMany
+    {
+        return $this->hasMany(PlacementCredit::class);
     }
 
     public function importSource(): BelongsTo

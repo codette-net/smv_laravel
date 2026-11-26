@@ -2,6 +2,7 @@
 
 namespace App\Actions\Payments;
 
+use App\Actions\Placements\GrantPaidOrderPlacementCredits;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Payment;
@@ -10,6 +11,8 @@ use InvalidArgumentException;
 
 class ConfirmPayment
 {
+    public function __construct(private readonly GrantPaidOrderPlacementCredits $grantCredits) {}
+
     public function execute(Payment $payment, bool $providerAuthoritative = false): Payment
     {
         return DB::transaction(function () use ($payment, $providerAuthoritative): Payment {
@@ -21,6 +24,8 @@ class ConfirmPayment
                     $order->update(['status' => OrderStatus::Paid]);
                 }
 
+                $this->grantCredits->execute($order);
+
                 return $lockedPayment->fresh();
             }
 
@@ -31,6 +36,8 @@ class ConfirmPayment
                         'paid_at' => $lockedPayment->paid_at ?? now(),
                         'completed_at' => $lockedPayment->completed_at ?? now(),
                     ]);
+
+                    $this->grantCredits->execute($order);
 
                     return $lockedPayment->fresh();
                 }
@@ -58,6 +65,7 @@ class ConfirmPayment
                 'completed_at' => $lockedPayment->completed_at ?? now(),
             ]);
             $order->update(['status' => OrderStatus::Paid]);
+            $this->grantCredits->execute($order);
 
             return $lockedPayment->fresh();
         });

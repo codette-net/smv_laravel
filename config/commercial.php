@@ -69,7 +69,7 @@ return [
             'valid_until' => '2026-12-31',
             'vat_rate_basis_points' => $defaultVatRate,
             'cta_label' => 'Kies Superior',
-            'operational_notes' => 'Handmatige fulfilment: extra zichtbaarheid, aanvullende promotie/advertising en persoonlijke begeleiding. De pakketprioriteit blijft nul totdat SMV-116 een geldig betaald plaatsingsrecht levert; er is geen campagnekoppeling.',
+            'operational_notes' => 'Handmatige fulfilment: extra zichtbaarheid, aanvullende promotie/advertising en persoonlijke begeleiding. De pakketprioriteit geldt alleen binnen een geldig actief betaald plaatsingsrecht; er is geen campagnekoppeling.',
         ],
         'custom' => [
             'name' => 'Maatwerk',

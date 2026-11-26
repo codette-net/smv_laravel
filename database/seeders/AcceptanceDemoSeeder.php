@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Placements\GrantPaidOrderPlacementCredits;
 use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
 use App\Enums\ApplicationStatus;
@@ -33,6 +34,7 @@ use App\Models\ImportMappingField;
 use App\Models\ImportSource;
 use App\Models\ImportSourceEmployer;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\OutboundApplyClick;
 use App\Models\Package;
 use App\Models\Payment;
@@ -636,6 +638,48 @@ final class AcceptanceDemoSeeder extends Seeder
             'last_seen_at' => now()->subDay(),
         ], $categories['imported']);
 
+        $vacancies['placement_pending'] = $this->upsertVacancy('placement-pending', [
+            'company_id' => $companies['complete']->id,
+            'title' => 'Betaalde plaatsing wacht op beoordeling',
+            'slug' => self::FIXTURE_PREFIX.'vacancy-placement-pending',
+            'location' => 'Utrecht',
+            'application_mode' => ApplicationMode::Internal,
+            'status' => VacancyStatus::Pending,
+            'placement_package' => AdvertisingPackage::Superior,
+            'description' => 'Een betaalde fictieve Superior-plaatsing die bewust nog niet is gepubliceerd.',
+            'source' => VacancySource::Manual,
+        ], $categories['internal'], ['acceptance', 'placement']);
+
+        $vacancies['placement_superior_active'] = $this->upsertVacancy('placement-superior-active', [
+            'company_id' => $companies['complete']->id,
+            'title' => 'Actieve betaalde Superior-plaatsing',
+            'slug' => self::FIXTURE_PREFIX.'vacancy-placement-superior-active',
+            'location' => 'Utrecht',
+            'application_mode' => ApplicationMode::Internal,
+            'status' => VacancyStatus::Active,
+            'published_at' => now()->subDays(3),
+            'deadline_at' => now()->addDays(30),
+            'expires_at' => now()->addDays(90),
+            'placement_package' => AdvertisingPackage::Superior,
+            'description' => 'Een actieve fictieve Superior-plaatsing met betaald pakketvoordeel.',
+            'source' => VacancySource::Manual,
+        ], $categories['internal'], ['acceptance', 'placement']);
+
+        $vacancies['placement_expired'] = $this->upsertVacancy('placement-expired', [
+            'company_id' => $companies['complete']->id,
+            'title' => 'Verlopen betaald plaatsingsrecht',
+            'slug' => self::FIXTURE_PREFIX.'vacancy-placement-expired',
+            'location' => 'Utrecht',
+            'application_mode' => ApplicationMode::Internal,
+            'status' => VacancyStatus::Active,
+            'published_at' => now()->subDays(90),
+            'deadline_at' => null,
+            'expires_at' => null,
+            'placement_package' => AdvertisingPackage::Standard,
+            'description' => 'Een fictieve betaalde plaatsing waarvan de plaatsingsduur is verstreken.',
+            'source' => VacancySource::Manual,
+        ], $categories['internal'], ['acceptance', 'placement']);
+
         return $vacancies;
     }
 
@@ -842,6 +886,11 @@ final class AcceptanceDemoSeeder extends Seeder
             ['reference' => 'SMV-ACCEPTANCE-DRAFT', 'status' => OrderStatus::Draft, 'package' => $standard, 'vacancy' => $vacancies['draft']],
             ['reference' => 'SMV-ACCEPTANCE-PENDING', 'status' => OrderStatus::PendingPayment, 'package' => $superior, 'vacancy' => $vacancies['internal']],
             ['reference' => 'SMV-ACCEPTANCE-PAID', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => $vacancies['external']],
+            ['reference' => 'SMV-ACCEPTANCE-CREDIT-STANDARD', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => null],
+            ['reference' => 'SMV-ACCEPTANCE-CREDIT-SUPERIOR', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => null],
+            ['reference' => 'SMV-ACCEPTANCE-PLACEMENT-PENDING', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => $vacancies['placement_pending']],
+            ['reference' => 'SMV-ACCEPTANCE-PLACEMENT-SUPERIOR', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => $vacancies['placement_superior_active']],
+            ['reference' => 'SMV-ACCEPTANCE-PLACEMENT-EXPIRED', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => $vacancies['placement_expired']],
         ];
 
         foreach ($definitions as $definition) {
@@ -849,15 +898,18 @@ final class AcceptanceDemoSeeder extends Seeder
             $vatRate = $definition['package']->vat_rate_basis_points;
             $vat = intdiv(($price * $vatRate) + 5000, 10_000);
             $order = Order::withTrashed()->firstOrNew(['order_number' => $definition['reference']]);
+            $hasGrantedCredits = $order->exists && $order->placementCredits()->exists();
             $order->fill([
                 'user_id' => $employer->id,
                 'company_id' => $company->id,
                 'status' => $definition['status'],
-                'subtotal_cents' => $price,
-                'vat_cents' => $vat,
-                'total_cents' => $price + $vat,
-                'currency' => $definition['package']->currency,
-                'vat_rate_basis_points' => $vatRate,
+                ...($hasGrantedCredits ? [] : [
+                    'subtotal_cents' => $price,
+                    'vat_cents' => $vat,
+                    'total_cents' => $price + $vat,
+                    'currency' => $definition['package']->currency,
+                    'vat_rate_basis_points' => $vatRate,
+                ]),
             ]);
             $order->save();
 
@@ -865,12 +917,24 @@ final class AcceptanceDemoSeeder extends Seeder
                 $order->restore();
             }
 
-            $order->orderItems()->delete();
-            $order->orderItems()->create([
-                'package_id' => $definition['package']->id,
-                'vacancy_id' => $definition['vacancy']->id,
+            $orderItem = OrderItem::withTrashed()->firstOrNew([
+                'order_id' => $order->id,
                 'product_code' => $definition['package']->slug,
+                'vacancy_id' => $definition['vacancy']?->id,
+            ]);
+            $orderItem->fill($hasGrantedCredits ? [] : [
+                'package_id' => $definition['package']->id,
                 'title_snapshot' => $definition['package']->name,
+                'package_type_snapshot' => $definition['package']->package_type->value,
+                'placement_quantity_snapshot' => $definition['package']->placement_quantity,
+                'vacancy_duration_days_snapshot' => $definition['package']->vacancy_duration_days,
+                'commercial_priority_snapshot' => $definition['package']->commercial_priority,
+                'entitlement_snapshot' => [
+                    'features' => $definition['package']->features ?? [],
+                    'includes_featured' => $definition['package']->includes_featured,
+                    'includes_social_campaign' => $definition['package']->includes_social_campaign,
+                    'includes_newsletter' => $definition['package']->includes_newsletter,
+                ],
                 'price_cents' => $price,
                 'currency' => $definition['package']->currency,
                 'vat_rate_basis_points' => $vatRate,
@@ -879,6 +943,11 @@ final class AcceptanceDemoSeeder extends Seeder
                 'vat_cents' => $vat,
                 'total_cents' => $price + $vat,
             ]);
+            $orderItem->save();
+
+            if ($orderItem->trashed()) {
+                $orderItem->restore();
+            }
         }
 
         $pending = Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->firstOrFail();
@@ -889,6 +958,17 @@ final class AcceptanceDemoSeeder extends Seeder
             ['key' => 'acceptance-payment-cancelled', 'order' => $pending, 'status' => PaymentStatus::Cancelled, 'reference' => 'fake-acceptance-cancelled'],
             ['key' => 'acceptance-payment-paid', 'order' => $paid, 'status' => PaymentStatus::Paid, 'reference' => 'fake-acceptance-paid'],
         ];
+
+        foreach (collect($definitions)->where('status', OrderStatus::Paid)->where('reference', '!=', 'SMV-ACCEPTANCE-PAID') as $definition) {
+            $order = Order::query()->where('order_number', $definition['reference'])->firstOrFail();
+            $key = Str::lower(str_replace('SMV-', '', $definition['reference']));
+            $attempts[] = [
+                'key' => "acceptance-payment-{$key}",
+                'order' => $order,
+                'status' => PaymentStatus::Paid,
+                'reference' => "fake-{$key}",
+            ];
+        }
 
         foreach ($attempts as $attempt) {
             $payment = Payment::withTrashed()->firstOrNew(['idempotency_key' => $attempt['key']]);
@@ -910,6 +990,11 @@ final class AcceptanceDemoSeeder extends Seeder
                 $payment->restore();
             }
         }
+
+        Order::query()
+            ->where('order_number', 'like', 'SMV-ACCEPTANCE-%')
+            ->where('status', OrderStatus::Paid->value)
+            ->each(fn (Order $order) => app(GrantPaidOrderPlacementCredits::class)->execute($order));
     }
 
     private function seedRoles(): void

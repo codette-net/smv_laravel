@@ -40,12 +40,24 @@
                         <div><dt class="text-slate-500">Status</dt><dd class="font-medium text-slate-900">Concept</dd></div>
                         <div><dt class="text-slate-500">Solliciteren</dt><dd class="font-medium text-slate-900">{{ $vacancy->application_mode->getLabel() }}</dd></div>
                     </dl>
-                    <p class="mt-4 text-xs leading-5 text-slate-500">Indienen activeert geen betaling, publicatie of Superior-uitlichting.</p>
+                    <p class="mt-4 text-xs leading-5 text-slate-500">Indienen publiceert de vacature niet. Een gekozen plaatsingsrecht wordt alleen toegewezen en wacht daarna op beoordeling.</p>
                 </div>
 
                 <a class="btn w-full justify-center border border-slate-300 bg-white text-slate-800 hover:bg-slate-50" href="{{ route('vacancy-placement.edit', $vacancy) }}">Gegevens bewerken</a>
                 <form action="{{ route('vacancy-placement.submit', $vacancy) }}" method="POST">
                     @csrf
+                    @if ($availableCredits->isNotEmpty())
+                        <label class="mb-4 block text-sm font-medium text-slate-700">
+                            Beschikbaar plaatsingsrecht
+                            <select class="form-select mt-2 w-full" name="placement_credit_id">
+                                <option value="">Nieuw bestellen</option>
+                                @foreach ($availableCredits as $credit)
+                                    <option value="{{ $credit->id }}">{{ $credit->package_name_snapshot }} · {{ $credit->duration_days_snapshot }} dagen</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        @error('placement_credit_id')<p class="mb-4 text-sm text-red-700">{{ $message }}</p>@enderror
+                    @endif
                     <x-ui.button class="w-full justify-center" type="submit" variant="brand">Indienen voor controle →</x-ui.button>
                 </form>
             </aside>

@@ -15,14 +15,12 @@ Company detail pages, Blog archives and the
 static Dutch pages `/adverteren`, `/over-ons`, `/tarieven` and `/contact`. The Contact
 page includes a validated, spam-protected, e-mail-only general enquiry form.
 
-The main remaining MVP/release work is now release validation plus the approved commercial
-path on top of the completed provider-neutral foundation. It is:
+The main remaining MVP/release work is now release validation plus the final commercial
+reversal boundary on top of the completed payment and entitlement foundation. It is:
 
-- use the completed SMV-050B commercial ranking layer while keeping package priority disabled
-  until paid entitlement exists;
-- use the completed Stripe Checkout/webhook integration against immutable Order snapshots and
-  the provider-neutral Payment boundary, then complete paid placement entitlement through
-  SMV-116;
+- use the completed SMV-050B ranking layer with the completed SMV-116 paid entitlement source;
+- operate the completed Stripe Checkout/webhook integration against immutable Order snapshots
+  and idempotent Company placement-credit fulfilment;
 - add the minimal SMV-117 cancellation/refund workflow and complete SMV-097A public
   Vacancy-detail view reporting;
 - complete final stakeholder approval of public copy and template imagery;
@@ -34,12 +32,13 @@ database record and require no account. Direct employer Vacancy advertising is a
 separate staged flow (SMV-078), rather than an expansion of the Contact form. Guests may
 select Standaard or Superior, authenticate through the normal `web` guard, create a
 Vacancy draft for an owned Company, preview it and hand it off in `pending` state. The
-selected package remains intent only: payment, entitlement and publication are not implied.
+selected package remains intent only until an eligible verified payment grants a Company credit;
+publication is never implied.
 SMV-110 provides immutable Order product/price/tax snapshots and SMV-111 makes payment
 outcomes testable through a provider-neutral fake gateway, which remains intact after Stripe
 integration. SMV-112 adds hosted Stripe Checkout, verified webhooks and private customer Order
 history. Order creation validates purchaser, Company and
-optional Vacancy ownership and remains separate from Payment, entitlement and publication.
+optional Vacancy ownership and remains separate from Payment and publication.
 The acceptance dataset includes the approved Package catalogue plus deterministic draft,
 pending-payment and paid examples with clearly synthetic Fake-gateway attempts.
 The authenticated `/account` foundation lets an employer complete presentation/contact
@@ -207,20 +206,20 @@ and signed, idempotent webhook reconciliation without replacing the Fake used by
 tests. The browser return URL never confirms payment; only a verified provider event can do so.
 Historical Orders never recalculate their purchased price from mutable current Package rows.
 
-`vacancies.placement_package` remains intent only. Selecting a Package, creating an Order or
-confirming a Payment does not itself publish a Vacancy or grant placement entitlement.
-SMV-116 introduces Company-owned placement credits: an eligible successful Order grants each
-credit exactly once, each credit retains its purchased package benefits, and reservation,
-redemption and reversal against a Vacancy are atomic and idempotent. Redemption activates the
-correct placement duration but never bypasses Vacancy review. Future five-for-four products
+`vacancies.placement_package` remains intent only. Selecting a Package or creating an Order
+does not publish a Vacancy or grant placement entitlement. An eligible authoritative paid
+transition grants Company-owned placement credits exactly once from immutable OrderItem
+snapshots. Each credit retains its purchased package benefits; Company-scoped allocation and
+redemption are atomic and idempotent. Allocation never bypasses review, and duration starts only
+when the Vacancy and Company become publicly eligible. Future five-for-four products
 may grant multiple separately consumed credits and later subscriptions may issue recurring
-grants, without turning SMV-116 into a generalized wallet or implementing those products now.
+grants, without turning the model into a generalized wallet or implementing those products now.
 
 SMV-050B now derives an effective commercial score only after public visibility and
 search/filter eligibility. Its bounded integer components are configured package priority
 (Standaard 0 and Superior +20 by default), Company priority and a Vacancy adjustment that may
-be negative. The package component currently returns zero through the fail-closed entitlement
-provider, even for package intent or a paid Order; SMV-116 will replace that provider.
+be negative. The package component comes only from a valid active paid placement credit; package
+intent, an Order or Payment state alone still returns zero.
 The default general homepage/listing result order uses effective priority followed by stable
 date/ID tie-breakers. Any valid user-selected sort retains its existing order. Current free-text
 search has boolean matching rather than weighted relevance, so priority only reorders eligible

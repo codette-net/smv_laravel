@@ -108,6 +108,14 @@ test/live mode, internal Payment/Order references, amount and currency. Provider
 stored uniquely, so duplicate delivery is harmless. Out-of-order failure or expiry cannot
 regress a paid Payment or Order; an authoritative delayed success can recover a failed attempt.
 
+`ConfirmPayment` is also the authoritative fulfilment boundary for eligible placement products.
+It reconciles Company-owned credits from the immutable OrderItem package type, placement
+quantity, duration, package-priority and benefit snapshots in the same database transaction as
+the paid transition. Repeated callbacks and confirmations reuse the unique OrderItem/grant
+sequence rows. `php artisan placements:reconcile-paid-orders` performs the same idempotent
+operation for operational recovery without replaying a Stripe webhook; legacy OrderItems that
+lack the required entitlement snapshots fail closed and require review.
+
 ## Customer and staff surfaces
 
 Authenticated purchasers can inspect only their own Orders at `/account/bestellingen`, open an
@@ -120,6 +128,8 @@ manual paid-state button.
 
 ## Deliberate boundary
 
-A paid Order does not publish or feature a Vacancy and does not grant placement entitlement.
-SMV-116 owns idempotent Company placement-credit creation and consumption. Refunds and customer
-Order cancellation belong to SMV-117.
+An eligible paid Order grants placement credits but never publishes, features or approves a
+Vacancy. A safely linked Vacancy receives one credit and remains in its existing draft/pending
+review state; otherwise the credit remains available to its Company. The paid placement term
+starts only when the Vacancy and Company first become publicly eligible. Refunds, cancellation
+and entitlement reversal belong to SMV-117 and are not inferred from local payment edits.

@@ -14,6 +14,8 @@ use App\Models\Order;
 use App\Models\OutboundApplyClick;
 use App\Models\Package;
 use App\Models\Payment;
+use App\Models\PlacementCredit;
+use App\Models\PlacementCreditEvent;
 use App\Models\User;
 use App\Models\Vacancy;
 use Database\Seeders\AcceptanceDemoSeeder;
@@ -46,6 +48,38 @@ test('acceptance seeder creates the documented role, company, vacancy, source an
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PAID')->where('status', 'paid')->exists())->toBeTrue()
         ->and(Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count())->toBe(3)
         ->and(Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count())->toBe(3);
+
+    $availableStandard = PlacementCredit::query()
+        ->where('product_code', AdvertisingPackage::Standard->value)
+        ->whereNull('vacancy_id')
+        ->whereHas('order', fn ($query) => $query->where('order_number', 'SMV-ACCEPTANCE-CREDIT-STANDARD'))
+        ->sole();
+    $availableSuperior = PlacementCredit::query()
+        ->where('product_code', AdvertisingPackage::Superior->value)
+        ->whereNull('vacancy_id')
+        ->whereHas('order', fn ($query) => $query->where('order_number', 'SMV-ACCEPTANCE-CREDIT-SUPERIOR'))
+        ->sole();
+    $pendingPlacement = PlacementCredit::query()
+        ->whereHas('vacancy', fn ($query) => $query->where('reference', 'acceptance-placement-pending'))
+        ->sole();
+    $standardPlacement = PlacementCredit::query()
+        ->whereHas('vacancy', fn ($query) => $query->where('reference', 'acceptance-manual-external'))
+        ->sole();
+    $superiorPlacement = PlacementCredit::query()
+        ->whereHas('vacancy', fn ($query) => $query->where('reference', 'acceptance-placement-superior-active'))
+        ->sole();
+    $expiredPlacement = PlacementCredit::query()
+        ->whereHas('vacancy', fn ($query) => $query->where('reference', 'acceptance-placement-expired'))
+        ->sole();
+
+    expect($availableStandard->activated_at)->toBeNull()
+        ->and($availableSuperior->activated_at)->toBeNull()
+        ->and($pendingPlacement->allocated_at)->not->toBeNull()
+        ->and($pendingPlacement->activated_at)->toBeNull()
+        ->and($standardPlacement->activated_at)->not->toBeNull()
+        ->and($superiorPlacement->activated_at)->not->toBeNull()
+        ->and($expiredPlacement->expires_at?->isPast())->toBeTrue()
+        ->and(PlacementCreditEvent::query()->where('event_type', 'granted')->count())->toBe(PlacementCredit::count());
 
     $internal = Vacancy::query()->where('reference', 'acceptance-manual-internal')->firstOrFail();
     $external = Vacancy::query()->where('reference', 'acceptance-manual-external')->firstOrFail();
@@ -117,6 +151,8 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING', 'SMV-ACCEPTANCE-PAID'])->count(),
         'payments' => Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count(),
         'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
+        'placement_credits' => PlacementCredit::query()->count(),
+        'placement_credit_events' => PlacementCreditEvent::query()->count(),
     ];
 
     seedAcceptanceDataset();
@@ -132,6 +168,8 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING', 'SMV-ACCEPTANCE-PAID'])->count(),
         'payments' => Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count(),
         'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
+        'placement_credits' => PlacementCredit::query()->count(),
+        'placement_credit_events' => PlacementCreditEvent::query()->count(),
     ])->toBe($counts);
 });
 

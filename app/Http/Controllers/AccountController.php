@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Placements\AllocatePlacementCredit;
 use App\Enums\CategoryType;
+use App\Enums\VacancySource;
+use App\Enums\VacancyStatus;
 use App\Http\Requests\UpdateEmployerCompanyRequest;
 use App\Models\Company;
 use App\Models\Order;
+use App\Models\PlacementCredit;
 use App\Models\Vacancy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -38,7 +42,55 @@ class AccountController extends Controller
             'savedCompaniesCount' => $request->user()->savedCompanies()->count(),
             'applicationsCount' => $request->user()->applications()->count(),
             'ordersCount' => $request->user()->orders()->count(),
+            'availablePlacementCreditsCount' => PlacementCredit::query()
+                ->available()
+                ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+                ->count(),
         ]);
+    }
+
+    public function placements(Request $request): View
+    {
+        $credits = PlacementCredit::query()
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->with(['company', 'vacancy', 'order'])
+            ->orderByDesc('granted_at')
+            ->orderByDesc('id')
+            ->get();
+        $vacancies = Vacancy::query()
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->where('source', VacancySource::Manual->value)
+            ->whereNull('import_source_id')
+            ->where('status', VacancyStatus::Draft->value)
+            ->where('is_filled', false)
+            ->orderBy('title')
+            ->get()
+            ->groupBy('company_id');
+        $availableByPackage = $credits
+            ->whereNull('vacancy_id')
+            ->whereNull('reversed_at')
+            ->countBy('product_code');
+
+        return view('account.placements', compact('credits', 'vacancies', 'availableByPackage'));
+    }
+
+    public function redeemPlacementCredit(
+        Request $request,
+        PlacementCredit $placementCredit,
+        AllocatePlacementCredit $allocate,
+    ): RedirectResponse {
+        Gate::authorize('redeem', $placementCredit);
+        $validated = $request->validate(['vacancy_id' => ['required', 'integer', 'exists:vacancies,id']]);
+        $vacancy = Vacancy::query()->findOrFail($validated['vacancy_id']);
+
+        try {
+            $allocate->execute($request->user(), $placementCredit, $vacancy);
+        } catch (\InvalidArgumentException $exception) {
+            return back()->withErrors(['vacancy_id' => $exception->getMessage()]);
+        }
+
+        return to_route('account.placements')
+            ->with('account_status', 'Het plaatsingsrecht is aan de vacature toegewezen. Publicatie blijft afhankelijk van beoordeling.');
     }
 
     public function orders(Request $request): View

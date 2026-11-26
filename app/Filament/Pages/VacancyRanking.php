@@ -85,7 +85,7 @@ class VacancyRanking extends Page implements HasTable
                 TextColumn::make('package_priority')
                     ->label('Pakket')
                     ->numeric()
-                    ->tooltip('Blijft 0 totdat SMV-116 een geldig betaald plaatsingsrecht levert.'),
+                    ->tooltip('Alleen actief binnen een geldig betaald en gepubliceerd plaatsingsrecht.'),
                 TextColumn::make('company_priority')
                     ->label('Bedrijf')
                     ->numeric()

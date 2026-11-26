@@ -85,6 +85,22 @@ class OrderResource extends Resource
                             ->join('; '))
                         ->placeholder('-'),
                 ]),
+            Section::make('Plaatsingsrechten')
+                ->schema([
+                    TextEntry::make('placementCredits')
+                        ->label('Toegekende rechten')
+                        ->state(fn (Order $record): string => $record->placementCredits
+                            ->map(fn ($credit): string => sprintf(
+                                '%s #%d · %s · vacature %s · %s',
+                                $credit->package_name_snapshot,
+                                $credit->grant_sequence,
+                                $credit->status()->getLabel(),
+                                $credit->vacancy?->title ?? '-',
+                                $credit->expires_at?->toDateTimeString() ?? 'geen einddatum actief',
+                            ))
+                            ->join('; '))
+                        ->placeholder('-'),
+                ]),
         ]);
     }
 

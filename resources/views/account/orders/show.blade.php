@@ -20,7 +20,7 @@
         <x-order.summary class="mt-8" :order="$order" />
 
         <div class="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-            Betalen bevestigt alleen deze bestelling. Publicatie, plaatsingsrechten en commerciële pakketprioriteit worden pas in een afzonderlijke vervolgstap verwerkt.
+            Na een bevestigde betaling wordt het plaatsingsrecht veilig aan uw bedrijf toegekend. Een gekoppelde vacature blijft in beoordeling en wordt nooit door de betaling gepubliceerd.
         </div>
 
         <div class="mt-7 flex flex-col gap-3 sm:flex-row">

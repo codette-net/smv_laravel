@@ -106,7 +106,7 @@ class PackageResource extends Resource
                         ->integer()
                         ->minValue(CommercialPriority::MINIMUM)
                         ->maxValue(CommercialPriority::MAXIMUM)
-                        ->helperText('Wordt pas toegepast met een geldig betaald plaatsingsrecht uit SMV-116.')
+                        ->helperText('Wordt alleen toegepast met een geldig actief betaald plaatsingsrecht.')
                         ->required(),
                     Toggle::make('is_quote_only')->label('Alleen offerte/contact'),
                     Toggle::make('checkout_eligible')->label('Checkout toegestaan'),

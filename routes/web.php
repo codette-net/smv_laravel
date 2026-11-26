@@ -47,6 +47,8 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::get('/bewaarde-vacatures', [AccountController::class, 'savedVacancies'])->name('saved-vacancies');
     Route::get('/bewaarde-bedrijven', [AccountController::class, 'savedCompanies'])->name('saved-companies');
     Route::get('/bestellingen', [AccountController::class, 'orders'])->name('orders.index');
+    Route::get('/plaatsingsrechten', [AccountController::class, 'placements'])->name('placements');
+    Route::post('/plaatsingsrechten/{placementCredit}/gebruiken', [AccountController::class, 'redeemPlacementCredit'])->name('placements.redeem');
     Route::get('/bestellingen/{order}', [OrderCheckoutController::class, 'show'])->name('orders.show');
     Route::post('/bestellingen/{order}/betalen', [OrderCheckoutController::class, 'start'])->name('orders.pay');
     Route::get('/bestellingen/{order}/betaling/terug', [OrderCheckoutController::class, 'success'])->name('orders.success');
