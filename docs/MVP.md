@@ -21,7 +21,7 @@ reversal boundary on top of the completed payment and entitlement foundation. It
 - use the completed SMV-050B ranking layer with the completed SMV-116 paid entitlement source;
 - operate the completed Stripe Checkout/webhook integration against immutable Order snapshots
   and idempotent Company placement-credit fulfilment;
-- add the minimal SMV-117 cancellation/refund workflow and complete SMV-097A public
+- operate the implemented SMV-117 cancellation/refund workflow and complete SMV-097A public
   Vacancy-detail view reporting;
 - complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
@@ -223,10 +223,17 @@ intent, an Order or Payment state alone still returns zero.
 The default general homepage/listing result order uses effective priority followed by stable
 date/ID tie-breakers. Any valid user-selected sort retains its existing order. Current free-text
 search has boolean matching rather than weighted relevance, so priority only reorders eligible
-matches. Featured presentation and lifecycle dates remain separate. SMV-117 then provides
-authorized unpaid cancellation and complete paid
-refunds with provider-authoritative state and internal audit; partial refunds are deferred,
-and consumed credits or active Vacancies cannot be silently reversed.
+matches. Featured presentation and lifecycle dates remain separate.
+
+SMV-117 adds staff-only unpaid cancellation and complete paid refunds. Cancellation expires an
+open unpaid Stripe Checkout Session where possible and never suppresses a later authoritative
+payment. Refund requests use the successful PaymentIntent, immutable total including VAT and a
+durable idempotency key. Verified refund events reconcile the same audit record. Unused credits
+are revoked; allocated or active credits are frozen for explicit review and stop contributing
+package ranking without changing Vacancy publication or manual Company/Vacancy priority.
+Customer Order history shows useful financial status without exposing the internal reason.
+Partial refunds, customer self-service, chargebacks, credit notes and accounting automation
+remain deferred.
 
 SMV-118 is outside the commercial implementation sequence and reserved for the consolidated
 UI/UX round. It may add an optional scheduled full-width banner presentation to an existing

@@ -78,7 +78,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-111 Payment gateway abstraction and fake gateway | **P0 — DONE** | Provider-neutral Payment attempts, deterministic Fake pending/success/failure/cancellation outcomes, amount integrity and idempotent confirmation are implemented without network access. |
 | SMV-112 Stripe checkout/payment integration | **P1 — DONE** | Hosted Stripe Checkout, signed/idempotent webhook reconciliation, owner-scoped customer Order history and staff payment references use immutable Order snapshots through the SMV-111 gateway boundary. The Fake remains the automated-test provider; authoritative confirmation now enters SMV-116 fulfilment without publishing. |
 | SMV-116 Company placement credits and entitlements | **P0 — DONE** | Eligible paid OrderItems grant individually tracked Company credits exactly once from immutable quantity/duration/priority/benefit snapshots. Company-scoped allocation, publication-time activation, expiry, SQL ranking, audit history, recovery command, employer overview, staff inspection and deterministic acceptance fixtures are implemented without bypassing review. |
-| SMV-117 Order cancellation, refunds and internal audit | **P1 — PROPOSED (minimal MVP)** | Distinguish authorized unpaid cancellation from provider-authoritative paid refund, initially complete refunds only. Audit operator, reason, amount, timestamps, Order and outcome, and fail safely when credits are consumed or Vacancies active. |
+| SMV-117 Order cancellation, refunds and internal audit | **DONE** | Authorized unpaid cancellation and provider-authoritative complete refunds now use durable audited operations, idempotent reconciliation and fail-closed placement-credit review safeguards. |
 | SMV-118 Promotional Vacancy banner and UI/UX polish | **P2 — RESERVED FOR UI/UX ROUND** | Add an optional scheduled, admin-managed full-width Vacancy banner variant with optional image/short text, using the normal detail URL, visibility and apply tracking. Keep it independent from ranking, featured state and automatic Superior fulfilment. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
@@ -282,14 +282,17 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
 
 #### SMV-117 — Order cancellation, refunds and internal audit
 
-- **Status:** P1 — PROPOSED (minimal MVP); SMV-116 now makes entitlement consequences explicit.
+- **Status:** DONE.
 - **Goal:** let authorized editors/sales staff and administrators perform permitted commercial
   reversals without treating cancellation and refund as the same operation.
-- **Scope:** cancel unpaid Orders; issue complete refunds for paid Orders through the existing
-  gateway boundary and Stripe implementation; retain provider payment state as authoritative;
-  audit operator, reason, amount, timestamps, Order and provider outcome.
-- **Safety:** consumed credits and active Vacancies cannot be silently restored, revoked or
-  reversed. Conflicting cases fail closed for explicit staff resolution. Partial refunds are
+- **Scope:** authorized staff cancel unpaid Orders after any open Checkout Session is safely
+  expired, and request complete refunds for the immutable paid amount through the Fake/Stripe
+  gateway boundary. `order_operations` audits operator, mandatory reason, amount, timestamps,
+  idempotency key, provider reference/outcome and safe reconciliation failures.
+- **Safety:** confirmed refunds revoke unused credits once. Allocated or active credits stay
+  attached, become unavailable and lose package ranking while an explicit review remains open;
+  publication and manual Company/Vacancy priority are not changed. Late valid payment still
+  wins over a cancellation and flags the audit operation for review. Partial refunds remain
   deferred.
 - **Acceptance:** authorization, state transitions, provider success/failure/idempotency and
   audit evidence are tested; no refund is represented as a local-only successful provider

@@ -220,12 +220,23 @@ clamps rather than extends Vacancy expiry. The manual reconciliation command reu
 grant action for recovery. This supports several separately consumed grants from one OrderItem
 without becoming a general wallet or financial ledger.
 
-SMV-117 reuses the gateway boundary for authorized commercial reversals. An unpaid Order may
-be cancelled locally under the Order state rules; a paid Order requires a provider-authoritative
-refund, initially for the complete amount. The audit record must retain operator, reason,
-amount, timestamps, Order and provider outcome. A consumed credit or active Vacancy creates an
-explicit fail-closed resolution case—neither entitlement nor publication may be silently
-restored, revoked or reversed. Partial refunds are deferred.
+SMV-117 reuses the gateway boundary for authorized commercial reversals. `CancelUnpaidOrder`
+locks the local state, records a mandatory reason and asks the historical provider to expire an
+open unpaid Checkout Session outside the database transaction. Paid, processing or ambiguous
+sessions remain unchanged and require review. A delayed verified payment may recover an expired
+attempt and moves the cancellation audit to review rather than discarding real money.
+
+`RequestFullRefund` creates or reuses one durable `order_operations` row before contacting the
+provider. It sends the immutable full Payment amount and actual successful PaymentIntent with
+the stored idempotency key. `ReconcileRefund` applies API and signed webhook outcomes under row
+locks; duplicate and out-of-order events use the existing provider-event ledger and cannot
+regress `succeeded`. Provider calls never run inside a database transaction.
+
+Confirmed refunds revoke only unallocated credits automatically. Allocated or active credits
+retain their Vacancy link and history but receive `review_required_at`; availability,
+redemption, activation and package ranking exclude them immediately. Publication, expiry,
+manual Company priority and manual Vacancy priority remain untouched. Partial refunds and a
+general commercial-case resolver are deferred.
 
 SMV-078B adds a deliberately small public account foundation. Authenticated users enter
 through `/account`; employers can update only presentation/contact fields on Companies

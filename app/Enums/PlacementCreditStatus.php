@@ -13,6 +13,7 @@ enum PlacementCreditStatus: string implements HasColor, HasLabel
     case Active = 'active';
     case Expired = 'expired';
     case Reversed = 'reversed';
+    case RequiresReview = 'requires_review';
 
     public function getLabel(): string
     {
@@ -23,6 +24,7 @@ enum PlacementCreditStatus: string implements HasColor, HasLabel
             self::Active => 'Actief',
             self::Expired => 'Verlopen',
             self::Reversed => 'Teruggedraaid',
+            self::RequiresReview => 'Controle vereist',
         };
     }
 
@@ -33,6 +35,7 @@ enum PlacementCreditStatus: string implements HasColor, HasLabel
             self::Allocated, self::Scheduled => 'warning',
             self::Active => 'info',
             self::Expired, self::Reversed => 'danger',
+            self::RequiresReview => 'warning',
         };
     }
 }

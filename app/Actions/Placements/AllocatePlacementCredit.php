@@ -52,6 +52,10 @@ class AllocatePlacementCredit
                 throw new InvalidArgumentException('Dit plaatsingsrecht is niet meer beschikbaar.');
             }
 
+            if ($lockedCredit->review_required_at !== null) {
+                throw new InvalidArgumentException('Dit plaatsingsrecht vereist eerst handmatige controle.');
+            }
+
             if ($lockedCredit->vacancy_id !== null) {
                 if ($lockedCredit->vacancy_id === $lockedVacancy->id) {
                     return $lockedCredit;

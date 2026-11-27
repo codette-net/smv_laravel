@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Order;
+use App\Models\OrderOperation;
 use App\Models\Payment;
 use BackedEnum;
 use Filament\Actions\ViewAction;
@@ -97,6 +98,27 @@ class OrderResource extends Resource
                                 $credit->status()->getLabel(),
                                 $credit->vacancy?->title ?? '-',
                                 $credit->expires_at?->toDateTimeString() ?? 'geen einddatum actief',
+                            ))
+                            ->join('; '))
+                        ->placeholder('-'),
+                ]),
+            Section::make('Annuleringen en terugbetalingen')
+                ->schema([
+                    TextEntry::make('operations')
+                        ->label('Interne auditgeschiedenis')
+                        ->state(fn (Order $record): string => $record->operations
+                            ->sortByDesc('id')
+                            ->map(fn (OrderOperation $operation): string => sprintf(
+                                '%s · %s · %s · %s %s · operator %s · provider %s · referentie %s · %s',
+                                $operation->requested_at?->toDateTimeString() ?? '-',
+                                $operation->type->getLabel(),
+                                $operation->status->getLabel(),
+                                number_format($operation->amount_cents / 100, 2, ',', '.'),
+                                $operation->currency,
+                                $operation->operator?->name ?? 'verwijderde gebruiker',
+                                $operation->provider ?: '-',
+                                $operation->provider_reference ?: '-',
+                                $operation->reason,
                             ))
                             ->join('; '))
                         ->placeholder('-'),

@@ -47,6 +47,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Order::class);
     }
 
+    public function orderOperations(): HasMany
+    {
+        return $this->hasMany(OrderOperation::class, 'operator_user_id');
+    }
+
     public function savedVacancies(): BelongsToMany
     {
         return $this->belongsToMany(Vacancy::class, 'saved_vacancies')

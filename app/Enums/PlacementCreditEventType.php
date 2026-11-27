@@ -10,6 +10,7 @@ enum PlacementCreditEventType: string implements HasLabel
     case Allocated = 'allocated';
     case Activated = 'activated';
     case Reversed = 'reversed';
+    case ReviewRequired = 'review_required';
 
     public function getLabel(): string
     {
@@ -18,6 +19,7 @@ enum PlacementCreditEventType: string implements HasLabel
             self::Allocated => 'Toegewezen',
             self::Activated => 'Geactiveerd',
             self::Reversed => 'Teruggedraaid',
+            self::ReviewRequired => 'Controle vereist',
         };
     }
 }

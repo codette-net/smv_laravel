@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Orders\ReconcileRefund;
 use App\Actions\Placements\GrantPaidOrderPlacementCredits;
 use App\Enums\AdvertisingPackage;
 use App\Enums\ApplicationMode;
@@ -18,6 +19,8 @@ use App\Enums\ImportScheduleFrequency;
 use App\Enums\ImportStatus;
 use App\Enums\ImportTransport;
 use App\Enums\ImportType;
+use App\Enums\OrderOperationStatus;
+use App\Enums\OrderOperationType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\SalaryBasis;
@@ -35,16 +38,19 @@ use App\Models\ImportSource;
 use App\Models\ImportSourceEmployer;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderOperation;
 use App\Models\OutboundApplyClick;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Payments\PaymentOperationResult;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -77,7 +83,7 @@ final class AcceptanceDemoSeeder extends Seeder
 
             $this->seedAccountHistory($users['candidate'], $companies, $vacancies);
             $this->seedOutboundClicks($vacancies);
-            $this->seedOrders($users['employer'], $companies['complete'], $vacancies);
+            $this->seedOrders($users['employer'], $companies['complete'], $vacancies, $users['admin']);
         });
     }
 
@@ -680,6 +686,21 @@ final class AcceptanceDemoSeeder extends Seeder
             'source' => VacancySource::Manual,
         ], $categories['internal'], ['acceptance', 'placement']);
 
+        $vacancies['placement_refund_review'] = $this->upsertVacancy('placement-refund-review', [
+            'company_id' => $companies['complete']->id,
+            'title' => 'Terugbetaalde actieve plaatsing vereist controle',
+            'slug' => self::FIXTURE_PREFIX.'vacancy-placement-refund-review',
+            'location' => 'Utrecht',
+            'application_mode' => ApplicationMode::Internal,
+            'status' => VacancyStatus::Active,
+            'published_at' => now()->subDays(2),
+            'deadline_at' => now()->addDays(30),
+            'expires_at' => now()->addDays(90),
+            'placement_package' => AdvertisingPackage::Superior,
+            'description' => 'Fictieve actieve plaatsing waarvan de financiële terugbetaling is bevestigd en de commerciële afhandeling controle vereist.',
+            'source' => VacancySource::Manual,
+        ], $categories['internal'], ['acceptance', 'placement', 'refund-review']);
+
         return $vacancies;
     }
 
@@ -878,19 +899,22 @@ final class AcceptanceDemoSeeder extends Seeder
     }
 
     /** @param array<string, Vacancy> $vacancies */
-    private function seedOrders(User $employer, Company $company, array $vacancies): void
+    private function seedOrders(User $employer, Company $company, array $vacancies, User $operator): void
     {
         $standard = Package::query()->where('slug', AdvertisingPackage::Standard->value)->firstOrFail();
         $superior = Package::query()->where('slug', AdvertisingPackage::Superior->value)->firstOrFail();
         $definitions = [
             ['reference' => 'SMV-ACCEPTANCE-DRAFT', 'status' => OrderStatus::Draft, 'package' => $standard, 'vacancy' => $vacancies['draft']],
             ['reference' => 'SMV-ACCEPTANCE-PENDING', 'status' => OrderStatus::PendingPayment, 'package' => $superior, 'vacancy' => $vacancies['internal']],
+            ['reference' => 'SMV-ACCEPTANCE-CANCELLABLE', 'status' => OrderStatus::PendingPayment, 'package' => $standard, 'vacancy' => null],
             ['reference' => 'SMV-ACCEPTANCE-PAID', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => $vacancies['external']],
             ['reference' => 'SMV-ACCEPTANCE-CREDIT-STANDARD', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => null],
             ['reference' => 'SMV-ACCEPTANCE-CREDIT-SUPERIOR', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => null],
             ['reference' => 'SMV-ACCEPTANCE-PLACEMENT-PENDING', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => $vacancies['placement_pending']],
             ['reference' => 'SMV-ACCEPTANCE-PLACEMENT-SUPERIOR', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => $vacancies['placement_superior_active']],
             ['reference' => 'SMV-ACCEPTANCE-PLACEMENT-EXPIRED', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => $vacancies['placement_expired']],
+            ['reference' => 'SMV-ACCEPTANCE-REFUNDED', 'status' => OrderStatus::Paid, 'package' => $standard, 'vacancy' => null],
+            ['reference' => 'SMV-ACCEPTANCE-REFUND-REVIEW', 'status' => OrderStatus::Paid, 'package' => $superior, 'vacancy' => $vacancies['placement_refund_review']],
         ];
 
         foreach ($definitions as $definition) {
@@ -995,6 +1019,47 @@ final class AcceptanceDemoSeeder extends Seeder
             ->where('order_number', 'like', 'SMV-ACCEPTANCE-%')
             ->where('status', OrderStatus::Paid->value)
             ->each(fn (Order $order) => app(GrantPaidOrderPlacementCredits::class)->execute($order));
+
+        $this->seedRefundOperations($operator);
+    }
+
+    private function seedRefundOperations(User $operator): void
+    {
+        foreach ([
+            ['order' => 'SMV-ACCEPTANCE-REFUNDED', 'reason' => 'Fictieve volledige terugbetaling met ongebruikt plaatsingsrecht.'],
+            ['order' => 'SMV-ACCEPTANCE-REFUND-REVIEW', 'reason' => 'Fictieve volledige terugbetaling met actieve plaatsing voor handmatige controle.'],
+        ] as $definition) {
+            $order = Order::query()->where('order_number', $definition['order'])->firstOrFail();
+            $payment = $order->payments()->where('status', PaymentStatus::Paid->value)->firstOrFail();
+            $operation = OrderOperation::query()->firstOrNew([
+                'order_id' => $order->id,
+                'type' => OrderOperationType::Refund,
+            ]);
+            $operation->fill([
+                'payment_id' => $payment->id,
+                'operator_user_id' => $operator->id,
+                'status' => OrderOperationStatus::Pending,
+                'reason' => $definition['reason'],
+                'amount_cents' => $payment->amount_cents,
+                'currency' => $payment->currency,
+                'provider' => 'fake',
+                'provider_reference' => 'fake-refund-'.Str::lower(str_replace('SMV-ACCEPTANCE-', '', $definition['order'])),
+                'provider_status' => 'pending',
+                'idempotency_key' => 'acceptance-refund-'.Str::lower(str_replace('SMV-ACCEPTANCE-', '', $definition['order'])),
+                'requested_at' => now()->subMinutes(30),
+                'completed_at' => null,
+                'metadata' => ['fixture' => true],
+            ]);
+            $operation->save();
+
+            app(ReconcileRefund::class)->execute($operation, new PaymentOperationResult(
+                status: OrderOperationStatus::Succeeded,
+                provider: 'fake',
+                providerReference: $operation->provider_reference,
+                providerStatus: 'succeeded',
+                metadata: ['fixture' => true],
+            ));
+        }
     }
 
     private function seedRoles(): void
@@ -1003,6 +1068,14 @@ final class AcceptanceDemoSeeder extends Seeder
 
         foreach (['candidate', 'employer', 'editor', 'admin', 'super-admin'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+        }
+
+        foreach (['orders.cancel', 'orders.refund'] as $permissionName) {
+            $permission = Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
+            Role::query()
+                ->whereIn('name', ['super-admin', 'admin', 'editor'])
+                ->get()
+                ->each(fn (Role $role) => $role->givePermissionTo($permission));
         }
     }
 

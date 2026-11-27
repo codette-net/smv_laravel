@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Contracts\VacancyPackagePriorityProvider;
 use App\Payments\Stripe\StripeCheckoutClient;
+use App\Payments\Stripe\StripeOrderOperationsClient;
 use App\Payments\Stripe\StripeSdkCheckoutClient;
+use App\Payments\Stripe\StripeSdkOrderOperationsClient;
 use App\Support\Commerce\EntitledVacancyPackagePriority;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(StripeCheckoutClient::class, StripeSdkCheckoutClient::class);
+        $this->app->singleton(StripeOrderOperationsClient::class, StripeSdkOrderOperationsClient::class);
 
         $this->app->singleton(
             VacancyPackagePriorityProvider::class,

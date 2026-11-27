@@ -19,6 +19,15 @@ final class PaymentGatewayResolver
             throw new RuntimeException('The fake payment gateway is not allowed in production.');
         }
 
+        return $this->resolveForProvider((string) $provider);
+    }
+
+    public function resolveForProvider(string $provider): PaymentGateway
+    {
+        if ($provider === 'fake' && ! app()->environment(['local', 'testing', 'staging'])) {
+            throw new RuntimeException('The fake payment gateway is not allowed in production.');
+        }
+
         return match ($provider) {
             'fake' => app(FakePaymentGateway::class),
             'stripe' => app(StripePaymentGateway::class),

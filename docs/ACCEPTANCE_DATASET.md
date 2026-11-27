@@ -118,6 +118,14 @@ references are clearly synthetic and no Stripe transaction is fabricated. Re-run
 seeder reconciles each paid fixture through the production grant action without multiplying
 credits or audit events; granted snapshots remain stable once credits exist.
 
+SMV-117 adds `SMV-ACCEPTANCE-CANCELLABLE` as an unpaid staff-cancellation scenario,
+`SMV-ACCEPTANCE-REFUNDED` as a confirmed Fake full refund with an automatically reversed unused
+credit, and `SMV-ACCEPTANCE-REFUND-REVIEW` as a financially refunded active placement that
+remains published and attached while its package entitlement is blocked for review. The latter
+uses Vacancy `acceptance-placement-refund-review`. The operations have stable idempotency and
+provider references, a fictitious internal reason and the acceptance administrator as operator;
+no Stripe request or webhook is fabricated.
+
 ## Reruns and future Payments
 
 Users, Companies, Vacancies, ImportSources, mappings, import runs/logs, Applications, saved

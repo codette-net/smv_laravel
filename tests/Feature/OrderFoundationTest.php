@@ -147,7 +147,7 @@ test('order creation is atomic when a later line is invalid', function () {
     expect(Order::count())->toBe(0);
 });
 
-test('orders are read-only staff administration and never customer-visible through Filament', function () {
+test('orders are immutable staff records and never customer-visible through Filament', function () {
     $admin = User::factory()->create();
     Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
     $admin->assignRole('admin');
