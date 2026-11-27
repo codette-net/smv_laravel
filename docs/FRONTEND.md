@@ -520,9 +520,12 @@ the read-only Filament **Plaatsingsrechten** resource and Order/Company infolist
 raw balance controls. Standard/Superior ranking is active only during a published entitlement's
 stored validity window; Maatwerk remains quote-only.
 
-SMV-097A extends the existing staff reporting screen with raw public detail-view totals and a
-clearly labelled raw outbound-apply CTR. The report must not present these events as unique
-visitors and does not add public analytics UI, cookies, fingerprints or IP-based tracking.
+SMV-097A extends the existing staff reporting screen with raw public detail-view and outbound
+click totals, per-Vacancy/Company/ImportSource breakdowns, CSV and a clearly labelled
+**Externe sollicitatie-CTR (ruw)**. Zero-view ratios display `N/B`; ratios are not capped.
+The report explicitly avoids unique-visitor, completed-application, hire, partner-confirmed or
+billable-click claims. There is no public/employer analytics UI and no cookie, fingerprint,
+IP, user-agent, referrer or identity tracking.
 
 SMV-118 is reserved for the later consolidated UI/UX styling round. It may add a reusable
 optional banner variant for an existing Vacancy: full container/grid width where supported,

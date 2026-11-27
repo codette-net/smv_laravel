@@ -25,7 +25,9 @@ class OutboundApplyClickCsv
             'company',
             'import_source',
             'vacancy_status',
+            'raw_vacancy_detail_views',
             'raw_outbound_apply_clicks',
+            'raw_outbound_apply_ctr_percent',
             'period_from_utc',
             'period_to_utc',
         ], ',', '"', '');
@@ -42,7 +44,12 @@ class OutboundApplyClickCsv
                     $vacancy->company?->name,
                     $vacancy->importSource?->name ?? 'Geen importbron',
                     $vacancy->status->getLabel(),
+                    $vacancy->vacancy_detail_views_count,
                     $vacancy->outbound_apply_clicks_count,
+                    $this->formatCtr(
+                        (int) $vacancy->outbound_apply_clicks_count,
+                        (int) $vacancy->vacancy_detail_views_count,
+                    ),
                     $filters->fromDate(),
                     $filters->toDate(),
                 ], ',', '"', '');
@@ -57,5 +64,12 @@ class OutboundApplyClickCsv
         }
 
         return $csv;
+    }
+
+    private function formatCtr(int $clicks, int $views): string
+    {
+        $ctr = $this->report->rawCtr($clicks, $views);
+
+        return $ctr === null ? 'N/A' : number_format($ctr, 2, '.', '');
     }
 }

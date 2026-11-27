@@ -11,7 +11,10 @@ use App\Support\Vacancies\VacancyFilterOptions;
 use App\Support\Vacancies\VacancySearch;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class VacancyController extends Controller
 {
@@ -49,7 +52,7 @@ class VacancyController extends Controller
         ]);
     }
 
-    public function show(Vacancy $vacancy): View
+    public function show(Request $request, Vacancy $vacancy): Response
     {
         abort_unless(Vacancy::query()->publiclyVisible()->whereKey($vacancy->getKey())->exists(), 404);
         abort_unless($vacancy->company()->publiclyVisible()->exists(), 404);
@@ -70,7 +73,7 @@ class VacancyController extends Controller
             ->limit(3)
             ->get();
 
-        return view('vacancies.show', [
+        $response = response()->view('vacancies.show', [
             'vacancy' => $vacancy,
             'taxonomy' => $this->vacancyTaxonomy($vacancy),
             'logoUrl' => $vacancy->company->publicLogoUrl(),
@@ -78,6 +81,19 @@ class VacancyController extends Controller
             'structuredData' => StructuredData::jobPosting($vacancy),
             'descriptionHtml' => app(VacancyDescription::class)->sanitize($vacancy->description),
         ]);
+
+        if ($request->isMethod('GET')) {
+            try {
+                $vacancy->detailViews()->create();
+            } catch (Throwable $exception) {
+                Log::warning('Vacancy detail view recording failed.', [
+                    'vacancy_id' => $vacancy->getKey(),
+                    'exception' => $exception::class,
+                ]);
+            }
+        }
+
+        return $response;
     }
 
     /** @param array<string, string> $filters */

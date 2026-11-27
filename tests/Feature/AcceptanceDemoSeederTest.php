@@ -19,6 +19,7 @@ use App\Models\PlacementCredit;
 use App\Models\PlacementCreditEvent;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Models\VacancyDetailView;
 use Database\Seeders\AcceptanceDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
@@ -140,7 +141,10 @@ test('acceptance seeder creates candidate account history and outbound reporting
         ->and(Application::query()->where('candidate_id', $candidate->id)->whereHas('vacancy', fn ($query) => $query->where('application_mode', 'external'))->count())->toBe(0)
         ->and(OutboundApplyClick::query()->count())->toBe(5)
         ->and(OutboundApplyClick::query()->whereHas('vacancy', fn ($query) => $query->where('source', VacancySource::Import->value))->exists())->toBeTrue()
-        ->and(OutboundApplyClick::query()->where('clicked_at', '<', now()->subDays(30))->exists())->toBeFalse();
+        ->and(OutboundApplyClick::query()->where('clicked_at', '<', now()->subDays(30))->exists())->toBeFalse()
+        ->and(VacancyDetailView::query()->count())->toBe(12)
+        ->and(VacancyDetailView::query()->whereHas('vacancy', fn ($query) => $query->where('source', VacancySource::Manual->value))->exists())->toBeTrue()
+        ->and(VacancyDetailView::query()->whereHas('vacancy', fn ($query) => $query->where('source', VacancySource::Import->value))->exists())->toBeTrue();
 });
 
 test('acceptance seeder is idempotent for deterministic fixture records', function (): void {
@@ -154,6 +158,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'imports' => Import::query()->where('filename', 'like', 'acceptance-%')->count(),
         'applications' => Application::query()->whereHas('candidate', fn ($query) => $query->where('email', 'like', '%@smv-acceptance.test'))->count(),
         'clicks' => OutboundApplyClick::query()->count(),
+        'detail_views' => VacancyDetailView::query()->count(),
         'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING', 'SMV-ACCEPTANCE-PAID'])->count(),
         'payments' => Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count(),
         'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
@@ -172,6 +177,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'imports' => Import::query()->where('filename', 'like', 'acceptance-%')->count(),
         'applications' => Application::query()->whereHas('candidate', fn ($query) => $query->where('email', 'like', '%@smv-acceptance.test'))->count(),
         'clicks' => OutboundApplyClick::query()->count(),
+        'detail_views' => VacancyDetailView::query()->count(),
         'orders' => Order::query()->whereIn('order_number', ['SMV-ACCEPTANCE-DRAFT', 'SMV-ACCEPTANCE-PENDING', 'SMV-ACCEPTANCE-PAID'])->count(),
         'payments' => Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count(),
         'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),

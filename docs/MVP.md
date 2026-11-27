@@ -21,8 +21,8 @@ reversal boundary on top of the completed payment and entitlement foundation. It
 - use the completed SMV-050B ranking layer with the completed SMV-116 paid entitlement source;
 - operate the completed Stripe Checkout/webhook integration against immutable Order snapshots
   and idempotent Company placement-credit fulfilment;
-- operate the implemented SMV-117 cancellation/refund workflow and complete SMV-097A public
-  Vacancy-detail view reporting;
+- operate the implemented SMV-117 cancellation/refund workflow and completed SMV-097A public
+  Vacancy-detail view/click reporting;
 - complete final stakeholder approval of public copy and template imagery;
 - inventory and map valuable legacy URLs once exports are available;
 - complete accessibility, end-to-end, migration and launch validation.
@@ -157,11 +157,12 @@ click or billable CPC event.
 A full ATS workflow, candidate notifications, messaging and timelines remain outside
 the current MVP.
 
-Administrators and super-administrators can review raw outbound apply click aggregates
-under Filament reporting. The report defaults to the latest 30 UTC days, filters by date,
-Vacancy, Company and ImportSource, and exports the same filtered per-Vacancy aggregates
-as CSV. Editors and non-staff users cannot access this commercial report. It does not
-provide conversion, unique-human, partner-confirmed or billing metrics.
+Administrators and super-administrators can review raw public Vacancy-detail views and
+outbound apply click aggregates under Filament reporting. The report defaults to the latest
+30 UTC days, filters both series by date, Vacancy, Company and ImportSource, and exports the
+same filtered per-Vacancy aggregates as CSV. Editors and non-staff users cannot access this
+commercial report. It does not provide conversion, unique-human, partner-confirmed or billing
+metrics.
 
 These privacy-minimal raw events are retained for at most 24 months to support bounded
 operational and year-over-year commercial reporting. A daily UTC scheduled command prunes
@@ -170,14 +171,15 @@ for older periods return only available data, normally zero; SMV does not create
 longer-term historical aggregates. The event still contains no user ID, IP address,
 user-agent, cookie, fingerprint or application content.
 
-SMV-097A retains this privacy boundary for successful public Vacancy-detail responses.
-Preview, non-public and irrelevant internal responses do not count. Each accepted response
-is a raw view, not a unique visitor; SMV adds no cookie, fingerprint or IP tracking merely to
-deduplicate analytics. Raw view events use the same documented 24-month maximum as raw
-outbound clicks. Staff reporting will show views and **raw outbound-apply CTR**, defined as
-raw outbound clicks divided by raw detail views for the same filters and period; when the
-view denominator is zero, CTR is unavailable rather than zero or fabricated. Browser-level
-acceptance must confirm the inclusion and exclusion boundaries.
+SMV-097A retains this privacy boundary for successfully rendered public Vacancy-detail GET
+responses. HEAD, preview, non-public, error and irrelevant internal responses do not count.
+Each accepted response is a raw view, not a unique visitor; refreshes, browser prefetches and
+bots may count, and SMV adds no cookie, fingerprint or IP tracking merely to deduplicate.
+Raw view events use the same documented 24-month maximum as raw outbound clicks. Staff
+reporting shows views and **raw outbound-apply CTR**, defined as raw outbound clicks divided by
+raw detail views for the same filters and period; when the view denominator is zero, CTR is
+unavailable rather than zero or fabricated. The value is not capped at 100%, because the two
+raw event types are independently counted and click history predates view history.
 
 ### Commercial Orders and payments
 

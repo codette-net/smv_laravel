@@ -460,7 +460,7 @@ Do not require queue infrastructure for simple preview/parsing work when synchro
 Partner reporting has separate event meanings. A listing impression, public Vacancy
 detail view, outbound apply click, partner-confirmed click, completed Application and
 contract-defined billable click are not interchangeable. The first SMV reporting slice
-should aggregate minimized detail-view and outbound-click events by Vacancy, import
+aggregates minimized detail-view and outbound-click events by Vacancy, Company, import
 source and date. Partner-confirmed/billable events require an explicit reconciliation
 contract and must not be inferred from raw internal clicks. Retention, bot/duplicate
 rules and staff-only access are part of the domain boundary, not presentation details.
@@ -491,14 +491,23 @@ logs record the run time, cutoff and eligible/deleted counts without event-level
 Reporting remains query-derived, so periods outside the retained raw window return only
 whatever data is still available (normally zero); no historical values are reconstructed.
 
-SMV-097A extends this model with a separate minimal raw Vacancy-detail-view event for each
-successful public detail response. It excludes previews, non-public responses and irrelevant
-internal routes, and stores no visitor fingerprint, cookie, IP address or identity solely for
-analytics. A raw view must never be labelled a unique visitor. Raw view rows follow the same
-24-month maximum retention and bounded pruning policy as raw outbound clicks. Staff reporting
-may join the two aggregate series by the same date/Vacancy/Company/ImportSource filters and
-show **raw outbound-apply CTR = raw outbound clicks / raw detail views**; a zero denominator
-produces no CTR value. Existing outbound reporting and privacy constraints remain unchanged.
+SMV-097A adds `vacancy_detail_views` with only a Vacancy foreign key and `viewed_at`. The
+controller first validates public Vacancy/Company eligibility and renders the response, then
+records one event for an actual GET. HEAD, preview, non-public, redirect, error and unrelated
+internal routes never enter this boundary. Insert failure is logged without making a valid
+public page unavailable. The event stores no visitor fingerprint, cookie, IP address, user
+agent, referrer or identity. A raw view must never be labelled a unique visitor; refreshes,
+prefetches and bots may count.
+
+The standalone `viewed_at` and composite `(vacancy_id, viewed_at)` indexes mirror click query
+paths. `analytics:prune-vacancy-detail-views` runs daily at 02:35 UTC, uses the same strict
+24-month no-overflow cutoff, fixed eligible ID range, bounded batches and dry-run semantics as
+click retention. The existing click command remains independently scheduled at 02:30 UTC.
+Staff queries pre-aggregate each event table per Vacancy before joining, preventing click/view
+cross multiplication and retaining rows that have only one event type. Matching inclusive UTC
+date/Vacancy/Company/ImportSource filters drive the page and CSV. **Raw outbound-apply CTR =
+raw outbound clicks / raw detail views**; a zero denominator produces no value and ratios are
+not capped at 100%. Existing outbound destinations and privacy constraints remain unchanged.
 
 Result ordering also separates three concerns: data completeness/search relevance,
 organic SEO visibility, and explicit commercial promotion or deprioritization. Current

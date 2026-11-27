@@ -44,6 +44,7 @@ use App\Models\Package;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Models\VacancyDetailView;
 use App\Payments\PaymentOperationResult;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -83,6 +84,7 @@ final class AcceptanceDemoSeeder extends Seeder
 
             $this->seedAccountHistory($users['candidate'], $companies, $vacancies);
             $this->seedOutboundClicks($vacancies);
+            $this->seedVacancyDetailViews($vacancies);
             $this->seedOrders($users['employer'], $companies['complete'], $vacancies, $users['admin']);
         });
     }
@@ -895,6 +897,33 @@ final class AcceptanceDemoSeeder extends Seeder
                 ->where('clicked_at', $clickedAt)
                 ->first() ?? new OutboundApplyClick;
             $click->forceFill(['vacancy_id' => $vacancy->id, 'clicked_at' => $clickedAt])->save();
+        }
+    }
+
+    /** @param array<string, Vacancy> $vacancies */
+    private function seedVacancyDetailViews(array $vacancies): void
+    {
+        $events = [
+            [$vacancies['external'], now()->subDays(20)->setTime(8, 45)],
+            [$vacancies['external'], now()->subDays(20)->setTime(9, 5)],
+            [$vacancies['external'], now()->subDays(7)->setTime(10, 0)],
+            [$vacancies['external'], now()->subDays(7)->setTime(10, 15)],
+            [$vacancies['external'], now()->subDays(7)->setTime(10, 20)],
+            [$vacancies['internal'], now()->subDays(12)->setTime(13, 0)],
+            [$vacancies['internal'], now()->subDays(5)->setTime(14, 0)],
+            [$vacancies['internal'], now()->subDays(5)->setTime(14, 5)],
+            [$vacancies['import_active'], now()->subDays(6)->setTime(10, 30)],
+            [$vacancies['import_active'], now()->subDays(6)->setTime(10, 45)],
+            [$vacancies['import_active'], now()->subDays(3)->setTime(11, 0)],
+            [$vacancies['import_active'], now()->subDays(3)->setTime(11, 15)],
+        ];
+
+        foreach ($events as [$vacancy, $viewedAt]) {
+            $view = VacancyDetailView::query()
+                ->where('vacancy_id', $vacancy->id)
+                ->where('viewed_at', $viewedAt)
+                ->first() ?? new VacancyDetailView;
+            $view->forceFill(['vacancy_id' => $vacancy->id, 'viewed_at' => $viewedAt])->save();
         }
     }
 

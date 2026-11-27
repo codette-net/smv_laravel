@@ -410,17 +410,22 @@ whose `clicked_at` is strictly older than the run's 24-month cutoff, in bounded 
 Rows exactly at the cutoff remain. No longer-term aggregate is created, so reporting beyond
 the retained window returns available/zero raw-event results rather than synthetic history.
 
-### Vacancy detail views (planned SMV-097A)
+### Vacancy detail views
 
-SMV-097A will add a separate provider-neutral raw view event containing the Vacancy relation
-and event timestamp needed for UTC reporting. It records only successful public Vacancy-detail
-responses; preview, non-public and irrelevant internal responses are excluded. It stores no
-visitor fingerprint, cookie, IP address or identity merely to estimate uniqueness, so each row
-is a raw view and cannot support a unique-visitor claim. Company and ImportSource remain
-derived through Vacancy, matching outbound-click normalization.
+`vacancy_detail_views` is a separate provider-neutral raw event containing only `id`,
+`vacancy_id` and `viewed_at`. A physical Vacancy deletion cascades the rows; soft deletion
+preserves them for authorized historical aggregate reporting. The standalone timestamp and
+composite `(vacancy_id, viewed_at)` indexes support date-first and per-Vacancy range queries.
+Company and ImportSource remain derived through Vacancy, matching outbound-click normalization.
+
+The event records only a successfully rendered public Vacancy-detail GET response. HEAD,
+preview, non-public and irrelevant internal responses are excluded. It stores no visitor
+fingerprint, cookie, IP address, user agent, referrer or identity, so each row is a raw view and
+cannot support a unique-visitor claim. Refreshes, prefetches and automated crawlers may count.
 
 Raw view events use the same 24-month maximum, strict UTC cutoff and bounded pruning approach
 as raw outbound clicks. Staff reports derive raw view totals and **raw outbound-apply CTR** for
 matching filters as raw click count divided by raw detail-view count. A zero view count yields
 an unavailable CTR, not a synthetic zero. No aggregate table or history beyond retained raw
-events is promised by this ticket.
+events is promised. Aggregate reporting pre-aggregates each event table before joining, so
+views-only and clicks-only Vacancies remain visible without multiplying counts.

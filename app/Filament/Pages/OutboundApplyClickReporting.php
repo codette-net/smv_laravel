@@ -27,9 +27,9 @@ class OutboundApplyClickReporting extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static ?string $title = 'Outbound apply clicks';
+    protected static ?string $title = 'Vacature-engagement';
 
-    protected static ?string $navigationLabel = 'Outbound apply clicks';
+    protected static ?string $navigationLabel = 'Vacature-engagement';
 
     protected static string|UnitEnum|null $navigationGroup = 'Rapportage';
 
@@ -70,9 +70,19 @@ class OutboundApplyClickReporting extends Page implements HasTable
                     ->badge()
                     ->sortable(),
                 TextColumn::make('outbound_apply_clicks_count')
-                    ->label('Raw outbound apply clicks')
+                    ->label('Externe clicks (ruw)')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('vacancy_detail_views_count')
+                    ->label('Detailweergaven (ruw)')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('raw_outbound_apply_ctr')
+                    ->label('Externe sollicitatie-CTR (ruw)')
+                    ->state(fn (Vacancy $record): string => $this->formatCtr(
+                        (int) $record->outbound_apply_clicks_count,
+                        (int) $record->vacancy_detail_views_count,
+                    )),
             ])
             ->filters([
                 Filter::make('period')
@@ -118,7 +128,7 @@ class OutboundApplyClickReporting extends Page implements HasTable
                 ->orderByDesc('outbound_apply_clicks_count')
                 ->orderBy('title')
                 ->orderBy('id'))
-            ->emptyStateHeading('Geen outbound apply clicks binnen deze filters')
+            ->emptyStateHeading('Geen detailweergaven of outbound apply clicks binnen deze filters')
             ->emptyStateDescription('Pas de periode of filters aan.');
     }
 
@@ -151,9 +161,13 @@ class OutboundApplyClickReporting extends Page implements HasTable
     {
         $filters = $this->reportFilters();
         $report = app(OutboundApplyClickReport::class);
+        $totalClicks = $report->total($filters);
+        $totalViews = $report->totalViews($filters);
 
         return [
-            'totalClicks' => $report->total($filters),
+            'totalClicks' => $totalClicks,
+            'totalViews' => $totalViews,
+            'totalCtr' => $this->formatCtr($totalClicks, $totalViews),
             'companyTotals' => $report->companies($filters),
             'sourceTotals' => $report->importSources($filters),
             'periodFrom' => $filters->fromDate(),
@@ -170,5 +184,12 @@ class OutboundApplyClickReporting extends Page implements HasTable
             'company_id' => data_get($this->getTableFilterState('company'), 'value'),
             'import_source_id' => data_get($this->getTableFilterState('import_source'), 'value'),
         ]);
+    }
+
+    public function formatCtr(int $clicks, int $views): string
+    {
+        $ctr = app(OutboundApplyClickReport::class)->rawCtr($clicks, $views);
+
+        return $ctr === null ? 'N/B' : number_format($ctr, 2, ',', '.').' %';
     }
 }

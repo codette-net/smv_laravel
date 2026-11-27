@@ -162,6 +162,11 @@ class Vacancy extends Model
         return $this->hasMany(OutboundApplyClick::class);
     }
 
+    public function detailViews(): HasMany
+    {
+        return $this->hasMany(VacancyDetailView::class);
+    }
+
     public function placementCredits(): HasMany
     {
         return $this->hasMany(PlacementCredit::class);
