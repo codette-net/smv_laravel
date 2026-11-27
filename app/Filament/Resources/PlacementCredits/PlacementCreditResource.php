@@ -6,6 +6,7 @@ use App\Enums\PlacementCreditStatus;
 use App\Filament\Resources\PlacementCredits\Pages\ListPlacementCredits;
 use App\Filament\Resources\PlacementCredits\Pages\ViewPlacementCredit;
 use App\Models\PlacementCredit;
+use App\Support\Commerce\PlacementCreditPresentation;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
@@ -77,6 +78,16 @@ class PlacementCreditResource extends Resource
                             ))
                             ->join('; '))
                         ->placeholder('-'),
+                ]),
+            Section::make('Operationele controle')
+                ->description('Een bevestigde financiële terugbetaling wijzigt de gekoppelde vacature niet automatisch.')
+                ->visible(fn (PlacementCredit $record): bool => $record->status() === PlacementCreditStatus::RequiresReview)
+                ->schema([
+                    TextEntry::make('review_next_action')
+                        ->label('Volgende stap')
+                        ->state(fn (PlacementCredit $record): string => PlacementCreditPresentation::explanation($record)
+                            .' Beoordeel de vacature handmatig en behoud de bestaande auditgeschiedenis; herstel, verleng of publiceer niet automatisch.')
+                        ->color('warning'),
                 ]),
         ]);
     }

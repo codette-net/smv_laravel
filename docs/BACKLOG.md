@@ -79,6 +79,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-112 Stripe checkout/payment integration | **P1 — DONE** | Hosted Stripe Checkout, signed/idempotent webhook reconciliation, owner-scoped customer Order history and staff payment references use immutable Order snapshots through the SMV-111 gateway boundary. The Fake remains the automated-test provider; authoritative confirmation now enters SMV-116 fulfilment without publishing. |
 | SMV-116 Company placement credits and entitlements | **P0 — DONE** | Eligible paid OrderItems grant individually tracked Company credits exactly once from immutable quantity/duration/priority/benefit snapshots. Company-scoped allocation, publication-time activation, expiry, SQL ranking, audit history, recovery command, employer overview, staff inspection and deterministic acceptance fixtures are implemented without bypassing review. |
 | SMV-117 Order cancellation, refunds and internal audit | **DONE** | Authorized unpaid cancellation and provider-authoritative complete refunds now use durable audited operations, idempotent reconciliation and fail-closed placement-credit review safeguards. |
+| SMV-119 Commerce acceptance UX and role-aware account | **DONE** | Actual Company ownership makes `/account` employer-first while candidate activity remains accessible in the same account. Placement lifecycle counts/blockers, consistent Order/payment badges, Dutch EUR formatting, customer refund/review wording and discoverable staff actions are covered without changing payment, publication or ranking behavior. |
 | SMV-118 Promotional Vacancy banner and UI/UX polish | **P2 — RESERVED FOR UI/UX ROUND** | Add an optional scheduled, admin-managed full-width Vacancy banner variant with optional image/short text, using the normal detail URL, visibility and apply tracking. Keep it independent from ranking, featured state and automatic Superior fulfilment. |
 | SMV-052 Employer vacancy-posting flow | **OBSOLETE** | Superseded by the more explicit SMV-078 staged advertising and quick-registration flow; do not implement both. |
 | SMV-078 Employer vacancy advertising flow & quick registration | **DONE (stabilized account foundation)** | Guests choose a placement before auth; public login/registration, owned Company onboarding/profile editing, protected Vacancy drafts, preview, pending moderation hand-off and owned Vacancy history exist without payment/publication entitlement. |
@@ -143,6 +144,7 @@ The approved commercial implementation order is now:
 4. **SMV-116** — completed paid Company placement credits/entitlements.
 5. **SMV-117** — completed the minimal cancellation/refund and internal-audit workflow.
 6. **SMV-097A** — completed privacy-minimal Vacancy-detail views, reporting, CSV and retention; retain browser/staging verification as release evidence.
+7. **SMV-119** — completed the role-aware commerce acceptance dashboard and operational status presentation.
 
 In parallel, continue the Phase G release gates: finish evidence for SMV-071, implement
 SMV-072 browser smoke, complete SMV-044/045 legacy URL inventory and redirects, run the
@@ -297,6 +299,25 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
 - **Acceptance:** authorization, state transitions, provider success/failure/idempotency and
   audit evidence are tested; no refund is represented as a local-only successful provider
   outcome.
+
+#### SMV-119 — Commerce acceptance UX and role-aware account dashboard
+
+- **Status:** DONE.
+- **Account context:** Company ownership, rather than one assigned role, makes the account
+  employer-first. Employers see Company/Vacancy actions, lifecycle statistics, credits and
+  Orders first. Users with Applications or saves retain a secondary candidate overview; users
+  without a Company remain candidate-first and can start the existing employer onboarding flow.
+- **Commerce presentation:** account surfaces use one Dutch money formatter and shared Order,
+  Payment and placement status labels/badges. Credit totals distinguish available, assigned or
+  scheduled, active and review-required rights. Actual Company approval, Vacancy approval and
+  future-publication blockers are explained without changing activation rules.
+- **Refund review:** customers see financial refund completion separately from an operational
+  placement review. Staff reach existing cancel/refund actions from the Bestellingen list and
+  see the next manual review step on Order and placement-right details. Because no universal
+  commercial resolution is approved, review-required credits remain pending; the UI never
+  reinstates, extends, republishes or changes payment state automatically.
+- **Compatibility:** no ranking query, entitlement transition, publication lifecycle, schema or
+  payment-provider behavior changed.
 
 #### SMV-118 — Promotional Vacancy banner and UI/UX polish
 

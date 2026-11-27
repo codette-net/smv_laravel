@@ -125,7 +125,14 @@ Authenticated purchasers can inspect only their own Orders at `/account/bestelli
 Order summary and retry eligible pending payment. Success and cancellation pages report the
 persisted state. Cancellation of a Checkout page does not cancel the Order.
 
-Staff retain the existing Filament Order resource. It shows Payment status, provider, amount,
+The role-aware `/account` overview is employer-first when the User owns a Company and remains
+candidate-first otherwise. Order cards show reference, immutable package snapshot, linked Vacancy,
+Dutch-formatted amount/currency, date and separate Order/Payment badges. Cancelled and refunded
+states remain visible. A financially completed refund with an allocated or active credit adds a
+separate placement-review warning rather than obscuring the successful refund.
+
+Staff retain the existing Filament Order resource. The list action is labelled **Bekijken / acties**
+so cancellation/refund controls are discoverable on the existing detail. It shows Payment status, provider, amount,
 currency, Checkout Session reference, PaymentIntent reference and timestamps. It provides no
 manual paid-state button.
 
@@ -153,6 +160,25 @@ Confirmed refunds reverse unused credits. Allocated or active credits become una
 stop ranking but stay linked and require staff review; Vacancy publication and manual priority
 are unchanged. Partial refunds, self-service, disputes, credit notes and automatic publication
 changes are outside MVP.
+
+### Manual placement review after a refund
+
+There is no approved universal commercial outcome for an already allocated or active placement.
+The review therefore remains open rather than offering a misleading one-click resolution:
+
+1. Open Filament **Bestellingen** through **Bekijken / acties** and verify that the financial
+   status is provider-confirmed **Terugbetaald**.
+2. Review the operation ledger (operator, mandatory reason, provider reference/outcome) and the
+   linked **Plaatsingsrecht** audit history.
+3. Inspect the linked Vacancy and Company. Agree the commercial outcome with the responsible
+   staff member before using existing authorized Vacancy administration for any manual lifecycle
+   change.
+4. Do not restore or renew the credit, republish the Vacancy, extend its dates, alter manual
+   priority or change Payment state as an automatic consequence of the refund.
+
+The placement credit deliberately remains **Controle vereist** because the current event model has
+no approved resolved-review transition. A later ticket may add a reasoned, audited resolution once
+the permitted outcomes and authorizations are approved.
 
 For staging, add the three refund events to the test-mode webhook destination. Exercise an
 unpaid cancellation, successful/pending/failed full refund, duplicate event delivery, retry

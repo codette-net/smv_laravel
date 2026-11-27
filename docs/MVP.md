@@ -237,6 +237,14 @@ Customer Order history shows useful financial status without exposing the intern
 Partial refunds, customer self-service, chargebacks, credit notes and accounting automation
 remain deferred.
 
+SMV-119 makes the ordinary account role-aware from actual ownership and activity: Company owners
+see their employer commerce workflow first, candidate-only users see Applications and saves first,
+and dual-context users keep both in one account. Shared Dutch labels and EUR formatting distinguish
+Order, Payment and placement state. Credit totals and blocker text explain payment → grant →
+allocation → approval/public eligibility → activation without changing any transition. A confirmed
+refund is shown as financially complete even when its allocated/active placement remains frozen for
+manual operational review; no automated reinstatement, extension or publication decision exists.
+
 SMV-118 is outside the commercial implementation sequence and reserved for the consolidated
 UI/UX round. It may add an optional scheduled full-width banner presentation to an existing
 Vacancy, but that placement is separate from ranking, `is_featured` and Superior entitlement.

@@ -8,6 +8,8 @@ use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Order;
 use App\Models\OrderOperation;
 use App\Models\Payment;
+use App\Support\Commerce\Money;
+use App\Support\Commerce\OrderPresentation;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
@@ -68,16 +70,23 @@ class OrderResource extends Resource
                 ]),
             Section::make('Betalingspogingen')
                 ->schema([
+                    TextEntry::make('financial_status')
+                        ->label('Actuele financiële status')
+                        ->state(fn (Order $record): string => OrderPresentation::paymentStatus($record)['label'])
+                        ->badge()
+                        ->color(fn (Order $record): string => match (OrderPresentation::paymentStatus($record)['variant']) {
+                            'neutral' => 'gray',
+                            default => OrderPresentation::paymentStatus($record)['variant'],
+                        }),
                     TextEntry::make('payments')
                         ->label('Betalingen')
                         ->state(fn (Order $record): string => $record->payments
                             ->sortByDesc('id')
                             ->map(fn (Payment $payment): string => sprintf(
-                                '%s · %s · %s %s · Checkout %s · PaymentIntent %s · aangemaakt %s · afgerond %s',
-                                $payment->status->value,
+                                '%s · %s · %s · Checkout %s · PaymentIntent %s · aangemaakt %s · afgerond %s',
+                                $payment->status->getLabel(),
                                 $payment->provider,
-                                number_format($payment->amount_cents / 100, 2, ',', '.'),
-                                $payment->currency,
+                                Money::format($payment->amount_cents, $payment->currency),
                                 $payment->provider_reference ?: '-',
                                 $payment->provider_payment_id ?: '-',
                                 $payment->created_at?->toDateTimeString() ?? '-',
@@ -109,12 +118,11 @@ class OrderResource extends Resource
                         ->state(fn (Order $record): string => $record->operations
                             ->sortByDesc('id')
                             ->map(fn (OrderOperation $operation): string => sprintf(
-                                '%s · %s · %s · %s %s · operator %s · provider %s · referentie %s · %s',
+                                '%s · %s · %s · %s · operator %s · provider %s · referentie %s · %s',
                                 $operation->requested_at?->toDateTimeString() ?? '-',
                                 $operation->type->getLabel(),
                                 $operation->status->getLabel(),
-                                number_format($operation->amount_cents / 100, 2, ',', '.'),
-                                $operation->currency,
+                                Money::format($operation->amount_cents, $operation->currency),
                                 $operation->operator?->name ?? 'verwijderde gebruiker',
                                 $operation->provider ?: '-',
                                 $operation->provider_reference ?: '-',
@@ -122,6 +130,15 @@ class OrderResource extends Resource
                             ))
                             ->join('; '))
                         ->placeholder('-'),
+                ]),
+            Section::make('Operationele plaatsingscontrole')
+                ->description('De financiële terugbetaling is bevestigd. Publicatie, looptijd en handmatige prioriteit zijn bewust niet automatisch gewijzigd.')
+                ->visible(fn (Order $record): bool => OrderPresentation::requiresPlacementReview($record))
+                ->schema([
+                    TextEntry::make('placement_review_action')
+                        ->label('Volgende stap')
+                        ->state('Beoordeel het gekoppelde plaatsingsrecht en de vacature handmatig. Leg een commercieel besluit vast via de bestaande audit-/beheerprocedure; herstel of verleng niets automatisch.')
+                        ->color('warning'),
                 ]),
         ]);
     }
@@ -144,7 +161,7 @@ class OrderResource extends Resource
                 SelectFilter::make('status')->label('Status')->options(OrderStatus::class),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()->label('Bekijken / acties'),
             ]);
     }
 
