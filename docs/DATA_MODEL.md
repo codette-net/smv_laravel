@@ -368,11 +368,13 @@ Company ownership (`companies.user_id`) and from editorial Blog relations.
 Public work seekers and employers share the same `users` table and Laravel `web` guard.
 `RegistrationContext` is validated, transient onboarding intent (`job_seeker` or
 `employer`), not a second stored identity model and not an authorization grant. The
-existing `users.role`/Spatie roles retain initial classification where the current
-architecture needs it, but product capabilities are not needlessly exclusive: saved
-content and owned Applications work for any authenticated User. Employer management
-continues to require actual Company ownership or permissions. A User may therefore gain
-an employer role through later Company onboarding without creating a second User.
+existing `users.role` column is retained unchanged as a legacy registration classification;
+it is not an authorization source and is read-only in User administration. Spatie roles
+and permissions are authoritative for staff access. The non-staff `candidate` and
+`employer` roles remain compatible onboarding markers, while employer capability requires
+actual Company ownership and candidate capability follows owned activity. Saved content
+and owned Applications work for any authenticated User, so one User may hold both contexts
+without creating another identity or replacing roles.
 
 ### Candidate Applications
 

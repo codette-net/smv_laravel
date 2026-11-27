@@ -459,6 +459,10 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   assignment never publishes the Vacancy. Unavailable items render
   without protected content. Account routes are private and
   `noindex, nofollow`;
+- Filament User administration presents public account context, actual Spatie staff roles
+  and associated Companies as separate concepts. Staff assignment is a controlled multi-role
+  field; the legacy registration classification is clearly labelled read-only compatibility
+  data and cannot grant access;
 - Mijn sollicitaties uses existing badge components and intentionally shows only a
   candidate-facing status, submission date and still-public Vacancy context. External
   links, e-mail actions, private applicant fields and unavailable Vacancy/Company copy

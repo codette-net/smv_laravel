@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Authorization\StaffRoleCatalog;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -25,6 +26,40 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['super-admin', 'admin', 'editor']);
+    }
+
+    /** @return list<string> */
+    public function accountContextLabels(): array
+    {
+        $companyCount = $this->relationLoaded('companies')
+            ? $this->companies->count()
+            : ($this->companies_count ?? $this->companies()->count());
+        $hasCandidateActivity = $this->relationCount('applications') > 0
+            || $this->relationCount('savedVacancies') > 0
+            || $this->relationCount('savedCompanies') > 0;
+
+        $contexts = [];
+
+        if ($companyCount === 0 || $hasCandidateActivity) {
+            $contexts[] = 'Kandidaat';
+        }
+
+        if ($companyCount > 0) {
+            $contexts[] = 'Werkgever';
+        }
+
+        return $contexts;
+    }
+
+    /** @return list<string> */
+    public function staffRoleLabels(): array
+    {
+        return $this->roles
+            ->pluck('name')
+            ->intersect(StaffRoleCatalog::names())
+            ->map(fn (string $role): string => StaffRoleCatalog::label($role))
+            ->values()
+            ->all();
     }
 
     public function companies(): HasMany
@@ -77,5 +112,16 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    private function relationCount(string $relation): int
+    {
+        $attribute = (string) str($relation)->snake().'_count';
+
+        if (array_key_exists($attribute, $this->attributes)) {
+            return (int) $this->attributes[$attribute];
+        }
+
+        return $this->{$relation}()->count();
     }
 }

@@ -83,6 +83,7 @@ final class AcceptanceDemoSeeder extends Seeder
             $vacancies = $this->seedVacancies($companies, $sources, $runs);
 
             $this->seedAccountHistory($users['candidate'], $companies, $vacancies);
+            $this->seedAccountHistory($users['dual'], $companies, $vacancies);
             $this->seedOutboundClicks($vacancies);
             $this->seedVacancyDetailViews($vacancies);
             $this->seedOrders($users['employer'], $companies['complete'], $vacancies, $users['admin']);
@@ -98,11 +99,12 @@ final class AcceptanceDemoSeeder extends Seeder
     private function seedUsers(): array
     {
         $definitions = [
-            'candidate' => ['name' => 'Noor Kandidaat', 'role' => 'candidate'],
-            'employer' => ['name' => 'Milan Werkgever', 'role' => 'employer'],
-            'editor' => ['name' => 'Eva Redactie', 'role' => 'editor'],
-            'admin' => ['name' => 'Sam Beheer', 'role' => 'admin'],
-            'super_admin' => ['name' => 'Alex Superbeheer', 'role' => 'super-admin'],
+            'candidate' => ['name' => 'Noor Kandidaat', 'legacy_role' => 'candidate', 'roles' => ['candidate']],
+            'employer' => ['name' => 'Milan Werkgever', 'legacy_role' => 'employer', 'roles' => ['employer']],
+            'dual' => ['name' => 'Robin Dubbelaccount', 'legacy_role' => 'candidate', 'roles' => ['candidate', 'employer']],
+            'editor' => ['name' => 'Eva Redactie', 'legacy_role' => 'candidate', 'roles' => ['editor']],
+            'admin' => ['name' => 'Sam Beheer', 'legacy_role' => 'candidate', 'roles' => ['admin']],
+            'super_admin' => ['name' => 'Alex Superbeheer', 'legacy_role' => 'candidate', 'roles' => ['super-admin']],
         ];
 
         $users = [];
@@ -113,13 +115,13 @@ final class AcceptanceDemoSeeder extends Seeder
             ]);
             $user->fill([
                 'name' => $definition['name'],
-                'role' => $definition['role'],
+                'role' => $definition['legacy_role'],
                 'password' => Hash::make(self::password()),
                 'email_verified_at' => now(),
             ]);
             $user->email = "{$key}@".self::EMAIL_DOMAIN;
             $user->save();
-            $user->syncRoles([$definition['role']]);
+            $user->syncRoles($definition['roles']);
             $users[$key] = $user;
         }
 
@@ -153,6 +155,17 @@ final class AcceptanceDemoSeeder extends Seeder
                 'status' => CompanyStatus::Active,
                 'is_featured' => false,
                 'commercial_priority' => -5,
+            ],
+            'dual' => [
+                'name' => 'Dubbelrol Growth Partners',
+                'user_id' => $users['dual']->id,
+                'tagline' => 'Fictief bedrijf voor een gecombineerd kandidaat- en werkgeversaccount.',
+                'description' => 'Een veilig acceptatieprofiel waarmee beide accountcontexten in één gebruiker kunnen worden getest.',
+                'email' => 'contact@dubbelrol-growth.'.self::EMAIL_DOMAIN,
+                'location' => 'Amersfoort',
+                'status' => CompanyStatus::Active,
+                'is_featured' => false,
+                'commercial_priority' => 0,
             ],
             'imported' => [
                 'name' => 'Rivierenland Commerce Group',

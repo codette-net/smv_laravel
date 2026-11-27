@@ -126,6 +126,14 @@ Employer and candidate roles do not have unrestricted panel access. Editor permi
 are conservative pending later editorial refinement. The public `/account` area is
 separate from the Filament `/dashboard` panel.
 
+Spatie roles and permissions are the authoritative staff authorization boundary. The
+legacy `users.role` column is retained as read-only registration compatibility data and
+is never consulted for panel access or policy decisions. Filament User administration
+exposes only the bounded `super-admin`, `admin` and `editor` staff set, preserves any
+non-staff roles, rejects arbitrary role names and prevents an ordinary administrator from
+assigning or modifying `super-admin`. Account context is presented separately from staff
+authorization and is derived from Company ownership plus candidate activity.
+
 ## Public employer placement
 
 The first SMV-078 slice uses the existing Laravel `web` guard rather than a second auth

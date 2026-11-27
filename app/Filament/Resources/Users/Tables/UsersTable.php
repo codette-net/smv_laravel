@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Models\User;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -20,13 +21,30 @@ class UsersTable
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('E-mailadres')
                     ->searchable(),
+                TextColumn::make('account_context')
+                    ->label('Accountcontext')
+                    ->getStateUsing(fn (User $record): array => $record->accountContextLabels())
+                    ->badge(),
+                TextColumn::make('staff_roles')
+                    ->label('Medewerkersrollen')
+                    ->getStateUsing(fn (User $record): array => $record->staffRoleLabels())
+                    ->badge()
+                    ->placeholder('-'),
+                TextColumn::make('companies.name')
+                    ->label('Bedrijven')
+                    ->listWithLineBreaks()
+                    ->limitList(3)
+                    ->placeholder('-'),
                 TextColumn::make('email_verified_at')
+                    ->label('E-mail geverifieerd op')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('role')
-                    ->searchable(),
+                    ->label('Legacy registratieclassificatie')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -43,8 +61,8 @@ class UsersTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make()
-                ])
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

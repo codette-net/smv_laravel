@@ -245,6 +245,11 @@ allocation → approval/public eligibility → activation without changing any t
 refund is shown as financially complete even when its allocated/active placement remains frozen for
 manual operational review; no automated reinstatement, extension or publication decision exists.
 
+SMV-072A keeps public account context separate from staff authorization. Company ownership and
+candidate activity determine the public experience; only bounded Spatie staff roles and explicit
+permissions authorize Filament. The legacy `users.role` value remains compatibility data, is not
+an access grant and is not silently rewritten for existing users.
+
 SMV-118 is outside the commercial implementation sequence and reserved for the consolidated
 UI/UX round. It may add an optional scheduled full-width banner presentation to an existing
 Vacancy, but that placement is separate from ranking, `is_featured` and Superior entitlement.

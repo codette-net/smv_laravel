@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Models\Vacancy;
 use App\Models\VacancyDetailView;
 use Database\Seeders\AcceptanceDemoSeeder;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 
@@ -34,9 +35,9 @@ function seedAcceptanceDataset(): void
 test('acceptance seeder creates the documented role, company, vacancy, source and history scenarios', function (): void {
     seedAcceptanceDataset();
 
-    expect(User::query()->where('email', 'like', '%@smv-acceptance.test')->count())->toBe(5)
+    expect(User::query()->where('email', 'like', '%@smv-acceptance.test')->count())->toBe(6)
         ->and(Role::query()->whereIn('name', ['candidate', 'employer', 'editor', 'admin', 'super-admin'])->count())->toBe(5)
-        ->and(Company::query()->where('slug', 'like', 'acceptance-company-%')->count())->toBe(4)
+        ->and(Company::query()->where('slug', 'like', 'acceptance-company-%')->count())->toBe(5)
         ->and(Vacancy::query()->where('reference', 'like', 'acceptance-%')->count())->toBeGreaterThanOrEqual(13)
         ->and(Vacancy::query()->where('source', VacancySource::Manual->value)->where('status', VacancyStatus::Draft->value)->where('reference', 'acceptance-manual-draft')->exists())->toBeTrue()
         ->and(Vacancy::query()->where('source', VacancySource::Manual->value)->where('status', VacancyStatus::Active->value)->where('is_filled', true)->where('reference', 'acceptance-manual-filled')->exists())->toBeTrue()
@@ -145,6 +146,23 @@ test('acceptance seeder creates candidate account history and outbound reporting
         ->and(VacancyDetailView::query()->count())->toBe(12)
         ->and(VacancyDetailView::query()->whereHas('vacancy', fn ($query) => $query->where('source', VacancySource::Manual->value))->exists())->toBeTrue()
         ->and(VacancyDetailView::query()->whereHas('vacancy', fn ($query) => $query->where('source', VacancySource::Import->value))->exists())->toBeTrue();
+});
+
+test('acceptance seeder separates legacy classification, staff authorization and dual account context', function (): void {
+    seedAcceptanceDataset();
+
+    $admin = User::query()->where('email', 'admin@smv-acceptance.test')->firstOrFail();
+    $dual = User::query()->where('email', 'dual@smv-acceptance.test')->firstOrFail();
+
+    expect($admin->role)->toBe('candidate')
+        ->and($admin->getRoleNames()->all())->toBe(['admin'])
+        ->and($admin->canAccessPanel(Panel::make()))->toBeTrue()
+        ->and($dual->role)->toBe('candidate')
+        ->and($dual->getRoleNames()->sort()->values()->all())->toBe(['candidate', 'employer'])
+        ->and($dual->companies()->where('slug', 'acceptance-company-dual')->exists())->toBeTrue()
+        ->and($dual->applications()->exists())->toBeTrue()
+        ->and($dual->accountContextLabels())->toBe(['Kandidaat', 'Werkgever'])
+        ->and($dual->canAccessPanel(Panel::make()))->toBeFalse();
 });
 
 test('acceptance seeder is idempotent for deterministic fixture records', function (): void {
