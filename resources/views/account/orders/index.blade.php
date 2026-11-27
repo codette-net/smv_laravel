@@ -9,35 +9,24 @@
         <a class="text-sm font-semibold text-blue-700 hover:text-blue-800" href="{{ route('account.index') }}">← Mijn account</a>
         <p class="mt-8 text-sm font-semibold uppercase tracking-widest text-blue-700">Mijn account</p>
         <h1 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Mijn bestellingen</h1>
-        <p class="mt-3 max-w-2xl leading-7 text-slate-600">Bekijk de actuele bestel- en betaalstatus. Betaling publiceert een vacature niet automatisch.</p>
+        <p class="mt-3 max-w-2xl leading-7 text-slate-600">Bekijk pakket, vacature, bedrag en actuele bestel- en betaalstatus. Betaling publiceert een vacature niet automatisch.</p>
 
         <div class="mt-8 space-y-5">
             @forelse ($orders as $order)
-                @php
-                    $latestOperation = $order->operations->first();
-                    $paymentStatus = match ($order->payments->first()?->status) {
-                        \App\Enums\PaymentStatus::Open, \App\Enums\PaymentStatus::Pending => 'betaling in afwachting',
-                        \App\Enums\PaymentStatus::Paid => 'betaald',
-                        \App\Enums\PaymentStatus::Failed => 'betaling mislukt',
-                        \App\Enums\PaymentStatus::Cancelled => 'betaling geannuleerd',
-                        \App\Enums\PaymentStatus::Expired => 'betaling verlopen',
-                        \App\Enums\PaymentStatus::Refunded => 'terugbetaald',
-                        null => 'betaling nog niet gestart',
-                    };
-                    $paymentStatus = $latestOperation?->providerSucceeded() ? 'terugbetaald' : match ($latestOperation?->status) {
-                        \App\Enums\OrderOperationStatus::Requested, \App\Enums\OrderOperationStatus::Pending => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'terugbetaling in behandeling' : $paymentStatus,
-                        \App\Enums\OrderOperationStatus::Failed => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'terugbetaling mislukt' : $paymentStatus,
-                        \App\Enums\OrderOperationStatus::RequiresReview => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'terugbetaling wordt gecontroleerd' : $paymentStatus,
-                        default => $paymentStatus,
-                    };
-                @endphp
-                <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">
-                    <div>
-                        <h2 class="font-semibold text-slate-900">{{ $order->order_number }}</h2>
-                        <p class="mt-1 text-sm text-slate-500">{{ $order->orderItems->pluck('title_snapshot')->join(', ') }} · € {{ number_format($order->total_cents / 100, 2, ',', '.') }} incl. btw</p>
-                        <p class="mt-1 text-sm text-slate-500">{{ $order->created_at->format('d-m-Y') }} · {{ $paymentStatus }}</p>
+                <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="min-w-0">
+                            <h2 class="font-semibold text-slate-900">{{ $order->order_number }}</h2>
+                            <p class="mt-1 text-sm text-slate-600">Pakket: {{ $order->orderItems->pluck('title_snapshot')->filter()->join(', ') ?: '-' }}</p>
+                            <p class="mt-1 text-sm text-slate-600">Vacature: {{ $order->orderItems->pluck('vacancy.title')->filter()->join(', ') ?: 'nog niet gekoppeld' }}</p>
+                            <p class="mt-1 text-sm text-slate-600">{{ \App\Support\Commerce\Money::format($order->total_cents, $order->currency) }} incl. btw · {{ $order->created_at->format('d-m-Y') }}</p>
+                            <x-order.status-badges class="mt-3" :order="$order" />
+                            @if ($reviewLabel = \App\Support\Commerce\OrderPresentation::placementReviewLabel($order))
+                                <p class="mt-3 text-sm font-medium text-amber-800">De financiële terugbetaling is voltooid. {{ $reviewLabel }}; de vacature is niet automatisch gewijzigd.</p>
+                            @endif
+                        </div>
+                        <a class="inline-flex shrink-0 text-sm font-semibold text-blue-700 hover:text-blue-800" href="{{ route('account.orders.show', $order) }}">Bekijk bestelling →</a>
                     </div>
-                    <a class="mt-4 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-800 sm:mt-0" href="{{ route('account.orders.show', $order) }}">Bekijk bestelling →</a>
                 </article>
             @empty
                 <div class="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">U heeft nog geen bestellingen.</div>

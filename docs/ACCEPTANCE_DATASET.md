@@ -129,6 +129,14 @@ uses Vacancy `acceptance-placement-refund-review`. The operations have stable id
 provider references, a fictitious internal reason and the acceptance administrator as operator;
 no Stripe request or webhook is fabricated.
 
+For SMV-119 account acceptance, sign in as `employer@smv-acceptance.test` and verify the
+employer-first Company/Vacancy/credit/Order overview and the available, assigned, active and review
+counts. Use `SMV-ACCEPTANCE-REFUNDED` to verify a completed financial refund with a reversed unused
+right, and `SMV-ACCEPTANCE-REFUND-REVIEW` to verify that **Terugbetaald** and **Plaatsing: controle
+nodig** are presented as separate states. In Filament, the **Bekijken / acties** row action must lead
+to the existing state-appropriate cancellation/refund controls and the manual operational-review
+guidance. No acceptance step should reinstate, extend or republish the review fixture automatically.
+
 ## Reruns and future Payments
 
 Users, Companies, Vacancies, ImportSources, mappings, import runs/logs, Applications, saved

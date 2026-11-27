@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\Placements\AllocatePlacementCredit;
 use App\Enums\CategoryType;
+use App\Enums\OrderStatus;
+use App\Enums\PlacementCreditStatus;
 use App\Enums\VacancySource;
 use App\Enums\VacancyStatus;
 use App\Http\Requests\UpdateEmployerCompanyRequest;
@@ -14,6 +16,7 @@ use App\Models\Vacancy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 
 class AccountController extends Controller
@@ -34,18 +37,73 @@ class AccountController extends Controller
             ->get();
         $publicVacancyIds = $this->publicVacancyIds($vacancies->pluck('id')->all());
 
+        $credits = PlacementCredit::query()
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->with(['company', 'vacancy'])
+            ->get();
+        $creditCounts = $this->placementCreditCounts($credits);
+        $applicationsCount = $request->user()->applications()->count();
+        $savedVacanciesCount = $request->user()->savedVacancies()->count();
+        $savedCompaniesCount = $request->user()->savedCompanies()->count();
+        $ordersCount = $request->user()->orders()
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->count();
+        $hasEmployerContext = $companies->isNotEmpty();
+
+        $recentOrders = Order::query()
+            ->where('user_id', $request->user()->id)
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->with([
+                'company',
+                'orderItems.vacancy',
+                'payments' => fn ($query) => $query->latest('id'),
+                'operations' => fn ($query) => $query->latest('id'),
+                'placementCredits',
+            ])
+            ->latest('created_at')
+            ->latest('id')
+            ->limit(3)
+            ->get();
+
+        $activeVacanciesCount = Vacancy::query()
+            ->publiclyVisible()
+            ->whereHas('company', fn ($query) => $query
+                ->where('user_id', $request->user()->id)
+                ->publiclyVisible())
+            ->count();
+        $awaitingApprovalCount = Vacancy::query()
+            ->where('status', VacancyStatus::Pending->value)
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->count();
+        $draftVacanciesCount = Vacancy::query()
+            ->where('status', VacancyStatus::Draft->value)
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->count();
+        $pendingOrdersCount = Order::query()
+            ->where('user_id', $request->user()->id)
+            ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
+            ->whereIn('status', [OrderStatus::Draft->value, OrderStatus::Pending->value, OrderStatus::PendingPayment->value])
+            ->count();
+        $incompleteCompaniesCount = $companies->filter(fn (Company $company): bool => ! $company->hasCompletePublicProfile())->count();
+
         return view('account.index', [
             'companies' => $companies,
             'vacancies' => $vacancies,
             'publicVacancyIds' => $publicVacancyIds,
-            'savedVacanciesCount' => $request->user()->savedVacancies()->count(),
-            'savedCompaniesCount' => $request->user()->savedCompanies()->count(),
-            'applicationsCount' => $request->user()->applications()->count(),
-            'ordersCount' => $request->user()->orders()->count(),
-            'availablePlacementCreditsCount' => PlacementCredit::query()
-                ->available()
-                ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
-                ->count(),
+            'savedVacanciesCount' => $savedVacanciesCount,
+            'savedCompaniesCount' => $savedCompaniesCount,
+            'applicationsCount' => $applicationsCount,
+            'ordersCount' => $ordersCount,
+            'hasEmployerContext' => $hasEmployerContext,
+            'hasCandidateContext' => ! $hasEmployerContext || $applicationsCount + $savedVacanciesCount + $savedCompaniesCount > 0,
+            'recentOrders' => $recentOrders,
+            'creditCounts' => $creditCounts,
+            'employerStats' => [
+                'activeVacancies' => $activeVacanciesCount,
+                'awaitingApproval' => $awaitingApprovalCount,
+                'availableCredits' => $creditCounts['available'],
+                'attention' => $draftVacanciesCount + $pendingOrdersCount + $incompleteCompaniesCount + $creditCounts['review'],
+            ],
         ]);
     }
 
@@ -66,13 +124,9 @@ class AccountController extends Controller
             ->orderBy('title')
             ->get()
             ->groupBy('company_id');
-        $availableByPackage = $credits
-            ->whereNull('vacancy_id')
-            ->whereNull('reversed_at')
-            ->whereNull('review_required_at')
-            ->countBy('product_code');
+        $creditCounts = $this->placementCreditCounts($credits);
 
-        return view('account.placements', compact('credits', 'vacancies', 'availableByPackage'));
+        return view('account.placements', compact('credits', 'vacancies', 'creditCounts'));
     }
 
     public function redeemPlacementCredit(
@@ -104,6 +158,7 @@ class AccountController extends Controller
                 'orderItems.vacancy',
                 'payments' => fn ($query) => $query->latest('id'),
                 'operations' => fn ($query) => $query->latest('id'),
+                'placementCredits',
             ])
             ->latest('created_at')
             ->latest('id')
@@ -210,5 +265,22 @@ class AccountController extends Controller
     {
         Gate::authorize('update', $company);
         abort_unless($company->user_id === auth()->id(), 403);
+    }
+
+    /**
+     * @param  Collection<int, PlacementCredit>  $credits
+     * @return array{available: int, assigned: int, active: int, review: int}
+     */
+    private function placementCreditCounts(Collection $credits): array
+    {
+        $statuses = $credits->countBy(fn (PlacementCredit $credit): string => $credit->status()->value);
+
+        return [
+            'available' => $statuses[PlacementCreditStatus::Available->value] ?? 0,
+            'assigned' => ($statuses[PlacementCreditStatus::Allocated->value] ?? 0)
+                + ($statuses[PlacementCreditStatus::Scheduled->value] ?? 0),
+            'active' => $statuses[PlacementCreditStatus::Active->value] ?? 0,
+            'review' => $statuses[PlacementCreditStatus::RequiresReview->value] ?? 0,
+        ];
     }
 }

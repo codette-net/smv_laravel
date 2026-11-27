@@ -442,7 +442,12 @@ SMV-063 provides the first coherent Dutch content and brand layer:
   to the work-seeker form, while placement points to the employer form; all resume through
   Laravel's intended URL. Invalid context input falls back safely to the choice page;
 - `/account` is the normal public destination for authenticated users and is distinct
-  from the staff-only Filament `/dashboard`. Employers can complete owned Company
+  from the staff-only Filament `/dashboard`. The overview derives context from actual Company
+  ownership and account activity, not from one role string. Company owners receive an
+  employer-first dashboard with active/pending Vacancy counts, open attention points, credit
+  states and recent Orders. Candidate-only accounts lead with Applications and saved Vacancies/
+  Companies; a Company owner with candidate activity retains both contexts without switching
+  roles. Employers can complete owned Company
   profiles and browse owned Vacancies through `/account/vacatures`. Every authenticated
   User can review securely linked internal Applications through
   `/account/sollicitaties`, manage saved Vacancies through `/account/bewaarde-vacatures`, saved
@@ -491,13 +496,18 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 
 ### Commercial UI boundaries
 
-The Filament **Bestellingen** detail exposes two authorized Dutch actions: cancel an unpaid
+The Filament **Bestellingen** list labels its row action **Bekijken / acties**, making the two
+state-dependent controls discoverable without duplicating their business logic. The detail exposes
+two authorized Dutch actions: cancel an unpaid
 Order and request a full paid refund. Both use a confirmation modal with mandatory internal
 reason. The detail shows operation status, operator, amount, provider references and related
 credit state, including a clear review state for allocated/active placements. There is still no
 raw paid/refunded status control. Employer/candidate accounts cannot initiate these actions.
 Private customer Order pages show the useful cancelled/refund state without the staff reason or
-safe operational diagnostics.
+safe operational diagnostics. Public-account status badges consistently separate Order, Payment
+and placement-review state. Dutch EUR amounts use the same formatter on the overview, Order list
+and detail. A provider-confirmed refund can therefore read **Terugbetaald** while the attached
+placement separately reads **controle nodig**.
 
 SMV-050B provides a dedicated staff-only Filament **Vacatureranking** overview rather than
 overloading public or employer Vacancy forms. Its server-paginated table supports 25, 50, 100
@@ -519,6 +529,13 @@ existing employer flow. Staff inspect the same immutable grants and their event 
 the read-only Filament **Plaatsingsrechten** resource and Order/Company infolists. There are no
 raw balance controls. Standard/Superior ranking is active only during a published entitlement's
 stored validity window; Maatwerk remains quote-only.
+
+SMV-119 expands that overview without changing the SMV-116 lifecycle. Available, assigned/
+scheduled, active and review-required totals are shown separately. Company approval, Vacancy
+approval and future publication are named as the actual blockers; allocation still never
+publishes, and the purchased duration still starts only on public eligibility. A refunded active
+or allocated placement stays visibly pending manual staff review because an automatic commercial
+resolution has not been approved.
 
 SMV-097A extends the existing staff reporting screen with raw public detail-view and outbound
 click totals, per-Vacancy/Company/ImportSource breakdowns, CSV and a clearly labelled

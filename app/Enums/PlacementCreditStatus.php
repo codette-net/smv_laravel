@@ -33,9 +33,15 @@ enum PlacementCreditStatus: string implements HasColor, HasLabel
         return match ($this) {
             self::Available => 'success',
             self::Allocated, self::Scheduled => 'warning',
-            self::Active => 'info',
-            self::Expired, self::Reversed => 'danger',
+            self::Active => 'success',
+            self::Expired => 'gray',
+            self::Reversed => 'danger',
             self::RequiresReview => 'warning',
         };
+    }
+
+    public function badgeVariant(): string
+    {
+        return $this->getColor() === 'gray' ? 'neutral' : $this->getColor();
     }
 }

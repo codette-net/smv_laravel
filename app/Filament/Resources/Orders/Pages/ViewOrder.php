@@ -7,6 +7,7 @@ use App\Actions\Orders\RequestFullRefund;
 use App\Enums\OrderOperationStatus;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\Orders\OrderResource;
+use App\Support\Commerce\Money;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -51,9 +52,8 @@ class ViewOrder extends ViewRecord
                 ->requiresConfirmation()
                 ->modalHeading('Volledige terugbetaling aanvragen')
                 ->modalDescription(fn (): string => sprintf(
-                    'Stripe ontvangt een verzoek voor het volledige betaalde bedrag van %s %s, inclusief btw. De providerstatus blijft leidend.%s',
-                    number_format($this->record->total_cents / 100, 2, ',', '.'),
-                    $this->record->currency,
+                    'Stripe ontvangt een verzoek voor het volledige betaalde bedrag van %s, inclusief btw. De providerstatus blijft leidend.%s',
+                    Money::format($this->record->total_cents, $this->record->currency),
                     $this->record->placementCredits()->whereNotNull('vacancy_id')->exists()
                         ? ' Let op: een plaatsingsrecht is al toegewezen of gebruikt en vereist na bevestiging handmatige controle.'
                         : '',

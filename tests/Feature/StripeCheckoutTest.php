@@ -204,7 +204,7 @@ test('customer Order history and checkout are owner scoped', function (): void {
         ->assertOk()
         ->assertSee($order->order_number)
         ->assertSee('Standaard')
-        ->assertSee('betaling nog niet gestart');
+        ->assertSee('Betaling: Nog niet gestart');
     $this->get(route('account.orders.show', $order))->assertOk();
     $this->post(route('account.orders.pay', $order))->assertRedirect('https://checkout.stripe.com/c/pay/cs_test_smv_1');
 

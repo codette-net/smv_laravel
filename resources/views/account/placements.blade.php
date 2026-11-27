@@ -9,7 +9,7 @@
         <a class="text-sm font-semibold text-blue-700 hover:text-blue-800" href="{{ route('account.index') }}">← Mijn account</a>
         <p class="mt-8 text-sm font-semibold uppercase tracking-widest text-blue-700">Werkgever</p>
         <h1 class="mt-2 font-playfair-display text-3xl font-bold text-slate-900">Mijn plaatsingsrechten</h1>
-        <p class="mt-3 max-w-2xl leading-7 text-slate-600">Bekijk beschikbare en gebruikte plaatsingen. Een toegewezen recht publiceert een vacature nooit automatisch.</p>
+        <p class="mt-3 max-w-3xl leading-7 text-slate-600">Bekijk beschikbare en gebruikte plaatsingen. Betaling kent een recht toe aan uw bedrijf; toewijzing publiceert een vacature nooit automatisch. De betaalde looptijd start pas wanneer bedrijf en vacature openbaar zijn.</p>
 
         @if (session('account_status'))
             <div class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900" role="status">{{ session('account_status') }}</div>
@@ -18,14 +18,23 @@
             <div class="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900" role="alert">{{ $errors->first() }}</div>
         @endif
 
-        <dl class="mt-8 grid gap-4 sm:grid-cols-2">
-            @foreach (['standard' => 'Standaard', 'superior' => 'Superior'] as $code => $label)
+        <dl class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            @foreach ([
+                ['label' => 'Beschikbaar', 'value' => $creditCounts['available']],
+                ['label' => 'Toegewezen / wacht', 'value' => $creditCounts['assigned']],
+                ['label' => 'Actief', 'value' => $creditCounts['active']],
+                ['label' => 'Controle vereist', 'value' => $creditCounts['review']],
+            ] as $stat)
                 <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <dt class="text-sm font-medium text-slate-500">Beschikbaar · {{ $label }}</dt>
-                    <dd class="mt-2 text-3xl font-bold text-slate-900">{{ $availableByPackage[$code] ?? 0 }}</dd>
+                    <dt class="text-sm font-medium text-slate-500">{{ $stat['label'] }}</dt>
+                    <dd class="mt-2 text-3xl font-bold text-slate-900">{{ $stat['value'] }}</dd>
                 </div>
             @endforeach
         </dl>
+
+        <div class="mt-5 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+            <strong>Van betaling naar publicatie:</strong> bevestigde betaling → recht toegekend → recht aan een conceptvacature toegewezen → bedrijf en vacature goedgekeurd → looptijd geactiveerd. Goedkeuring en publicatie blijven altijd aparte stappen.
+        </div>
 
         <div class="mt-8 space-y-5">
             @forelse ($credits as $credit)
@@ -35,7 +44,7 @@
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <h2 class="font-semibold text-slate-900">{{ $credit->package_name_snapshot }}</h2>
-                                <x-ui.badge size="xs" :variant="$status === \App\Enums\PlacementCreditStatus::Available ? 'success' : 'info'">{{ $status->getLabel() }}</x-ui.badge>
+                                <x-ui.badge size="xs" :variant="$status->badgeVariant()">{{ $status->getLabel() }}</x-ui.badge>
                             </div>
                             <p class="mt-2 text-sm text-slate-500">{{ $credit->company->name }} · {{ $credit->duration_days_snapshot }} dagen · bestelling {{ $credit->order->order_number }}</p>
                             @if ($credit->vacancy)
@@ -43,6 +52,9 @@
                             @endif
                             @if ($credit->expires_at)
                                 <p class="mt-1 text-sm text-slate-500">Plaatsing geldig tot {{ $credit->expires_at->translatedFormat('j F Y H:i') }}</p>
+                            @endif
+                            @if ($explanation = \App\Support\Commerce\PlacementCreditPresentation::explanation($credit))
+                                <p class="mt-3 text-sm font-medium {{ $status === \App\Enums\PlacementCreditStatus::RequiresReview ? 'text-amber-800' : 'text-slate-700' }}">{{ $explanation }}</p>
                             @endif
                         </div>
                         <a class="text-sm font-semibold text-blue-700 hover:text-blue-800" href="{{ route('account.orders.show', $credit->order) }}">Bestelling bekijken →</a>
