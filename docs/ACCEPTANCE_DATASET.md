@@ -60,8 +60,9 @@ The stable references are `acceptance-manual-internal`, `acceptance-manual-exter
 external and e-mail destinations, draft/pending/published/archived/expired/filled lifecycle
 states, Dutch/Belgian locations, taxonomies, tags, salary and hourly-rate filters.
 
-Use `acceptance-manual-external` for outbound apply-click tracking and
-`acceptance-manual-internal` for the public internal Application flow.
+Use `acceptance-manual-external` for combined raw detail-view/outbound-click reporting,
+`acceptance-manual-internal` for a views-only record and the public internal Application flow,
+and `acceptance-import-restored` as a clicks-only reporting record.
 
 For ranking acceptance, `acceptance-manual-internal` has Superior package intent,
 Company `+5` and Vacancy `+5`, for an effective score of `10`; the package component remains
@@ -91,9 +92,11 @@ concurrency skip without pretending that a live feed was contacted.
 ### Account and reporting history
 
 The candidate has two saved Vacancies, two saved Companies and one reviewed internal
-Application. Five deterministic outbound click events span the manual and imported Vacancies
-and several recent dates, so the SMV-097C date/source/Company filters visibly change the report.
-No external click is represented as an Application.
+Application. Five deterministic outbound click events and twelve deterministic detail-view
+events span manual/imported Vacancies, multiple Companies and several recent dates. The data
+includes views-only, clicks-only and combined rows, so date/source/Company filters and raw CTR
+visibly change the report. No external click is represented as an Application. All events are
+anonymous raw counts rather than unique people.
 
 ## Packages
 
@@ -129,8 +132,8 @@ no Stripe request or webhook is fabricated.
 ## Reruns and future Payments
 
 Users, Companies, Vacancies, ImportSources, mappings, import runs/logs, Applications, saved
-pivots and click events use stable fixture keys or timestamps. Rerunning the seeder updates the
-intended fixtures and does not multiply them. Acceptance data is deliberately separate from
+pivots, click events and detail-view events use stable fixture keys or timestamps. Rerunning
+the seeder updates the intended fixtures and does not multiply them. Acceptance data is deliberately separate from
 factories and should not be made a prerequisite for isolated feature tests.
 
 The Fake gateway remains the automated-test provider after the Stripe integration. The seeded

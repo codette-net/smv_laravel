@@ -20,3 +20,8 @@ Schedule::command('analytics:prune-outbound-clicks')
     ->dailyAt('02:30')
     ->timezone('UTC')
     ->withoutOverlapping(60);
+
+Schedule::command('analytics:prune-vacancy-detail-views')
+    ->dailyAt('02:35')
+    ->timezone('UTC')
+    ->withoutOverlapping(60);

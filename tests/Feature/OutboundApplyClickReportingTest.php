@@ -7,6 +7,7 @@ use App\Models\ImportSource;
 use App\Models\OutboundApplyClick;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Models\VacancyDetailView;
 use App\Support\Analytics\OutboundApplyClickCsv;
 use App\Support\Analytics\OutboundApplyClickFilters;
 use App\Support\Analytics\OutboundApplyClickReport;
@@ -53,6 +54,16 @@ function recordOutboundClick(Vacancy $vacancy, string $clickedAt): OutboundApply
     $click->save();
 
     return $click;
+}
+
+function recordVacancyDetailView(Vacancy $vacancy, string $viewedAt): VacancyDetailView
+{
+    $view = new VacancyDetailView;
+    $view->vacancy()->associate($vacancy);
+    $view->viewed_at = Carbon::parse($viewedAt, 'UTC');
+    $view->save();
+
+    return $view;
 }
 
 test('only administrators can access outbound click reporting', function (string $role, bool $allowed) {
@@ -139,6 +150,47 @@ test('date vacancy company source and combined filters constrain the same raw ev
         ])))->toBe(1);
 });
 
+test('report includes views-only clicks-only and combined Vacancies with explicit raw CTR semantics', function () {
+    $company = Company::factory()->create(['name' => 'CTR Bedrijf']);
+    $source = ImportSource::factory()->create(['name' => 'CTR Bron']);
+    $viewsOnly = clickReportVacancy($company, null, 'Alleen views');
+    $clicksOnly = clickReportVacancy($company, $source, 'Alleen clicks');
+    $both = clickReportVacancy($company, $source, 'Views en clicks');
+
+    recordVacancyDetailView($viewsOnly, '2026-11-01 00:00:00');
+    recordVacancyDetailView($viewsOnly, '2026-11-20 23:59:59');
+    recordOutboundClick($clicksOnly, '2026-11-10 10:00:00');
+    foreach (range(1, 4) as $minute) {
+        recordVacancyDetailView($both, "2026-11-12 10:0{$minute}:00");
+    }
+    recordOutboundClick($both, '2026-11-12 10:10:00');
+
+    $filters = OutboundApplyClickFilters::fromArray([
+        'date_from' => '2026-11-01',
+        'date_to' => '2026-11-20',
+    ]);
+    $report = app(OutboundApplyClickReport::class);
+    $vacancies = $report->vacancies($filters)->get()->keyBy('id');
+
+    expect($vacancies)->toHaveCount(3)
+        ->and($vacancies[$viewsOnly->id]->vacancy_detail_views_count)->toBe(2)
+        ->and($vacancies[$viewsOnly->id]->outbound_apply_clicks_count)->toBe(0)
+        ->and($vacancies[$clicksOnly->id]->vacancy_detail_views_count)->toBe(0)
+        ->and($vacancies[$clicksOnly->id]->outbound_apply_clicks_count)->toBe(1)
+        ->and($report->rawCtr(0, 2))->toBe(0.0)
+        ->and($report->rawCtr(1, 0))->toBeNull()
+        ->and($report->rawCtr(1, 4))->toBe(25.0)
+        ->and($report->rawCtr(3, 2))->toBe(150.0)
+        ->and($report->totalViews($filters))->toBe(6)
+        ->and($report->total($filters))->toBe(2)
+        ->and($report->companies($filters)->sole()->view_count)->toBe(6)
+        ->and($report->companies($filters)->sole()->click_count)->toBe(2)
+        ->and($report->importSources($filters)->pluck('view_count', 'name')->all())->toBe([
+            'CTR Bron' => 4,
+            '' => 2,
+        ]);
+});
+
 test('the Filament report supports filtering sorting zero results and raw repeat semantics', function () {
     $admin = clickReportUser('admin');
     $companyA = Company::factory()->create(['name' => 'A-bedrijf']);
@@ -154,8 +206,8 @@ test('the Filament report supports filtering sorting zero results and raw repeat
 
     Livewire::actingAs($admin)
         ->test(OutboundApplyClickReporting::class)
-        ->assertSee('Raw outbound apply clicks')
-        ->assertSee('geen unieke kandidaten', false)
+        ->assertSee('Externe sollicitatie-CTR (ruw)')
+        ->assertSee('unieke bezoekers of kandidaten', false)
         ->assertSee('maximaal 24 maanden')
         ->sortTable('outbound_apply_clicks_count', 'asc')
         ->assertCanSeeTableRecords([$low, $high], inOrder: true)
@@ -180,6 +232,10 @@ test('CSV exports deterministic aggregate rows for the selected period without p
     recordOutboundClick($joobsVacancy, '2026-11-10 09:00:00');
     recordOutboundClick($joobsVacancy, '2026-11-10 09:00:01');
     recordOutboundClick($manualVacancy, '2026-11-11 09:00:00');
+    recordVacancyDetailView($joobsVacancy, '2026-11-10 08:00:00');
+    recordVacancyDetailView($joobsVacancy, '2026-11-10 08:01:00');
+    recordVacancyDetailView($joobsVacancy, '2026-11-10 08:02:00');
+    recordVacancyDetailView($joobsVacancy, '2026-11-10 08:03:00');
 
     $filters = OutboundApplyClickFilters::fromArray([
         'date_from' => '2026-11-01',
@@ -196,12 +252,14 @@ test('CSV exports deterministic aggregate rows for the selected period without p
             'company',
             'import_source',
             'vacancy_status',
+            'raw_vacancy_detail_views',
             'raw_outbound_apply_clicks',
+            'raw_outbound_apply_ctr_percent',
             'period_from_utc',
             'period_to_utc',
         ])
-        ->and($lines[1])->toContain('Accountmanager Antwerpen', 'Joobs', ',2,2026-11-01,2026-11-20')
-        ->and($lines[2])->toContain('Marketingmanager Utrecht', 'Geen importbron', ',1,2026-11-01,2026-11-20')
+        ->and($lines[1])->toContain('Accountmanager Antwerpen', 'Joobs', ',4,2,50.00,2026-11-01,2026-11-20')
+        ->and($lines[2])->toContain('Marketingmanager Utrecht', 'Geen importbron', ',0,1,N/A,2026-11-01,2026-11-20')
         ->and($csv)->not->toContain('private-company@example.test', 'ip_address', 'user_agent', 'candidate');
 });
 
@@ -229,7 +287,10 @@ test('the admin CSV download uses the current table filters', function () {
 
 test('reporting indexes support date-first and per-vacancy date-range queries', function () {
     $indexColumns = collect(Schema::getIndexes('outbound_apply_clicks'))->pluck('columns');
+    $viewIndexColumns = collect(Schema::getIndexes('vacancy_detail_views'))->pluck('columns');
 
     expect($indexColumns)->toContain(['clicked_at'])
-        ->and($indexColumns)->toContain(['vacancy_id', 'clicked_at']);
+        ->and($indexColumns)->toContain(['vacancy_id', 'clicked_at'])
+        ->and($viewIndexColumns)->toContain(['viewed_at'])
+        ->and($viewIndexColumns)->toContain(['vacancy_id', 'viewed_at']);
 });
