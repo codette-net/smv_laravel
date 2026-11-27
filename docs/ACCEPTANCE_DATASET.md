@@ -35,6 +35,7 @@ Blog content is reused only when the database has no Blog posts; it is not dupli
 | --- | --- | --- |
 | Candidate | `candidate@smv-acceptance.test` | Login, saved Vacancies/Companies and internal Application history |
 | Employer | `employer@smv-acceptance.test` | Owned Company and employer Vacancy context |
+| Dual context | `dual@smv-acceptance.test` | Owned Company plus saved content and internal Application history in one non-staff account |
 | Editor | `editor@smv-acceptance.test` | Conservative Filament editorial access |
 | Admin | `admin@smv-acceptance.test` | Filament administration, imports and monitoring |
 | Super-admin | `super_admin@smv-acceptance.test` | Full staff acceptance access |
@@ -49,6 +50,7 @@ All addresses use the reserved `.test` domain and all passwords are acceptance-o
   Vacancy relationships; owned by the acceptance employer; Company priority `+5`.
 - `acceptance-company-minimal`: deliberately incomplete public profile for missing-field states;
   Company priority `-5`.
+- `acceptance-company-dual`: active Company owned by the dual-context acceptance account.
 - `acceptance-company-imported`: source-scoped imported-employer target Company; priority `0`.
 - `acceptance-company-empty`: active Company without a current public Vacancy; priority `0`.
 
@@ -97,6 +99,11 @@ events span manual/imported Vacancies, multiple Companies and several recent dat
 includes views-only, clicks-only and combined rows, so date/source/Company filters and raw CTR
 visibly change the report. No external click is represented as an Application. All events are
 anonymous raw counts rather than unique people.
+
+The dual-context account has the same bounded candidate history plus its own Company. Use it
+to verify that both account sections remain available without Filament access. Staff fixture
+accounts deliberately retain legacy classification `candidate` while their actual Spatie role
+is `editor`, `admin` or `super-admin`, proving the compatibility field is not authoritative.
 
 ## Packages
 
