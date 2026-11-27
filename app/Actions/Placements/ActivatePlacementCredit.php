@@ -27,6 +27,7 @@ class ActivatePlacementCredit
             $credit = PlacementCredit::query()
                 ->where('vacancy_id', $lockedVacancy->id)
                 ->whereNull('reversed_at')
+                ->whereNull('review_required_at')
                 ->lockForUpdate()
                 ->first();
 

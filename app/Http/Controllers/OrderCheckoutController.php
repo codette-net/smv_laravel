@@ -68,6 +68,7 @@ class OrderCheckoutController extends Controller
             'company',
             'orderItems.vacancy',
             'payments' => fn ($query) => $query->latest('id'),
+            'operations' => fn ($query) => $query->latest('id'),
         ]);
     }
 

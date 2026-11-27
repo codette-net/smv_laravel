@@ -11,6 +11,7 @@ use App\Models\Company;
 use App\Models\Import;
 use App\Models\ImportSource;
 use App\Models\Order;
+use App\Models\OrderOperation;
 use App\Models\OutboundApplyClick;
 use App\Models\Package;
 use App\Models\Payment;
@@ -46,6 +47,11 @@ test('acceptance seeder creates the documented role, company, vacancy, source an
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->where('status', 'pending_payment')->whereHas('orderItems')->exists())->toBeTrue()
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PENDING')->where('vat_rate_basis_points', 2100)->where('vat_cents', 8358)->exists())->toBeTrue()
         ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-PAID')->where('status', 'paid')->exists())->toBeTrue()
+        ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-CANCELLABLE')->where('status', 'pending_payment')->exists())->toBeTrue()
+        ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-REFUNDED')->where('status', 'refunded')->exists())->toBeTrue()
+        ->and(Order::query()->where('order_number', 'SMV-ACCEPTANCE-REFUND-REVIEW')->where('status', 'refunded')->exists())->toBeTrue()
+        ->and(OrderOperation::query()->where('provider_status', 'succeeded')->count())->toBe(2)
+        ->and(OrderOperation::query()->where('status', 'requires_review')->count())->toBe(1)
         ->and(Payment::query()->whereIn('idempotency_key', ['acceptance-payment-failed', 'acceptance-payment-cancelled', 'acceptance-payment-paid'])->count())->toBe(3)
         ->and(Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count())->toBe(3);
 
@@ -153,6 +159,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
         'placement_credits' => PlacementCredit::query()->count(),
         'placement_credit_events' => PlacementCreditEvent::query()->count(),
+        'order_operations' => OrderOperation::query()->count(),
     ];
 
     seedAcceptanceDataset();
@@ -170,6 +177,7 @@ test('acceptance seeder is idempotent for deterministic fixture records', functi
         'packages' => Package::query()->whereIn('slug', ['standard', 'superior', 'custom'])->count(),
         'placement_credits' => PlacementCredit::query()->count(),
         'placement_credit_events' => PlacementCreditEvent::query()->count(),
+        'order_operations' => OrderOperation::query()->count(),
     ])->toBe($counts);
 });
 

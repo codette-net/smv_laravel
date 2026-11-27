@@ -29,6 +29,8 @@ class PlacementCredit extends Model
         'expires_at',
         'reversed_at',
         'reversal_reason',
+        'review_required_at',
+        'review_reason',
     ];
 
     protected function casts(): array
@@ -43,6 +45,7 @@ class PlacementCredit extends Model
             'activated_at' => 'datetime',
             'expires_at' => 'datetime',
             'reversed_at' => 'datetime',
+            'review_required_at' => 'datetime',
         ];
     }
 
@@ -79,7 +82,7 @@ class PlacementCredit extends Model
     /** @param Builder<PlacementCredit> $query */
     public function scopeAvailable(Builder $query): Builder
     {
-        return $query->whereNull('vacancy_id')->whereNull('reversed_at');
+        return $query->whereNull('vacancy_id')->whereNull('reversed_at')->whereNull('review_required_at');
     }
 
     /** @param Builder<PlacementCredit> $query */
@@ -87,6 +90,7 @@ class PlacementCredit extends Model
     {
         return $query
             ->whereNull('reversed_at')
+            ->whereNull('review_required_at')
             ->whereNotNull('activated_at')
             ->where('activated_at', '<=', now())
             ->where('expires_at', '>=', now());
@@ -96,6 +100,10 @@ class PlacementCredit extends Model
     {
         if ($this->reversed_at !== null) {
             return PlacementCreditStatus::Reversed;
+        }
+
+        if ($this->review_required_at !== null) {
+            return PlacementCreditStatus::RequiresReview;
         }
 
         if ($this->vacancy_id === null) {

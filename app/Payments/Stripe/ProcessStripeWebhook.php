@@ -2,11 +2,16 @@
 
 namespace App\Payments\Stripe;
 
+use App\Actions\Orders\ReconcileRefund;
 use App\Actions\Payments\ConfirmPayment;
+use App\Enums\OrderOperationStatus;
+use App\Enums\OrderOperationType;
 use App\Enums\PaymentStatus;
+use App\Models\OrderOperation;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
 use App\Payments\PaymentGatewayException;
+use App\Payments\PaymentOperationResult;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Stripe\Event;
@@ -19,9 +24,15 @@ final class ProcessStripeWebhook
         'checkout.session.async_payment_succeeded',
         'checkout.session.async_payment_failed',
         'checkout.session.expired',
+        'refund.created',
+        'refund.updated',
+        'refund.failed',
     ];
 
-    public function __construct(private readonly ConfirmPayment $confirmPayment) {}
+    public function __construct(
+        private readonly ConfirmPayment $confirmPayment,
+        private readonly ReconcileRefund $reconcileRefund,
+    ) {}
 
     public function handle(Event $event): void
     {
@@ -29,12 +40,18 @@ final class ProcessStripeWebhook
             return;
         }
 
-        $session = $event->data->object;
-        if (! $session instanceof StripeObject || ! is_string($session->id ?? null)) {
-            throw new PaymentGatewayException('Stripe webhook bevat geen geldige Checkout Session.');
+        $object = $event->data->object;
+        if (! $object instanceof StripeObject || ! is_string($object->id ?? null)) {
+            throw new PaymentGatewayException('Stripe webhook bevat geen geldig object.');
         }
 
-        DB::transaction(function () use ($event, $session): void {
+        if (str_starts_with($event->type, 'refund.')) {
+            $this->handleRefund($event, $object);
+
+            return;
+        }
+
+        DB::transaction(function () use ($event, $object): void {
             $ledger = PaymentWebhookEvent::query()->firstOrCreate([
                 'provider' => 'stripe',
                 'event_id' => $event->id,
@@ -49,7 +66,7 @@ final class ProcessStripeWebhook
 
             $payment = Payment::query()
                 ->where('provider', 'stripe')
-                ->where('provider_reference', $session->id)
+                ->where('provider_reference', $object->id)
                 ->lockForUpdate()
                 ->first();
 
@@ -57,11 +74,84 @@ final class ProcessStripeWebhook
                 throw new PaymentGatewayException('Stripe Checkout Session is niet gekoppeld aan een betaling.');
             }
 
-            $this->validateSession($session, $payment);
-            $this->applyEvent($event->type, $session, $payment);
+            $this->validateSession($object, $payment);
+            $this->applyEvent($event->type, $object, $payment);
 
             $ledger->update([
                 'payment_id' => $payment->id,
+                'processed_at' => now(),
+            ]);
+        });
+    }
+
+    private function handleRefund(Event $event, StripeObject $refund): void
+    {
+        DB::transaction(function () use ($event, $refund): void {
+            $ledger = PaymentWebhookEvent::query()->firstOrCreate([
+                'provider' => 'stripe',
+                'event_id' => $event->id,
+            ], [
+                'event_type' => $event->type,
+            ]);
+            $ledger = PaymentWebhookEvent::query()->lockForUpdate()->findOrFail($ledger->id);
+            if ($ledger->processed_at !== null) {
+                return;
+            }
+
+            $metadata = $refund->metadata ?? null;
+            $operationId = $metadata instanceof StripeObject
+                ? (int) ($metadata->smv_order_operation_id ?? 0)
+                : 0;
+            $operation = OrderOperation::query()
+                ->where('type', OrderOperationType::Refund->value)
+                ->where(function ($query) use ($refund, $operationId): void {
+                    $query->where('provider_reference', $refund->id);
+                    if ($operationId > 0) {
+                        $query->orWhere('id', $operationId);
+                    }
+                })
+                ->lockForUpdate()
+                ->first();
+
+            if ($operation === null || $operation->payment === null) {
+                throw new PaymentGatewayException('Stripe-terugbetaling is niet gekoppeld aan een SMV-handeling.');
+            }
+
+            $paymentIntent = is_string($refund->payment_intent ?? null)
+                ? $refund->payment_intent
+                : ($refund->payment_intent->id ?? null);
+            if ((int) ($refund->amount ?? -1) !== $operation->amount_cents
+                || strtoupper((string) ($refund->currency ?? '')) !== strtoupper($operation->currency)
+                || $paymentIntent !== $operation->payment->provider_payment_id) {
+                Log::warning('Stripe refund reconciliation rejected.', [
+                    'order_operation_id' => $operation->id,
+                    'refund_id' => $refund->id,
+                ]);
+
+                throw new PaymentGatewayException('Stripe-terugbetaling komt niet overeen met de SMV-bestelling.');
+            }
+
+            $providerStatus = (string) ($refund->status ?? 'unknown');
+            $result = new PaymentOperationResult(
+                status: match ($providerStatus) {
+                    'succeeded' => OrderOperationStatus::Succeeded,
+                    'pending' => OrderOperationStatus::Pending,
+                    'failed' => OrderOperationStatus::Failed,
+                    default => OrderOperationStatus::RequiresReview,
+                },
+                provider: 'stripe',
+                providerReference: $refund->id,
+                providerStatus: $providerStatus,
+                failureCode: is_string($refund->failure_reason ?? null)
+                    ? $refund->failure_reason
+                    : (is_string($refund->pending_reason ?? null) ? $refund->pending_reason : null),
+                failureMessage: $providerStatus === 'failed' ? 'Stripe meldde dat de terugbetaling is mislukt.' : null,
+            );
+            $this->reconcileRefund->execute($operation, $result);
+
+            $ledger->update([
+                'payment_id' => $operation->payment_id,
+                'order_operation_id' => $operation->id,
                 'processed_at' => now(),
             ]);
         });

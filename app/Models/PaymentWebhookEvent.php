@@ -12,6 +12,7 @@ class PaymentWebhookEvent extends Model
         'event_id',
         'event_type',
         'payment_id',
+        'order_operation_id',
         'processed_at',
     ];
 
@@ -23,5 +24,10 @@ class PaymentWebhookEvent extends Model
     public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    public function orderOperation(): BelongsTo
+    {
+        return $this->belongsTo(OrderOperation::class);
     }
 }

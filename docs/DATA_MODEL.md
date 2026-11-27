@@ -246,7 +246,8 @@ persisted redundantly:
 
 `effective_priority = entitled package priority + Company priority + Vacancy adjustment`
 
-`EntitledVacancyPackagePriority` supplies the first component only from a non-reversed
+`EntitledVacancyPackagePriority` supplies the first component only from a non-reversed,
+non-review-blocked
 `placement_credits` row whose allocation is activated and whose validity window contains the
 current time. It also verifies Vacancy and Company public eligibility in the correlated SQL
 expression. `placement_package`, Order state and Payment state are not ranking evidence by
@@ -275,12 +276,19 @@ not require credits; they simply receive no package ranking component.
 paid Orders and uses the same idempotent grant action as `ConfirmPayment`. Historical OrderItems
 without the new entitlement snapshots are deliberately not inferred from mutable Package rows.
 
-SMV-117 adds auditable cancellation/refund operations rather than rewriting historical
-Payment attempts. Each operation records Order, authorized operator, reason, requested/actual
-amount, relevant timestamps, action type and provider outcome. Unpaid cancellation and paid
-refund are distinct; Stripe/provider state remains authoritative and the initial refund scope
-is complete refunds. Consumed credits and active Vacancies must remain explicit conflict state,
-not be silently restored or reversed.
+SMV-117 adds `order_operations` rather than rewriting historical Payment attempts. The unique
+Order/type boundary permits one cancellation and one full refund workflow per Order; the unique
+idempotency key and provider/reference pair make retries durable. Each row records Order,
+nullable Payment, operator, mandatory internal reason, requested amount/currency, timestamps,
+action/status, provider outcome/reference and bounded safe failure metadata. The existing
+`payment_webhook_events` ledger may link a refund event to this operation.
+
+`placement_credits.review_required_at` and `review_reason` represent a confirmed financial
+refund whose allocated commercial fulfilment needs a human decision. Such a credit is neither
+available nor rank-bearing, but remains attached to its Vacancy and is not described as fully
+reversed. An unused credit instead receives `reversed_at` and an append-only reversal event.
+Allocated/active cases receive a deduplicated review-required event. No path creates a
+replacement credit, renews a term or changes Vacancy publication.
 
 ## Benelux place reference
 

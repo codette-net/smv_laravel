@@ -42,6 +42,9 @@ Subscribe to:
 - `checkout.session.async_payment_succeeded`
 - `checkout.session.async_payment_failed`
 - `checkout.session.expired`
+- `refund.created`
+- `refund.updated`
+- `refund.failed`
 
 Copy that endpoint's signing secret into `STRIPE_WEBHOOK_SECRET`. The endpoint must remain
 outside browser authentication and CSRF middleware; it authenticates the raw request body with
@@ -126,10 +129,41 @@ Staff retain the existing Filament Order resource. It shows Payment status, prov
 currency, Checkout Session reference, PaymentIntent reference and timestamps. It provides no
 manual paid-state button.
 
+## Cancellation and full refunds
+
+Authorized super-administrators, administrators and editors can cancel an unpaid Order or
+request a complete refund from the Filament Order view. Both actions require an internal
+reason. The reason and safe provider diagnostics remain staff-only; customers see cancelled,
+refund pending, refunded, failed or review wording in their private Order history.
+
+Cancellation first records the operation and then checks the historical payment provider. An
+open unpaid Stripe Checkout Session is expired before the Order becomes cancelled. A completed,
+paid, processing or ambiguous Session leaves the Order payable state unchanged and flags review.
+A later signed payment event can still mark a cancelled Order paid and grant its entitlement;
+the cancellation record then requires staff reconciliation.
+
+A full refund always uses the successful Payment's immutable amount/currency and PaymentIntent.
+The durable operation idempotency key is reused after timeout, so retry cannot issue a second
+refund. A Stripe response with `pending` remains pending; only an authoritative `succeeded`
+Refund object from the API or signed webhook marks Payment and Order refunded. `refund.created`,
+`refund.updated` and `refund.failed` share the existing webhook signature and event-deduplication
+boundary. Out-of-order failure cannot regress succeeded.
+
+Confirmed refunds reverse unused credits. Allocated or active credits become unavailable and
+stop ranking but stay linked and require staff review; Vacancy publication and manual priority
+are unchanged. Partial refunds, self-service, disputes, credit notes and automatic publication
+changes are outside MVP.
+
+For staging, add the three refund events to the test-mode webhook destination. Exercise an
+unpaid cancellation, successful/pending/failed full refund, duplicate event delivery, retry
+after an indeterminate response, unused-credit reversal and active-placement review. Compare
+Order, Payment, operation and credit history before enabling live mode.
+
 ## Deliberate boundary
 
 An eligible paid Order grants placement credits but never publishes, features or approves a
 Vacancy. A safely linked Vacancy receives one credit and remains in its existing draft/pending
 review state; otherwise the credit remains available to its Company. The paid placement term
-starts only when the Vacancy and Company first become publicly eligible. Refunds, cancellation
-and entitlement reversal belong to SMV-117 and are not inferred from local payment edits.
+starts only when the Vacancy and Company first become publicly eligible. Refund/cancellation
+outcomes follow the SMV-117 operation ledger and are never inferred from browser redirects or
+arbitrary local Payment edits.

@@ -12,6 +12,7 @@
     };
     $money = static fn (int $amount): string => '€ '.number_format($amount / 100, 2, ',', '.');
     $latestPayment = $order->payments->first();
+    $latestOperation = $order->operations->first();
     $paymentStatusLabel = match ($latestPayment?->status) {
         \App\Enums\PaymentStatus::Open, \App\Enums\PaymentStatus::Pending => 'In afwachting',
         \App\Enums\PaymentStatus::Paid => 'Betaald',
@@ -20,6 +21,12 @@
         \App\Enums\PaymentStatus::Expired => 'Verlopen',
         \App\Enums\PaymentStatus::Refunded => 'Terugbetaald',
         null => 'Nog niet gestart',
+    };
+    $paymentStatusLabel = $latestOperation?->providerSucceeded() ? 'Terugbetaald' : match ($latestOperation?->status) {
+        \App\Enums\OrderOperationStatus::Requested, \App\Enums\OrderOperationStatus::Pending => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'Terugbetaling in behandeling' : $paymentStatusLabel,
+        \App\Enums\OrderOperationStatus::Failed => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'Terugbetaling mislukt' : $paymentStatusLabel,
+        \App\Enums\OrderOperationStatus::RequiresReview => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'Terugbetaling wordt gecontroleerd' : $paymentStatusLabel,
+        default => $paymentStatusLabel,
     };
 @endphp
 

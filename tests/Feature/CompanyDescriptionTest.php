@@ -101,7 +101,7 @@ test('the public company page defensively renders legacy descriptions without re
 
 test('Filament company editing follows the same server-side description policy', function () {
     $administrator = companyDescriptionUser('admin');
-    $company = Company::factory()->create();
+    $company = Company::factory()->create(['phone' => '+31 20 123 4567']);
 
     $this->actingAs($administrator);
 

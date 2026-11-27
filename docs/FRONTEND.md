@@ -491,6 +491,14 @@ SMV-063 provides the first coherent Dutch content and brand layer:
 
 ### Commercial UI boundaries
 
+The Filament **Bestellingen** detail exposes two authorized Dutch actions: cancel an unpaid
+Order and request a full paid refund. Both use a confirmation modal with mandatory internal
+reason. The detail shows operation status, operator, amount, provider references and related
+credit state, including a clear review state for allocated/active placements. There is still no
+raw paid/refunded status control. Employer/candidate accounts cannot initiate these actions.
+Private customer Order pages show the useful cancelled/refund state without the staff reason or
+safe operational diagnostics.
+
 SMV-050B provides a dedicated staff-only Filament **Vacatureranking** overview rather than
 overloading public or employer Vacancy forms. Its server-paginated table supports 25, 50, 100
 or 250 rows, Vacancy title/reference search, Company/status/package filters, effective sorting,

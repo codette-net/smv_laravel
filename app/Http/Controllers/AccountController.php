@@ -69,6 +69,7 @@ class AccountController extends Controller
         $availableByPackage = $credits
             ->whereNull('vacancy_id')
             ->whereNull('reversed_at')
+            ->whereNull('review_required_at')
             ->countBy('product_code');
 
         return view('account.placements', compact('credits', 'vacancies', 'availableByPackage'));
@@ -98,7 +99,12 @@ class AccountController extends Controller
         $orders = Order::query()
             ->where('user_id', $request->user()->id)
             ->whereHas('company', fn ($query) => $query->where('user_id', $request->user()->id))
-            ->with(['company', 'orderItems.vacancy', 'payments' => fn ($query) => $query->latest('id')])
+            ->with([
+                'company',
+                'orderItems.vacancy',
+                'payments' => fn ($query) => $query->latest('id'),
+                'operations' => fn ($query) => $query->latest('id'),
+            ])
             ->latest('created_at')
             ->latest('id')
             ->paginate(12);

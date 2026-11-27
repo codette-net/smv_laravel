@@ -35,6 +35,16 @@ class OrderPolicy
             && $order->company()->where('user_id', $user->id)->exists();
     }
 
+    public function cancel(User $user, Order $order): bool
+    {
+        return $user->hasRole('editor') || $user->getAllPermissions()->contains('name', 'orders.cancel');
+    }
+
+    public function refund(User $user, Order $order): bool
+    {
+        return $user->hasRole('editor') || $user->getAllPermissions()->contains('name', 'orders.refund');
+    }
+
     public function create(User $user): bool
     {
         return false;

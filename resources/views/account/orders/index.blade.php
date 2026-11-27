@@ -14,6 +14,7 @@
         <div class="mt-8 space-y-5">
             @forelse ($orders as $order)
                 @php
+                    $latestOperation = $order->operations->first();
                     $paymentStatus = match ($order->payments->first()?->status) {
                         \App\Enums\PaymentStatus::Open, \App\Enums\PaymentStatus::Pending => 'betaling in afwachting',
                         \App\Enums\PaymentStatus::Paid => 'betaald',
@@ -22,6 +23,12 @@
                         \App\Enums\PaymentStatus::Expired => 'betaling verlopen',
                         \App\Enums\PaymentStatus::Refunded => 'terugbetaald',
                         null => 'betaling nog niet gestart',
+                    };
+                    $paymentStatus = $latestOperation?->providerSucceeded() ? 'terugbetaald' : match ($latestOperation?->status) {
+                        \App\Enums\OrderOperationStatus::Requested, \App\Enums\OrderOperationStatus::Pending => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'terugbetaling in behandeling' : $paymentStatus,
+                        \App\Enums\OrderOperationStatus::Failed => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'terugbetaling mislukt' : $paymentStatus,
+                        \App\Enums\OrderOperationStatus::RequiresReview => $latestOperation->type === \App\Enums\OrderOperationType::Refund ? 'terugbetaling wordt gecontroleerd' : $paymentStatus,
+                        default => $paymentStatus,
                     };
                 @endphp
                 <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:flex sm:items-center sm:justify-between sm:gap-6">

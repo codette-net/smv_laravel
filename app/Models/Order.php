@@ -64,6 +64,11 @@ class Order extends Model
         return $this->hasMany(PlacementCredit::class);
     }
 
+    public function operations(): HasMany
+    {
+        return $this->hasMany(OrderOperation::class);
+    }
+
     public function vacancies(): BelongsToMany
     {
         return $this->belongsToMany(Vacancy::class, 'order_items');

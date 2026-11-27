@@ -60,6 +60,8 @@ class PlacementCreditResource extends Resource
                     TextEntry::make('activated_at')->label('Geactiveerd')->dateTime()->placeholder('-'),
                     TextEntry::make('expires_at')->label('Verloopt')->dateTime()->placeholder('-'),
                     TextEntry::make('reversed_at')->label('Teruggedraaid')->dateTime()->placeholder('-'),
+                    TextEntry::make('review_required_at')->label('Controle vereist sinds')->dateTime()->placeholder('-'),
+                    TextEntry::make('review_reason')->label('Controlereden')->placeholder('-'),
                 ]),
             Section::make('Auditgeschiedenis')
                 ->schema([

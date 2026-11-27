@@ -16,6 +16,7 @@ class EntitledVacancyPackagePriority implements VacancyPackagePriorityProvider
             FROM placement_credits
             WHERE placement_credits.vacancy_id = {$vacancyTable}.id
               AND placement_credits.reversed_at IS NULL
+              AND placement_credits.review_required_at IS NULL
               AND placement_credits.activated_at IS NOT NULL
               AND placement_credits.activated_at <= ?
               AND placement_credits.expires_at >= ?
