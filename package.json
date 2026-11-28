@@ -5,7 +5,10 @@
     "scripts": {
         "build": "vite build",
         "demo:teaser": "node tests/demo/smv-public-teaser.mjs",
-        "dev": "vite"
+        "dev": "vite",
+        "test:browser": "node tests/Browser/run.mjs",
+        "test:browser:install": "playwright install chromium",
+        "test:browser:staging": "node tests/Browser/run.mjs --staging"
     },
     "devDependencies": {
         "@tailwindcss/typography": "^0.5.20",

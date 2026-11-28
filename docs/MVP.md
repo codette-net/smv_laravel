@@ -266,6 +266,12 @@ contains no production credentials, partner secrets or copied personal data. See
 `docs/ACCEPTANCE_DATASET.md` for the fixture table and scenario guide. The same dataset
 supports SMV-072 and SMV-073; later Order/payment fixtures belong to SMV-110/111.
 
+SMV-072B uses those fixtures in a guarded local SQLite database for real Chromium interaction
+across public, candidate, employer and staff critical paths. It blocks external network calls,
+uses the Fake payment gateway and offers a separate read-only staging command. Chromium smoke
+does not replace the remaining screen-reader, real-device, multi-engine, Stripe test-mode or
+staging operational acceptance described in `docs/BROWSER_SMOKE.md`.
+
 Current Vacancy and Company save totals and rankings are available only to Filament
 staff through aggregate pivot queries. Public save counts, individual saver identities,
 historical save events and behavioural profiles are outside scope.

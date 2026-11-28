@@ -134,3 +134,12 @@ php artisan db:seed --class=Database\Seeders\AcceptanceDemoSeeder
 `.test` accounts and `.invalid` fixture endpoints, and is not called by `DatabaseSeeder`.
 Do not run it against production or a shared database. The fixture accounts and scenario
 references are documented in `docs/ACCEPTANCE_DATASET.md`.
+
+## Browser smoke suite
+
+The Chromium suite is documented in `docs/BROWSER_SMOKE.md`. It owns a guarded SQLite file
+below `storage/framework/testing`, starts its own local Laravel server and must be launched
+through `npm run test:browser`; do not reproduce its `migrate:fresh` command manually against
+another database. Use `npm run test:browser:install` once per machine and `npm run build`
+before release verification. `npm run test:browser:staging` is a separate read-only public
+check and requires `SMV_STAGING_BASE_URL`.

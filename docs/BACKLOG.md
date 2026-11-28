@@ -102,8 +102,8 @@ recovery are deliberately not represented as completed functionality.
 | Ticket | Status | Exact remainder |
 | --- | --- | --- |
 | SMV-070 Frontend consistency pass | **PARTIALLY DONE** | Shared public layout, Tidy-derived cards/controls, responsive navigation, homepage filters, Company pages and static pages are aligned. Final client content/visual sign-off remains; premium-card markup has no persisted listing-tier domain yet. |
-| SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. The source-level audit now covers the custom listbox, account menus and reduced-motion policy; browser-level keyboard, screen-reader and breakpoint evidence remains required before this can be marked DONE. |
-| SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | Broad Pest feature coverage exists, but there is no committed browser-level critical-path/cross-browser smoke suite or release matrix. SMV-109 is the reusable data prerequisite. |
+| SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. SMV-072B adds Chromium evidence at 320/375/768/1024/1440px plus keyboard menu/listbox and reduced-motion checks; manual screen-reader, zoom, real-device and wider browser-matrix evidence remains required. |
+| SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | SMV-072B adds a guarded isolated Playwright/Chromium suite for critical public, candidate, employer, staff, analytics, responsive and keyboard paths plus a separate read-only staging command. Keep partial until manual staging, screen-reader/real-device and production browser-matrix checks are retained as release evidence. |
 | SMV-072A User roles, account types and authorization consistency | **DONE** | Company ownership/activity now defines public account context, while bounded Spatie staff roles exclusively define panel authorization. The legacy `users.role` value remains read-only compatibility data, User administration prevents arbitrary roles and admin-to-super-admin escalation, and acceptance fixtures include a dual-context account. |
 | SMV-073 Migration dry run | **NOT STARTED** | Needs the SMV-109 production-like dataset, production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, SMV-109 acceptance data, migration dry run and operational configuration. |
@@ -558,7 +558,12 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
 - **Scope:** homepage search, Vacancy filtering/detail/application, Company/Blog navigation, admin login and one import preview/run/history happy path.
 - **Dependencies:** SMV-062 and SMV-075 preferably complete; SMV-109 supplies the reusable
   roles, records and lifecycle states for deterministic browser scenarios.
-- **Acceptance:** repeatable staging/local smoke checklist or automated browser suite with no console/runtime errors.
+- **Implemented:** SMV-072B provides the repeatable local Playwright/Chromium suite described
+  in `BROWSER_SMOKE.md`, with guarded SQLite reset, deterministic fixtures, failure traces and
+  an optional non-mutating staging command.
+- **Acceptance remaining:** retain a clean full browser/Pest run, then complete manual shared-
+  staging, screen-reader/zoom/real-device and production browser-matrix evidence. Real Stripe
+  test-mode, destructive staff actions and live imports remain separate manual checks.
 
 #### SMV-073 — Production-like migration dry run
 
