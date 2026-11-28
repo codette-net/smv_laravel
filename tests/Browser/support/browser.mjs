@@ -6,7 +6,7 @@ import { applicationEnvironment, phpBinary, repositoryRoot } from './environment
 const runtimeState = new WeakMap();
 
 export async function guardBrowserRuntime(page) {
-    const state = { errors: [], failedRequests: [], serverErrors: [], missingAssets: [], viteAssets: new Set() };
+    const state = { allowedAborts: [], errors: [], failedRequests: [], serverErrors: [], missingAssets: [], viteAssets: new Set() };
     const baseOrigin = new URL(
         process.env.SMV_BROWSER_MODE === 'staging'
             ? process.env.SMV_STAGING_BASE_URL
@@ -33,7 +33,13 @@ export async function guardBrowserRuntime(page) {
     });
     page.on('requestfailed', (request) => {
         if (request.url().startsWith(baseOrigin)) {
-            state.failedRequests.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText}`);
+            const error = request.failure()?.errorText;
+            const expectedAbort = error === 'net::ERR_ABORTED'
+                && state.allowedAborts.some((pattern) => pattern.test(request.url()));
+
+            if (! expectedAbort) {
+                state.failedRequests.push(`${request.method()} ${request.url()}: ${error}`);
+            }
         }
     });
     page.on('response', (response) => {
@@ -51,6 +57,10 @@ export async function guardBrowserRuntime(page) {
             state.serverErrors.push(`${response.status()} ${response.request().method()} ${url}`);
         }
     });
+}
+
+export function allowAbortedRequest(page, pattern) {
+    runtimeState.get(page)?.allowedAborts.push(pattern);
 }
 
 export function assertBrowserRuntime(page) {

@@ -164,3 +164,8 @@ The SMV-072B Playwright runner seeds this dataset only into its guarded SQLite d
 then adds browser-only public Vacancy clones so pagination has more than one page. Those clones
 are not part of `AcceptanceDemoSeeder` and never affect manual/staging fixture counts. See
 `docs/BROWSER_SMOKE.md` for commands, isolation rules and covered scenarios.
+
+SMV-072C reuses the stable `Business developer externe sollicitatielink` and `Accountmanager
+interne sollicitaties` fixtures for homepage live-search assertions. The browser suite checks
+desktop and 375 px mobile scroll/focus behavior plus overlapping responses; it does not add or
+modify acceptance records for this regression.

@@ -1,5 +1,6 @@
 import { expect, test } from 'playwright/test';
 import {
+    allowAbortedRequest,
     analyticsCounts,
     assertBrowserRuntime,
     expectNoHorizontalOverflow,
@@ -37,10 +38,17 @@ test('public visitor can navigate the critical content routes', async ({ page })
 
 test('vacancy search, disclosure, clear action and pagination work', async ({ page }) => {
     await page.goto('/vacatures');
+    const documentMarker = await page.evaluate(() => {
+        window.__smvDocumentMarker = crypto.randomUUID();
+
+        return window.__smvDocumentMarker;
+    });
     const search = page.getByRole('searchbox', { name: 'Zoeken' });
     await search.fill('Business developer');
-    await expect(page).toHaveURL(/zoek=Business(?:\+|%20)developer/);
-    await expect(page.getByText('Business developer externe sollicitatielink').first()).toBeVisible();
+    await expect(page).toHaveURL(/zoek=Business(?:\+|%20)developer/, { timeout: 30_000 });
+    await expect(page.getByText('Business developer externe sollicitatielink').first()).toBeVisible({ timeout: 30_000 });
+    await expect(search).toBeFocused();
+    expect(await page.evaluate(() => window.__smvDocumentMarker)).toBe(documentMarker);
 
     const disclosure = page.getByRole('button', { name: /Meer filters/ });
     await disclosure.click();
@@ -57,6 +65,102 @@ test('vacancy search, disclosure, clear action and pagination work', async ({ pa
     await pageTwo.click();
     await expect(page).toHaveURL(/page=2/);
     await expect(page.getByRole('heading', { name: /vacatures/i }).first()).toBeVisible();
+});
+
+for (const viewport of [
+    { name: 'desktop', width: 1280, height: 900 },
+    { name: 'mobile', width: 375, height: 800 },
+]) {
+    test(`homepage live search retains scroll and focus on ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: viewport.height });
+        await page.goto('/');
+
+        const documentMarker = await page.evaluate(() => {
+            window.__smvDocumentMarker = crypto.randomUUID();
+
+            return window.__smvDocumentMarker;
+        });
+
+        const search = page.getByRole('searchbox', { name: 'Zoeken' });
+        await search.scrollIntoViewIfNeeded();
+        await search.evaluate((element) => window.scrollTo(0, element.getBoundingClientRect().top + window.scrollY - 120));
+        const initialScroll = await page.evaluate(() => window.scrollY);
+
+        await search.pressSequentially('Business developer', { delay: 60 });
+        await expect(page).toHaveURL(/zoek=Business(?:\+|%20)developer/, { timeout: 30_000 });
+        await expect(page.getByText('Business developer externe sollicitatielink').first()).toBeVisible({ timeout: 30_000 });
+        await expect(search).toBeFocused();
+        await expect(search).toHaveValue('Business developer');
+        await expect.poll(async () => Math.abs((await page.evaluate(() => window.scrollY)) - initialScroll)).toBeLessThanOrEqual(8);
+        expect(await page.evaluate(() => window.__smvDocumentMarker)).toBe(documentMarker);
+
+        await page.getByRole('link', { name: 'Wis filters' }).first().click();
+        await expect(page).toHaveURL(/\/$/);
+        await expect(search).toHaveValue('');
+
+        await search.fill('Accountmanager');
+        await search.press('Enter');
+        await expect(page).toHaveURL(/zoek=Accountmanager/, { timeout: 30_000 });
+        await expect(page.getByText('Accountmanager interne sollicitaties').first()).toBeVisible({ timeout: 30_000 });
+        await expect(search).toBeFocused();
+        await expect.poll(async () => Math.abs((await page.evaluate(() => window.scrollY)) - initialScroll)).toBeLessThanOrEqual(8);
+        expect(await page.evaluate(() => window.__smvDocumentMarker)).toBe(documentMarker);
+
+        if (viewport.name === 'desktop') {
+            await page.goBack();
+            await expect(search).toHaveValue('');
+            await page.goForward();
+            await expect(search).toHaveValue('Accountmanager');
+            await expect(page.getByText('Accountmanager interne sollicitaties').first()).toBeVisible({ timeout: 30_000 });
+        }
+    });
+}
+
+test('a newer homepage search wins when an older response is delayed', async ({ page }) => {
+    allowAbortedRequest(page, /\?zoek=Business(?:&|%26)sort=nieuwste/);
+    let releaseFirstRequest;
+    let markFirstRequestHandled;
+    const firstRequestGate = new Promise((resolve) => { releaseFirstRequest = resolve; });
+    const firstRequestHandled = new Promise((resolve) => { markFirstRequestHandled = resolve; });
+
+    await page.route('**/*', async (route) => {
+        const url = new URL(route.request().url());
+
+        if (url.pathname === '/' && url.searchParams.get('zoek') === 'Business') {
+            await firstRequestGate;
+
+            try {
+                await route.continue();
+            } catch {
+                // The production AbortController is expected to cancel this stale request.
+            } finally {
+                markFirstRequestHandled();
+            }
+
+            return;
+        }
+
+        await route.continue();
+    });
+
+    await page.goto('/');
+    const search = page.getByRole('searchbox', { name: 'Zoeken' });
+    const firstRequest = page.waitForRequest((request) => {
+        const url = new URL(request.url());
+
+        return url.pathname === '/' && url.searchParams.get('zoek') === 'Business';
+    });
+
+    await search.fill('Business');
+    await firstRequest;
+    await search.fill('Accountmanager');
+    await expect(page).toHaveURL(/zoek=Accountmanager/);
+    await expect(page.getByText('Accountmanager interne sollicitaties').first()).toBeVisible();
+
+    releaseFirstRequest();
+    await firstRequestHandled;
+    await expect(search).toHaveValue('Accountmanager');
+    await expect(page.getByText('Accountmanager interne sollicitaties').first()).toBeVisible();
 });
 
 test('vacancy and company detail routes expose their intended public content', async ({ page }) => {

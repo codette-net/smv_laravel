@@ -22,6 +22,15 @@ class HomeController extends Controller
         $hasAdditionalFilters = $secondaryFilterCount > 0
             || $sort !== 'nieuwste'
             || $request->boolean('meer_filters');
+        $vacancies = $vacancySearch
+            ->query($filters, $sort, ! $vacancySearch->hasExplicitSort($request))
+            ->paginate(6)
+            ->withQueryString();
+
+        if ($request->header('X-SMV-Search-Results') === '1') {
+            return view('home.partials.vacancy-results', compact('vacancies', 'hasFilters'));
+        }
+
         $latestBlogPosts = BlogPost::query()
             ->publiclyVisible()
             ->with([
@@ -36,10 +45,7 @@ class HomeController extends Controller
         $companyCategoryConstraint = fn ($query) => $query->where('type', CategoryType::company_category->value);
 
         return view('home', [
-            'vacancies' => $vacancySearch
-                ->query($filters, $sort, ! $vacancySearch->hasExplicitSort($request))
-                ->paginate(6)
-                ->withQueryString(),
+            'vacancies' => $vacancies,
             'featuredCompanies' => Company::query()
                 ->publiclyVisible()
                 ->withSavedStateFor($request->user())

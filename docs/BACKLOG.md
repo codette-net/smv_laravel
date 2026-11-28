@@ -105,6 +105,7 @@ recovery are deliberately not represented as completed functionality.
 | SMV-071 Responsive/accessibility pass | **PARTIALLY DONE** | Responsive layouts, labels, focus styles and keyboard hooks exist. SMV-072B adds Chromium evidence at 320/375/768/1024/1440px plus keyboard menu/listbox and reduced-motion checks; manual screen-reader, zoom, real-device and wider browser-matrix evidence remains required. |
 | SMV-072 End-to-end smoke tests | **PARTIALLY DONE** | SMV-072B adds a guarded isolated Playwright/Chromium suite for critical public, candidate, employer, staff, analytics, responsive and keyboard paths plus a separate read-only staging command. Keep partial until manual staging, screen-reader/real-device and production browser-matrix checks are retained as release evidence. |
 | SMV-072A User roles, account types and authorization consistency | **DONE** | Company ownership/activity now defines public account context, while bounded Spatie staff roles exclusively define panel authorization. The legacy `users.role` value remains read-only compatibility data, User administration prevents arbitrary roles and admin-to-super-admin escalation, and acceptance fixtures include a dual-context account. |
+| SMV-072C Homepage live-search scroll/focus regression | **PARTIALLY DONE** | The shared homepage/directory filter now progressively fetches the existing server-rendered result region after 350 ms, preserves scroll/focus, synchronizes history and rejects stale responses. Focused desktop/mobile Playwright coverage was added after the 27 November Chrome/Windows tester report; shared-staging confirmation remains. |
 | SMV-073 Migration dry run | **NOT STARTED** | Needs the SMV-109 production-like dataset, production-like data/export inputs and deployment environment. |
 | SMV-074 Production launch checklist | **NOT STARTED** | Depends on content, redirects, staging crawl, SMV-109 acceptance data, migration dry run and operational configuration. |
 | SMV-109 Production-like acceptance dataset | **DONE** | `AcceptanceDemoSeeder` provides guarded, synthetic, repeatable role/company/Vacancy/import/history/application/save/click/detail-view fixtures for SMV-072 and SMV-073 without production credentials or partner endpoints. |
@@ -319,7 +320,6 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
   reinstates, extends, republishes or changes payment state automatically.
 - **Compatibility:** no ranking query, entitlement transition, publication lifecycle, schema or
   payment-provider behavior changed.
-
 #### SMV-118 — Promotional Vacancy banner and UI/UX polish
 
 - **Status:** P2 — RESERVED FOR UI/UX ROUND
@@ -331,7 +331,9 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
   image conventions.
 - **Safety:** preserve the normal Vacancy detail URL, public visibility, application destination
   and outbound tracking. Keep banner placement independent from commercial score,
-  `is_featured` and Superior; never promise it automatically with a package.
+  `is_featured` and Superior; never promise it automatically with a package. Preserve the
+  SMV-072C live-search result-region replacement, focus, scroll and URL behavior when banners
+  are later added to search results.
 - **Acceptance:** inactive/out-of-window/non-public Vacancies never render as banners; ordinary
   cards remain unchanged; accessible responsive output and existing click/detail behavior are
   covered in the later consolidated UI/UX/browser pass.
@@ -564,6 +566,25 @@ SMV-114 and SMV-115 remain valuable but less launch-critical.
 - **Acceptance remaining:** retain a clean full browser/Pest run, then complete manual shared-
   staging, screen-reader/zoom/real-device and production browser-matrix evidence. Real Stripe
   test-mode, destructive staff actions and live imports remain separate manual checks.
+
+#### SMV-072C — Homepage live-search scroll and focus regression
+
+- **Status:** PARTIALLY DONE; implementation and regression coverage are ready for review,
+  while shared-staging Chrome/Windows confirmation remains.
+- **Observation:** on 27 November 2026 an external tester scrolled to the homepage Vacancy
+  search and typed a query in Chrome on Windows. The debounced handler submitted the normal GET
+  form through `requestSubmit()`, so every settled query replaced the whole document, returned
+  the viewport to the hero and destroyed input focus.
+- **Resolution:** the one shared homepage/directory filter keeps its server-rendered GET fallback
+  and existing `VacancySearch` query, but JavaScript-enhanced sessions request and replace only
+  the existing results partial. The 350 ms input debounce preserves focus/caret and scroll,
+  pushes successful query state into browser history, handles back/forward, announces result
+  counts and aborts/ignores stale responses.
+- **Tests:** focused Playwright checks cover desktop and 375 px mobile search, clear and Enter,
+  absence of document navigation, scroll tolerance, focus/value retention and an overlapping
+  delayed response. Feature tests cover both fragment endpoints and the no-JavaScript GET form.
+- **Out of scope:** result/card redesign, a second search query implementation, changed public
+  routes or SMV-118 banner presentation.
 
 #### SMV-073 — Production-like migration dry run
 

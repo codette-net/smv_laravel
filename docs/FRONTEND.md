@@ -404,6 +404,16 @@ search/cards, Vacancy detail/Application form and employer account/Order/credit 
 drives Escape focus restoration, reduced motion and the custom listbox with the keyboard. A
 manual screen-reader/zoom/real-device pass and the wider production browser matrix remain
 release prerequisites; see `docs/BROWSER_SMOKE.md`.
+SMV-072C resolves the homepage search issue observed by an external Chrome/Windows tester on
+27 November 2026. The shared Vacancy filter previously called `requestSubmit()` after its input
+debounce, replacing the full homepage and returning the viewport to the hero. JavaScript now
+enhances the unchanged GET form by requesting the existing Home/Vacancy controller query and
+replacing only the existing result partial after 350 ms. Successful state is reflected in the
+URL/history; back/forward is reapplied to the form; active input focus, current caret and scroll
+context stay undisturbed; stale responses cannot overwrite a newer query; and a polite status
+message announces the new result count. Without JavaScript, the same form, routes and complete
+server-rendered responses remain available. SMV-118 may render a future banner inside this
+result region without adding a second search path or changing this interaction contract.
 Vacancy cards use a top-right bookmark icon with the shared white tooltip pattern; the
 public detail page retains the explicit text control. Company cards use the equivalent
 icon for separately persisted Company-profile saves. State is loaded in bulk with the
