@@ -159,3 +159,8 @@ idempotent application actions as production without contacting Stripe.
 
 This dataset is the shared manual/browser prerequisite for SMV-072 and the disposable
 production-like data prerequisite for the SMV-073 migration/dry-run rehearsal.
+
+The SMV-072B Playwright runner seeds this dataset only into its guarded SQLite database and
+then adds browser-only public Vacancy clones so pagination has more than one page. Those clones
+are not part of `AcceptanceDemoSeeder` and never affect manual/staging fixture counts. See
+`docs/BROWSER_SMOKE.md` for commands, isolation rules and covered scenarios.

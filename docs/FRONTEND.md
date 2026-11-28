@@ -399,8 +399,11 @@ for the no-JavaScript form path and focuses the selected option (or first option
 with click, Enter, Space or either arrow key. The existing reduced-motion media query now also
 limits global transitions and animations. These behaviors are covered by
 `tests/Feature/AccessibilityRegressionTest.php` and the relevant public/account feature tests.
-This is source/test evidence only; a browser-level keyboard, screen-reader and breakpoint
-check at 320/375/768/1024px and desktop remains a release prerequisite.
+SMV-072B now adds Chromium evidence at 320/375/768/1024/1440px for the public menu,
+search/cards, Vacancy detail/Application form and employer account/Order/credit pages. It also
+drives Escape focus restoration, reduced motion and the custom listbox with the keyboard. A
+manual screen-reader/zoom/real-device pass and the wider production browser matrix remain
+release prerequisites; see `docs/BROWSER_SMOKE.md`.
 Vacancy cards use a top-right bookmark icon with the shared white tooltip pattern; the
 public detail page retains the explicit text control. Company cards use the equivalent
 icon for separately persisted Company-profile saves. State is loaded in bulk with the
