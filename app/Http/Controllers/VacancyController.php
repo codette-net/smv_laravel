@@ -31,16 +31,22 @@ class VacancyController extends Controller
 
         $hasFilters = collect($filters)->contains(fn (string $value): bool => filled($value)) || $sort !== 'nieuwste';
         $page = max(1, $request->integer('page', 1));
+        $vacancies = $vacancies->paginate(12)->withQueryString();
+        $activeFilters = $this->activeFilters($filters, $sort);
+
+        if ($request->header('X-SMV-Search-Results') === '1') {
+            return view('vacancies.partials.search-results', compact('vacancies', 'activeFilters'));
+        }
 
         return view('vacancies.index', [
-            'vacancies' => $vacancies->paginate(12)->withQueryString(),
+            'vacancies' => $vacancies,
             'filters' => $filters,
             'sort' => $sort,
             'sortOptions' => VacancyFilterOptions::SORTS,
             'locations' => $filterOptions->locations(),
             'taxonomyOptions' => $filterOptions->taxonomyOptions(),
             'companies' => $filterOptions->companies(),
-            'activeFilters' => $this->activeFilters($filters, $sort),
+            'activeFilters' => $activeFilters,
             'hasFilters' => $hasFilters,
             'hasAdditionalFilters' => $secondaryFilterCount > 0 || $sort !== 'nieuwste' || $request->boolean('meer_filters'),
             'secondaryFilterCount' => $secondaryFilterCount,

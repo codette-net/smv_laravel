@@ -74,6 +74,21 @@ local state-changing command at staging.
   detail/Application pages, employer account/Order/credit pages, overflow, Escape focus return,
   reduced motion and keyboard operation of the custom Company listbox.
 
+### Homepage live-search regression (SMV-072C)
+
+The 27 November 2026 Chrome/Windows acceptance session exposed a gap in the original smoke
+contract: the homepage input debounce called `requestSubmit()`, causing a full GET navigation
+back to the hero after the tester had scrolled to the Vacancy results. The shared homepage and
+`/vacatures` filter now progressively requests the same server-rendered results region after
+350 ms. Direct GET URLs and normal no-JavaScript form submission remain the fallback.
+
+`tests/Browser/public.spec.mjs` now exercises the homepage at desktop and 375 px mobile widths.
+It records scroll position, types with realistic key delays, verifies matching results without a
+main-frame navigation, checks focus/value retention and a small scroll tolerance, clears the
+query, and submits with Enter. A delayed first response followed by a newer query verifies that
+abort/sequence protection prevents stale results from winning. Keep a manual Chrome/Windows
+check on shared staging because the original observation came from that environment.
+
 ## Remaining manual acceptance
 
 - Screen-reader passes with NVDA/VoiceOver, including announcements, errors and Filament
@@ -81,6 +96,7 @@ local state-changing command at staging.
 - Visual checks for text overlap, focus visibility, stacking and modal behavior across actual
   phones/tablets and at browser zoom.
 - Firefox/WebKit or the production browser matrix; the committed automated engine is Chromium.
+- Shared-staging confirmation of the SMV-072C homepage scroll/focus fix in Chrome on Windows.
 - Shared staging access/runtime, production-like mail, real Stripe test-mode Checkout/webhooks,
   refunds and live operational imports.
 - Staff execution of approval, ranking bulk updates and destructive Order actions remains

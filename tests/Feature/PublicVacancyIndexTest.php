@@ -81,6 +81,22 @@ test('the vacancy index searches titles and company names', function () {
         ->assertDontSee('Marketing specialist');
 });
 
+test('live-search requests reuse the filtered vacancy results partial', function () {
+    $company = publicListingCompany();
+    publicListingVacancy($company, ['title' => 'Asynchroon zoekresultaat']);
+    publicListingVacancy($company, ['title' => 'Niet passend resultaat']);
+
+    $this->withHeader('X-SMV-Search-Results', '1')
+        ->get(route('vacancies.index', ['zoek' => 'Asynchroon']))
+        ->assertOk()
+        ->assertViewIs('vacancies.partials.search-results')
+        ->assertSee('data-vacancy-results', false)
+        ->assertSee('data-result-count="1"', false)
+        ->assertSee('Asynchroon zoekresultaat')
+        ->assertDontSee('Niet passend resultaat')
+        ->assertDontSee('Vind jouw volgende vacature');
+});
+
 test('city filtering works independently and together with search', function () {
     $company = publicListingCompany();
     publicListingVacancy($company, ['title' => 'Accountmanager Utrecht', 'location' => 'Utrecht']);

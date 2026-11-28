@@ -120,8 +120,9 @@ test('the homepage applies submitted vacancy filters and keeps its debounced sea
         ->assertSee('value="accountmanager"', false)
         ->assertSee('href="'.route('home').'">Wis filters</a>', false)
         ->assertSee('action="'.route('home').'"', false)
-        ->assertSee('x-on:input.debounce.500ms=', false)
-        ->assertSee('requestSubmit()', false)
+        ->assertSee('x-on:input.debounce.350ms="submitSearch()"', false)
+        ->assertSee('x-data="vacancyLiveSearch(', false)
+        ->assertDontSee('requestSubmit()', false)
         ->assertDontSee('action="'.route('vacancies.index').'"', false);
 });
 
@@ -133,7 +134,7 @@ test('the homepage keeps additional filters collapsible and opens them only for 
         ->assertSee('id="aanvullende-filters"', false)
         ->assertSee('<details class="min-w-0 grow"', false)
         ->assertSee('filtersOpen: false', false)
-        ->assertSee('loading: false', false)
+        ->assertSee('x-data="vacancyLiveSearch(', false)
         ->assertSee('aria-controls="aanvullende-filters" x-bind:aria-expanded="filtersOpen.toString()"', false);
 
     $this->get(route('home', ['zoek' => 'Accountmanager']))
@@ -158,7 +159,8 @@ test('the homepage keeps additional filters collapsible and opens them only for 
         ->assertSee('1 actieve aanvullende filtergroepen')
         ->assertSee('href="'.route('home').'">Wis filters</a>', false)
         ->assertSee('x-on:change=', false)
-        ->assertSee('requestSubmit()', false);
+        ->assertSee('submitSearch()', false)
+        ->assertDontSee('requestSubmit()', false);
 });
 
 test('homepage result pagination preserves submitted query parameters', function () {
@@ -215,14 +217,30 @@ test('the public account menu shows the dashboard link with panel access', funct
         ->assertSee('action="'.route('logout').'"', false);
 });
 
-test('the vacancy index retains its auto-submit filter interaction', function () {
+test('the vacancy index progressively enhances its shared live-search filter interaction', function () {
     $this->get(route('vacancies.index'))
         ->assertOk()
         ->assertSee('action="'.route('vacancies.index').'"', false)
+        ->assertSee('method="GET"', false)
         ->assertSee('<select class="form-select w-full" id="locatie"', false)
-        ->assertSee('requestSubmit()', false)
+        ->assertSee('x-on:input.debounce.350ms="submitSearch()"', false)
+        ->assertSee('role="status" aria-live="polite"', false)
+        ->assertDontSee('requestSubmit()', false)
         ->assertSee('id="aanvullende-filters"', false)
         ->assertSee('Meer filters');
+});
+
+test('homepage live-search requests return only the existing results region', function () {
+    homepageSearchVacancy('Live homepage resultaat');
+
+    $this->withHeader('X-SMV-Search-Results', '1')
+        ->get(route('home', ['zoek' => 'Live homepage']))
+        ->assertOk()
+        ->assertViewIs('home.partials.vacancy-results')
+        ->assertSee('data-vacancy-results', false)
+        ->assertSee('data-result-count="1"', false)
+        ->assertSee('Live homepage resultaat')
+        ->assertDontSee('Sales- en marketingvacatures zonder de ruis');
 });
 
 test('homepage and vacancy listing share compensation filter semantics while preserving their routes', function () {
